@@ -1,10 +1,10 @@
 # Python Package
 
 The Python runtime package is `forma-lang`, with source under
-`packages/forma-python/src/forma`. It exports `FormaRuntime` and
-`StaticProvider` from `forma`. It also exports `ModelProvider` for typing custom
-adapters. `FormaRuntime.run_source` accepts source text, an input dictionary,
-and a source name, then returns a `FormaResult` dataclass.
+`packages/forma-python/src/forma`. It exports `FormaRuntime`, `StaticProvider`,
+and `HttpJsonProvider` from `forma`. It also exports `ModelProvider` for typing
+custom adapters. `FormaRuntime.run_source` accepts source text, an input
+dictionary, and a source name, then returns a `FormaResult` dataclass.
 
 ## Deterministic Runtime
 
@@ -78,6 +78,19 @@ request formatting.
 
 `run_source` executes the first task in a source string. `run_task` executes a
 specific named task.
+
+`HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the
+Forma instruction, input values, permissions, and model name as JSON:
+
+```python
+runtime = FormaRuntime(
+    model_provider=HttpJsonProvider(
+        endpoint=os.environ["MODEL_ENDPOINT"],
+        api_key=os.environ.get("MODEL_API_KEY"),
+        model=os.environ.get("MODEL_NAME", "example-model"),
+    )
+)
+```
 
 ## Generated Bindings
 

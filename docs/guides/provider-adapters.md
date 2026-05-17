@@ -202,3 +202,59 @@ python -m pytest packages/forma-python/tests/test_runtime.py -q
 
 Use `StaticProvider` for deterministic tests. Real provider adapters should
 return values that satisfy the task `output` block and `verify` expressions.
+
+## HTTP JSON Provider
+
+`HttpJsonProvider` is the first provider-adapter kit piece. It is dependency
+light: the host configures an endpoint, model name, and optional API key. The
+provider posts the Forma instruction, input values, and permissions as JSON, and
+expects a structured JSON response with an `output` object.
+
+```typescript
+import { FormaRuntime, HttpJsonProvider } from "@forma-lang/forma";
+
+const runtime = new FormaRuntime({
+  modelProvider: new HttpJsonProvider({
+    endpoint: process.env.MODEL_ENDPOINT ?? "",
+    apiKey: process.env.MODEL_API_KEY,
+    model: process.env.MODEL_NAME ?? "example-model",
+  }),
+});
+```
+
+```python
+from forma import FormaRuntime, HttpJsonProvider
+
+runtime = FormaRuntime(
+    model_provider=HttpJsonProvider(
+        endpoint=os.environ["MODEL_ENDPOINT"],
+        api_key=os.environ.get("MODEL_API_KEY"),
+        model=os.environ.get("MODEL_NAME", "example-model"),
+    )
+)
+```
+
+Request body:
+
+```json
+{
+  "model": "example-model",
+  "instruction": "Review the supplied code diff.",
+  "input": {
+    "diff": "..."
+  },
+  "permissions": ["read", "search", "test"]
+}
+```
+
+Response body:
+
+```json
+{
+  "output": {
+    "summary": "No issues found.",
+    "finding_count": 0,
+    "clean": true
+  }
+}
+```

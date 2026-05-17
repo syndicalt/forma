@@ -1,5 +1,5 @@
 from .bindings import generate_python_bindings
-from .provider import ModelProvider, PermissionTools, StaticProvider
+from .provider import HttpJsonProvider, ModelProvider, PermissionTools, StaticProvider
 from .runtime import FormaRuntime
 from .types import FormaProgram, FormaResult, FormaTask, FormaValue
 
@@ -9,6 +9,7 @@ __all__ = [
     "FormaRuntime",
     "FormaTask",
     "FormaValue",
+    "HttpJsonProvider",
     "ModelProvider",
     "PermissionTools",
     "StaticProvider",

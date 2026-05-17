@@ -2,7 +2,8 @@
 
 The TypeScript runtime package is `@forma-lang/forma`, with source under
 `packages/forma-typescript/src`. It exports `FormaRuntime`, `StaticProvider`,
-`ModelProvider`, and public result and AST types from `src/index.ts`.
+`HttpJsonProvider`, `ModelProvider`, and public result and AST types from
+`src/index.ts`.
 
 ## Deterministic Runtime
 
@@ -78,6 +79,19 @@ request formatting.
 
 `runSource` executes the first task in a source string. `runTask` executes a
 specific named task.
+
+`HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the
+Forma instruction, input values, permissions, and model name as JSON:
+
+```ts
+const runtime = new FormaRuntime({
+  modelProvider: new HttpJsonProvider({
+    endpoint: process.env.MODEL_ENDPOINT ?? "",
+    apiKey: process.env.MODEL_API_KEY,
+    model: process.env.MODEL_NAME ?? "example-model",
+  }),
+});
+```
 
 ## Generated Bindings
 

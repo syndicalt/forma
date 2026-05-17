@@ -57,6 +57,7 @@ The current MVP provides:
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
+- HTTP JSON provider adapters for TypeScript and Python.
 - First coding-agent conformance task: `review_diff`.
 - Duplicate task name diagnostics.
 - Simple `verify` expressions.
@@ -89,8 +90,10 @@ Purpose: make real model execution easy without making Forma own credentials.
 
 Deliverables:
 
-- Optional TypeScript adapter package for a production model provider.
-- Optional Python adapter package for the same provider.
+- Optional TypeScript adapter package for a production model provider beyond
+  the current HTTP JSON adapter.
+- Optional Python adapter package for the same provider beyond the current HTTP
+  JSON adapter.
 - Common adapter interface for model name, temperature, response format, and
   timeout settings.
 - Test adapter that records requests and returns fixture responses.
