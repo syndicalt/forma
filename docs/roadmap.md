@@ -80,6 +80,8 @@ The current MVP provides:
 - Host read, search, test, and edit tool mapping through runtime tools.
 - HTTP JSON and OpenAI Responses provider adapters for TypeScript and Python.
 - CLI live evaluation mode through `--provider http-json`.
+- CLI provider profiles for reusable provider, endpoint, model, and key-env
+  configuration.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
 - Duplicate task name diagnostics.
@@ -206,8 +208,7 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: generate richer Python models beyond dataclasses
    for nested `.forma` output blocks.
-2. Provider adapter kit: add configurable provider profiles and optional
-   production provider packages.
+2. Provider adapter kit: add optional production provider packages.
 3. Registry and versioning: define the first task-package metadata and
    compatibility policy document.
 

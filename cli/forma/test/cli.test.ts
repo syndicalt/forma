@@ -358,6 +358,67 @@ describe("forma cli", () => {
     }
   });
 
+  it("evaluates a fixture with provider profile configuration", async () => {
+    const originalFetch = globalThis.fetch;
+    const originalApiKey = process.env.FORMA_TEST_MODEL_KEY;
+    const dir = await mkdtemp(join(tmpdir(), "forma-provider-profile-"));
+    const profile = join(dir, "provider.json");
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    process.env.FORMA_TEST_MODEL_KEY = "profile-secret";
+    await writeFile(profile, JSON.stringify({
+      provider: "http-json",
+      endpoint: "https://profile.example/v1/agent",
+      model: "profile-model",
+      apiKeyEnv: "FORMA_TEST_MODEL_KEY",
+    }));
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          output: {
+            summary: "Profile provider reviewed the diff.",
+            findings: [],
+            clean: true,
+          },
+        }),
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "eval",
+        "../../packages/forma-core/conformance/review_diff.json",
+        "--provider-profile",
+        profile,
+      ]);
+      const report = JSON.parse(result.stdout);
+      const body = JSON.parse(String(requests[0]?.init.body));
+
+      expect(result.exitCode).toBe(1);
+      expect(report.metadata.provider).toBe("http-json");
+      expect(report.result.output).toEqual({
+        summary: "Profile provider reviewed the diff.",
+        findings: [],
+        clean: true,
+      });
+      expect(requests[0]?.url).toBe("https://profile.example/v1/agent");
+      expect(requests[0]?.init.headers).toEqual({
+        "content-type": "application/json",
+        authorization: "Bearer profile-secret",
+      });
+      expect(body.model).toBe("profile-model");
+    } finally {
+      globalThis.fetch = originalFetch;
+      if (originalApiKey === undefined) {
+        delete process.env.FORMA_TEST_MODEL_KEY;
+      } else {
+        process.env.FORMA_TEST_MODEL_KEY = originalApiKey;
+      }
+    }
+  });
+
   it("evaluates a fixture with an OpenAI Responses provider", async () => {
     const originalFetch = globalThis.fetch;
     const requests: Array<{ url: string; init: RequestInit }> = [];

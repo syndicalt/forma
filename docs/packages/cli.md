@@ -96,6 +96,27 @@ forma eval packages/forma-core/conformance/review_diff.json \
 The HTTP provider ignores `fakeProviderOutput`, sends the fixture input to the
 configured endpoint, and compares the live output with `expectedResult`.
 
+Provider settings can also live in a JSON profile so CI and local runs use the
+same model configuration without putting secrets in the fixture:
+
+```json
+{
+  "provider": "http-json",
+  "endpoint": "https://model.example/v1/agent",
+  "model": "example-model",
+  "apiKeyEnv": "MODEL_API_KEY"
+}
+```
+
+```bash
+forma eval packages/forma-core/conformance/review_diff.json \
+  --provider-profile ./forma.provider.json
+```
+
+The profile supports `provider`, `endpoint`, `model`, `apiKey`, and `apiKeyEnv`.
+Command-line flags override profile values. Prefer `apiKeyEnv` so the profile
+names the secret environment variable without storing the secret value.
+
 Use `--provider openai-responses` to evaluate against the built-in OpenAI
 Responses adapter. The CLI passes the task output contract to the provider so
 the request can use structured outputs derived from the `.forma` file:

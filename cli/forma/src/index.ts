@@ -397,6 +397,14 @@ interface EvalOptions {
   apiKey?: string;
 }
 
+interface ProviderProfile {
+  provider?: string;
+  endpoint?: string;
+  model?: string;
+  apiKey?: string;
+  apiKeyEnv?: string;
+}
+
 interface EvalSettings {
   provider: EvalOptions["provider"];
   endpoint?: string;
@@ -404,7 +412,8 @@ interface EvalSettings {
 }
 
 async function evaluateFixture(path: string, args: string[]): Promise<CliResult> {
-  const report = await evaluateFixtureReport(path, args);
+  const evalOptions = await parseEvalOptions(args);
+  const report = await evaluateFixtureReport(path, evalOptions);
   return {
     exitCode: report.passed ? 0 : 1,
     stdout: `${JSON.stringify(report, null, 2)}\n`,
@@ -414,10 +423,10 @@ async function evaluateFixture(path: string, args: string[]): Promise<CliResult>
 
 async function evaluateSuite(path: string, args: string[]): Promise<CliResult> {
   const suite = JSON.parse(await readFile(path, "utf8")) as EvalSuite;
-  const evalOptions = parseEvalOptions(args);
+  const evalOptions = await parseEvalOptions(args);
   const startedAt = Date.now();
   const reports = await Promise.all(
-    suite.fixtures.map((fixturePath) => evaluateFixtureReport(resolve(dirname(path), fixturePath), args)),
+    suite.fixtures.map((fixturePath) => evaluateFixtureReport(resolve(dirname(path), fixturePath), evalOptions)),
   );
   const passed = reports.every((report) => report.passed);
   if (args.includes("--summary")) {
@@ -453,13 +462,12 @@ function evalSettings(options: EvalOptions): EvalSettings {
   };
 }
 
-async function evaluateFixtureReport(path: string, args: string[]) {
+async function evaluateFixtureReport(path: string, evalOptions: EvalOptions) {
   const fixture = JSON.parse(await readFile(path, "utf8")) as EvalFixture;
   const sourcePath = resolve(dirname(path), fixture.source);
   const source = await readFile(sourcePath, "utf8");
   const task = parseForma(source).tasks.find((candidate) => candidate.name === fixture.name);
   if (!task) throw new Error(`task not found in fixture source: ${fixture.name}`);
-  const evalOptions = parseEvalOptions(args);
   const modelProvider = createEvalProvider(fixture, evalOptions);
   const runtime = new FormaRuntime(modelProvider ? { modelProvider } : {});
   const startedAt = Date.now();
@@ -503,19 +511,23 @@ function contractSummary(task: FormaTask, sourcePath: string, source: string): E
   };
 }
 
-function parseEvalOptions(args: string[]): EvalOptions {
-  const provider = optionValue(args, "--provider");
+async function parseEvalOptions(args: string[]): Promise<EvalOptions> {
+  const profile = await loadProviderProfile(args);
+  const provider = optionValue(args, "--provider") ?? profile.provider;
   if (!provider) return { provider: "fixture" };
   if (provider !== "http-json" && provider !== "openai-responses") {
     throw new Error(`unsupported eval provider '${provider}'`);
   }
-  const model = optionValue(args, "--model") ?? (provider === "openai-responses" ? process.env.OPENAI_MODEL : undefined);
+  const model = optionValue(args, "--model") ?? profile.model ?? (provider === "openai-responses" ? process.env.OPENAI_MODEL : undefined);
   if (!model) throw new Error(`--model is required for --provider ${provider}`);
-  const apiKey = optionValue(args, "--api-key") ?? (provider === "openai-responses" ? process.env.OPENAI_API_KEY : undefined);
+  const apiKey = optionValue(args, "--api-key")
+    ?? (profile.apiKeyEnv ? process.env[profile.apiKeyEnv] : undefined)
+    ?? profile.apiKey
+    ?? (provider === "openai-responses" ? process.env.OPENAI_API_KEY : undefined);
   if (provider === "openai-responses" && !apiKey) {
     throw new Error("--api-key is required for --provider openai-responses");
   }
-  const endpoint = optionValue(args, "--endpoint");
+  const endpoint = optionValue(args, "--endpoint") ?? profile.endpoint;
   if (provider === "http-json" && !endpoint) {
     throw new Error("--endpoint is required for --provider http-json");
   }
@@ -525,6 +537,16 @@ function parseEvalOptions(args: string[]): EvalOptions {
     model,
     ...(apiKey ? { apiKey } : {}),
   };
+}
+
+async function loadProviderProfile(args: string[]): Promise<ProviderProfile> {
+  const profilePath = optionValue(args, "--provider-profile");
+  if (!profilePath) return {};
+  const parsed = JSON.parse(await readFile(profilePath, "utf8")) as unknown;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("--provider-profile must contain a JSON object");
+  }
+  return parsed as ProviderProfile;
 }
 
 function createEvalProvider(fixture: EvalFixture, options: EvalOptions): ModelProvider | undefined {

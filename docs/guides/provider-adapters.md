@@ -259,6 +259,26 @@ Response body:
 }
 ```
 
+The CLI can reuse the same provider settings through a profile file:
+
+```json
+{
+  "provider": "http-json",
+  "endpoint": "https://model.example/v1/agent",
+  "model": "example-model",
+  "apiKeyEnv": "MODEL_API_KEY"
+}
+```
+
+```bash
+forma eval packages/forma-core/conformance/review_diff.json \
+  --provider-profile ./forma.provider.json
+```
+
+Use `apiKeyEnv` for committed profiles; it names the environment variable that
+contains the secret. `--provider`, `--endpoint`, `--model`, and `--api-key`
+override profile values for one-off runs.
+
 ## OpenAI Responses Provider
 
 `OpenAIResponsesProvider` is the first production provider adapter. It keeps
