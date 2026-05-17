@@ -1,0 +1,19 @@
+{
+  "name": "tree-sitter-forma",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "check": "tree-sitter generate --no-bindings",
+    "test": "tree-sitter test"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.25.3"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.forma",
+      "file-types": ["forma"]
+    }
+  ]
+}

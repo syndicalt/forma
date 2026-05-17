@@ -1,0 +1,183 @@
+[
+  {
+    "type": "agent_block",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "compute_block",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "constraints_block",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "identifier",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "input_block",
+    "named": true,
+    "fields": {
+      "type": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "?",
+            "named": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "intent_block",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "output_block",
+    "named": true,
+    "fields": {
+      "type": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "?",
+            "named": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "source_file",
+    "named": true,
+    "root": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "task_declaration",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "task_declaration",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "agent_block",
+          "named": true
+        },
+        {
+          "type": "compute_block",
+          "named": true
+        },
+        {
+          "type": "constraints_block",
+          "named": true
+        },
+        {
+          "type": "input_block",
+          "named": true
+        },
+        {
+          "type": "intent_block",
+          "named": true
+        },
+        {
+          "type": "output_block",
+          "named": true
+        },
+        {
+          "type": "verify_block",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "verify_block",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": ":",
+    "named": false
+  },
+  {
+    "type": "?",
+    "named": false
+  },
+  {
+    "type": "agent",
+    "named": false
+  },
+  {
+    "type": "comment",
+    "named": true,
+    "extra": true
+  },
+  {
+    "type": "compute",
+    "named": false
+  },
+  {
+    "type": "constraints",
+    "named": false
+  },
+  {
+    "type": "input",
+    "named": false
+  },
+  {
+    "type": "intent",
+    "named": false
+  },
+  {
+    "type": "output",
+    "named": false
+  },
+  {
+    "type": "task",
+    "named": false
+  },
+  {
+    "type": "verify",
+    "named": false
+  },
+  {
+    "type": "{",
+    "named": false
+  },
+  {
+    "type": "}",
+    "named": false
+  }
+]
