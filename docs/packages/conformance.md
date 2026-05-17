@@ -44,6 +44,16 @@ The Python tests use the same files through normal filesystem paths. When a
 language feature changes the task model, update the fixture source, expected IR,
 expected result, and schemas together so the packages stay aligned.
 
+The CLI can also evaluate a conformance file directly:
+
+```bash
+corepack pnpm --filter @forma-lang/cli build
+node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.json
+```
+
+The JSON report includes `name`, `passed`, the runtime `result`, and checks for
+`ok`, `output`, and `error`.
+
 ## Result Contract
 
 Conformance result objects are intentionally close to runtime output:

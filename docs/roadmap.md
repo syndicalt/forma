@@ -52,6 +52,7 @@ The current MVP provides:
   fields.
 - TypeScript interface and Python dataclass generation for `Text`, `Number`,
   and `Boolean` task fields.
+- CLI evaluation reports for shared conformance fixtures.
 - Simple `verify` expressions.
 - Shared fixtures and conformance data.
 - Documentation and embedding examples.
@@ -104,8 +105,8 @@ Deliverables:
 
 - `.forma` examples section or companion fixture format for inputs and expected
   output properties.
-- CLI command for running evaluations against static fixtures and live provider
-  adapters.
+- CLI command for running evaluations against static fixtures, with live
+  provider adapters still to add.
 - Result snapshots with trace, output, verification, provider metadata, and
   timing.
 - Regression comparison for prompt, schema, and model changes.

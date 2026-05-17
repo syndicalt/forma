@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run> <path> [--input JSON]
+forma <check|run|eval> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -25,8 +25,19 @@ forma run examples/greet_user.forma --input '{"user_name":"Sam"}'
 ```
 
 `forma run` executes deterministic files and prints the JSON output. Invalid
-usage exits with code 2 and prints `usage: forma <check|run> <path> [--input
-JSON]`. These behaviors are covered by `cli/forma/test/cli.test.ts`.
+usage exits with code 2 and prints `usage: forma <check|run|eval> <path>
+[--input JSON]`. These behaviors are covered by `cli/forma/test/cli.test.ts`.
+
+`forma eval` reads a conformance JSON file, resolves its `.forma` source path,
+runs the named task, compares `ok`, `output`, and `error`, and prints a JSON
+evaluation report:
+
+```bash
+forma eval packages/forma-core/conformance/greet_user.json
+```
+
+Agent fixtures can use `fakeProviderOutput`; the CLI evaluates those with
+`StaticProvider` so CI does not need a model key.
 
 ## Input Handling
 

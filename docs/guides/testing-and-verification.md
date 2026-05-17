@@ -40,6 +40,7 @@ Run CLI smoke tests after building:
 corepack pnpm build
 node cli/forma/dist/index.js check examples/greet_user.forma
 node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name":"Sam"}'
+node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.json
 ```
 
 ## Verification
@@ -49,6 +50,7 @@ Expected smoke output:
 ```text
 ok
 {"message":"Hello, Sam!"}
+{"name":"greet_user","passed":true,...}
 ```
 
 Use `git -c core.excludesfile=/dev/null status --short --branch` after a full

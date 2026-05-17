@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { FormaRuntime } from "@forma-lang/forma";
-import type { FormaDiagnostic, FormaValue } from "@forma-lang/forma";
+import { FormaRuntime, StaticProvider } from "@forma-lang/forma";
+import type { FormaDiagnostic, FormaResult, FormaValue } from "@forma-lang/forma";
 
 export interface CliResult {
   exitCode: number;
@@ -12,11 +13,15 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval")) {
     return usage();
   }
 
   try {
+    if (command === "eval") {
+      return evaluateFixture(path);
+    }
+
     const source = await readFile(path, "utf8");
     const runtime = new FormaRuntime();
 
@@ -44,7 +49,50 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval> <path> [--input JSON]\n" };
+}
+
+interface EvalFixture {
+  name: string;
+  source: string;
+  input?: Record<string, FormaValue>;
+  fakeProviderOutput?: Record<string, FormaValue>;
+  expectedResult: Partial<Pick<FormaResult, "ok" | "output" | "error">>;
+}
+
+async function evaluateFixture(path: string): Promise<CliResult> {
+  const fixture = JSON.parse(await readFile(path, "utf8")) as EvalFixture;
+  const sourcePath = resolve(dirname(path), fixture.source);
+  const source = await readFile(sourcePath, "utf8");
+  const runtime = new FormaRuntime(
+    fixture.fakeProviderOutput
+      ? { modelProvider: new StaticProvider(fixture.fakeProviderOutput) }
+      : {},
+  );
+  const result = await runtime.runTask(source, fixture.name, {
+    input: fixture.input ?? {},
+    sourceName: sourcePath,
+  });
+  const checks = [
+    { name: "ok", passed: result.ok === fixture.expectedResult.ok },
+    { name: "output", passed: deepEqual(result.output, fixture.expectedResult.output ?? {}) },
+    { name: "error", passed: result.error === (fixture.expectedResult.error ?? null) },
+  ];
+  const report = {
+    name: fixture.name,
+    passed: checks.every((check) => check.passed),
+    result,
+    checks,
+  };
+  return {
+    exitCode: report.passed ? 0 : 1,
+    stdout: `${JSON.stringify(report, null, 2)}\n`,
+    stderr: "",
+  };
+}
+
+function deepEqual(left: unknown, right: unknown): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 function parseInput(args: string[]): Record<string, FormaValue> {
