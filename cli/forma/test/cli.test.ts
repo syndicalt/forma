@@ -672,6 +672,10 @@ describe("forma cli", () => {
       regressions: [],
       improvements: [],
       contractChanges: ["review_diff:sourceSha256", "review_diff:output"],
+      changes: [
+        { kind: "contract", name: "review_diff", field: "sourceSha256", severity: "review" },
+        { kind: "contract", name: "review_diff", field: "output", severity: "breaking" },
+      ],
       reports: [
         {
           name: "review_diff",
@@ -679,6 +683,10 @@ describe("forma cli", () => {
           regressions: [],
           improvements: [],
           contractChanges: ["sourceSha256", "output"],
+          changes: [
+            { kind: "contract", field: "sourceSha256", severity: "review" },
+            { kind: "contract", field: "output", severity: "breaking" },
+          ],
         },
       ],
     });
@@ -723,6 +731,9 @@ describe("forma cli", () => {
       regressions: [],
       improvements: [],
       settingChanges: ["model"],
+      changes: [
+        { kind: "setting", field: "model", severity: "environment" },
+      ],
       reports: [
         {
           name: "review_diff",

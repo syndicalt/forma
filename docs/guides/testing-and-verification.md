@@ -97,7 +97,8 @@ The command exits with code 1 when the candidate loses a check that passed in
 the baseline. It also reports informational `contractChanges` when the source
 hash, prompt intent, fields, schemas, permissions, or verify expressions changed.
 For suite summary artifacts, it reports informational `settingChanges` when the
-provider, endpoint, or model changed.
+provider, endpoint, or model changed. The `changes` array adds machine-readable
+severity labels: `breaking`, `review`, or `environment`.
 Use that as a PR gate for coding-agent task changes.
 
 For GitHub Actions, the relevant CI step is:

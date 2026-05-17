@@ -144,6 +144,14 @@ interface ReportComparison {
   regressions: string[];
   improvements: string[];
   contractChanges?: string[];
+  changes?: ChangeDetail[];
+}
+
+interface ChangeDetail {
+  kind: "contract" | "setting";
+  name?: string;
+  field: string;
+  severity: "breaking" | "review" | "environment";
 }
 
 async function compareReports(baselinePath: string, candidatePath: string | undefined): Promise<CliResult> {
@@ -172,12 +180,17 @@ async function compareReports(baselinePath: string, candidatePath: string | unde
   const improvements = reports.flatMap((report) => report.improvements.map((check) => `${report.name}:${check}`));
   const contractChanges = reports.flatMap((report) => (report.contractChanges ?? []).map((field) => `${report.name}:${field}`));
   const settingChanges = compareSettings(summarySettings(baselineRaw), summarySettings(candidateRaw));
+  const changes = [
+    ...reports.flatMap((report) => (report.changes ?? []).map((change) => ({ ...change, name: report.name }))),
+    ...settingChanges.map((field): ChangeDetail => ({ kind: "setting", field, severity: "environment" })),
+  ];
   const report = {
     passed: reports.every((item) => item.passed) && regressions.length === 0,
     regressions,
     improvements,
     ...(contractChanges.length > 0 ? { contractChanges } : {}),
     ...(settingChanges.length > 0 ? { settingChanges } : {}),
+    ...(changes.length > 0 ? { changes } : {}),
     reports,
   };
 
@@ -215,13 +228,23 @@ function compareReport(baseline: EvalReport | undefined, candidate: EvalReport |
   const regressions = names.filter((name) => baselineChecks.get(name) === true && candidateChecks.get(name) !== true);
   const improvements = names.filter((name) => baselineChecks.get(name) !== true && candidateChecks.get(name) === true);
   const contractChanges = compareContracts(baseline?.metadata?.contract, candidate?.metadata?.contract);
+  const changes = contractChanges.map((field): ChangeDetail => ({
+    kind: "contract",
+    field,
+    severity: contractSeverity(field),
+  }));
   return {
     name: candidate?.name || baseline?.name || "unknown",
     passed: Boolean(candidate?.passed) && regressions.length === 0,
     regressions,
     improvements,
     ...(contractChanges.length > 0 ? { contractChanges } : {}),
+    ...(changes.length > 0 ? { changes } : {}),
   };
+}
+
+function contractSeverity(field: string): ChangeDetail["severity"] {
+  return field === "input" || field === "output" || field === "schemas" ? "breaking" : "review";
 }
 
 function compareContracts(baseline: EvalContract | undefined, candidate: EvalContract | undefined): string[] {

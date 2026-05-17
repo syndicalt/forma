@@ -131,9 +131,12 @@ includes a `reports` array for task-level detail. When both sides include
 `metadata.contract`, compare also reports informational `contractChanges` entries
 such as `review_diff:sourceSha256` or `review_diff:output`. When both sides are
 summary artifacts, compare also reports informational `settingChanges` such as
-`provider`, `endpoint`, or `model`. This is the CI path for reviewing prompt,
-schema, task, provider, or model changes without treating a raw model response
-as enough evidence.
+`provider`, `endpoint`, or `model`. It also emits a machine-readable `changes`
+array with `kind`, `field`, and `severity`; output, input, and schema contract
+changes are marked `breaking`, other contract changes are marked `review`, and
+provider settings are marked `environment`. This is the CI path for reviewing
+prompt, schema, task, provider, or model changes without treating a raw model
+response as enough evidence.
 
 ## Input Handling
 
