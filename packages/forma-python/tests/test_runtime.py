@@ -79,6 +79,29 @@ METRICS_SOURCE = '''task summarize_metrics {
 }'''
 
 
+EDIT_SOURCE = '''task update_file {
+  intent "Update a source file"
+
+  input {
+    path: Text
+  }
+
+  output {
+    message: Text
+  }
+
+  agent {
+    instruction """
+    Update the requested file.
+    """
+  }
+
+  permissions {
+    edit
+  }
+}'''
+
+
 def test_executes_deterministic_compute_and_verify():
     runtime = FormaRuntime()
     result = runtime.run_source(
@@ -294,6 +317,56 @@ def test_denies_test_tool_calls_when_test_permission_is_undeclared():
     assert result.ok is False
     assert result.error == "F4001: permission 'test' is not declared"
     assert {"step": "permission_denied", "detail": "test"} in result.trace
+
+
+def test_maps_provider_edit_tool_calls_to_host_write_text_hooks():
+    writes = []
+
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            result = tools.write_text("src/file.py", "OK = True")
+            return {"message": result["output"]}
+
+    runtime = FormaRuntime(
+        model_provider=ToolUsingProvider(),
+        tools={
+            "write_text": lambda path, content: writes.append({"path": path, "content": content})
+            or {"ok": True, "output": "updated"}
+        },
+    )
+    result = runtime.run_task(
+        EDIT_SOURCE,
+        "update_file",
+        input={"path": "src/file.py"},
+        source_name="edit.forma",
+    )
+
+    assert result.ok is True
+    assert writes == [{"path": "src/file.py", "content": "OK = True"}]
+    assert result.output == {"message": "updated"}
+    assert {"step": "tool", "detail": "edit:src/file.py"} in result.trace
+
+
+def test_denies_edit_tool_calls_when_edit_permission_is_undeclared():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            tools.write_text("src/file.py", "OK = True")
+            return {"summary": "No issues", "finding_count": 0, "clean": True}
+
+    runtime = FormaRuntime(
+        model_provider=ToolUsingProvider(),
+        tools={"write_text": lambda path, content: (_ for _ in ()).throw(RuntimeError("host edit should not run"))},
+    )
+    result = runtime.run_task(
+        METRICS_SOURCE,
+        "summarize_metrics",
+        input={"diff": "diff --git a/file.py b/file.py"},
+        source_name="metrics.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F4001: permission 'edit' is not declared"
+    assert {"step": "permission_denied", "detail": "edit"} in result.trace
 
 
 def test_executes_named_task_from_multi_task_source():

@@ -5,6 +5,7 @@ export interface PermissionTools {
   readText(path: string): Promise<string>;
   searchText(query: string): Promise<string[]>;
   runTest(command: string): Promise<{ ok: boolean; output: string }>;
+  writeText(path: string, content: string): Promise<{ ok: boolean; output: string }>;
 }
 
 export interface ModelProvider {

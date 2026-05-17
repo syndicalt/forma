@@ -77,6 +77,28 @@ const metricsSource = `task summarize_metrics {
   }
 }`;
 
+const editSource = `task update_file {
+  intent "Update a source file"
+
+  input {
+    path: Text
+  }
+
+  output {
+    message: Text
+  }
+
+  agent {
+    instruction """
+    Update the requested file.
+    """
+  }
+
+  permissions {
+    edit
+  }
+}`;
+
 describe("FormaRuntime", () => {
   it("executes deterministic compute and verify", async () => {
     const runtime = new FormaRuntime();
@@ -315,6 +337,59 @@ describe("FormaRuntime", () => {
     expect(result.ok).toBe(false);
     expect(result.error).toBe("F4001: permission 'test' is not declared");
     expect(result.trace).toContainEqual({ step: "permission_denied", detail: "test" });
+  });
+
+  it("maps provider edit tool calls to host writeText hooks", async () => {
+    const writes: Array<{ path: string; content: string }> = [];
+    const runtime = new FormaRuntime({
+      tools: {
+        async writeText(path, content) {
+          writes.push({ path, content });
+          return { ok: true, output: "updated" };
+        },
+      },
+      modelProvider: {
+        async runAgent(input) {
+          const result = await input.tools.writeText("src/file.ts", "export const ok = true;");
+          return { message: result.output };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(editSource, "update_file", {
+      input: { path: "src/file.ts" },
+      sourceName: "edit.forma",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(writes).toEqual([{ path: "src/file.ts", content: "export const ok = true;" }]);
+    expect(result.output).toEqual({ message: "updated" });
+    expect(result.trace).toContainEqual({ step: "tool", detail: "edit:src/file.ts" });
+  });
+
+  it("denies edit tool calls when edit permission is undeclared", async () => {
+    const runtime = new FormaRuntime({
+      tools: {
+        async writeText() {
+          throw new Error("host edit should not run");
+        },
+      },
+      modelProvider: {
+        async runAgent(input) {
+          await input.tools.writeText("src/file.ts", "export const ok = true;");
+          return { summary: "No issues", finding_count: 0, clean: true };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(metricsSource, "summarize_metrics", {
+      input: { diff: "diff --git a/file.ts b/file.ts" },
+      sourceName: "metrics.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F4001: permission 'edit' is not declared");
+    expect(result.trace).toContainEqual({ step: "permission_denied", detail: "edit" });
   });
 
   it("executes a named task from a multi-task source", async () => {

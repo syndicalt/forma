@@ -8,6 +8,7 @@ export interface ToolHost {
   readText?(path: string): string | Promise<string>;
   searchText?(query: string): string[] | Promise<string[]>;
   runTest?(command: string): { ok: boolean; output: string } | Promise<{ ok: boolean; output: string }>;
+  writeText?(path: string, content: string): { ok: boolean; output: string } | Promise<{ ok: boolean; output: string }>;
 }
 
 export class FormaRuntime {
@@ -133,6 +134,15 @@ export class FormaRuntime {
         }
         const result = await runtimeTools.runTest(command);
         trace.push({ step: "tool", detail: `test:${command}` });
+        return result;
+      },
+      async writeText(path: string, content: string): Promise<{ ok: boolean; output: string }> {
+        tools.require("edit");
+        if (!runtimeTools.writeText) {
+          throw new Error("F4002: edit tool is not configured");
+        }
+        const result = await runtimeTools.writeText(path, content);
+        trace.push({ step: "tool", detail: `edit:${path}` });
         return result;
       },
     };

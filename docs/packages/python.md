@@ -55,6 +55,7 @@ agent_runtime = FormaRuntime(
         "read_text": lambda path: open(path, encoding="utf8").read(),
         "search_text": lambda query: search_workspace(query),
         "run_test": lambda command: run_command(command),
+        "write_text": lambda path, content: write_text(path, content),
     },
 )
 

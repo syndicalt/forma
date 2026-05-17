@@ -118,3 +118,12 @@ class _PermissionTools:
         result = run_test(command)
         self.trace.append({"step": "tool", "detail": f"test:{command}"})
         return dict(result)
+
+    def write_text(self, path: str, content: str) -> dict[str, object]:
+        self.require("edit")
+        write_text = self.tools.get("write_text")
+        if not callable(write_text):
+            raise ValueError("F4002: edit tool is not configured")
+        result = write_text(path, content)
+        self.trace.append({"step": "tool", "detail": f"edit:{path}"})
+        return dict(result)

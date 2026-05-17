@@ -56,7 +56,7 @@ The current MVP provides:
   trace, verification, error checks, provider metadata, and timing.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
-- Host read, search, and test tool mapping through runtime tools.
+- Host read, search, test, and edit tool mapping through runtime tools.
 - First coding-agent conformance task: `review_diff`.
 - Duplicate task name diagnostics.
 - Simple `verify` expressions.
@@ -128,7 +128,7 @@ Purpose: turn Forma from prompt contracts into coding-agent work contracts.
 
 Deliverables:
 
-- Host runtime hooks for edit actions.
+- Provider adapter packages and richer host tool policies.
 - Richer trace entries for every requested tool call and host decision.
 - Policy failure reporting beyond undeclared capability checks.
 - Example task: "modify a function and run its focused tests."
@@ -183,7 +183,7 @@ The next three implementation slices should be:
 1. Schema compiler expansion: support arrays and objects in generated bindings
    and output validation.
 2. Evaluation fixtures: add live provider evaluation mode.
-3. Coding-agent tool mapping: add edit host hooks.
+3. Provider adapter kit: add optional production provider packages.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

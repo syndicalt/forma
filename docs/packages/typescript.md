@@ -57,6 +57,7 @@ const agentRuntime = new FormaRuntime({
     readText: async (path) => readFile(path, "utf8"),
     searchText: async (query) => searchWorkspace(query),
     runTest: async (command) => runCommand(command),
+    writeText: async (path, content) => writeFile(path, content, "utf8"),
   },
 });
 

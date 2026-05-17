@@ -16,6 +16,9 @@ class PermissionTools(Protocol):
     def run_test(self, command: str) -> dict[str, object]:
         ...
 
+    def write_text(self, path: str, content: str) -> dict[str, object]:
+        ...
+
 
 class ModelProvider(Protocol):
     def run_agent(
