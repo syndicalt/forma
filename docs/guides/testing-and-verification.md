@@ -92,7 +92,9 @@ node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.j
 ```
 
 The command exits with code 1 when the candidate loses a check that passed in
-the baseline. Use that as a PR gate for coding-agent task changes.
+the baseline. It also reports informational `contractChanges` when the source
+hash, prompt intent, fields, schemas, permissions, or verify expressions changed.
+Use that as a PR gate for coding-agent task changes.
 
 For GitHub Actions, the relevant CI step is:
 

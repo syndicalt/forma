@@ -560,4 +560,71 @@ describe("forma cli", () => {
       ],
     });
   });
+
+  it("compares eval suite artifacts and reports contract metadata changes", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-compare-contract-"));
+    const baseline = join(dir, "baseline.json");
+    const candidate = join(dir, "candidate.json");
+    const baselineContract = {
+      source: "packages/forma-core/fixtures/review_diff.forma",
+      sourceSha256: "a".repeat(64),
+      task: "review_diff",
+      intent: "Review a code diff",
+      input: { diff: { type: "Text", array: false, optional: false } },
+      output: { summary: { type: "Text", array: false, optional: false } },
+      schemas: {},
+      permissions: ["read"],
+      verify: [],
+    };
+    const candidateContract = {
+      ...baselineContract,
+      sourceSha256: "b".repeat(64),
+      output: {
+        summary: { type: "Text", array: false, optional: false },
+        clean: { type: "Boolean", array: false, optional: false },
+      },
+    };
+    await writeFile(baseline, JSON.stringify({
+      passed: true,
+      summary: { total: 1, passed: 1, failed: 0, durationMs: 5 },
+      reports: [
+        {
+          name: "review_diff",
+          passed: true,
+          metadata: { provider: "static", durationMs: 1, contract: baselineContract },
+          checks: [{ name: "output", passed: true }],
+        },
+      ],
+    }));
+    await writeFile(candidate, JSON.stringify({
+      passed: true,
+      summary: { total: 1, passed: 1, failed: 0, durationMs: 6 },
+      reports: [
+        {
+          name: "review_diff",
+          passed: true,
+          metadata: { provider: "static", durationMs: 1, contract: candidateContract },
+          checks: [{ name: "output", passed: true }],
+        },
+      ],
+    }));
+
+    const result = await runCli(["compare", baseline, candidate]);
+    expect(result.exitCode).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      passed: true,
+      regressions: [],
+      improvements: [],
+      contractChanges: ["review_diff:sourceSha256", "review_diff:output"],
+      reports: [
+        {
+          name: "review_diff",
+          passed: true,
+          regressions: [],
+          improvements: [],
+          contractChanges: ["sourceSha256", "output"],
+        },
+      ],
+    });
+  });
 });

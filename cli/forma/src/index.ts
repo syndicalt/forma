@@ -142,6 +142,7 @@ interface ReportComparison {
   passed: boolean;
   regressions: string[];
   improvements: string[];
+  contractChanges?: string[];
 }
 
 async function compareReports(baselinePath: string, candidatePath: string | undefined): Promise<CliResult> {
@@ -168,10 +169,12 @@ async function compareReports(baselinePath: string, candidatePath: string | unde
   const reports = names.map((name) => compareReport(baselineByName.get(name), candidateByName.get(name)));
   const regressions = reports.flatMap((report) => report.regressions.map((check) => `${report.name}:${check}`));
   const improvements = reports.flatMap((report) => report.improvements.map((check) => `${report.name}:${check}`));
+  const contractChanges = reports.flatMap((report) => (report.contractChanges ?? []).map((field) => `${report.name}:${field}`));
   const report = {
     passed: reports.every((item) => item.passed) && regressions.length === 0,
     regressions,
     improvements,
+    ...(contractChanges.length > 0 ? { contractChanges } : {}),
     reports,
   };
 
@@ -198,12 +201,30 @@ function compareReport(baseline: EvalReport | undefined, candidate: EvalReport |
   const names = Array.from(new Set([...baselineChecks.keys(), ...candidateChecks.keys()])).sort();
   const regressions = names.filter((name) => baselineChecks.get(name) === true && candidateChecks.get(name) !== true);
   const improvements = names.filter((name) => baselineChecks.get(name) !== true && candidateChecks.get(name) === true);
+  const contractChanges = compareContracts(baseline?.metadata?.contract, candidate?.metadata?.contract);
   return {
     name: candidate?.name || baseline?.name || "unknown",
     passed: Boolean(candidate?.passed) && regressions.length === 0,
     regressions,
     improvements,
+    ...(contractChanges.length > 0 ? { contractChanges } : {}),
   };
+}
+
+function compareContracts(baseline: EvalContract | undefined, candidate: EvalContract | undefined): string[] {
+  if (!baseline || !candidate) return [];
+  const fields: Array<keyof EvalContract> = [
+    "source",
+    "sourceSha256",
+    "task",
+    "intent",
+    "input",
+    "output",
+    "schemas",
+    "permissions",
+    "verify",
+  ];
+  return fields.filter((field) => !deepEqual(baseline[field], candidate[field]));
 }
 
 interface EvalFixture {
