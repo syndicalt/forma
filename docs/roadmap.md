@@ -57,6 +57,7 @@ The current MVP provides:
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - First coding-agent conformance task: `review_diff`.
+- Duplicate task name diagnostics.
 - Simple `verify` expressions.
 - Shared fixtures and conformance data.
 - Documentation and embedding examples.
@@ -72,7 +73,7 @@ Deliverables:
 - Generated TypeScript types and Python dataclasses or Pydantic models from
   nested `.forma` output blocks.
 - Structured provider response parsing with clear validation errors.
-- Better task lookup, duplicate task name diagnostics, and source spans.
+- Better task lookup and source spans.
 - Richer coding tasks beyond the current `review_diff` structured summary.
 
 Exit criteria:

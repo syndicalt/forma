@@ -180,6 +180,21 @@ def test_executes_named_task_from_multi_task_source():
     assert result.output == {"message": "Hello, Sam. Good to see you."}
 
 
+def test_fails_validation_for_duplicate_task_names():
+    runtime = FormaRuntime()
+    result = runtime.run_task(
+        f"{DETERMINISTIC_SOURCE}\n\n{DETERMINISTIC_SOURCE}",
+        "greet_user",
+        input={"user_name": "Sam"},
+        source_name="duplicate.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "validation failed"
+    assert result.diagnostics[0]["code"] == "F2003"
+    assert result.diagnostics[0]["message"] == "duplicate task name 'greet_user'"
+
+
 def test_fails_when_provider_output_does_not_satisfy_task_output_contract():
     runtime = FormaRuntime(model_provider=StaticProvider({}))
     result = runtime.run_task(

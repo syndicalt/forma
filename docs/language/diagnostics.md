@@ -30,6 +30,7 @@ The call shape above matches `packages/forma-typescript/test/runtime.test.ts`.
 
 - `F2001`: task requires at least one output field.
 - `F2002`: task requires compute or agent behavior.
+- `F2003`: duplicate task name.
 
 ## Runtime Codes
 

@@ -179,6 +179,23 @@ describe("FormaRuntime", () => {
     expect(result.output).toEqual({ message: "Hello, Sam. Good to see you." });
   });
 
+  it("fails validation for duplicate task names", async () => {
+    const runtime = new FormaRuntime();
+    const result = await runtime.runTask(`${deterministicSource}\n\n${deterministicSource}`, "greet_user", {
+      input: { user_name: "Sam" },
+      sourceName: "duplicate.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("validation failed");
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        code: "F2003",
+        message: "duplicate task name 'greet_user'",
+      }),
+    ]);
+  });
+
   it("fails when provider output does not satisfy the task output contract", async () => {
     const runtime = new FormaRuntime({
       modelProvider: new StaticProvider({}),
