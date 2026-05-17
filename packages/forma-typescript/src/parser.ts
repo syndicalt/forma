@@ -3,13 +3,33 @@ import type { FormaProgram, FormaTask } from "./types.js";
 const blockNames = ["input", "output", "compute", "agent", "constraints", "verify"] as const;
 
 export function parseForma(source: string): FormaProgram {
-  const taskMatch = source.match(/task\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{([\s\S]*)\}\s*$/);
-  if (!taskMatch) {
+  const tasks = parseTasks(source);
+  if (tasks.length === 0) {
     throw new Error("F0001: expected task declaration");
   }
 
-  const name = taskMatch[1];
-  const body = taskMatch[2];
+  return { tasks };
+}
+
+function parseTasks(source: string): FormaTask[] {
+  const tasks: FormaTask[] = [];
+  const taskStart = /task\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/g;
+  let match: RegExpExecArray | null;
+  while ((match = taskStart.exec(source))) {
+    const name = match[1];
+    const openBrace = taskStart.lastIndex - 1;
+    const closeBrace = findMatchingBrace(source, openBrace);
+    if (closeBrace === -1) {
+      throw new Error("F0001: expected task declaration");
+    }
+    const body = source.slice(openBrace + 1, closeBrace);
+    tasks.push(parseTask(name, body));
+    taskStart.lastIndex = closeBrace + 1;
+  }
+  return tasks;
+}
+
+function parseTask(name: string | undefined, body: string): FormaTask {
   if (!name || !body) {
     throw new Error("F0001: expected task declaration");
   }
@@ -30,7 +50,20 @@ export function parseForma(source: string): FormaProgram {
     task.agentInstruction = extractInstruction(agent);
   }
 
-  return { tasks: [task] };
+  return task;
+}
+
+function findMatchingBrace(source: string, openBrace: number): number {
+  let depth = 0;
+  for (let index = openBrace; index < source.length; index += 1) {
+    const char = source[index];
+    if (char === "{") depth += 1;
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return index;
+    }
+  }
+  return -1;
 }
 
 function extractIntent(body: string): string {

@@ -24,5 +24,16 @@ def verify_output(task: FormaTask, output: dict[str, FormaValue]) -> dict[str, o
     return {"ok": len(failures) == 0, "failures": failures}
 
 
+def validate_output_contract(task: FormaTask, output: dict[str, FormaValue]) -> None:
+    for name, field in task.output.items():
+        value = output.get(name)
+        if value is None:
+            if not field["optional"]:
+                raise ValueError(f"F3003: output field '{name}' is required")
+            continue
+        if field["type"] == "Text" and not isinstance(value, str):
+            raise ValueError(f"F3004: output field '{name}' must be Text")
+
+
 def _interpolate(template: str, values: dict[str, str]) -> str:
     return re.sub(r"\{([A-Za-z_][A-Za-z0-9_]*)\}", lambda match: values.get(match.group(1), ""), template)

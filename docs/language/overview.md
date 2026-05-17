@@ -1,9 +1,12 @@
 # Forma Language Overview
 
-Forma describes typed tasks that a host runtime can validate and execute. A
-task combines a human-readable intent, typed inputs and outputs, deterministic
-or provider-backed behavior, and verification checks. The language makes the
-agent boundary inspectable from ordinary software.
+Forma describes typed tasks that a host runtime can validate and execute. It is
+meant for the point where application code would otherwise hide a prompt string,
+expected JSON shape, and result checks inside ordinary Python or TypeScript.
+
+A task combines a human-readable intent, typed inputs and outputs,
+deterministic or provider-backed behavior, and verification checks. The language
+makes the agent boundary inspectable from ordinary software.
 
 The Tree-sitter grammar accepts repeated `task` declarations in one source file,
 but the current Python and TypeScript runtimes execute the first task in a
@@ -69,3 +72,12 @@ node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name"
 Python and TypeScript hosts can execute source directly through `FormaRuntime`.
 Both runtimes expose the same conceptual result fields: `ok`, `output`, `trace`,
 `diagnostics`, `verification`, and `error`.
+
+Named task execution lets one source file hold more than one task:
+
+```typescript
+const result = await runtime.runTask(source, "greet_user", {
+  input: { user_name: "Sam" },
+  sourceName: "tasks.forma",
+});
+```

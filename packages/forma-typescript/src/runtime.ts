@@ -1,4 +1,4 @@
-import { runCompute, verifyOutput } from "./evaluator.js";
+import { runCompute, validateOutputContract, verifyOutput } from "./evaluator.js";
 import { parseForma } from "./parser.js";
 import type { ModelProvider } from "./provider.js";
 import type { FormaResult, FormaValue } from "./types.js";
@@ -8,6 +8,22 @@ export class FormaRuntime {
   constructor(private readonly options: { modelProvider?: ModelProvider } = {}) {}
 
   async runSource(source: string, options: { input: Record<string, FormaValue>; sourceName: string }): Promise<FormaResult> {
+    return this.runSelectedTask(source, undefined, options);
+  }
+
+  async runTask(
+    source: string,
+    taskName: string,
+    options: { input: Record<string, FormaValue>; sourceName: string },
+  ): Promise<FormaResult> {
+    return this.runSelectedTask(source, taskName, options);
+  }
+
+  private async runSelectedTask(
+    source: string,
+    taskName: string | undefined,
+    options: { input: Record<string, FormaValue>; sourceName: string },
+  ): Promise<FormaResult> {
     try {
       const program = parseForma(source);
       const diagnostics = validateProgram(program, options.sourceName);
@@ -15,20 +31,33 @@ export class FormaRuntime {
         return emptyResult(false, diagnostics, "validation failed");
       }
 
-      const task = program.tasks[0];
+      const task = taskName ? program.tasks.find((candidate) => candidate.name === taskName) : program.tasks[0];
       if (!task) {
-        return emptyResult(false, [], "F1005: program requires task");
+        return emptyResult(false, [], taskName ? `F1006: task '${taskName}' not found` : "F1005: program requires task");
       }
 
       const output = task.agentInstruction
         ? await this.runAgent(task.agentInstruction, options.input)
         : runCompute(task, options.input);
+      const trace = [{ step: task.agentInstruction ? "agent" : "compute", detail: task.name }];
+      try {
+        validateOutputContract(task, output);
+      } catch (error) {
+        return {
+          ok: false,
+          output: {},
+          trace,
+          diagnostics: [],
+          verification: { ok: false, failures: [] },
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
       const verification = verifyOutput(task, output);
 
       return {
         ok: verification.ok,
         output,
-        trace: [{ step: task.agentInstruction ? "agent" : "compute", detail: task.name }],
+        trace,
         diagnostics: [],
         verification,
         error: verification.ok ? null : "verification failed",

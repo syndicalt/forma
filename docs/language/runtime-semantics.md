@@ -12,15 +12,24 @@ The current Python and TypeScript runtimes use this order:
 ```text
 parse source
 validate task contract
+select first task or named task
 bind host input
 run compute or agent behavior
+validate output fields
 run verify expressions
 return FormaResult
 ```
 
-The Tree-sitter grammar accepts repeated task declarations, but both host
-runtimes execute the first task in a source string or file. The shipped examples
-use one task per file.
+Both host runtimes execute the first task by default through `runSource` or
+`run_source`. Use `runTask` in TypeScript or `run_task` in Python to execute a
+specific named task from a source string or file.
+
+```typescript
+await runtime.runTask(source, "greet_user_warmly", {
+  input: { user_name: "Sam" },
+  sourceName: "tasks.forma",
+});
+```
 
 ## Compute
 
@@ -68,6 +77,21 @@ The adapter returns a dictionary or object matching the task `output` block.
 There is no public `agent()` host method. The `agent { ... }` syntax is a task
 member; the runtime turns it into an instruction field and dispatches to the
 configured provider.
+
+## Output Contract
+
+Provider and compute output is validated against the task `output` block before
+`verify` expressions run. In the MVP, `Text` output fields must be strings, and
+required fields must be present.
+
+```forma
+output {
+  message: Text
+}
+```
+
+If a provider returns `{}` for that task, the runtime returns `F3003`. If it
+returns a non-string `message`, the runtime returns `F3004`.
 
 ## Verification
 

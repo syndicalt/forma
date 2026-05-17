@@ -4,13 +4,27 @@ from .types import FormaProgram, FormaTask
 
 
 def parse_forma(source: str) -> FormaProgram:
-    match = re.search(r"task\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{([\s\S]*)\}\s*$", source)
-    if not match:
+    tasks = _tasks(source)
+    if not tasks:
         raise ValueError("F0001: expected task declaration")
+    return FormaProgram(tasks=tasks)
 
-    name, body = match.group(1), match.group(2)
+
+def _tasks(source: str) -> list[FormaTask]:
+    tasks: list[FormaTask] = []
+    for match in re.finditer(r"task\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{", source):
+        open_brace = match.end() - 1
+        close_brace = _matching_brace(source, open_brace)
+        if close_brace == -1:
+            raise ValueError("F0001: expected task declaration")
+        body = source[open_brace + 1 : close_brace]
+        tasks.append(_task(match.group(1), body))
+    return tasks
+
+
+def _task(name: str, body: str) -> FormaTask:
     agent = _block(body, "agent", required=False)
-    task = FormaTask(
+    return FormaTask(
         name=name,
         intent=_intent(body),
         input=_fields(_block(body, "input")),
@@ -20,7 +34,19 @@ def parse_forma(source: str) -> FormaProgram:
         verify=_lines(_block(body, "verify", required=False)),
         agent_instruction=_instruction(agent) if agent else None,
     )
-    return FormaProgram(tasks=[task])
+
+
+def _matching_brace(source: str, open_brace: int) -> int:
+    depth = 0
+    for index in range(open_brace, len(source)):
+        char = source[index]
+        if char == "{":
+            depth += 1
+        if char == "}":
+            depth -= 1
+            if depth == 0:
+                return index
+    return -1
 
 
 def _intent(body: str) -> str:

@@ -27,6 +27,21 @@ export function verifyOutput(task: FormaTask, output: Record<string, FormaValue>
   return { ok: failures.length === 0, failures };
 }
 
+export function validateOutputContract(task: FormaTask, output: Record<string, FormaValue>): void {
+  for (const [name, field] of Object.entries(task.output)) {
+    const value = output[name];
+    if (value === undefined || value === null) {
+      if (!field.optional) {
+        throw new Error(`F3003: output field '${name}' is required`);
+      }
+      continue;
+    }
+    if (field.type === "Text" && typeof value !== "string") {
+      throw new Error(`F3004: output field '${name}' must be Text`);
+    }
+  }
+}
+
 function interpolate(template: string, values: Record<string, string>): string {
   return template.replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (_, key: string) => values[key] ?? "");
 }

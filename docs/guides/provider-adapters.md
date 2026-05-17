@@ -56,6 +56,11 @@ const runtime = new FormaRuntime({
     "example-model",
   ),
 });
+
+const result = await runtime.runTask(source, "greet_user_warmly", {
+  input: { user_name: "Sam" },
+  sourceName: "greet_user_warmly.forma",
+});
 ```
 
 When the runtime reaches an `agent` block, it calls:
@@ -104,6 +109,13 @@ runtime = FormaRuntime(
         api_key=os.environ["MODEL_API_KEY"],
         model="example-model",
     )
+)
+
+result = runtime.run_task(
+    source,
+    "greet_user_warmly",
+    input={"user_name": "Sam"},
+    source_name="greet_user_warmly.forma",
 )
 ```
 

@@ -49,6 +49,9 @@ AGENT_SOURCE = '''task greet_user_warmly {
 }'''
 
 
+MULTI_TASK_SOURCE = f"{DETERMINISTIC_SOURCE}\n\n{AGENT_SOURCE}"
+
+
 def test_executes_deterministic_compute_and_verify():
     runtime = FormaRuntime()
     result = runtime.run_source(
@@ -75,3 +78,47 @@ def test_executes_agent_blocks_through_explicit_fake_provider():
 
     assert result.ok is True
     assert result.output["message"] == "Hello, Sam. Good to see you."
+
+
+def test_executes_named_task_from_multi_task_source():
+    runtime = FormaRuntime(
+        model_provider=StaticProvider({"message": "Hello, Sam. Good to see you."})
+    )
+    result = runtime.run_task(
+        MULTI_TASK_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="multi.forma",
+    )
+
+    assert result.ok is True
+    assert result.trace == [{"step": "agent", "detail": "greet_user_warmly"}]
+    assert result.output == {"message": "Hello, Sam. Good to see you."}
+
+
+def test_fails_when_provider_output_does_not_satisfy_task_output_contract():
+    runtime = FormaRuntime(model_provider=StaticProvider({}))
+    result = runtime.run_task(
+        AGENT_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="agent.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F3003: output field 'message' is required"
+    assert result.output == {}
+    assert result.trace == [{"step": "agent", "detail": "greet_user_warmly"}]
+
+
+def test_fails_when_provider_output_uses_wrong_mvp_output_type():
+    runtime = FormaRuntime(model_provider=StaticProvider({"message": 42}))
+    result = runtime.run_task(
+        AGENT_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="agent.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F3004: output field 'message' must be Text"

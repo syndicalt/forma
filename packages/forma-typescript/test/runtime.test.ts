@@ -47,6 +47,10 @@ const agentSource = `task greet_user_warmly {
   }
 }`;
 
+const multiTaskSource = `${deterministicSource}
+
+${agentSource}`;
+
 describe("FormaRuntime", () => {
   it("executes deterministic compute and verify", async () => {
     const runtime = new FormaRuntime();
@@ -73,5 +77,50 @@ describe("FormaRuntime", () => {
 
     expect(result.ok).toBe(true);
     expect(result.output.message).toBe("Hello, Sam. Good to see you.");
+  });
+
+  it("executes a named task from a multi-task source", async () => {
+    const runtime = new FormaRuntime({
+      modelProvider: new StaticProvider({ message: "Hello, Sam. Good to see you." }),
+    });
+
+    const result = await runtime.runTask(multiTaskSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "multi.forma",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.trace).toEqual([{ step: "agent", detail: "greet_user_warmly" }]);
+    expect(result.output).toEqual({ message: "Hello, Sam. Good to see you." });
+  });
+
+  it("fails when provider output does not satisfy the task output contract", async () => {
+    const runtime = new FormaRuntime({
+      modelProvider: new StaticProvider({}),
+    });
+
+    const result = await runtime.runTask(agentSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "agent.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F3003: output field 'message' is required");
+    expect(result.output).toEqual({});
+    expect(result.trace).toEqual([{ step: "agent", detail: "greet_user_warmly" }]);
+  });
+
+  it("fails when provider output uses the wrong MVP output type", async () => {
+    const runtime = new FormaRuntime({
+      modelProvider: new StaticProvider({ message: 42 }),
+    });
+
+    const result = await runtime.runTask(agentSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "agent.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F3004: output field 'message' must be Text");
   });
 });

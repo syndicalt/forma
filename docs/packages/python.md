@@ -50,6 +50,13 @@ agent_runtime = FormaRuntime(
         model="example-model",
     )
 )
+
+result = agent_runtime.run_task(
+    source,
+    "greet_user_warmly",
+    input={"user_name": "Sam"},
+    source_name="examples/greet_user_warmly.forma",
+)
 ```
 
 The deterministic and agent calls match
@@ -60,6 +67,9 @@ provider; without one the runtime returns an error containing `F3002`.
 The `.forma` file contains the `agent` instruction. The provider object contains
 credentials, model selection, retry behavior, logging, and service-specific
 request formatting.
+
+`run_source` executes the first task in a source string. `run_task` executes a
+specific named task.
 
 ## Result Fields
 

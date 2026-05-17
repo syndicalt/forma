@@ -1,9 +1,18 @@
 # Forma
 
-Forma is a language for typed, permissioned, verifiable agent tasks embedded in
-Python and TypeScript programs. It is not a replacement for the host language;
-it is the contract layer where a host program delegates bounded work to
-deterministic runtime logic or an explicit agent provider.
+Forma is a contract language for agent tasks embedded in Python and TypeScript
+programs. It moves the task definition out of anonymous prompt strings and into
+a `.forma` file that can be reviewed, versioned, parsed, validated, and tested.
+The host program still owns model clients, provider keys, model selection,
+logging, retries, and deployment concerns.
+
+Use Forma when you want an agent task to have a clear boundary:
+
+- declared input fields
+- declared output fields
+- model instructions in a source-controlled document
+- runtime output validation
+- verification checks before the host trusts the result
 
 The project ships a real `.forma` language package:
 
@@ -51,6 +60,22 @@ Expected CLI output:
 Start with `docs/index.md`. Practical guides are in `docs/guides/`, language
 reference material is in `docs/language/`, and host package docs are in
 `docs/packages/`.
+
+## Embedding Shape
+
+Host programs load `.forma` source, choose a provider, and execute a task by
+name:
+
+```ts
+const runtime = new FormaRuntime({ modelProvider });
+const result = await runtime.runTask(source, "greet_user_warmly", {
+  input: { user_name: "Sam" },
+  sourceName: "greet_user_warmly.forma",
+});
+```
+
+See `examples/embedded-agent.ts` and `examples/embedded_agent.py` for the full
+TypeScript and Python shape.
 
 ## Engineering Rules
 

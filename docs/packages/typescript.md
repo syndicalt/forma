@@ -50,6 +50,11 @@ const agentRuntime = new FormaRuntime({
     "example-model",
   ),
 });
+
+const result = await agentRuntime.runTask(source, "greet_user_warmly", {
+  input: { user_name: "Sam" },
+  sourceName: "examples/greet_user_warmly.forma",
+});
 ```
 
 This API is exercised by `packages/forma-typescript/test/runtime.test.ts`.
@@ -60,6 +65,9 @@ configured provider and do not call an external model directly.
 The `.forma` file contains the `agent` instruction. The provider object contains
 credentials, model selection, retry behavior, logging, and service-specific
 request formatting.
+
+`runSource` executes the first task in a source string. `runTask` executes a
+specific named task.
 
 ## Verification
 

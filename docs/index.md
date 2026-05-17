@@ -1,8 +1,9 @@
 # Forma Documentation
 
-Forma is a small language for typed, permissioned, verifiable agent tasks. The
-current repository contains the language grammar, shared conformance data, a
-TypeScript runtime, a TypeScript CLI, and a Python runtime.
+Forma is a contract language for agent tasks. It moves task instructions,
+input/output shape, and verification rules into `.forma` files that Python and
+TypeScript programs can load at runtime. The host program still owns the actual
+model provider, provider key, model choice, logging, retries, and deployment.
 
 ## Start Here
 
@@ -18,6 +19,17 @@ node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name"
 ```
 
 Read `docs/guides/quickstart.md` for the full setup path and expected outputs.
+
+The useful embedding path is:
+
+```text
+host program loads .forma source
+host program creates provider with key and model
+FormaRuntime selects a named task
+runtime calls provider with instruction and input values
+runtime validates output fields and verify rules
+host receives FormaResult
+```
 
 ## Language
 
