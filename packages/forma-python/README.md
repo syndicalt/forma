@@ -27,9 +27,11 @@ result = runtime.run_source(source, input={"user_name": "Sam"}, source_name="tas
 
 For real agent execution, keep the provider key and model name in the host
 program or environment, then pass a provider object to `FormaRuntime`. The
-runtime calls `run_agent(instruction, values, permissions)` when it reaches the
-task's `agent` block. Use `run_task(source, "task_name", input, source_name)`
-when a source file contains multiple tasks.
+runtime calls `run_agent(instruction, values, permissions, tools)` when it
+reaches the task's `agent` block. Providers call `tools.require("read")` or
+another declared permission before host workspace actions. Use
+`run_task(source, "task_name", input, source_name)` when a source file contains
+multiple tasks.
 
 ## Local Checks
 

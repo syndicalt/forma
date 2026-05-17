@@ -1,10 +1,15 @@
 import type { FormaValue } from "./types.js";
 
+export interface PermissionTools {
+  require(permission: string): void;
+}
+
 export interface ModelProvider {
   runAgent(input: {
     instruction: string;
     values: Record<string, FormaValue>;
     permissions: string[];
+    tools: PermissionTools;
   }): Promise<Record<string, FormaValue>>;
 }
 

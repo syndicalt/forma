@@ -65,13 +65,14 @@ modelProvider.runAgent({
   instruction: task.agentInstruction,
   values: input,
   permissions: task.permissions,
+  tools,
 });
 ```
 
 The Python runtime calls:
 
 ```python
-self.model_provider.run_agent(task.agent_instruction, input, task.permissions)
+self.model_provider.run_agent(task.agent_instruction, input, task.permissions, tools)
 ```
 
 The adapter returns a dictionary or object matching the task `output` block.
@@ -91,9 +92,11 @@ permissions {
 }
 ```
 
-The runtime passes those strings into the provider call. Forma does not execute
-workspace tools directly in the current runtime; host providers use the
-permission list to enforce or record what a coding-agent task may do.
+The runtime passes those strings into the provider call and exposes
+`tools.require(permission)` to the provider. Forma does not execute workspace
+tools directly in the current runtime; host providers call `tools.require`
+before a workspace action. Allowed checks add `permission` trace entries.
+Undeclared checks fail with `F4001` and add `permission_denied` trace entries.
 
 ## Output Contract
 

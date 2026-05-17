@@ -125,6 +125,45 @@ describe("FormaRuntime", () => {
     expect(calls).toEqual([{ permissions: ["read", "search", "test"] }]);
   });
 
+  it("traces allowed provider permission checks", async () => {
+    const runtime = new FormaRuntime({
+      modelProvider: {
+        async runAgent(input) {
+          input.tools.require("read");
+          return { message: "Hello, Sam. Good to see you." };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(agentSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "agent.forma",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.trace).toContainEqual({ step: "permission", detail: "read" });
+  });
+
+  it("fails when a provider requests an undeclared permission", async () => {
+    const runtime = new FormaRuntime({
+      modelProvider: {
+        async runAgent(input) {
+          input.tools.require("write");
+          return { message: "Hello, Sam. Good to see you." };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(agentSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "agent.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F4001: permission 'write' is not declared");
+    expect(result.trace).toContainEqual({ step: "permission_denied", detail: "write" });
+  });
+
   it("executes a named task from a multi-task source", async () => {
     const runtime = new FormaRuntime({
       modelProvider: new StaticProvider({ message: "Hello, Sam. Good to see you." }),

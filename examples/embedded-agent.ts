@@ -11,7 +11,9 @@ class HostedModelProvider implements ModelProvider {
     instruction: string;
     values: Record<string, unknown>;
     permissions: string[];
+    tools: { require(permission: string): void };
   }): Promise<Record<string, FormaValue>> {
+    input.tools.require("read");
     const response = await callModelService({
       apiKey: this.apiKey,
       model: this.model,

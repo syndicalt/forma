@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from forma import FormaRuntime, ModelProvider
+from forma import FormaRuntime, ModelProvider, PermissionTools
 
 
 def call_model_service(
@@ -23,7 +23,8 @@ class HostedModelProvider(ModelProvider):
         self.api_key = api_key
         self.model = model
 
-    def run_agent(self, instruction: str, values: dict, permissions: list[str]) -> dict:
+    def run_agent(self, instruction: str, values: dict, permissions: list[str], tools: PermissionTools) -> dict:
+        tools.require("read")
         response = call_model_service(
             api_key=self.api_key,
             model=self.model,

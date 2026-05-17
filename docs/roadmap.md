@@ -53,7 +53,8 @@ The current MVP provides:
 - TypeScript interface and Python dataclass generation for `Text`, `Number`,
   and `Boolean` task fields.
 - CLI evaluation reports for shared conformance fixtures.
-- Permission declarations passed into TypeScript and Python provider calls.
+- Permission declarations and `tools.require` enforcement hooks in TypeScript
+  and Python provider calls.
 - Simple `verify` expressions.
 - Shared fixtures and conformance data.
 - Documentation and embedding examples.
@@ -125,8 +126,8 @@ Purpose: turn Forma from prompt contracts into coding-agent work contracts.
 Deliverables:
 
 - Host runtime hooks that map declared permissions to actual tool calls.
-- Trace entries for every requested tool call and host decision.
-- Policy failures when an agent requests an undeclared capability.
+- Richer trace entries for every requested tool call and host decision.
+- Policy failure reporting beyond undeclared capability checks.
 - Example task: "modify a function and run its focused tests."
 
 Exit criteria:
@@ -179,8 +180,8 @@ The next three implementation slices should be:
 1. Schema compiler expansion: support arrays and objects in generated bindings
    and output validation.
 2. Evaluation fixtures: compare richer verification and trace properties.
-3. Coding-agent permission enforcement: map declared workspace actions to host
-   hooks.
+3. Coding-agent tool mapping: connect declared workspace actions to real host
+   tool hooks.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

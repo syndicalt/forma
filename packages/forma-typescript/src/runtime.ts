@@ -36,10 +36,26 @@ export class FormaRuntime {
         return emptyResult(false, [], taskName ? `F1006: task '${taskName}' not found` : "F1005: program requires task");
       }
 
-      const output = task.agentInstruction
-        ? await this.runAgent(task.agentInstruction, options.input, task.permissions)
-        : runCompute(task, options.input);
-      const trace = [{ step: task.agentInstruction ? "agent" : "compute", detail: task.name }];
+      const trace: FormaResult["trace"] = [];
+      let output: Record<string, FormaValue>;
+      if (task.agentInstruction) {
+        try {
+          output = await this.runAgent(task.agentInstruction, options.input, task.permissions, trace);
+        } catch (error) {
+          return {
+            ok: false,
+            output: {},
+            trace,
+            diagnostics: [],
+            verification: { ok: false, failures: [] },
+            error: error instanceof Error ? error.message : String(error),
+          };
+        }
+        trace.push({ step: "agent", detail: task.name });
+      } else {
+        output = runCompute(task, options.input);
+        trace.push({ step: "compute", detail: task.name });
+      }
       try {
         validateOutputContract(task, output);
       } catch (error) {
@@ -71,11 +87,22 @@ export class FormaRuntime {
     instruction: string,
     values: Record<string, FormaValue>,
     permissions: string[],
+    trace: FormaResult["trace"],
   ): Promise<Record<string, FormaValue>> {
     if (!this.options.modelProvider) {
       throw new Error("F3002: agent block requires model provider");
     }
-    return this.options.modelProvider.runAgent({ instruction, values, permissions });
+    const allowed = new Set(permissions);
+    const tools = {
+      require(permission: string): void {
+        if (!allowed.has(permission)) {
+          trace.push({ step: "permission_denied", detail: permission });
+          throw new Error(`F4001: permission '${permission}' is not declared`);
+        }
+        trace.push({ step: "permission", detail: permission });
+      },
+    };
+    return this.options.modelProvider.runAgent({ instruction, values, permissions, tools });
   }
 }
 

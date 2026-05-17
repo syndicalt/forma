@@ -39,7 +39,9 @@ class HostedModelProvider implements ModelProvider {
     instruction: string;
     values: Record<string, unknown>;
     permissions: string[];
+    tools: { require(permission: string): void };
   }) {
+    input.tools.require("read");
     const response = await callModelService({
       apiKey: this.apiKey,
       model: this.model,
@@ -72,6 +74,7 @@ modelProvider.runAgent({
   instruction: task.agentInstruction,
   values: input,
   permissions: task.permissions,
+  tools,
 });
 ```
 
@@ -89,7 +92,7 @@ For a real model service, the same boundary applies:
 
 ```python
 import os
-from forma import FormaRuntime, ModelProvider
+from forma import FormaRuntime, ModelProvider, PermissionTools
 
 
 class HostedModelProvider(ModelProvider):
@@ -97,7 +100,14 @@ class HostedModelProvider(ModelProvider):
         self.api_key = api_key
         self.model = model
 
-    def run_agent(self, instruction: str, values: dict, permissions: list[str]) -> dict:
+    def run_agent(
+        self,
+        instruction: str,
+        values: dict,
+        permissions: list[str],
+        tools: PermissionTools,
+    ) -> dict:
+        tools.require("read")
         response = call_model_service(
             api_key=self.api_key,
             model=self.model,
@@ -126,7 +136,7 @@ result = runtime.run_task(
 When the runtime reaches an `agent` block, it calls:
 
 ```python
-self.model_provider.run_agent(task.agent_instruction, input, task.permissions)
+self.model_provider.run_agent(task.agent_instruction, input, task.permissions, tools)
 ```
 
 The runtime raises `F3002` if an agent task runs without a provider.
@@ -140,8 +150,10 @@ is parsed into `task.agentInstruction` in TypeScript and `task.agent_instruction
 in Python. `FormaRuntime.runSource` or `FormaRuntime.run_source` chooses the
 agent path when that instruction exists, then calls the configured provider.
 
-Permission declarations are passed to providers as `permissions` so host code
-can enforce or log the workspace actions a coding-agent task is allowed to use.
+Permission declarations are passed to providers as `permissions`, and the
+runtime also passes `tools.require(permission)`. Host adapters can call it before
+performing a workspace action; undeclared permissions fail with `F4001` and are
+recorded in the runtime trace.
 
 ## Verification
 

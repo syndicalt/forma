@@ -111,7 +111,7 @@ def test_passes_declared_permissions_into_provider_calls():
     calls = []
 
     class CapturingProvider:
-        def run_agent(self, instruction, values, permissions):
+        def run_agent(self, instruction, values, permissions, tools):
             calls.append({"permissions": permissions})
             return {"message": "Hello, Sam. Good to see you."}
 
@@ -125,6 +125,43 @@ def test_passes_declared_permissions_into_provider_calls():
 
     assert result.ok is True
     assert calls == [{"permissions": ["read", "search", "test"]}]
+
+
+def test_traces_allowed_provider_permission_checks():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            tools.require("read")
+            return {"message": "Hello, Sam. Good to see you."}
+
+    runtime = FormaRuntime(model_provider=ToolUsingProvider())
+    result = runtime.run_task(
+        AGENT_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="agent.forma",
+    )
+
+    assert result.ok is True
+    assert {"step": "permission", "detail": "read"} in result.trace
+
+
+def test_fails_when_provider_requests_undeclared_permission():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            tools.require("write")
+            return {"message": "Hello, Sam. Good to see you."}
+
+    runtime = FormaRuntime(model_provider=ToolUsingProvider())
+    result = runtime.run_task(
+        AGENT_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="agent.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F4001: permission 'write' is not declared"
+    assert {"step": "permission_denied", "detail": "write"} in result.trace
 
 
 def test_executes_named_task_from_multi_task_source():

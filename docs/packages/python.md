@@ -28,14 +28,15 @@ supported `compute` expression, then evaluates `verify` expressions.
 
 ```python
 import os
-from forma import FormaRuntime, ModelProvider
+from forma import FormaRuntime, ModelProvider, PermissionTools
 
 class HostedModelProvider(ModelProvider):
     def __init__(self, api_key: str, model: str) -> None:
         self.api_key = api_key
         self.model = model
 
-    def run_agent(self, instruction: str, values: dict, permissions: list[str]) -> dict:
+    def run_agent(self, instruction: str, values: dict, permissions: list[str], tools: PermissionTools) -> dict:
+        tools.require("read")
         response = call_model_service(
             api_key=self.api_key,
             model=self.model,

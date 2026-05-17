@@ -37,6 +37,7 @@ The call shape above matches `packages/forma-typescript/test/runtime.test.ts`.
 - `F3002`: agent block requires model provider.
 - `F3003`: required output field is missing.
 - `F3004`: output field has the wrong MVP type.
+- `F4001`: provider requested an undeclared permission.
 
 `F2001` and `F2002` are produced by the TypeScript and Python validators.
 `F3002` is used when an agent task is run without an explicit provider.
