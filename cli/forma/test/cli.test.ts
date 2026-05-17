@@ -211,10 +211,10 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "review_diff.forma"), "utf8")).toContain("task review_diff");
     expect(await readFile(join(dir, "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
     expect(await readFile(join(dir, "review_diff_forma.py"), "utf8")).toContain("assert_review_diff_output");
-    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("loadProviderProfile");
-    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("process.env[providerProfile.apiKeyEnv]");
-    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("load_provider_profile");
-    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("os.environ[provider_profile[\"apiKeyEnv\"]]");
+    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("providerProfileFromFile");
+    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("providerFromProfile(providerProfile)");
+    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("provider_profile_from_file");
+    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("provider_from_profile(provider_profile)");
     expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({
       fixtures: ["review_diff.eval.json"],
     });

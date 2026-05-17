@@ -294,6 +294,18 @@ Use `apiKeyEnv` for committed profiles; it names the environment variable that
 contains the secret. `--provider`, `--endpoint`, `--model`, and `--api-key`
 override profile values for one-off runs.
 
+Hosts can use the same profile file at runtime instead of hand-parsing JSON:
+
+```typescript
+const profile = providerProfileFromFile("examples/forma.provider.json");
+const provider = providerFromProfile(profile);
+```
+
+```python
+profile = provider_profile_from_file("examples/forma.provider.json")
+provider = provider_from_profile(profile)
+```
+
 ## OpenAI Responses Provider
 
 `OpenAIResponsesProvider` is the first production provider adapter. It keeps

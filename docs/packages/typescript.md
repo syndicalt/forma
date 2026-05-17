@@ -3,8 +3,8 @@
 The TypeScript runtime package is `@forma-lang/forma`, with source under
 `packages/forma-typescript/src`. It exports `agent`, `FormaRuntime`,
 `StaticProvider`, `HttpJsonProvider`, `OpenAIResponsesProvider`, `parseForma`,
-binding generators, `ModelProvider`, and public result and AST types from
-`src/index.ts`.
+`providerProfileFromFile`, `providerFromProfile`, binding generators,
+`ModelProvider`, and public result and AST types from `src/index.ts`.
 
 ## Deterministic Runtime
 
@@ -86,29 +86,21 @@ executes a specific named task from source text. `runFile` reads a `.forma`
 file and executes a named task:
 
 ```ts
-import { readFileSync } from "node:fs";
-
-const providerProfile = JSON.parse(readFileSync("examples/forma.provider.json", "utf8")) as {
-  provider: string;
-  model: string;
-  apiKeyEnv: string;
-};
+const providerProfile = providerProfileFromFile("examples/forma.provider.json");
 
 const reviewDiff = agent({
   file: "examples/review_diff.forma",
   task: "review_diff",
-  provider: new OpenAIResponsesProvider({
-    apiKey: process.env[providerProfile.apiKeyEnv] ?? "",
-    model: providerProfile.model,
-  }),
+  provider: providerFromProfile(providerProfile),
 });
 
 const result = await reviewDiff.run({ diff, max_findings: 5 });
 ```
 
-`forma package-init` writes the same profile shape to `forma.provider.json`.
-Use the profile for deploy-time provider and model selection; keep the actual
-secret in the named environment variable.
+`providerProfileFromFile` validates the profile shape. `providerFromProfile`
+constructs either `HttpJsonProvider` or `OpenAIResponsesProvider`, reading the
+secret from `apiKeyEnv` when the profile names one. `forma package-init` writes
+the same profile shape to `forma.provider.json`.
 
 `HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the
 Forma instruction, input values, permissions, and model name as JSON:

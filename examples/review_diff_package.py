@@ -1,27 +1,15 @@
-import json
-import os
 from pathlib import Path
 
-from forma import OpenAIResponsesProvider, agent
+from forma import agent, provider_from_profile, provider_profile_from_file
 from review_diff_forma import ReviewDiffOutput, assert_review_diff_output
 
 
-def load_provider_profile() -> dict[str, str]:
-    return json.loads(Path("examples/forma.provider.json").read_text(encoding="utf8"))
-
-
-provider_profile = load_provider_profile()
-if provider_profile["provider"] != "openai-responses":
-    raise RuntimeError(f"Unsupported Forma provider: {provider_profile['provider']}")
-
+provider_profile = provider_profile_from_file(Path("examples/forma.provider.json"))
 
 review_diff = agent(
     file=Path("examples/review_diff.forma"),
     task="review_diff",
-    provider=OpenAIResponsesProvider(
-        api_key=os.environ[provider_profile["apiKeyEnv"]],
-        model=provider_profile["model"],
-    ),
+    provider=provider_from_profile(provider_profile),
 )
 
 

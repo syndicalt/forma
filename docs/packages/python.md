@@ -2,8 +2,9 @@
 
 The Python runtime package is `forma-lang`, with source under
 `packages/forma-python/src/forma`. It exports `agent`, `FormaRuntime`,
-`StaticProvider`, `HttpJsonProvider`, and `OpenAIResponsesProvider` from
-`forma`. It also exports `ModelProvider` for typing custom adapters.
+`StaticProvider`, `HttpJsonProvider`, `OpenAIResponsesProvider`,
+`provider_profile_from_file`, and `provider_from_profile` from `forma`. It also
+exports `ModelProvider` for typing custom adapters.
 `FormaRuntime.run_source` accepts source text, an input dictionary, and a source
 name, then returns a `FormaResult` dataclass.
 
@@ -83,25 +84,22 @@ executes a specific named task from source text. `run_file` reads a `.forma`
 file and executes a named task:
 
 ```python
-import json
-
-provider_profile = json.loads(Path("examples/forma.provider.json").read_text(encoding="utf8"))
+provider_profile = provider_profile_from_file(Path("examples/forma.provider.json"))
 
 review_diff = agent(
     file="examples/review_diff.forma",
     task="review_diff",
-    provider=OpenAIResponsesProvider(
-        api_key=os.environ[provider_profile["apiKeyEnv"]],
-        model=provider_profile["model"],
-    ),
+    provider=provider_from_profile(provider_profile),
 )
 
 result = review_diff.run({"diff": diff, "max_findings": 5})
 ```
 
-`forma package-init` writes the same profile shape to `forma.provider.json`.
-Use the profile for deploy-time provider and model selection; keep the actual
-secret in the named environment variable.
+`provider_profile_from_file` validates the profile shape.
+`provider_from_profile` constructs either `HttpJsonProvider` or
+`OpenAIResponsesProvider`, reading the secret from `apiKeyEnv` when the profile
+names one. `forma package-init` writes the same profile shape to
+`forma.provider.json`.
 
 `HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the
 Forma instruction, input values, permissions, and model name as JSON:

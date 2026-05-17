@@ -1,5 +1,7 @@
 import json
+import os
 import urllib.request
+from pathlib import Path
 from typing import Callable, Protocol
 
 from .types import FormaValue
@@ -164,6 +166,57 @@ class OpenAIResponsesProvider:
         )
         with urllib.request.urlopen(request) as response:
             return json.loads(response.read().decode("utf8"))
+
+
+ProviderProfile = dict[str, str]
+
+
+def provider_profile_from_file(path: str | Path) -> ProviderProfile:
+    parsed = json.loads(Path(path).read_text(encoding="utf8"))
+    return _validate_provider_profile(parsed)
+
+
+def provider_from_profile(
+    profile: ProviderProfile,
+    *,
+    env: dict[str, str] | None = None,
+    transport: Transport | None = None,
+) -> ModelProvider:
+    env_values = env or os.environ
+    api_key = profile.get("apiKey") or (env_values.get(profile["apiKeyEnv"]) if "apiKeyEnv" in profile else None)
+    provider = profile["provider"]
+    if provider == "http-json":
+        endpoint = profile.get("endpoint")
+        if endpoint is None:
+            raise ValueError("provider profile endpoint is required for http-json")
+        return HttpJsonProvider(
+            endpoint=endpoint,
+            model=profile["model"],
+            api_key=api_key,
+            transport=transport,
+        )
+    if api_key is None:
+        raise ValueError("provider profile apiKey or apiKeyEnv is required for openai-responses")
+    return OpenAIResponsesProvider(
+        api_key=api_key,
+        model=profile["model"],
+        endpoint=profile.get("endpoint", "https://api.openai.com/v1/responses"),
+        transport=transport,
+    )
+
+
+def _validate_provider_profile(value: object) -> ProviderProfile:
+    if not isinstance(value, dict):
+        raise ValueError("provider profile must be a JSON object")
+    provider = value.get("provider")
+    if provider not in {"http-json", "openai-responses"}:
+        raise ValueError("provider profile provider must be http-json or openai-responses")
+    if not isinstance(value.get("model"), str) or not value["model"]:
+        raise ValueError("provider profile model is required")
+    for field in ["endpoint", "apiKey", "apiKeyEnv"]:
+        if field in value and not isinstance(value[field], str):
+            raise ValueError(f"provider profile {field} must be a string")
+    return value
 
 
 def _object_schema(fields: dict[str, dict[str, object]], schemas: dict[str, dict[str, dict[str, object]]]) -> dict[str, object]:

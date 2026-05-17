@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { HttpJsonProvider, OpenAIResponsesProvider } from "../src/index.js";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { HttpJsonProvider, OpenAIResponsesProvider, providerFromProfile, providerProfileFromFile } from "../src/index.js";
 
 describe("HttpJsonProvider", () => {
   it("posts agent inputs and returns structured output", async () => {
@@ -195,5 +198,51 @@ describe("OpenAIResponsesProvider", () => {
         },
       },
     ]);
+  });
+});
+
+describe("provider profiles", () => {
+  it("loads an OpenAI Responses provider profile from disk and reads the key from env", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-provider-profile-"));
+    const profilePath = join(dir, "forma.provider.json");
+    await writeFile(profilePath, JSON.stringify({
+      provider: "openai-responses",
+      model: "gpt-profile",
+      apiKeyEnv: "FORMA_TEST_API_KEY",
+    }));
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    const profile = providerProfileFromFile(profilePath);
+    const provider = providerFromProfile(profile, {
+      env: { FORMA_TEST_API_KEY: "profile-secret" },
+      fetch: async (url, init) => {
+        requests.push({ url: String(url), init: init ?? {} });
+        return {
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ output_text: JSON.stringify({ message: "Hello from profile." }) }),
+        } as Response;
+      },
+    });
+
+    const output = await provider.runAgent({
+      instruction: "Write a greeting.",
+      values: { user_name: "Sam" },
+      permissions: [],
+      output: { message: { type: "Text", array: false, optional: false } },
+      schemas: {},
+      tools: {
+        require() {},
+        readText: async () => "",
+        searchText: async () => [],
+        runTest: async () => ({ ok: true, output: "" }),
+        writeText: async () => ({ ok: true, output: "" }),
+      },
+    });
+
+    expect(output).toEqual({ message: "Hello from profile." });
+    expect(JSON.parse(String(requests[0]?.init.body)).model).toBe("gpt-profile");
+    expect(requests[0]?.init.headers).toMatchObject({
+      authorization: "Bearer profile-secret",
+    });
   });
 });

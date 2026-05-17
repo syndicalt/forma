@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from forma import HttpJsonProvider, OpenAIResponsesProvider
+from forma import HttpJsonProvider, OpenAIResponsesProvider, provider_from_profile, provider_profile_from_file
 
 
 def test_http_json_provider_posts_agent_inputs_and_returns_structured_output():
@@ -158,3 +158,39 @@ def test_openai_responses_provider_posts_schema_generated_from_forma_output_fiel
             },
         }
     ]
+
+
+def test_provider_profile_loads_openai_responses_provider_from_disk_and_reads_key_from_env(tmp_path, monkeypatch):
+    profile_path = tmp_path / "forma.provider.json"
+    profile_path.write_text(
+        json.dumps(
+            {
+                "provider": "openai-responses",
+                "model": "gpt-profile",
+                "apiKeyEnv": "FORMA_TEST_API_KEY",
+            }
+        ),
+        encoding="utf8",
+    )
+    monkeypatch.setenv("FORMA_TEST_API_KEY", "profile-secret")
+    requests = []
+
+    def transport(url, body, headers):
+        requests.append({"url": url, "body": body, "headers": headers})
+        return {"output_text": json.dumps({"message": "Hello from profile."})}
+
+    profile = provider_profile_from_file(profile_path)
+    provider = provider_from_profile(profile, transport=transport)
+
+    output = provider.run_agent(
+        "Write a greeting.",
+        {"user_name": "Sam"},
+        [],
+        tools=None,
+        output={"message": {"type": "Text", "array": False, "optional": False}},
+        schemas={},
+    )
+
+    assert output == {"message": "Hello from profile."}
+    assert requests[0]["body"]["model"] == "gpt-profile"
+    assert requests[0]["headers"]["authorization"] == "Bearer profile-secret"

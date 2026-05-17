@@ -330,34 +330,16 @@ function scaffoldTypeScriptExample(taskName: string, kind: ScaffoldKind): string
   }
   const pascalName = toPascalCase(taskName);
   const camelName = toCamelCase(taskName);
-  return `import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { OpenAIResponsesProvider, agent } from "@forma-lang/forma";
+  return `import { fileURLToPath } from "node:url";
+import { agent, providerFromProfile, providerProfileFromFile } from "@forma-lang/forma";
 import { assert${pascalName}Output, type ${pascalName}Output } from "./${taskName}.forma.js";
 
-interface ProviderProfile {
-  provider: string;
-  model: string;
-  apiKeyEnv: string;
-}
-
-function loadProviderProfile(): ProviderProfile {
-  const path = fileURLToPath(new URL("./forma.provider.json", import.meta.url));
-  return JSON.parse(readFileSync(path, "utf8")) as ProviderProfile;
-}
-
-const providerProfile = loadProviderProfile();
-if (providerProfile.provider !== "openai-responses") {
-  throw new Error(\`Unsupported Forma provider: \${providerProfile.provider}\`);
-}
+const providerProfile = providerProfileFromFile(fileURLToPath(new URL("./forma.provider.json", import.meta.url)));
 
 const ${camelName} = agent({
   file: fileURLToPath(new URL("./${taskName}.forma", import.meta.url)),
   task: "${taskName}",
-  provider: new OpenAIResponsesProvider({
-    apiKey: process.env[providerProfile.apiKeyEnv] ?? "",
-    model: providerProfile.model,
-  }),
+  provider: providerFromProfile(providerProfile),
 });
 
 export async function run${pascalName}(diff: string): Promise<${pascalName}Output> {
@@ -420,30 +402,18 @@ function scaffoldPythonExample(taskName: string, kind: ScaffoldKind): string {
     return scaffoldToolPythonExample(taskName);
   }
   const pascalName = toPascalCase(taskName);
-  return `import json
-import os
-from pathlib import Path
+  return `from pathlib import Path
 
-from forma import OpenAIResponsesProvider, agent
+from forma import agent, provider_from_profile, provider_profile_from_file
 from ${taskName}_forma import ${pascalName}Output, assert_${taskName}_output
 
 
-def load_provider_profile() -> dict[str, str]:
-    return json.loads(Path(__file__).with_name("forma.provider.json").read_text(encoding="utf8"))
-
-
-provider_profile = load_provider_profile()
-if provider_profile["provider"] != "openai-responses":
-    raise RuntimeError(f"Unsupported Forma provider: {provider_profile['provider']}")
-
+provider_profile = provider_profile_from_file(Path(__file__).with_name("forma.provider.json"))
 
 ${taskName} = agent(
     file=Path(__file__).with_name("${taskName}.forma"),
     task="${taskName}",
-    provider=OpenAIResponsesProvider(
-        api_key=os.environ[provider_profile["apiKeyEnv"]],
-        model=provider_profile["model"],
-    ),
+    provider=provider_from_profile(provider_profile),
 )
 
 

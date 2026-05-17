@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import type { FormaField, FormaValue } from "./types.js";
 
 export interface PermissionTools {
@@ -147,6 +148,71 @@ export class OpenAIResponsesProvider implements ModelProvider {
     }
     return output as Record<string, FormaValue>;
   }
+}
+
+export interface ProviderProfile {
+  provider: "http-json" | "openai-responses";
+  endpoint?: string;
+  model: string;
+  apiKey?: string;
+  apiKeyEnv?: string;
+}
+
+export interface ProviderProfileOptions {
+  env?: Record<string, string | undefined>;
+  fetch?: FetchLike;
+}
+
+export function providerProfileFromFile(path: string): ProviderProfile {
+  const parsed = JSON.parse(readFileSync(path, "utf8")) as unknown;
+  return validateProviderProfile(parsed);
+}
+
+export function providerFromProfile(profile: ProviderProfile, options: ProviderProfileOptions = {}): ModelProvider {
+  const apiKey = profile.apiKey ?? (profile.apiKeyEnv ? (options.env ?? process.env)[profile.apiKeyEnv] : undefined);
+  if (profile.provider === "http-json") {
+    if (!profile.endpoint) {
+      throw new Error("provider profile endpoint is required for http-json");
+    }
+    return new HttpJsonProvider({
+      endpoint: profile.endpoint,
+      model: profile.model,
+      ...(apiKey ? { apiKey } : {}),
+      ...(options.fetch ? { fetch: options.fetch } : {}),
+    });
+  }
+  if (!apiKey) {
+    throw new Error("provider profile apiKey or apiKeyEnv is required for openai-responses");
+  }
+  return new OpenAIResponsesProvider({
+    apiKey,
+    model: profile.model,
+    ...(profile.endpoint ? { endpoint: profile.endpoint } : {}),
+    ...(options.fetch ? { fetch: options.fetch } : {}),
+  });
+}
+
+function validateProviderProfile(value: unknown): ProviderProfile {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("provider profile must be a JSON object");
+  }
+  const profile = value as Partial<ProviderProfile>;
+  if (profile.provider !== "http-json" && profile.provider !== "openai-responses") {
+    throw new Error("provider profile provider must be http-json or openai-responses");
+  }
+  if (typeof profile.model !== "string" || profile.model.length === 0) {
+    throw new Error("provider profile model is required");
+  }
+  if (profile.endpoint !== undefined && typeof profile.endpoint !== "string") {
+    throw new Error("provider profile endpoint must be a string");
+  }
+  if (profile.apiKey !== undefined && typeof profile.apiKey !== "string") {
+    throw new Error("provider profile apiKey must be a string");
+  }
+  if (profile.apiKeyEnv !== undefined && typeof profile.apiKeyEnv !== "string") {
+    throw new Error("provider profile apiKeyEnv must be a string");
+  }
+  return profile as ProviderProfile;
 }
 
 function objectSchema(fields: Record<string, FormaField>, schemas: Record<string, Record<string, FormaField>>): Record<string, unknown> {
