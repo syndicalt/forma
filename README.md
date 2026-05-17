@@ -99,6 +99,7 @@ Start a package with:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
+forma package-init ./repair-package --name acme/tool-repair --task tool_assisted_repair --kind tool
 ```
 
 `examples/tool_assisted_repair.forma`, `examples/tool_permission_workflow.ts`,

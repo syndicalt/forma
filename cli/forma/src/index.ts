@@ -113,6 +113,7 @@ async function checkPackageManifest(path: string): Promise<CliResult> {
 async function initializePackage(path: string, args: string[]): Promise<CliResult> {
   const packageName = optionValue(args, "--name");
   const taskName = optionValue(args, "--task") ?? "review_diff";
+  const kind = scaffoldKind(args);
   if (!packageName) {
     throw new Error("--name is required for package-init");
   }
@@ -129,13 +130,13 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const evalFixture = `${taskName}.eval.json`;
   const evalSuite = "forma.eval.json";
   const manifestFile = `${taskName}.forma.pkg.json`;
-  const source = scaffoldSource(taskName);
+  const source = scaffoldSource(taskName, kind);
   await writeFile(resolve(path, taskFile), source, "utf8");
   await writeFile(resolve(path, typeScriptBindings), generateTypeScriptBindings(source), "utf8");
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
-  await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName), "utf8");
-  await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName), "utf8");
-  await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile), null, 2)}\n`, "utf8");
+  await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName, kind), "utf8");
+  await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName, kind), "utf8");
+  await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
   const manifest = {
     formaPackage: 1,
@@ -169,7 +170,21 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
 
-function scaffoldSource(taskName: string): string {
+type ScaffoldKind = "review" | "tool";
+
+function scaffoldKind(args: string[]): ScaffoldKind {
+  const kind = optionValue(args, "--kind") ?? "review";
+  if (kind !== "review" && kind !== "tool") {
+    throw new Error("--kind must be review or tool");
+  }
+  return kind;
+}
+
+function scaffoldSource(taskName: string, kind: ScaffoldKind): string {
+  return kind === "tool" ? scaffoldToolSource(taskName) : scaffoldReviewSource(taskName);
+}
+
+function scaffoldReviewSource(taskName: string): string {
   return `task ${taskName} {
   intent "Review a code diff and produce structured review metadata"
 
@@ -207,7 +222,66 @@ function scaffoldSource(taskName: string): string {
 `;
 }
 
-function scaffoldEvalFixture(taskName: string, taskFile: string) {
+function scaffoldToolSource(taskName: string): string {
+  return `task ${taskName} {
+  intent "Inspect a source file, run a focused test command, and write a small repair"
+
+  input {
+    path: Text
+    test_command: Text?
+  }
+
+  output {
+    summary: Text
+    searched: Boolean
+    test_passed: Boolean
+    edited: Boolean
+  }
+
+  agent {
+    instruction """
+    Use the host read, search, test, and edit tools to inspect a file, find related context,
+    run a focused verification command, and apply a minimal repair when appropriate.
+    Return only the declared structured output fields.
+    """
+  }
+
+  permissions {
+    read
+    search
+    test
+    edit
+  }
+}
+`;
+}
+
+function scaffoldEvalFixture(taskName: string, taskFile: string, kind: ScaffoldKind) {
+  if (kind === "tool") {
+    const output = {
+      summary: "Read src/example.ts, found related context, ran tests, and wrote a repair.",
+      searched: true,
+      test_passed: true,
+      edited: true,
+    };
+    return {
+      name: taskName,
+      source: taskFile,
+      input: {
+        path: "src/example.ts",
+        test_command: "pnpm test",
+      },
+      fakeProviderOutput: output,
+      expectedResult: {
+        ok: true,
+        output,
+        trace: [{ step: "agent", detail: taskName }],
+        diagnostics: [],
+        verification: { ok: true },
+        error: null,
+      },
+    };
+  }
   const output = {
     summary: "The diff needs review.",
     findings: [
@@ -238,7 +312,10 @@ function scaffoldEvalFixture(taskName: string, taskFile: string) {
   };
 }
 
-function scaffoldTypeScriptExample(taskName: string): string {
+function scaffoldTypeScriptExample(taskName: string, kind: ScaffoldKind): string {
+  if (kind === "tool") {
+    return scaffoldToolTypeScriptExample(taskName);
+  }
   const pascalName = toPascalCase(taskName);
   const camelName = toCamelCase(taskName);
   return `import { fileURLToPath } from "node:url";
@@ -264,7 +341,55 @@ export async function run${pascalName}(diff: string): Promise<${pascalName}Outpu
 `;
 }
 
-function scaffoldPythonExample(taskName: string): string {
+function scaffoldToolTypeScriptExample(taskName: string): string {
+  const pascalName = toPascalCase(taskName);
+  const camelName = toCamelCase(taskName);
+  return `import { fileURLToPath } from "node:url";
+import { agent, type FormaValue, type ModelProvider, type PermissionTools } from "@forma-lang/forma";
+import { assert${pascalName}Output, type ${pascalName}Output } from "./${taskName}.forma.js";
+
+class ToolProvider implements ModelProvider {
+  async runAgent(input: {
+    instruction: string;
+    values: Record<string, FormaValue>;
+    permissions: string[];
+    tools: PermissionTools;
+  }): Promise<Record<string, FormaValue>> {
+    const path = String(input.values.path);
+    const testCommand = typeof input.values.test_command === "string" ? input.values.test_command : "pnpm test";
+    const source = await input.tools.readText(path);
+    const matches = await input.tools.searchText("NEEDS_FIX");
+    const test = await input.tools.runTest(testCommand);
+    await input.tools.writeText(path, source.replace("NEEDS_FIX", "fixed"));
+    return {
+      summary: \`Read \${path}, found \${matches.length} related matches, and ran \${testCommand}.\`,
+      searched: matches.length > 0,
+      test_passed: test.ok,
+      edited: true,
+    };
+  }
+}
+
+const ${camelName} = agent({
+  file: fileURLToPath(new URL("./${taskName}.forma", import.meta.url)),
+  task: "${taskName}",
+  provider: new ToolProvider(),
+});
+
+export async function run${pascalName}(path: string): Promise<${pascalName}Output> {
+  const result = await ${camelName}.run({ path, test_command: "pnpm test" });
+  if (!result.ok) {
+    throw new Error(result.error ?? "Forma ${taskName} failed");
+  }
+  return assert${pascalName}Output(result.output);
+}
+`;
+}
+
+function scaffoldPythonExample(taskName: string, kind: ScaffoldKind): string {
+  if (kind === "tool") {
+    return scaffoldToolPythonExample(taskName);
+  }
   const pascalName = toPascalCase(taskName);
   return `import os
 from pathlib import Path
@@ -285,6 +410,53 @@ ${taskName} = agent(
 
 def run_${taskName}(diff: str) -> ${pascalName}Output:
     result = ${taskName}.run({"diff": diff, "max_findings": 5})
+    if not result.ok:
+        raise RuntimeError(result.error or "Forma ${taskName} failed")
+    return assert_${taskName}_output(result.output)
+`;
+}
+
+function scaffoldToolPythonExample(taskName: string): string {
+  const pascalName = toPascalCase(taskName);
+  return `from pathlib import Path
+
+from forma import FormaValue, PermissionTools, agent
+from ${taskName}_forma import ${pascalName}Output, assert_${taskName}_output
+
+
+class ToolProvider:
+    def run_agent(
+        self,
+        instruction: str,
+        values: dict[str, FormaValue],
+        permissions: list[str],
+        tools: PermissionTools,
+        output: dict[str, dict[str, object]] | None = None,
+        schemas: dict[str, dict[str, dict[str, object]]] | None = None,
+    ) -> dict[str, FormaValue]:
+        path = str(values["path"])
+        test_command = str(values.get("test_command") or "pytest")
+        source = tools.read_text(path)
+        matches = tools.search_text("NEEDS_FIX")
+        test = tools.run_test(test_command)
+        tools.write_text(path, source.replace("NEEDS_FIX", "fixed"))
+        return {
+            "summary": f"Read {path}, found {len(matches)} related matches, and ran {test_command}.",
+            "searched": len(matches) > 0,
+            "test_passed": bool(test.get("ok")),
+            "edited": True,
+        }
+
+
+${taskName} = agent(
+    file=Path(__file__).with_name("${taskName}.forma"),
+    task="${taskName}",
+    provider=ToolProvider(),
+)
+
+
+def run_${taskName}(path: str) -> ${pascalName}Output:
+    result = ${taskName}.run({"path": path, "test_command": "pytest"})
     if not result.ok:
         raise RuntimeError(result.error or "Forma ${taskName} failed")
     return assert_${taskName}_output(result.output)

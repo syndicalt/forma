@@ -55,10 +55,14 @@ forma package-check examples/review_diff.forma.pkg.json
 
 `forma package-init` scaffolds a starter package directory with a `.forma` task,
 eval fixture, eval suite, package manifest, generated TypeScript/Python
-bindings, and host examples:
+bindings, and host examples. Use `--kind review` for the default code-review
+agent shape or `--kind tool` for a coding-agent shape that declares `read`,
+`search`, `test`, and `edit` permissions and generates host examples that call
+those tools:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
+forma package-init ./repair-package --name acme/tool-repair --task tool_assisted_repair --kind tool
 forma package-check ./review-diff-package/review_diff.forma.pkg.json
 ```
 

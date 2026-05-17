@@ -215,6 +215,30 @@ describe("forma cli", () => {
     expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
   });
 
+  it("scaffolds a tool-using package when requested", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-init-tools-"));
+    const result = await runCli([
+      "package-init",
+      dir,
+      "--name",
+      "acme/tool-repair",
+      "--task",
+      "tool_assisted_repair",
+      "--kind",
+      "tool",
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    const source = await readFile(join(dir, "tool_assisted_repair.forma"), "utf8");
+    expect(source).toContain("edit");
+    expect(source).toContain("test_command: Text?");
+    expect(await readFile(join(dir, "tool_assisted_repair_package.ts"), "utf8")).toContain("input.tools.writeText");
+    expect(await readFile(join(dir, "tool_assisted_repair_package.py"), "utf8")).toContain("tools.write_text");
+
+    const check = await runCli(["package-check", join(dir, "tool_assisted_repair.forma.pkg.json")]);
+    expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);
