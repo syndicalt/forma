@@ -2,8 +2,8 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { FormaRuntime, StaticProvider } from "@forma-lang/forma";
-import type { FormaDiagnostic, FormaResult, FormaValue } from "@forma-lang/forma";
+import { FormaRuntime, HttpJsonProvider, StaticProvider } from "@forma-lang/forma";
+import type { FormaDiagnostic, FormaResult, FormaValue, ModelProvider } from "@forma-lang/forma";
 
 export interface CliResult {
   exitCode: number;
@@ -19,7 +19,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 
   try {
     if (command === "eval") {
-      return evaluateFixture(path);
+      return evaluateFixture(path, rest);
     }
 
     const source = await readFile(path, "utf8");
@@ -60,15 +60,20 @@ interface EvalFixture {
   expectedResult: Partial<Pick<FormaResult, "ok" | "output" | "trace" | "verification" | "error">>;
 }
 
-async function evaluateFixture(path: string): Promise<CliResult> {
+interface EvalOptions {
+  provider: "fixture" | "http-json";
+  endpoint?: string;
+  model?: string;
+  apiKey?: string;
+}
+
+async function evaluateFixture(path: string, args: string[]): Promise<CliResult> {
   const fixture = JSON.parse(await readFile(path, "utf8")) as EvalFixture;
   const sourcePath = resolve(dirname(path), fixture.source);
   const source = await readFile(sourcePath, "utf8");
-  const runtime = new FormaRuntime(
-    fixture.fakeProviderOutput
-      ? { modelProvider: new StaticProvider(fixture.fakeProviderOutput) }
-      : {},
-  );
+  const evalOptions = parseEvalOptions(args);
+  const modelProvider = createEvalProvider(fixture, evalOptions);
+  const runtime = new FormaRuntime(modelProvider ? { modelProvider } : {});
   const startedAt = Date.now();
   const result = await runtime.runTask(source, fixture.name, {
     input: fixture.input ?? {},
@@ -87,7 +92,7 @@ async function evaluateFixture(path: string): Promise<CliResult> {
     passed: checks.every((check) => check.passed),
     result,
     metadata: {
-      provider: fixture.fakeProviderOutput ? "static" : "none",
+      provider: providerName(fixture, evalOptions),
       durationMs,
     },
     checks,
@@ -97,6 +102,46 @@ async function evaluateFixture(path: string): Promise<CliResult> {
     stdout: `${JSON.stringify(report, null, 2)}\n`,
     stderr: "",
   };
+}
+
+function parseEvalOptions(args: string[]): EvalOptions {
+  const provider = optionValue(args, "--provider");
+  if (!provider) return { provider: "fixture" };
+  if (provider !== "http-json") {
+    throw new Error(`unsupported eval provider '${provider}'`);
+  }
+  const endpoint = optionValue(args, "--endpoint");
+  const model = optionValue(args, "--model");
+  if (!endpoint) throw new Error("--endpoint is required for --provider http-json");
+  if (!model) throw new Error("--model is required for --provider http-json");
+  const apiKey = optionValue(args, "--api-key");
+  return {
+    provider: "http-json",
+    endpoint,
+    model,
+    ...(apiKey ? { apiKey } : {}),
+  };
+}
+
+function createEvalProvider(fixture: EvalFixture, options: EvalOptions): ModelProvider | undefined {
+  if (options.provider === "http-json") {
+    return new HttpJsonProvider({
+      endpoint: options.endpoint ?? "",
+      model: options.model ?? "",
+      ...(options.apiKey ? { apiKey: options.apiKey } : {}),
+    });
+  }
+  return fixture.fakeProviderOutput ? new StaticProvider(fixture.fakeProviderOutput) : undefined;
+}
+
+function providerName(fixture: EvalFixture, options: EvalOptions): string {
+  if (options.provider === "http-json") return "http-json";
+  return fixture.fakeProviderOutput ? "static" : "none";
+}
+
+function optionValue(args: string[], name: string): string | undefined {
+  const index = args.indexOf(name);
+  return index === -1 ? undefined : args[index + 1];
 }
 
 function deepEqual(left: unknown, right: unknown): boolean {

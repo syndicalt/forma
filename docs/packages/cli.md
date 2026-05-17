@@ -40,6 +40,19 @@ Agent fixtures can use `fakeProviderOutput`; the CLI evaluates those with
 `StaticProvider` so CI does not need a model key. Eval reports include provider
 metadata and `durationMs` for CI summaries.
 
+Use `--provider http-json` to evaluate against an HTTP JSON model endpoint:
+
+```bash
+forma eval packages/forma-core/conformance/review_diff.json \
+  --provider http-json \
+  --endpoint "$MODEL_ENDPOINT" \
+  --model "$MODEL_NAME" \
+  --api-key "$MODEL_API_KEY"
+```
+
+The HTTP provider ignores `fakeProviderOutput`, sends the fixture input to the
+configured endpoint, and compares the live output with `expectedResult`.
+
 ## Input Handling
 
 `--input` accepts a JSON object. The CLI passes that object directly to the

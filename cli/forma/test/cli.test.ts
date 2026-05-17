@@ -68,4 +68,54 @@ describe("forma cli", () => {
       clean: true,
     });
   });
+
+  it("evaluates a fixture with an HTTP JSON provider", async () => {
+    const originalFetch = globalThis.fetch;
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          output: {
+            summary: "Live provider reviewed the diff.",
+            finding_count: 0,
+            clean: true,
+          },
+        }),
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "eval",
+        "../../packages/forma-core/conformance/review_diff.json",
+        "--provider",
+        "http-json",
+        "--endpoint",
+        "https://model.example/v1/agent",
+        "--model",
+        "example-model",
+        "--api-key",
+        "secret",
+      ]);
+      const report = JSON.parse(result.stdout);
+
+      expect(result.exitCode).toBe(1);
+      expect(report.metadata.provider).toBe("http-json");
+      expect(report.result.output).toEqual({
+        summary: "Live provider reviewed the diff.",
+        finding_count: 0,
+        clean: true,
+      });
+      expect(report.checks.find((check: { name: string }) => check.name === "output")).toEqual({
+        name: "output",
+        passed: false,
+      });
+      expect(requests[0]?.url).toBe("https://model.example/v1/agent");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });

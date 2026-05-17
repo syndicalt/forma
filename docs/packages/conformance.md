@@ -64,6 +64,15 @@ node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.js
 It exercises structured `Text`, `Number`, and `Boolean` output fields for a diff
 review task.
 
+Live-style evaluation can use the HTTP JSON provider:
+
+```bash
+node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json \
+  --provider http-json \
+  --endpoint "$MODEL_ENDPOINT" \
+  --model "$MODEL_NAME"
+```
+
 ## Result Contract
 
 Conformance result objects are intentionally close to runtime output:

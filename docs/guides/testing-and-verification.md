@@ -43,6 +43,15 @@ node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name"
 node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.json
 ```
 
+Run an HTTP JSON provider evaluation when a compatible endpoint is available:
+
+```bash
+node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json \
+  --provider http-json \
+  --endpoint "$MODEL_ENDPOINT" \
+  --model "$MODEL_NAME"
+```
+
 ## Verification
 
 Expected smoke output:

@@ -58,6 +58,7 @@ The current MVP provides:
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
 - HTTP JSON provider adapters for TypeScript and Python.
+- CLI live evaluation mode through `--provider http-json`.
 - First coding-agent conformance task: `review_diff`.
 - Duplicate task name diagnostics.
 - Simple `verify` expressions.
@@ -114,9 +115,9 @@ Deliverables:
 
 - `.forma` examples section or companion fixture format for inputs and expected
   output properties.
-- CLI command for running evaluations against static fixtures, with live
-  provider adapters still to add.
-- Live provider evaluation snapshots beyond static fixtures.
+- CLI command for running evaluations against static fixtures and HTTP JSON
+  provider endpoints.
+- Richer live provider evaluation snapshots beyond the current HTTP JSON mode.
 - Regression comparison for prompt, schema, and model changes.
 - CI-friendly JSON output.
 
@@ -185,7 +186,7 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: support arrays and objects in generated bindings
    and output validation.
-2. Evaluation fixtures: add live provider evaluation mode.
+2. Evaluation fixtures: add regression comparison across eval report files.
 3. Provider adapter kit: add optional production provider packages.
 
 This order keeps the project honest. Schema generation proves Forma saves host
