@@ -53,6 +53,20 @@ forma eval packages/forma-core/conformance/review_diff.json \
 The HTTP provider ignores `fakeProviderOutput`, sends the fixture input to the
 configured endpoint, and compares the live output with `expectedResult`.
 
+Use `--provider openai-responses` to evaluate against the built-in OpenAI
+Responses adapter. The CLI passes the task output contract to the provider so
+the request can use structured outputs derived from the `.forma` file:
+
+```bash
+forma eval packages/forma-core/conformance/review_diff.json \
+  --provider openai-responses \
+  --model "$OPENAI_MODEL" \
+  --api-key "$OPENAI_API_KEY"
+```
+
+`--endpoint` is optional for this provider and defaults to
+`https://api.openai.com/v1/responses`.
+
 `forma compare` compares two JSON eval reports and exits with code 1 when the
 candidate regresses from a passing check to a failing check:
 

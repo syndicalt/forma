@@ -128,6 +128,67 @@ describe("forma cli", () => {
     }
   });
 
+  it("evaluates a fixture with an OpenAI Responses provider", async () => {
+    const originalFetch = globalThis.fetch;
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          output: [
+            {
+              type: "message",
+              content: [
+                {
+                  type: "output_text",
+                  text: JSON.stringify({
+                    summary: "OpenAI reviewed the diff.",
+                    findings: [],
+                    clean: true,
+                  }),
+                },
+              ],
+            },
+          ],
+        }),
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "eval",
+        "../../packages/forma-core/conformance/review_diff.json",
+        "--provider",
+        "openai-responses",
+        "--model",
+        "gpt-5",
+        "--api-key",
+        "secret",
+      ]);
+      const report = JSON.parse(result.stdout);
+      const body = JSON.parse(String(requests[0]?.init.body));
+
+      expect(result.exitCode).toBe(1);
+      expect(report.metadata.provider).toBe("openai-responses");
+      expect(report.result.output).toEqual({
+        summary: "OpenAI reviewed the diff.",
+        findings: [],
+        clean: true,
+      });
+      expect(requests[0]?.url).toBe("https://api.openai.com/v1/responses");
+      expect(requests[0]?.init.headers).toEqual({
+        "content-type": "application/json",
+        authorization: "Bearer secret",
+      });
+      expect(body.model).toBe("gpt-5");
+      expect(body.text.format.schema.properties.findings.items.properties.message).toEqual({ type: "string" });
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it("compares eval reports and flags regressions", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-compare-"));
     const baseline = join(dir, "baseline.json");

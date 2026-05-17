@@ -2,7 +2,7 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { FormaRuntime, HttpJsonProvider, StaticProvider } from "@forma-lang/forma";
+import { FormaRuntime, HttpJsonProvider, OpenAIResponsesProvider, StaticProvider } from "@forma-lang/forma";
 import type { FormaDiagnostic, FormaResult, FormaValue, ModelProvider } from "@forma-lang/forma";
 
 export interface CliResult {
@@ -97,7 +97,7 @@ interface EvalFixture {
 }
 
 interface EvalOptions {
-  provider: "fixture" | "http-json";
+  provider: "fixture" | "http-json" | "openai-responses";
   endpoint?: string;
   model?: string;
   apiKey?: string;
@@ -143,17 +143,22 @@ async function evaluateFixture(path: string, args: string[]): Promise<CliResult>
 function parseEvalOptions(args: string[]): EvalOptions {
   const provider = optionValue(args, "--provider");
   if (!provider) return { provider: "fixture" };
-  if (provider !== "http-json") {
+  if (provider !== "http-json" && provider !== "openai-responses") {
     throw new Error(`unsupported eval provider '${provider}'`);
   }
-  const endpoint = optionValue(args, "--endpoint");
   const model = optionValue(args, "--model");
-  if (!endpoint) throw new Error("--endpoint is required for --provider http-json");
   if (!model) throw new Error("--model is required for --provider http-json");
   const apiKey = optionValue(args, "--api-key");
+  if (provider === "openai-responses" && !apiKey) {
+    throw new Error("--api-key is required for --provider openai-responses");
+  }
+  const endpoint = optionValue(args, "--endpoint");
+  if (provider === "http-json" && !endpoint) {
+    throw new Error("--endpoint is required for --provider http-json");
+  }
   return {
-    provider: "http-json",
-    endpoint,
+    provider,
+    ...(endpoint ? { endpoint } : {}),
     model,
     ...(apiKey ? { apiKey } : {}),
   };
@@ -167,11 +172,19 @@ function createEvalProvider(fixture: EvalFixture, options: EvalOptions): ModelPr
       ...(options.apiKey ? { apiKey: options.apiKey } : {}),
     });
   }
+  if (options.provider === "openai-responses") {
+    return new OpenAIResponsesProvider({
+      model: options.model ?? "",
+      apiKey: options.apiKey ?? "",
+      ...(options.endpoint ? { endpoint: options.endpoint } : {}),
+    });
+  }
   return fixture.fakeProviderOutput ? new StaticProvider(fixture.fakeProviderOutput) : undefined;
 }
 
 function providerName(fixture: EvalFixture, options: EvalOptions): string {
   if (options.provider === "http-json") return "http-json";
+  if (options.provider === "openai-responses") return "openai-responses";
   return fixture.fakeProviderOutput ? "static" : "none";
 }
 

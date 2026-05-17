@@ -84,6 +84,15 @@ node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.js
   --model "$MODEL_NAME"
 ```
 
+It can also use the built-in OpenAI Responses provider:
+
+```bash
+node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json \
+  --provider openai-responses \
+  --model "$OPENAI_MODEL" \
+  --api-key "$OPENAI_API_KEY"
+```
+
 ## Result Contract
 
 Conformance result objects are intentionally close to runtime output:
