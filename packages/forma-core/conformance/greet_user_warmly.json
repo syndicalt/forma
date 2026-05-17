@@ -26,6 +26,7 @@
         },
         "hasCompute": false,
         "hasAgent": true,
+        "permissions": ["read", "search", "test"],
         "constraints": ["message.words <= 12"],
         "verify": ["message.length > 0", "message.words <= 12"]
       }

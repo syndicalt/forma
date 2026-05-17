@@ -1,6 +1,6 @@
 import type { FormaProgram, FormaTask } from "./types.js";
 
-const blockNames = ["input", "output", "compute", "agent", "constraints", "verify"] as const;
+const blockNames = ["input", "output", "compute", "agent", "permissions", "constraints", "verify"] as const;
 
 export function parseForma(source: string): FormaProgram {
   const tasks = parseTasks(source);
@@ -41,6 +41,7 @@ function parseTask(name: string | undefined, body: string): FormaTask {
     input: parseFields(extractBlock(body, "input")),
     output: parseFields(extractBlock(body, "output")),
     compute: lines(extractBlock(body, "compute", false)),
+    permissions: lines(extractBlock(body, "permissions", false)),
     constraints: lines(extractBlock(body, "constraints", false)),
     verify: lines(extractBlock(body, "verify", false)),
   };

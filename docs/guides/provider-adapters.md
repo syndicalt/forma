@@ -38,12 +38,14 @@ class HostedModelProvider implements ModelProvider {
   async runAgent(input: {
     instruction: string;
     values: Record<string, unknown>;
+    permissions: string[];
   }) {
     const response = await callModelService({
       apiKey: this.apiKey,
       model: this.model,
       instruction: input.instruction,
       values: input.values,
+      permissions: input.permissions,
     });
 
     return { message: response.message };
@@ -69,6 +71,7 @@ When the runtime reaches an `agent` block, it calls:
 modelProvider.runAgent({
   instruction: task.agentInstruction,
   values: input,
+  permissions: task.permissions,
 });
 ```
 
@@ -94,12 +97,13 @@ class HostedModelProvider(ModelProvider):
         self.api_key = api_key
         self.model = model
 
-    def run_agent(self, instruction: str, values: dict) -> dict:
+    def run_agent(self, instruction: str, values: dict, permissions: list[str]) -> dict:
         response = call_model_service(
             api_key=self.api_key,
             model=self.model,
             instruction=instruction,
             values=values,
+            permissions=permissions,
         )
         return {"message": response["message"]}
 
@@ -122,7 +126,7 @@ result = runtime.run_task(
 When the runtime reaches an `agent` block, it calls:
 
 ```python
-self.model_provider.run_agent(task.agent_instruction, input)
+self.model_provider.run_agent(task.agent_instruction, input, task.permissions)
 ```
 
 The runtime raises `F3002` if an agent task runs without a provider.
@@ -135,6 +139,9 @@ There is no public `agent()` method in the host API. The `.forma` `agent` block
 is parsed into `task.agentInstruction` in TypeScript and `task.agent_instruction`
 in Python. `FormaRuntime.runSource` or `FormaRuntime.run_source` chooses the
 agent path when that instruction exists, then calls the configured provider.
+
+Permission declarations are passed to providers as `permissions` so host code
+can enforce or log the workspace actions a coding-agent task is allowed to use.
 
 ## Verification
 

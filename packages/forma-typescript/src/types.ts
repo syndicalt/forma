@@ -16,6 +16,7 @@ export interface FormaTask {
   output: Record<string, { type: string; optional: boolean }>;
   compute: string[];
   agentInstruction?: string;
+  permissions: string[];
   constraints: string[];
   verify: string[];
 }

@@ -11,6 +11,7 @@ class FormaTask:
     input: dict[str, dict[str, Any]]
     output: dict[str, dict[str, Any]]
     compute: list[str]
+    permissions: list[str] = field(default_factory=list)
     constraints: list[str] = field(default_factory=list)
     verify: list[str] = field(default_factory=list)
     agent_instruction: str | None = None

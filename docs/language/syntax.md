@@ -43,6 +43,7 @@ Supported task members:
 - `output { ... }` declares result fields and must contain at least one field.
 - `compute { ... }` contains deterministic assignment lines.
 - `agent { instruction """...""" }` contains the provider instruction.
+- `permissions { ... }` lists workspace actions for agent providers.
 - `constraints { ... }` records constraints for agent tasks.
 - `verify { ... }` contains runtime verification expressions.
 
@@ -64,6 +65,12 @@ task greet_user_warmly {
     Use the user's name if present.
     Do not ask a follow-up question.
     """
+  }
+
+  permissions {
+    read
+    search
+    test
   }
 
   constraints {

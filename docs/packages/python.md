@@ -35,12 +35,13 @@ class HostedModelProvider(ModelProvider):
         self.api_key = api_key
         self.model = model
 
-    def run_agent(self, instruction: str, values: dict) -> dict:
+    def run_agent(self, instruction: str, values: dict, permissions: list[str]) -> dict:
         response = call_model_service(
             api_key=self.api_key,
             model=self.model,
             instruction=instruction,
             values=values,
+            permissions=permissions,
         )
         return {"message": response["message"]}
 

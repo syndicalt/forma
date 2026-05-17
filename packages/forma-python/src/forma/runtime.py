@@ -47,7 +47,7 @@ class FormaRuntime:
             if task.agent_instruction:
                 if self.model_provider is None:
                     raise ValueError("F3002: agent block requires model provider")
-                output = self.model_provider.run_agent(task.agent_instruction, input)
+                output = self.model_provider.run_agent(task.agent_instruction, input, task.permissions)
             else:
                 output = run_compute(task, input)
 

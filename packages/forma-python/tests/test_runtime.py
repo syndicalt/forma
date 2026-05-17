@@ -43,6 +43,12 @@ AGENT_SOURCE = '''task greet_user_warmly {
     """
   }
 
+  permissions {
+    read
+    search
+    test
+  }
+
   verify {
     message.words <= 12
   }
@@ -99,6 +105,26 @@ def test_executes_agent_blocks_through_explicit_fake_provider():
 
     assert result.ok is True
     assert result.output["message"] == "Hello, Sam. Good to see you."
+
+
+def test_passes_declared_permissions_into_provider_calls():
+    calls = []
+
+    class CapturingProvider:
+        def run_agent(self, instruction, values, permissions):
+            calls.append({"permissions": permissions})
+            return {"message": "Hello, Sam. Good to see you."}
+
+    runtime = FormaRuntime(model_provider=CapturingProvider())
+    result = runtime.run_task(
+        AGENT_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="agent.forma",
+    )
+
+    assert result.ok is True
+    assert calls == [{"permissions": ["read", "search", "test"]}]
 
 
 def test_executes_named_task_from_multi_task_source():

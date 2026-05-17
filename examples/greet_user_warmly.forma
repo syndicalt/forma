@@ -17,6 +17,12 @@ task greet_user_warmly {
     """
   }
 
+  permissions {
+    read
+    search
+    test
+  }
+
   constraints {
     message.words <= 12
   }

@@ -58,6 +58,12 @@ task greet_user_warmly {
     """
   }
 
+  permissions {
+    read
+    search
+    test
+  }
+
   constraints {
     message.words <= 12
   }
@@ -77,5 +83,6 @@ task greet_user_warmly {
     (input_block)
     (output_block)
     (agent_block)
+    (permissions_block)
     (constraints_block)
     (verify_block)))

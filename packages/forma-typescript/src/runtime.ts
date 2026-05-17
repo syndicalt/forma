@@ -37,7 +37,7 @@ export class FormaRuntime {
       }
 
       const output = task.agentInstruction
-        ? await this.runAgent(task.agentInstruction, options.input)
+        ? await this.runAgent(task.agentInstruction, options.input, task.permissions)
         : runCompute(task, options.input);
       const trace = [{ step: task.agentInstruction ? "agent" : "compute", detail: task.name }];
       try {
@@ -67,11 +67,15 @@ export class FormaRuntime {
     }
   }
 
-  private async runAgent(instruction: string, values: Record<string, FormaValue>): Promise<Record<string, FormaValue>> {
+  private async runAgent(
+    instruction: string,
+    values: Record<string, FormaValue>,
+    permissions: string[],
+  ): Promise<Record<string, FormaValue>> {
     if (!this.options.modelProvider) {
       throw new Error("F3002: agent block requires model provider");
     }
-    return this.options.modelProvider.runAgent({ instruction, values });
+    return this.options.modelProvider.runAgent({ instruction, values, permissions });
   }
 }
 

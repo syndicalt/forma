@@ -10,12 +10,14 @@ class HostedModelProvider implements ModelProvider {
   async runAgent(input: {
     instruction: string;
     values: Record<string, unknown>;
+    permissions: string[];
   }): Promise<Record<string, FormaValue>> {
     const response = await callModelService({
       apiKey: this.apiKey,
       model: this.model,
       instruction: input.instruction,
       values: input.values,
+      permissions: input.permissions,
     });
 
     return { message: response.message };
@@ -46,6 +48,7 @@ async function callModelService(input: {
   model: string;
   instruction: string;
   values: Record<string, unknown>;
+  permissions: string[];
 }): Promise<{ message: string }> {
   if (!input.apiKey) {
     throw new Error("MODEL_API_KEY is required");

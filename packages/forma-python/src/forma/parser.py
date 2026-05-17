@@ -30,6 +30,7 @@ def _task(name: str, body: str) -> FormaTask:
         input=_fields(_block(body, "input")),
         output=_fields(_block(body, "output")),
         compute=_lines(_block(body, "compute", required=False)),
+        permissions=_lines(_block(body, "permissions", required=False)),
         constraints=_lines(_block(body, "constraints", required=False)),
         verify=_lines(_block(body, "verify", required=False)),
         agent_instruction=_instruction(agent) if agent else None,

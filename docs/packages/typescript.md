@@ -33,12 +33,14 @@ class HostedModelProvider implements ModelProvider {
   async runAgent(input: {
     instruction: string;
     values: Record<string, unknown>;
+    permissions: string[];
   }) {
     const response = await callModelService({
       apiKey: this.apiKey,
       model: this.model,
       instruction: input.instruction,
       values: input.values,
+      permissions: input.permissions,
     });
     return { message: response.message };
   }

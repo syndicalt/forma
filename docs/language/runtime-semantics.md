@@ -64,19 +64,36 @@ The TypeScript runtime calls:
 modelProvider.runAgent({
   instruction: task.agentInstruction,
   values: input,
+  permissions: task.permissions,
 });
 ```
 
 The Python runtime calls:
 
 ```python
-self.model_provider.run_agent(task.agent_instruction, input)
+self.model_provider.run_agent(task.agent_instruction, input, task.permissions)
 ```
 
 The adapter returns a dictionary or object matching the task `output` block.
 There is no public `agent()` host method. The `agent { ... }` syntax is a task
 member; the runtime turns it into an instruction field and dispatches to the
 configured provider.
+
+## Permissions
+
+Agent tasks can declare workspace permissions:
+
+```forma
+permissions {
+  read
+  search
+  test
+}
+```
+
+The runtime passes those strings into the provider call. Forma does not execute
+workspace tools directly in the current runtime; host providers use the
+permission list to enforce or record what a coding-agent task may do.
 
 ## Output Contract
 

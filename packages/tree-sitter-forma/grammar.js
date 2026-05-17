@@ -16,6 +16,7 @@ export default grammar({
         $.output_block,
         $.compute_block,
         $.agent_block,
+        $.permissions_block,
         $.constraints_block,
         $.verify_block,
       ),
@@ -25,6 +26,7 @@ export default grammar({
     output_block: ($) => seq("output", $._field_block),
     compute_block: ($) => seq("compute", $._raw_block),
     agent_block: ($) => seq("agent", $._raw_block),
+    permissions_block: ($) => seq("permissions", $._raw_block),
     constraints_block: ($) => seq("constraints", $._raw_block),
     verify_block: ($) => seq("verify", $._raw_block),
 

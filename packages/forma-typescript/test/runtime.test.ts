@@ -42,6 +42,12 @@ const agentSource = `task greet_user_warmly {
     """
   }
 
+  permissions {
+    read
+    search
+    test
+  }
+
   verify {
     message.words <= 12
   }
@@ -97,6 +103,26 @@ describe("FormaRuntime", () => {
 
     expect(result.ok).toBe(true);
     expect(result.output.message).toBe("Hello, Sam. Good to see you.");
+  });
+
+  it("passes declared permissions into provider calls", async () => {
+    const calls: Array<{ permissions: string[] }> = [];
+    const runtime = new FormaRuntime({
+      modelProvider: {
+        async runAgent(input) {
+          calls.push({ permissions: input.permissions });
+          return { message: "Hello, Sam. Good to see you." };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(agentSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "agent.forma",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(calls).toEqual([{ permissions: ["read", "search", "test"] }]);
   });
 
   it("executes a named task from a multi-task source", async () => {

@@ -1,7 +1,11 @@
 import type { FormaValue } from "./types.js";
 
 export interface ModelProvider {
-  runAgent(input: { instruction: string; values: Record<string, FormaValue> }): Promise<Record<string, FormaValue>>;
+  runAgent(input: {
+    instruction: string;
+    values: Record<string, FormaValue>;
+    permissions: string[];
+  }): Promise<Record<string, FormaValue>>;
 }
 
 export class StaticProvider implements ModelProvider {
