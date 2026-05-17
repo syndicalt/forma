@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "forma-lang"
+version = "0.0.0"
+description = "Python runtime for the Forma language"
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/forma"]
