@@ -31,6 +31,14 @@
     {
       "runtime": "python",
       "path": "review_diff_package.py"
+    },
+    {
+      "runtime": "typescript",
+      "path": "tool_permission_workflow.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "tool_permission_workflow.py"
     }
   ],
   "compatibility": {

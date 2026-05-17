@@ -193,6 +193,19 @@ Python. Providers call `tools.writeText(path, content)` in TypeScript or
 `tools.write_text(path, content)` in Python. The runtime records each tool call
 in `trace`.
 
+The package examples include a complete tool workflow:
+
+```bash
+examples/tool_assisted_repair.forma
+examples/tool_permission_workflow.ts
+examples/tool_permission_workflow.py
+```
+
+Those examples show a provider reading a target file, searching related context,
+running a focused test command, and writing an edit through host-owned tool
+functions. The `.forma` task declares `read`, `search`, `test`, and `edit`;
+the host program decides how those tools are implemented.
+
 ## Verification
 
 Provider behavior is covered by both runtime test files:

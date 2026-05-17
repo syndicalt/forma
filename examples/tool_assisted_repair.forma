@@ -1,0 +1,30 @@
+task tool_assisted_repair {
+  intent "Inspect a source file, run a focused test command, and write a small repair"
+
+  input {
+    path: Text
+    test_command: Text?
+  }
+
+  output {
+    summary: Text
+    searched: Boolean
+    test_passed: Boolean
+    edited: Boolean
+  }
+
+  agent {
+    instruction """
+    Use the host read, search, test, and edit tools to inspect a file, find related context,
+    run a focused verification command, and apply a minimal repair when appropriate.
+    Return only the declared structured output fields.
+    """
+  }
+
+  permissions {
+    read
+    search
+    test
+    edit
+  }
+}

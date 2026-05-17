@@ -92,7 +92,7 @@ const phraseAllowlist = {
   "docs/packages/contributing.md": new Set([phrase(["fixture", "-", "only"])]),
 };
 
-const ignoredDirs = new Set(["node_modules", "dist", "build", ".git"]);
+const ignoredDirs = new Set(["node_modules", "dist", "build", ".git", "__pycache__"]);
 
 for (const path of required) {
   if (!existsSync(path)) {

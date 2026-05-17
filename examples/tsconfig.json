@@ -9,5 +9,5 @@
     "typeRoots": ["../packages/forma-typescript/node_modules/@types"],
     "types": ["node"]
   },
-  "include": ["./review_diff.forma.ts", "./review_diff_package.ts"]
+  "include": ["./*.ts"]
 }

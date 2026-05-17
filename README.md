@@ -95,6 +95,11 @@ the task source, eval suite, generated TypeScript and Python bindings, and host
 embedding examples together so `forma package-check` can catch stale bindings
 or missing package examples before release.
 
+`examples/tool_assisted_repair.forma`, `examples/tool_permission_workflow.ts`,
+and `examples/tool_permission_workflow.py` show the coding-tool side of the
+runtime: a host provider uses declared `read`, `search`, `test`, and `edit`
+permissions while the application owns the actual filesystem and command hooks.
+
 ## Generated Bindings
 
 Forma can generate host-language types from task fields so applications do not

@@ -92,6 +92,8 @@ The current MVP provides:
 - Manifest checking verifies task source hashes, eval suite paths, generated
   bindings, and host package examples through `docs:check` and
   `forma package-check`.
+- Tool permission workflow examples show host-owned read, search, test, and
+  edit hooks from TypeScript and Python.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
 - Duplicate task name diagnostics.
@@ -218,8 +220,8 @@ The next three implementation slices should be:
 
 1. Provider adapter kit: add optional production provider packages.
 2. Registry and versioning: add lockfile and publishing guidance.
-3. Coding-agent ergonomics: add example-driven tool permission workflows for
-   read, search, test, and edit operations.
+3. Coding-agent ergonomics: add a CLI or package template that scaffolds the
+   task, bindings, eval suite, and host examples together.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
