@@ -81,6 +81,7 @@ export interface ReviewDiffFinding {
 describe("generatePythonBindings", () => {
   it("generates dataclasses from Forma task fields", () => {
     expect(generatePythonBindings(source)).toBe(`from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -88,12 +89,27 @@ class ReviewDiffInput:
     diff: str
     max_findings: float | None = None
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReviewDiffInput":
+        return cls(
+            diff=data["diff"],
+            max_findings=data.get("max_findings"),
+        )
+
 
 @dataclass(frozen=True)
 class ReviewDiffFinding:
     path: str
     message: str
     line: float | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReviewDiffFinding":
+        return cls(
+            path=data["path"],
+            message=data["message"],
+            line=data.get("line"),
+        )
 
 
 @dataclass(frozen=True)
@@ -101,16 +117,31 @@ class ReviewDiffOutput:
     summary: str
     findings: list[ReviewDiffFinding]
     clean: bool
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReviewDiffOutput":
+        return cls(
+            summary=data["summary"],
+            findings=[ReviewDiffFinding.from_dict(item) for item in data["findings"]],
+            clean=data["clean"],
+        )
 `);
   });
 
   it("orders nested schema dataclasses before the schemas that reference them", () => {
     expect(generatePythonBindings(nestedSource)).toBe(`from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
 class ReviewDiffInput:
     diff: str
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReviewDiffInput":
+        return cls(
+            diff=data["diff"],
+        )
 
 
 @dataclass(frozen=True)
@@ -118,16 +149,52 @@ class ReviewDiffLocation:
     path: str
     line: float | None = None
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReviewDiffLocation":
+        return cls(
+            path=data["path"],
+            line=data.get("line"),
+        )
+
 
 @dataclass(frozen=True)
 class ReviewDiffFinding:
     location: ReviewDiffLocation
     message: str
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReviewDiffFinding":
+        return cls(
+            location=ReviewDiffLocation.from_dict(data["location"]),
+            message=data["message"],
+        )
+
 
 @dataclass(frozen=True)
 class ReviewDiffOutput:
     findings: list[ReviewDiffFinding]
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReviewDiffOutput":
+        return cls(
+            findings=[ReviewDiffFinding.from_dict(item) for item in data["findings"]],
+        )
 `);
+  });
+
+  it("generates Python constructors for nested output dictionaries", () => {
+    const generated = generatePythonBindings(nestedSource);
+
+    expect(generated).toContain(`    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReviewDiffFinding":
+        return cls(
+            location=ReviewDiffLocation.from_dict(data["location"]),
+            message=data["message"],
+        )`);
+    expect(generated).toContain(`    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReviewDiffOutput":
+        return cls(
+            findings=[ReviewDiffFinding.from_dict(item) for item in data["findings"]],
+        )`);
   });
 });

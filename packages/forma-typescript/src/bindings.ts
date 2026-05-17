@@ -26,7 +26,7 @@ function renderPythonTask(task: FormaTask): string {
     renderPythonDataclass(`${name}${schemaName}`, fields, name, task.schemas),
   );
   return [
-    "from dataclasses import dataclass",
+    "from dataclasses import dataclass\nfrom typing import Any",
     renderPythonDataclass(`${name}Input`, task.input, name, task.schemas),
     ...schemas,
     renderPythonDataclass(`${name}Output`, task.output, name, task.schemas),
@@ -91,6 +91,15 @@ function renderPythonDataclass(name: string, fields: FormaTask["input"], taskNam
   }
   if (lines.length === 2) {
     lines.push("    pass");
+  } else {
+    lines.push("");
+    lines.push("    @classmethod");
+    lines.push(`    def from_dict(cls, data: dict[str, Any]) -> "${name}":`);
+    lines.push("        return cls(");
+    for (const [fieldName, field] of [...required, ...optional]) {
+      lines.push(`            ${fieldName}=${pythonFromDictValue(fieldName, field, taskName, schemas)},`);
+    }
+    lines.push("        )");
   }
   return lines.join("\n");
 }
@@ -103,6 +112,25 @@ function pythonTypeName(field: FormaTask["input"][string], taskName: string, sch
   if (schemas[field.type]) rendered = `${taskName}${field.type}`;
   if (field.array) return `list[${rendered}]`;
   return rendered;
+}
+
+function pythonFromDictValue(
+  fieldName: string,
+  field: FormaTask["input"][string],
+  taskName: string,
+  schemas: FormaTask["schemas"],
+): string {
+  const source = field.optional ? `data.get("${fieldName}")` : `data["${fieldName}"]`;
+  const schemaType = schemas[field.type] ? `${taskName}${field.type}` : undefined;
+  if (field.array && schemaType) {
+    return field.optional
+      ? `None if ${source} is None else [${schemaType}.from_dict(item) for item in ${source}]`
+      : `[${schemaType}.from_dict(item) for item in ${source}]`;
+  }
+  if (schemaType) {
+    return field.optional ? `None if ${source} is None else ${schemaType}.from_dict(${source})` : `${schemaType}.from_dict(${source})`;
+  }
+  return source;
 }
 
 function toPascalCase(value: string): string {

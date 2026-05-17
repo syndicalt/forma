@@ -132,7 +132,9 @@ For a task named `review_diff`, the generator emits `ReviewDiffInput` and
 `float`, `Boolean` to `bool`, arrays to `list[T]`, and named output object
 schemas to prefixed dataclasses such as `ReviewDiffFinding`. When one schema
 references another, referenced dataclasses are emitted first so generated code
-can be imported without forward-reference errors.
+can be imported without forward-reference errors. Generated dataclasses include
+`from_dict` constructors that recursively convert runtime output dictionaries
+into typed nested dataclass instances.
 
 ## Result Fields
 

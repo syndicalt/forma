@@ -50,7 +50,7 @@ def _ordered_schema_items(schemas: dict[str, dict[str, dict[str, object]]]) -> l
 
 
 def _render_header() -> str:
-    return "from dataclasses import dataclass"
+    return "from dataclasses import dataclass\nfrom typing import Any"
 
 
 def _render_dataclass(name: str, fields: dict[str, dict[str, object]], task_name: str, schemas: dict[str, dict[str, dict[str, object]]]) -> str:
@@ -62,6 +62,14 @@ def _render_dataclass(name: str, fields: dict[str, dict[str, object]], task_name
         lines.append(f"    {field_name}: {_type_name(field, task_name, schemas)}{suffix}")
     if len(lines) == 2:
         lines.append("    pass")
+    else:
+        lines.append("")
+        lines.append("    @classmethod")
+        lines.append(f'    def from_dict(cls, data: dict[str, Any]) -> "{name}":')
+        lines.append("        return cls(")
+        for field_name, field in required + optional:
+            lines.append(f"            {field_name}={_from_dict_value(field_name, field, task_name, schemas)},")
+        lines.append("        )")
     return "\n".join(lines)
 
 
@@ -80,6 +88,21 @@ def _type_name(field: dict[str, object], task_name: str, schemas: dict[str, dict
     if field.get("array"):
         return f"list[{rendered}]"
     return rendered
+
+
+def _from_dict_value(field_name: str, field: dict[str, object], task_name: str, schemas: dict[str, dict[str, dict[str, object]]]) -> str:
+    source = f'data.get("{field_name}")' if field["optional"] else f'data["{field_name}"]'
+    field_type = str(field["type"])
+    schema_type = f"{task_name}{field_type}" if field_type in schemas else None
+    if field.get("array") and schema_type:
+        if field["optional"]:
+            return f"None if {source} is None else [{schema_type}.from_dict(item) for item in {source}]"
+        return f"[{schema_type}.from_dict(item) for item in {source}]"
+    if schema_type:
+        if field["optional"]:
+            return f"None if {source} is None else {schema_type}.from_dict({source})"
+        return f"{schema_type}.from_dict({source})"
+    return source
 
 
 def _pascal_case(value: str) -> str:

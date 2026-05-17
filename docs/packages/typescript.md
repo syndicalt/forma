@@ -130,7 +130,9 @@ For a task named `review_diff`, the generator emits `ReviewDiffInput` and
 `ReviewDiffOutput`. The current generator maps `Text` to `string`, `Number` to
 `number`, `Boolean` to `boolean`, arrays to `T[]`, and named output object
 schemas to prefixed interfaces such as `ReviewDiffFinding`. The Python target
-also orders generated dataclasses so nested schema references are importable.
+also orders generated dataclasses so nested schema references are importable and
+emits `from_dict` constructors for converting runtime dictionaries into nested
+dataclass instances.
 
 ## Verification
 
