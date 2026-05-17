@@ -8,10 +8,12 @@ by current docs and tests.
 Use project-local commands from the workspace:
 
 ```bash
+corepack pnpm install
 corepack pnpm check
 corepack pnpm test
 corepack pnpm docs:check
-python -m pytest
+python -m pytest packages/forma-python/tests -q
+corepack pnpm build
 ```
 
 When a task changes a package, run the narrow package checks first, then the

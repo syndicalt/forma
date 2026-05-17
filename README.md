@@ -29,4 +29,5 @@ corepack pnpm check
 corepack pnpm test
 corepack pnpm docs:check
 python -m pytest packages/forma-python/tests -q
+corepack pnpm build
 ```

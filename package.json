@@ -4,7 +4,8 @@
   "type": "module",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "check": "corepack pnpm -r run check",
+    "build": "corepack pnpm --filter @forma-lang/forma build && corepack pnpm --filter @forma-lang/cli build",
+    "check": "corepack pnpm --filter @forma-lang/forma build && corepack pnpm -r run check",
     "test": "corepack pnpm -r run test",
     "test:ts": "corepack pnpm --filter @forma-lang/forma test && corepack pnpm --filter @forma-lang/cli test",
     "test:tree-sitter": "corepack pnpm --filter tree-sitter-forma test",
