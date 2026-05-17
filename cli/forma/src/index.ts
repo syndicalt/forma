@@ -133,6 +133,7 @@ interface EvalSuiteArtifact {
     passed: number;
     failed: number;
     durationMs: number;
+    settings?: EvalSettings;
   };
   reports: EvalReport[];
 }
@@ -246,6 +247,12 @@ interface EvalOptions {
   apiKey?: string;
 }
 
+interface EvalSettings {
+  provider: EvalOptions["provider"];
+  endpoint?: string;
+  model?: string;
+}
+
 async function evaluateFixture(path: string, args: string[]): Promise<CliResult> {
   const report = await evaluateFixtureReport(path, args);
   return {
@@ -257,6 +264,7 @@ async function evaluateFixture(path: string, args: string[]): Promise<CliResult>
 
 async function evaluateSuite(path: string, args: string[]): Promise<CliResult> {
   const suite = JSON.parse(await readFile(path, "utf8")) as EvalSuite;
+  const evalOptions = parseEvalOptions(args);
   const startedAt = Date.now();
   const reports = await Promise.all(
     suite.fixtures.map((fixturePath) => evaluateFixtureReport(resolve(dirname(path), fixturePath), args)),
@@ -270,6 +278,7 @@ async function evaluateSuite(path: string, args: string[]): Promise<CliResult> {
         passed: reports.filter((report) => report.passed).length,
         failed: reports.filter((report) => !report.passed).length,
         durationMs: Date.now() - startedAt,
+        settings: evalSettings(evalOptions),
       },
       reports,
     };
@@ -283,6 +292,14 @@ async function evaluateSuite(path: string, args: string[]): Promise<CliResult> {
     exitCode: passed ? 0 : 1,
     stdout: `${JSON.stringify(reports, null, 2)}\n`,
     stderr: "",
+  };
+}
+
+function evalSettings(options: EvalOptions): EvalSettings {
+  return {
+    provider: options.provider,
+    ...(options.endpoint ? { endpoint: options.endpoint } : {}),
+    ...(options.model ? { model: options.model } : {}),
   };
 }
 

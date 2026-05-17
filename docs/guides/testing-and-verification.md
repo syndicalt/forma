@@ -52,7 +52,9 @@ node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary > can
 
 Each report in the artifact includes `metadata.contract`, so reviewers can see
 the evaluated source hash, fields, schemas, permissions, and verify expressions
-next to the pass/fail checks.
+next to the pass/fail checks. The artifact summary also includes redacted
+provider settings such as provider, endpoint, and model; API keys are not
+written to the artifact.
 
 The suite manifest is intentionally small and reviewable:
 
@@ -120,7 +122,7 @@ Expected smoke output:
 ok
 {"message":"Hello, Sam!"}
 {"name":"greet_user","passed":true,...}
-{"passed":true,"summary":{"total":3,"passed":3,"failed":0,...},...}
+{"passed":true,"summary":{"total":3,"passed":3,"failed":0,"settings":{"provider":"fixture"},...},...}
 ```
 
 Use `git -c core.excludesfile=/dev/null status --short --branch` after a full

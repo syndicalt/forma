@@ -234,8 +234,64 @@ describe("forma cli", () => {
       passed: 2,
       failed: 0,
       durationMs: expect.any(Number),
+      settings: { provider: "fixture" },
     });
     expect(artifact.reports.map((report: { name: string }) => report.name)).toEqual(["greet_user", "review_diff"]);
+  });
+
+  it("summarizes eval suite provider and model settings without secrets", async () => {
+    const originalFetch = globalThis.fetch;
+    const dir = await mkdtemp(join(tmpdir(), "forma-eval-suite-settings-"));
+    const suite = join(dir, "suite.json");
+    await writeFile(suite, JSON.stringify({
+      fixtures: [
+        resolve(process.cwd(), "../../packages/forma-core/conformance/review_diff.json"),
+      ],
+    }));
+    globalThis.fetch = (async () => ({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({
+        output: {
+          summary: "The diff adds output validation tests and matching runtime checks.",
+          findings: [
+            {
+              path: "packages/forma-typescript/src/evaluator.ts",
+              line: 42,
+              message: "Validate provider output before running verification.",
+            },
+          ],
+          clean: false,
+        },
+      }),
+    }) as Response) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "eval-suite",
+        suite,
+        "--summary",
+        "--provider",
+        "http-json",
+        "--endpoint",
+        "https://model.example/v1/agent",
+        "--model",
+        "example-model",
+        "--api-key",
+        "secret",
+      ]);
+      const artifact = JSON.parse(result.stdout);
+
+      expect(result.exitCode).toBe(0);
+      expect(artifact.summary.settings).toEqual({
+        provider: "http-json",
+        endpoint: "https://model.example/v1/agent",
+        model: "example-model",
+      });
+      expect(JSON.stringify(artifact.summary.settings)).not.toContain("secret");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   it("evaluates the checked-in example suite manifest", async () => {

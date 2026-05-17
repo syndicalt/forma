@@ -76,8 +76,9 @@ node cli/forma/dist/index.js eval-suite examples/forma.eval.json > candidate-sui
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary > candidate-artifact.json
 ```
 
-The `--summary` form wraps the report array with pass/fail totals and total
-duration, which is better suited to CI artifact summaries.
+The `--summary` form wraps the report array with pass/fail totals, total
+duration, and redacted provider settings such as provider, endpoint, and model,
+which is better suited to CI artifact summaries.
 
 Eval reports can be compared directly:
 

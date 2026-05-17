@@ -80,7 +80,8 @@ forma eval-suite examples/forma.eval.json --summary > candidate-artifact.json
 Fixture paths are resolved relative to the suite file. The command exits with
 code 1 when any report fails, but still prints the full report array so CI can
 archive and compare it. Use `--summary` to wrap the reports with `passed` and
-`summary` fields containing `total`, `passed`, `failed`, and `durationMs`.
+`summary` fields containing `total`, `passed`, `failed`, `durationMs`, and
+redacted provider settings such as `provider`, `endpoint`, and `model`.
 
 Use `--provider http-json` to evaluate against an HTTP JSON model endpoint:
 
