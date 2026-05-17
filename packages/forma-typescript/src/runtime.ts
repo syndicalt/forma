@@ -6,6 +6,7 @@ import { validateProgram } from "./validator.js";
 
 export interface ToolHost {
   readText?(path: string): string | Promise<string>;
+  searchText?(query: string): string[] | Promise<string[]>;
 }
 
 export class FormaRuntime {
@@ -114,6 +115,15 @@ export class FormaRuntime {
         const content = await runtimeTools.readText(path);
         trace.push({ step: "tool", detail: `read:${path}` });
         return content;
+      },
+      async searchText(query: string): Promise<string[]> {
+        tools.require("search");
+        if (!runtimeTools.searchText) {
+          throw new Error("F4002: search tool is not configured");
+        }
+        const matches = await runtimeTools.searchText(query);
+        trace.push({ step: "tool", detail: `search:${query}` });
+        return matches;
       },
     };
     return this.options.modelProvider.runAgent({ instruction, values, permissions, tools });

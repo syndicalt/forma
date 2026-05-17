@@ -10,6 +10,9 @@ class PermissionTools(Protocol):
     def read_text(self, path: str) -> str:
         ...
 
+    def search_text(self, query: str) -> list[str]:
+        ...
+
 
 class ModelProvider(Protocol):
     def run_agent(

@@ -100,3 +100,12 @@ class _PermissionTools:
         content = read_text(path)
         self.trace.append({"step": "tool", "detail": f"read:{path}"})
         return str(content)
+
+    def search_text(self, query: str) -> list[str]:
+        self.require("search")
+        search_text = self.tools.get("search_text")
+        if not callable(search_text):
+            raise ValueError("F4002: search tool is not configured")
+        matches = search_text(query)
+        self.trace.append({"step": "tool", "detail": f"search:{query}"})
+        return [str(match) for match in matches]

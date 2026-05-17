@@ -51,7 +51,10 @@ agent_runtime = FormaRuntime(
         api_key=os.environ["MODEL_API_KEY"],
         model="example-model",
     ),
-    tools={"read_text": lambda path: open(path, encoding="utf8").read()},
+    tools={
+        "read_text": lambda path: open(path, encoding="utf8").read(),
+        "search_text": lambda query: search_workspace(query),
+    },
 )
 
 result = agent_runtime.run_task(

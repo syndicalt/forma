@@ -3,6 +3,7 @@ import type { FormaValue } from "./types.js";
 export interface PermissionTools {
   require(permission: string): void;
   readText(path: string): Promise<string>;
+  searchText(query: string): Promise<string[]>;
 }
 
 export interface ModelProvider {

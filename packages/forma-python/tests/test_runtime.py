@@ -208,6 +208,50 @@ def test_denies_read_tool_calls_when_read_permission_is_undeclared():
     assert {"step": "permission_denied", "detail": "read"} in result.trace
 
 
+def test_maps_provider_search_tool_calls_to_host_search_text_hooks():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            matches = tools.search_text("FormaRuntime")
+            return {"message": matches[0] if matches else "none"}
+
+    runtime = FormaRuntime(
+        model_provider=ToolUsingProvider(),
+        tools={"search_text": lambda query: ["packages/forma-python/src/forma/runtime.py"]},
+    )
+    result = runtime.run_task(
+        AGENT_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="agent.forma",
+    )
+
+    assert result.ok is True
+    assert result.output == {"message": "packages/forma-python/src/forma/runtime.py"}
+    assert {"step": "tool", "detail": "search:FormaRuntime"} in result.trace
+
+
+def test_denies_search_tool_calls_when_search_permission_is_undeclared():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            tools.search_text("FormaRuntime")
+            return {"summary": "No issues", "finding_count": 0, "clean": True}
+
+    runtime = FormaRuntime(
+        model_provider=ToolUsingProvider(),
+        tools={"search_text": lambda query: (_ for _ in ()).throw(RuntimeError("host search should not run"))},
+    )
+    result = runtime.run_task(
+        METRICS_SOURCE,
+        "summarize_metrics",
+        input={"diff": "diff --git a/file.py b/file.py"},
+        source_name="metrics.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F4001: permission 'search' is not declared"
+    assert {"step": "permission_denied", "detail": "search"} in result.trace
+
+
 def test_executes_named_task_from_multi_task_source():
     runtime = FormaRuntime(
         model_provider=StaticProvider({"message": "Hello, Sam. Good to see you."})

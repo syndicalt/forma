@@ -98,21 +98,24 @@ tools directly in the current runtime; host providers call `tools.require`
 before a workspace action. Allowed checks add `permission` trace entries.
 Undeclared checks fail with `F4001` and add `permission_denied` trace entries.
 
-Host programs can also configure a read tool:
+Host programs can also configure read and search tools:
 
 ```typescript
 const runtime = new FormaRuntime({
   modelProvider,
   tools: {
     readText: async (path) => readFile(path, "utf8"),
+    searchText: async (query) => searchWorkspace(query),
   },
 });
 ```
 
 Providers call `tools.readText(path)` in TypeScript or `tools.read_text(path)`
-in Python. The runtime checks the `read` permission before calling the host
-function and records a `tool` trace entry such as `read:README.md`. If no read
-tool is configured, the runtime returns `F4002`.
+in Python for reads. They call `tools.searchText(query)` in TypeScript or
+`tools.search_text(query)` in Python for search. The runtime checks the matching
+permission before calling the host function and records `tool` trace entries
+such as `read:README.md` or `search:FormaRuntime`. If a requested tool is not
+configured, the runtime returns `F4002`.
 
 ## Output Contract
 

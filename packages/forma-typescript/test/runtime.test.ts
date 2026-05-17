@@ -215,6 +215,57 @@ describe("FormaRuntime", () => {
     expect(result.trace).toContainEqual({ step: "permission_denied", detail: "read" });
   });
 
+  it("maps provider search tool calls to host searchText hooks", async () => {
+    const runtime = new FormaRuntime({
+      tools: {
+        async searchText(query) {
+          expect(query).toBe("FormaRuntime");
+          return ["packages/forma-typescript/src/runtime.ts"];
+        },
+      },
+      modelProvider: {
+        async runAgent(input) {
+          const matches = await input.tools.searchText("FormaRuntime");
+          return { message: matches[0] ?? "none" };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(agentSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "agent.forma",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.output).toEqual({ message: "packages/forma-typescript/src/runtime.ts" });
+    expect(result.trace).toContainEqual({ step: "tool", detail: "search:FormaRuntime" });
+  });
+
+  it("denies search tool calls when search permission is undeclared", async () => {
+    const runtime = new FormaRuntime({
+      tools: {
+        async searchText() {
+          throw new Error("host search should not run");
+        },
+      },
+      modelProvider: {
+        async runAgent(input) {
+          await input.tools.searchText("FormaRuntime");
+          return { summary: "No issues", finding_count: 0, clean: true };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(metricsSource, "summarize_metrics", {
+      input: { diff: "diff --git a/file.ts b/file.ts" },
+      sourceName: "metrics.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F4001: permission 'search' is not declared");
+    expect(result.trace).toContainEqual({ step: "permission_denied", detail: "search" });
+  });
+
   it("executes a named task from a multi-task source", async () => {
     const runtime = new FormaRuntime({
       modelProvider: new StaticProvider({ message: "Hello, Sam. Good to see you." }),
