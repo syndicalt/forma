@@ -33,6 +33,10 @@ def validate_output_contract(task: FormaTask, output: dict[str, FormaValue]) -> 
             continue
         if field["type"] == "Text" and not isinstance(value, str):
             raise ValueError(f"F3004: output field '{name}' must be Text")
+        if field["type"] == "Number" and (isinstance(value, bool) or not isinstance(value, (int, float))):
+            raise ValueError(f"F3004: output field '{name}' must be Number")
+        if field["type"] == "Boolean" and not isinstance(value, bool):
+            raise ValueError(f"F3004: output field '{name}' must be Boolean")
 
 
 def _interpolate(template: str, values: dict[str, str]) -> str:

@@ -51,6 +51,26 @@ const multiTaskSource = `${deterministicSource}
 
 ${agentSource}`;
 
+const metricsSource = `task summarize_metrics {
+  intent "Summarize review metrics"
+
+  input {
+    diff: Text
+  }
+
+  output {
+    summary: Text
+    finding_count: Number
+    clean: Boolean
+  }
+
+  agent {
+    instruction """
+    Return review metrics.
+    """
+  }
+}`;
+
 describe("FormaRuntime", () => {
   it("executes deterministic compute and verify", async () => {
     const runtime = new FormaRuntime();
@@ -122,5 +142,41 @@ describe("FormaRuntime", () => {
 
     expect(result.ok).toBe(false);
     expect(result.error).toBe("F3004: output field 'message' must be Text");
+  });
+
+  it("validates Number and Boolean provider output fields", async () => {
+    const runtime = new FormaRuntime({
+      modelProvider: new StaticProvider({
+        summary: "No issues found.",
+        finding_count: "0",
+        clean: "true",
+      }),
+    });
+
+    const result = await runtime.runTask(metricsSource, "summarize_metrics", {
+      input: { diff: "diff --git a/file.ts b/file.ts" },
+      sourceName: "metrics.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F3004: output field 'finding_count' must be Number");
+  });
+
+  it("rejects Boolean values for Number output fields", async () => {
+    const runtime = new FormaRuntime({
+      modelProvider: new StaticProvider({
+        summary: "No issues found.",
+        finding_count: true,
+        clean: true,
+      }),
+    });
+
+    const result = await runtime.runTask(metricsSource, "summarize_metrics", {
+      input: { diff: "diff --git a/file.ts b/file.ts" },
+      sourceName: "metrics.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F3004: output field 'finding_count' must be Number");
   });
 });

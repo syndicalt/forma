@@ -52,6 +52,27 @@ AGENT_SOURCE = '''task greet_user_warmly {
 MULTI_TASK_SOURCE = f"{DETERMINISTIC_SOURCE}\n\n{AGENT_SOURCE}"
 
 
+METRICS_SOURCE = '''task summarize_metrics {
+  intent "Summarize review metrics"
+
+  input {
+    diff: Text
+  }
+
+  output {
+    summary: Text
+    finding_count: Number
+    clean: Boolean
+  }
+
+  agent {
+    instruction """
+    Return review metrics.
+    """
+  }
+}'''
+
+
 def test_executes_deterministic_compute_and_verify():
     runtime = FormaRuntime()
     result = runtime.run_source(
@@ -122,3 +143,45 @@ def test_fails_when_provider_output_uses_wrong_mvp_output_type():
 
     assert result.ok is False
     assert result.error == "F3004: output field 'message' must be Text"
+
+
+def test_validates_number_and_boolean_provider_output_fields():
+    runtime = FormaRuntime(
+        model_provider=StaticProvider(
+            {
+                "summary": "No issues found.",
+                "finding_count": "0",
+                "clean": "true",
+            }
+        )
+    )
+    result = runtime.run_task(
+        METRICS_SOURCE,
+        "summarize_metrics",
+        input={"diff": "diff --git a/file.py b/file.py"},
+        source_name="metrics.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F3004: output field 'finding_count' must be Number"
+
+
+def test_rejects_boolean_values_for_number_output_fields():
+    runtime = FormaRuntime(
+        model_provider=StaticProvider(
+            {
+                "summary": "No issues found.",
+                "finding_count": True,
+                "clean": True,
+            }
+        )
+    )
+    result = runtime.run_task(
+        METRICS_SOURCE,
+        "summarize_metrics",
+        input={"diff": "diff --git a/file.py b/file.py"},
+        source_name="metrics.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F3004: output field 'finding_count' must be Number"

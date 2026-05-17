@@ -81,8 +81,9 @@ configured provider.
 ## Output Contract
 
 Provider and compute output is validated against the task `output` block before
-`verify` expressions run. In the MVP, `Text` output fields must be strings, and
-required fields must be present.
+`verify` expressions run. In the MVP, required fields must be present, `Text`
+fields must be strings, `Number` fields must be numbers, and `Boolean` fields
+must be booleans.
 
 ```forma
 output {
@@ -91,7 +92,8 @@ output {
 ```
 
 If a provider returns `{}` for that task, the runtime returns `F3003`. If it
-returns a non-string `message`, the runtime returns `F3004`.
+returns a non-string `message`, a non-number `Number`, or a non-boolean
+`Boolean`, the runtime returns `F3004`.
 
 ## Binding Generation
 

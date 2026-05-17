@@ -39,6 +39,12 @@ export function validateOutputContract(task: FormaTask, output: Record<string, F
     if (field.type === "Text" && typeof value !== "string") {
       throw new Error(`F3004: output field '${name}' must be Text`);
     }
+    if (field.type === "Number" && typeof value !== "number") {
+      throw new Error(`F3004: output field '${name}' must be Number`);
+    }
+    if (field.type === "Boolean" && typeof value !== "boolean") {
+      throw new Error(`F3004: output field '${name}' must be Boolean`);
+    }
   }
 }
 
