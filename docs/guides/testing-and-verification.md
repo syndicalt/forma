@@ -43,6 +43,25 @@ node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name"
 node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.json
 ```
 
+Run the checked-in eval suite when changing agent task contracts, prompts,
+provider adapters, output schemas, or verification rules:
+
+```bash
+node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary > candidate-artifact.json
+```
+
+The suite manifest is intentionally small and reviewable:
+
+```json
+{
+  "fixtures": [
+    "../packages/forma-core/conformance/greet_user.json",
+    "../packages/forma-core/conformance/greet_user_warmly.json",
+    "../packages/forma-core/conformance/review_diff.json"
+  ]
+}
+```
+
 Run an HTTP JSON provider evaluation when a compatible endpoint is available:
 
 ```bash
@@ -60,15 +79,32 @@ node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.js
   --model "$OPENAI_MODEL"
 ```
 
-Compare saved eval reports when changing a task contract, prompt, provider, or
-model:
+Compare saved eval reports or suite artifacts when changing a task contract,
+prompt, provider, or model:
 
 ```bash
 node cli/forma/dist/index.js compare baseline.json candidate.json
+node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json
 ```
 
 The command exits with code 1 when the candidate loses a check that passed in
 the baseline. Use that as a PR gate for coding-agent task changes.
+
+For GitHub Actions, the relevant CI step is:
+
+```yaml
+- name: Evaluate Forma contracts
+  run: |
+    corepack pnpm build
+    node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary > candidate-artifact.json
+    test ! -f baseline-artifact.json || node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json
+
+- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: forma-eval-artifact
+    path: candidate-artifact.json
+```
 
 ## Verification
 
@@ -78,6 +114,7 @@ Expected smoke output:
 ok
 {"message":"Hello, Sam!"}
 {"name":"greet_user","passed":true,...}
+{"passed":true,"summary":{"total":3,"passed":3,"failed":0,...},...}
 ```
 
 Use `git -c core.excludesfile=/dev/null status --short --branch` after a full

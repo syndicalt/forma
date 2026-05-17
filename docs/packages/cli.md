@@ -57,7 +57,8 @@ Agent fixtures can use `fakeProviderOutput`; the CLI evaluates those with
 metadata and `durationMs` for CI summaries.
 
 `forma eval-suite` reads a JSON suite file and prints an array of normal eval
-reports:
+reports. The repo includes `examples/forma.eval.json` as a small CI-ready
+suite:
 
 ```json
 {
@@ -69,8 +70,8 @@ reports:
 ```
 
 ```bash
-forma eval-suite forma.eval.json > candidate-suite.json
-forma eval-suite forma.eval.json --summary > candidate-artifact.json
+forma eval-suite examples/forma.eval.json > candidate-suite.json
+forma eval-suite examples/forma.eval.json --summary > candidate-artifact.json
 ```
 
 Fixture paths are resolved relative to the suite file. The command exits with

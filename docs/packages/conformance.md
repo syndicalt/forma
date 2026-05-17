@@ -55,7 +55,8 @@ The JSON report includes `name`, `passed`, the runtime `result`, provider
 metadata, `durationMs`, and checks for `ok`, `output`, `trace`, `verification`,
 and `error`.
 
-Multiple conformance files can be grouped in a suite file:
+Multiple conformance files can be grouped in a suite file. The repo includes
+`examples/forma.eval.json`:
 
 ```json
 {
@@ -69,8 +70,8 @@ Multiple conformance files can be grouped in a suite file:
 Run the suite with:
 
 ```bash
-node cli/forma/dist/index.js eval-suite forma.eval.json > candidate-suite.json
-node cli/forma/dist/index.js eval-suite forma.eval.json --summary > candidate-artifact.json
+node cli/forma/dist/index.js eval-suite examples/forma.eval.json > candidate-suite.json
+node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary > candidate-artifact.json
 ```
 
 The `--summary` form wraps the report array with pass/fail totals and total

@@ -1,0 +1,7 @@
+{
+  "fixtures": [
+    "../packages/forma-core/conformance/greet_user.json",
+    "../packages/forma-core/conformance/greet_user_warmly.json",
+    "../packages/forma-core/conformance/review_diff.json"
+  ]
+}

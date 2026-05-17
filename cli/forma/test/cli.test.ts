@@ -222,6 +222,20 @@ describe("forma cli", () => {
     expect(artifact.reports.map((report: { name: string }) => report.name)).toEqual(["greet_user", "review_diff"]);
   });
 
+  it("evaluates the checked-in example suite manifest", async () => {
+    const result = await runCli(["eval-suite", "../../examples/forma.eval.json", "--summary"]);
+    const artifact = JSON.parse(result.stdout);
+
+    expect(result.exitCode).toBe(0);
+    expect(artifact.summary.total).toBe(3);
+    expect(artifact.summary.failed).toBe(0);
+    expect(artifact.reports.map((report: { name: string }) => report.name)).toEqual([
+      "greet_user",
+      "greet_user_warmly",
+      "review_diff",
+    ]);
+  });
+
   it("evaluates a fixture with an HTTP JSON provider", async () => {
     const originalFetch = globalThis.fetch;
     const requests: Array<{ url: string; init: RequestInit }> = [];
