@@ -51,8 +51,9 @@ corepack pnpm --filter @forma-lang/cli build
 node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.json
 ```
 
-The JSON report includes `name`, `passed`, the runtime `result`, and checks for
-`ok`, `output`, `trace`, `verification`, and `error`.
+The JSON report includes `name`, `passed`, the runtime `result`, provider
+metadata, `durationMs`, and checks for `ok`, `output`, `trace`, `verification`,
+and `error`.
 
 The `review_diff` conformance file is the first coding-agent fixture:
 

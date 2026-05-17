@@ -69,10 +69,12 @@ async function evaluateFixture(path: string): Promise<CliResult> {
       ? { modelProvider: new StaticProvider(fixture.fakeProviderOutput) }
       : {},
   );
+  const startedAt = Date.now();
   const result = await runtime.runTask(source, fixture.name, {
     input: fixture.input ?? {},
     sourceName: sourcePath,
   });
+  const durationMs = Date.now() - startedAt;
   const checks = [
     { name: "ok", passed: result.ok === fixture.expectedResult.ok },
     { name: "output", passed: deepEqual(result.output, fixture.expectedResult.output ?? {}) },
@@ -84,6 +86,10 @@ async function evaluateFixture(path: string): Promise<CliResult> {
     name: fixture.name,
     passed: checks.every((check) => check.passed),
     result,
+    metadata: {
+      provider: fixture.fakeProviderOutput ? "static" : "none",
+      durationMs,
+    },
     checks,
   };
   return {

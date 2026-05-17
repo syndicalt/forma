@@ -28,6 +28,10 @@ describe("forma cli", () => {
         verification: { ok: true, failures: [] },
         error: null,
       },
+      metadata: {
+        provider: "none",
+        durationMs: expect.any(Number),
+      },
       checks: [
         { name: "ok", passed: true },
         { name: "output", passed: true },
@@ -47,6 +51,8 @@ describe("forma cli", () => {
     expect(report.passed).toBe(true);
     expect(report.result.output).toEqual({ message: "Hello, Sam. Good to see you." });
     expect(report.result.trace).toEqual([{ step: "agent", detail: "greet_user_warmly" }]);
+    expect(report.metadata.provider).toBe("static");
+    expect(typeof report.metadata.durationMs).toBe("number");
   });
 
   it("evaluates a coding-agent review fixture", async () => {

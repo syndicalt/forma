@@ -37,7 +37,8 @@ forma eval packages/forma-core/conformance/greet_user.json
 ```
 
 Agent fixtures can use `fakeProviderOutput`; the CLI evaluates those with
-`StaticProvider` so CI does not need a model key.
+`StaticProvider` so CI does not need a model key. Eval reports include provider
+metadata and `durationMs` for CI summaries.
 
 ## Input Handling
 
