@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -22,11 +22,15 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init")) {
     return usage();
   }
 
   try {
+    if (command === "package-init") {
+      return await initializePackage(path, rest);
+    }
+
     if (command === "package-check") {
       return await checkPackageManifest(path);
     }
@@ -75,7 +79,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate|package-check> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate|package-check|package-init> <path> [--input JSON]\n" };
 }
 
 interface FormaPackageManifest {
@@ -104,6 +108,200 @@ async function checkPackageManifest(path: string): Promise<CliResult> {
   const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
   await validatePackageManifest(manifest, dirname(path));
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
+}
+
+async function initializePackage(path: string, args: string[]): Promise<CliResult> {
+  const packageName = optionValue(args, "--name");
+  const taskName = optionValue(args, "--task") ?? "review_diff";
+  if (!packageName) {
+    throw new Error("--name is required for package-init");
+  }
+  if (!/^[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)?$/.test(packageName)) {
+    throw new Error("invalid package name");
+  }
+  await mkdir(path, { recursive: true });
+
+  const taskFile = `${taskName}.forma`;
+  const typeScriptBindings = `${taskName}.forma.ts`;
+  const pythonBindings = `${taskName}_forma.py`;
+  const typeScriptExample = `${taskName}_package.ts`;
+  const pythonExample = `${taskName}_package.py`;
+  const evalFixture = `${taskName}.eval.json`;
+  const evalSuite = "forma.eval.json";
+  const manifestFile = `${taskName}.forma.pkg.json`;
+  const source = scaffoldSource(taskName);
+  await writeFile(resolve(path, taskFile), source, "utf8");
+  await writeFile(resolve(path, typeScriptBindings), generateTypeScriptBindings(source), "utf8");
+  await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
+  await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName), "utf8");
+  await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName), "utf8");
+  await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile), null, 2)}\n`, "utf8");
+  await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
+  const manifest = {
+    formaPackage: 1,
+    name: packageName,
+    version: "0.1.0",
+    description: "Review a code diff and return structured findings.",
+    tasks: [
+      {
+        name: taskName,
+        source: taskFile,
+        sourceSha256: createHash("sha256").update(source).digest("hex"),
+      },
+    ],
+    evalSuite,
+    bindings: [
+      { target: "typescript", source: taskFile, output: typeScriptBindings },
+      { target: "python", source: taskFile, output: pythonBindings },
+    ],
+    examples: [
+      { runtime: "typescript", path: typeScriptExample },
+      { runtime: "python", path: pythonExample },
+    ],
+    compatibility: {
+      breaking: ["input", "output", "schemas"],
+      review: ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
+      environment: ["provider", "endpoint", "model"],
+    },
+  };
+  await writeFile(resolve(path, manifestFile), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  await validatePackageManifest(manifest, path);
+  return { exitCode: 0, stdout: "ok\n", stderr: "" };
+}
+
+function scaffoldSource(taskName: string): string {
+  return `task ${taskName} {
+  intent "Review a code diff and produce structured review metadata"
+
+  input {
+    diff: Text
+    max_findings: Number?
+  }
+
+  output {
+    summary: Text
+    findings: Finding[]
+    clean: Boolean
+
+    object Finding {
+      path: Text
+      line: Number?
+      message: Text
+    }
+  }
+
+  agent {
+    instruction """
+    Review the supplied code diff.
+    Return a concise summary, structured findings, and whether the diff is clean.
+    Do not include commentary outside the declared output fields.
+    """
+  }
+
+  permissions {
+    read
+    search
+    test
+  }
+}
+`;
+}
+
+function scaffoldEvalFixture(taskName: string, taskFile: string) {
+  const output = {
+    summary: "The diff needs review.",
+    findings: [
+      {
+        path: "src/example.ts",
+        line: 1,
+        message: "Check the changed behavior.",
+      },
+    ],
+    clean: false,
+  };
+  return {
+    name: taskName,
+    source: taskFile,
+    input: {
+      diff: "diff --git a/src/example.ts b/src/example.ts",
+      max_findings: 3,
+    },
+    fakeProviderOutput: output,
+    expectedResult: {
+      ok: true,
+      output,
+      trace: [{ step: "agent", detail: taskName }],
+      diagnostics: [],
+      verification: { ok: true },
+      error: null,
+    },
+  };
+}
+
+function scaffoldTypeScriptExample(taskName: string): string {
+  const pascalName = toPascalCase(taskName);
+  const camelName = toCamelCase(taskName);
+  return `import { fileURLToPath } from "node:url";
+import { OpenAIResponsesProvider, agent } from "@forma-lang/forma";
+import { assert${pascalName}Output, type ${pascalName}Output } from "./${taskName}.forma.js";
+
+const ${camelName} = agent({
+  file: fileURLToPath(new URL("./${taskName}.forma", import.meta.url)),
+  task: "${taskName}",
+  provider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    model: process.env.OPENAI_MODEL ?? "gpt-5",
+  }),
+});
+
+export async function run${pascalName}(diff: string): Promise<${pascalName}Output> {
+  const result = await ${camelName}.run({ diff, max_findings: 5 });
+  if (!result.ok) {
+    throw new Error(result.error ?? "Forma ${taskName} failed");
+  }
+  return assert${pascalName}Output(result.output);
+}
+`;
+}
+
+function scaffoldPythonExample(taskName: string): string {
+  const pascalName = toPascalCase(taskName);
+  return `import os
+from pathlib import Path
+
+from forma import OpenAIResponsesProvider, agent
+from ${taskName}_forma import ${pascalName}Output, assert_${taskName}_output
+
+
+${taskName} = agent(
+    file=Path(__file__).with_name("${taskName}.forma"),
+    task="${taskName}",
+    provider=OpenAIResponsesProvider(
+        api_key=os.environ["OPENAI_API_KEY"],
+        model=os.environ.get("OPENAI_MODEL", "gpt-5"),
+    ),
+)
+
+
+def run_${taskName}(diff: str) -> ${pascalName}Output:
+    result = ${taskName}.run({"diff": diff, "max_findings": 5})
+    if not result.ok:
+        raise RuntimeError(result.error or "Forma ${taskName} failed")
+    return assert_${taskName}_output(result.output)
+`;
+}
+
+function toPascalCase(value: string): string {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
+
+function toCamelCase(value: string): string {
+  const pascal = toPascalCase(value);
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
 }
 
 async function validatePackageManifest(manifest: FormaPackageManifest, manifestDir: string): Promise<void> {

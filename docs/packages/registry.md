@@ -16,6 +16,14 @@ embedding examples that show provider setup, `agent(...)`, generated output
 validators, and result handling. Manifest paths are resolved relative to the
 package manifest file.
 
+Start a new package with the CLI when you want the task, evals, bindings,
+manifest, and host examples created together:
+
+```bash
+forma package-init ./review-diff-package --name acme/review-diff --task review_diff
+forma package-check ./review-diff-package/review_diff.forma.pkg.json
+```
+
 ```json
 {
   "formaPackage": 1,

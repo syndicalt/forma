@@ -182,6 +182,39 @@ describe("forma cli", () => {
     });
   });
 
+  it("scaffolds a package with task source, evals, bindings, and examples", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-init-"));
+    const result = await runCli([
+      "package-init",
+      dir,
+      "--name",
+      "acme/review-diff",
+      "--task",
+      "review_diff",
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    expect(manifest).toMatchObject({
+      formaPackage: 1,
+      name: "acme/review-diff",
+      version: "0.1.0",
+      evalSuite: "forma.eval.json",
+    });
+    expect(await readFile(join(dir, "review_diff.forma"), "utf8")).toContain("task review_diff");
+    expect(await readFile(join(dir, "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
+    expect(await readFile(join(dir, "review_diff_forma.py"), "utf8")).toContain("assert_review_diff_output");
+    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("agent({");
+    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("agent(");
+    expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({
+      fixtures: ["review_diff.eval.json"],
+    });
+
+    const check = await runCli(["package-check", manifestPath]);
+    expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);

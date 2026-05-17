@@ -95,6 +95,12 @@ the task source, eval suite, generated TypeScript and Python bindings, and host
 embedding examples together so `forma package-check` can catch stale bindings
 or missing package examples before release.
 
+Start a package with:
+
+```bash
+forma package-init ./review-diff-package --name acme/review-diff --task review_diff
+```
+
 `examples/tool_assisted_repair.forma`, `examples/tool_permission_workflow.ts`,
 and `examples/tool_permission_workflow.py` show the coding-tool side of the
 runtime: a host provider uses declared `read`, `search`, `test`, and `edit`
