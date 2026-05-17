@@ -101,7 +101,7 @@ function renderTypeScriptValidator(
   for (const [fieldName, field] of Object.entries(fields)) {
     lines.push(...typeScriptFieldValidation(fieldName, field, exported ? `"${typeName}"` : "path", taskName, schemas));
   }
-  lines.push(`  return data as ${typeName};`);
+  lines.push(`  return data as unknown as ${typeName};`);
   lines.push("}");
   return lines.join("\n");
 }
@@ -134,8 +134,8 @@ function typeScriptValueValidation(
     const pathText = literalPathText(path);
     const lines = [
       `${indent}if (!Array.isArray(${access})) throw new Error(\`${pathText} must be an array\`);`,
-      `${indent}${access}.forEach((_, index) => {`,
-      ...typeScriptValueValidation(`${access}[index]`, { ...field, array: false }, indexedPath(path), taskName, schemas, `${indent}  `),
+      `${indent}(${access} as unknown[]).forEach((_, index) => {`,
+      ...typeScriptValueValidation(`(${access} as unknown[])[index]`, { ...field, array: false }, indexedPath(path), taskName, schemas, `${indent}  `),
       `${indent}});`,
     ];
     return lines;

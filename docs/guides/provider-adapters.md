@@ -145,12 +145,12 @@ The runtime raises `F3002` if an agent task runs without a provider.
 
 The CLI cannot run agent tasks by itself because there is no CLI option for a
 provider adapter, key, or model. Embed Forma in Python or TypeScript when an
-agent task needs a model call.
-
-There is no public `agent()` method in the host API. The `.forma` `agent` block
-is parsed into `task.agentInstruction` in TypeScript and `task.agent_instruction`
-in Python. `FormaRuntime.runSource` or `FormaRuntime.run_source` chooses the
-agent path when that instruction exists, then calls the configured provider.
+agent task needs a model call. The public `agent(...)` helper binds the `.forma`
+source or file, task name, provider, and optional host tools into a reusable
+`run(input)` call. The `.forma` `agent` block is parsed into
+`task.agentInstruction` in TypeScript and `task.agent_instruction` in Python;
+the runtime chooses the agent path when that instruction exists, then calls the
+configured provider.
 
 Permission declarations are passed to providers as `permissions`, and the
 runtime also passes `tools.require(permission)`. Host adapters can call it before

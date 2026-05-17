@@ -11,9 +11,31 @@
     }
   ],
   "evalSuite": "forma.eval.json",
+  "bindings": [
+    {
+      "target": "typescript",
+      "source": "review_diff.forma",
+      "output": "review_diff.forma.ts"
+    },
+    {
+      "target": "python",
+      "source": "review_diff.forma",
+      "output": "review_diff_forma.py"
+    }
+  ],
+  "examples": [
+    {
+      "runtime": "typescript",
+      "path": "review_diff_package.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_package.py"
+    }
+  ],
   "compatibility": {
     "breaking": ["input", "output", "schemas"],
-    "review": ["intent", "permissions", "verify", "sourceSha256"],
+    "review": ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
     "environment": ["provider", "endpoint", "model"]
   }
 }

@@ -33,6 +33,31 @@
       }
     },
     "evalSuite": { "type": "string" },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "source", "output"],
+        "additionalProperties": false,
+        "properties": {
+          "target": { "enum": ["typescript", "python"] },
+          "source": { "type": "string" },
+          "output": { "type": "string" }
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["runtime", "path"],
+        "additionalProperties": false,
+        "properties": {
+          "runtime": { "enum": ["typescript", "python"] },
+          "path": { "type": "string" }
+        }
+      }
+    },
     "compatibility": {
       "type": "object",
       "required": ["breaking", "review", "environment"],

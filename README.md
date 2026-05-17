@@ -90,6 +90,11 @@ The first coding-agent task example is `examples/review_diff.forma`; its
 conformance fixture shows structured review metadata with scalar fields and an
 array of typed finding objects.
 
+The checked package example is `examples/review_diff.forma.pkg.json`. It ties
+the task source, eval suite, generated TypeScript and Python bindings, and host
+embedding examples together so `forma package-check` can catch stale bindings
+or missing package examples before release.
+
 ## Generated Bindings
 
 Forma can generate host-language types from task fields so applications do not

@@ -78,11 +78,11 @@ export function assertReviewDiffOutput(value: unknown): ReviewDiffOutput {
   const data = assertReviewDiffRecord(value, "ReviewDiffOutput");
   assertReviewDiffString(data.summary, "ReviewDiffOutput.summary");
   if (!Array.isArray(data.findings)) throw new Error(\`ReviewDiffOutput.findings must be an array\`);
-  data.findings.forEach((_, index) => {
-    assertReviewDiffFinding(data.findings[index], \`ReviewDiffOutput.findings[\${index}]\`);
+  (data.findings as unknown[]).forEach((_, index) => {
+    assertReviewDiffFinding((data.findings as unknown[])[index], \`ReviewDiffOutput.findings[\${index}]\`);
   });
   assertReviewDiffBoolean(data.clean, "ReviewDiffOutput.clean");
-  return data as ReviewDiffOutput;
+  return data as unknown as ReviewDiffOutput;
 }
 
 function assertReviewDiffFinding(value: unknown, path: string): ReviewDiffFinding {
@@ -92,7 +92,7 @@ function assertReviewDiffFinding(value: unknown, path: string): ReviewDiffFindin
     assertReviewDiffNumber(data.line, \`\${path}.line\`);
   }
   assertReviewDiffString(data.message, \`\${path}.message\`);
-  return data as ReviewDiffFinding;
+  return data as unknown as ReviewDiffFinding;
 }
 
 function assertReviewDiffRecord(value: unknown, path: string): Record<string, unknown> {
@@ -119,7 +119,7 @@ function assertReviewDiffBoolean(value: unknown, path: string): void {
 
     expect(generated).toContain("export function assertReviewDiffOutput(value: unknown): ReviewDiffOutput");
     expect(generated).toContain("assertReviewDiffString(data.summary, \"ReviewDiffOutput.summary\");");
-    expect(generated).toContain("assertReviewDiffFinding(data.findings[index], `ReviewDiffOutput.findings[${index}]`);");
+    expect(generated).toContain("assertReviewDiffFinding((data.findings as unknown[])[index], `ReviewDiffOutput.findings[${index}]`);");
     expect(generated).toContain("function assertReviewDiffFinding(value: unknown, path: string): ReviewDiffFinding");
   });
 });

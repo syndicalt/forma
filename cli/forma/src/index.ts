@@ -88,6 +88,15 @@ interface FormaPackageManifest {
     sourceSha256?: string;
   }>;
   evalSuite?: string;
+  bindings?: Array<{
+    target?: string;
+    source?: string;
+    output?: string;
+  }>;
+  examples?: Array<{
+    runtime?: string;
+    path?: string;
+  }>;
   compatibility?: unknown;
 }
 
@@ -125,6 +134,38 @@ async function validatePackageManifest(manifest: FormaPackageManifest, manifestD
     throw new Error("evalSuite must point to a JSON suite");
   }
   await readFile(resolve(manifestDir, manifest.evalSuite));
+  if (manifest.bindings !== undefined) {
+    if (!Array.isArray(manifest.bindings)) {
+      throw new Error("bindings must be an array");
+    }
+    for (const binding of manifest.bindings) {
+      if (binding.target !== "typescript" && binding.target !== "python") {
+        throw new Error("binding.target must be typescript or python");
+      }
+      if (!binding.source) throw new Error("binding.source is required");
+      if (!binding.output) throw new Error("binding.output is required");
+      const sourcePath = resolve(manifestDir, binding.source);
+      const outputPath = resolve(manifestDir, binding.output);
+      const source = await readFile(sourcePath, "utf8");
+      const current = await readFile(outputPath, "utf8");
+      const expected = binding.target === "typescript" ? generateTypeScriptBindings(source) : generatePythonBindings(source);
+      if (current !== expected) {
+        throw new Error(`generated bindings are out of date: ${outputPath}`);
+      }
+    }
+  }
+  if (manifest.examples !== undefined) {
+    if (!Array.isArray(manifest.examples)) {
+      throw new Error("examples must be an array");
+    }
+    for (const example of manifest.examples) {
+      if (example.runtime !== "typescript" && example.runtime !== "python") {
+        throw new Error("example.runtime must be typescript or python");
+      }
+      if (!example.path) throw new Error("example.path is required");
+      await readFile(resolve(manifestDir, example.path));
+    }
+  }
   if (!manifest.compatibility || typeof manifest.compatibility !== "object") {
     throw new Error("compatibility policy is required");
   }

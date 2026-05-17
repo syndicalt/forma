@@ -7,9 +7,10 @@ runtime behavior.
 ## Syntax And Runtime Boundary
 
 The Tree-sitter grammar accepts repeated `task` declarations in a source file.
-The Python and TypeScript runtimes execute the first task only. This is the
-current single task runtime model. Keep production
-examples to one task per file until task selection is added to the runtime API.
+The Python and TypeScript runtimes execute the first task by default, and both
+runtimes can execute a named task through `runTask` / `run_task` or the public
+`agent(...)` helper. The shipped package examples still keep one task per file
+because versioning, generated bindings, and eval artifacts are clearer that way.
 
 ```forma
 task greet_user {

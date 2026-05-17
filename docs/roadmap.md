@@ -89,8 +89,9 @@ The current MVP provides:
   runtime output dictionaries and nested schema arrays.
 - A first task package manifest schema, example package manifest, and
   compatibility policy for versioned task contracts.
-- Manifest checking verifies task source hashes and eval suite paths through
-  `docs:check` and `forma package-check`.
+- Manifest checking verifies task source hashes, eval suite paths, generated
+  bindings, and host package examples through `docs:check` and
+  `forma package-check`.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
 - Duplicate task name diagnostics.
@@ -217,8 +218,8 @@ The next three implementation slices should be:
 
 1. Provider adapter kit: add optional production provider packages.
 2. Registry and versioning: add lockfile and publishing guidance.
-3. Coding-agent ergonomics: add generated package examples that combine
-   `agent(...)`, provider setup, output validators, and eval fixtures.
+3. Coding-agent ergonomics: add example-driven tool permission workflows for
+   read, search, test, and edit operations.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

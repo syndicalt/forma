@@ -135,6 +135,53 @@ describe("forma cli", () => {
     });
   });
 
+  it("fails package checks when a generated binding is stale", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-bindings-"));
+    const source = resolve(process.cwd(), "../../examples/review_diff.forma");
+    const output = join(dir, "review_diff.forma.ts");
+    const manifest = join(dir, "review-diff.pkg.json");
+    await writeFile(output, "stale bindings\n");
+    await writeFile(manifest, JSON.stringify({
+      formaPackage: 1,
+      name: "examples/review-diff",
+      version: "0.1.0",
+      tasks: [
+        {
+          name: "review_diff",
+          source,
+          sourceSha256: "9ccf780f57f35f54f4da21291075f7728dcb530442efebc603c50073e580e9ec",
+        },
+      ],
+      evalSuite: resolve(process.cwd(), "../../examples/forma.eval.json"),
+      bindings: [
+        {
+          target: "typescript",
+          source,
+          output,
+        },
+      ],
+      examples: [
+        {
+          runtime: "typescript",
+          path: resolve(process.cwd(), "../../examples/embedded-agent.ts"),
+        },
+      ],
+      compatibility: {
+        breaking: ["input", "output", "schemas"],
+        review: ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
+        environment: ["provider", "endpoint", "model"],
+      },
+    }));
+
+    const result = await runCli(["package-check", manifest]);
+
+    expect(result).toEqual({
+      exitCode: 1,
+      stdout: "",
+      stderr: expect.stringContaining("generated bindings are out of date"),
+    });
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);

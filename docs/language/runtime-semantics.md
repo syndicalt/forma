@@ -22,13 +22,18 @@ return FormaResult
 
 Both host runtimes execute the first task by default through `runSource` or
 `run_source`. Use `runTask` in TypeScript or `run_task` in Python to execute a
-specific named task from a source string or file.
+specific named task from source text. Use the public `agent(...)` helper when
+embedding a reusable named task from source text or a `.forma` file.
 
 ```typescript
-await runtime.runTask(source, "greet_user_warmly", {
-  input: { user_name: "Sam" },
+const greetUser = agent({
+  source,
   sourceName: "tasks.forma",
+  task: "greet_user_warmly",
+  provider,
 });
+
+await greetUser.run({ user_name: "Sam" });
 ```
 
 ## Compute
@@ -76,9 +81,10 @@ self.model_provider.run_agent(task.agent_instruction, input, task.permissions, t
 ```
 
 The adapter returns a dictionary or object matching the task `output` block.
-There is no public `agent()` host method. The `agent { ... }` syntax is a task
-member; the runtime turns it into an instruction field and dispatches to the
-configured provider.
+The `.forma` `agent { ... }` syntax is a task member; the runtime turns it into
+an instruction field and dispatches to the configured provider. The host
+`agent(...)` helper is a convenience facade over `FormaRuntime.runTask`,
+`FormaRuntime.runFile`, `FormaRuntime.run_task`, and `FormaRuntime.run_file`.
 
 ## Permissions
 
@@ -162,7 +168,8 @@ generate_python_bindings(source)
 This is separate from execution. It gives host programs a generated contract for
 the same input and output fields that the runtime validates. Named output
 schemas may reference other named schemas; generated Python dataclasses are
-ordered so those references can be imported directly.
+ordered so those references can be imported directly. Generated TypeScript and
+Python bindings also include output validators for host-side trust boundaries.
 
 ## Verification
 

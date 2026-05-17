@@ -10,8 +10,11 @@ Use `formaPackage: 1` to identify the manifest format. The package `name` is a
 stable registry identifier, and `version` uses semver. Each task entry records
 the task name, source path, and source SHA-256 so hosts can detect contract
 drift before runtime. `evalSuite` points at the suite that should be archived
-with releases. Task and eval paths are resolved relative to the package manifest
-file.
+with releases. Optional `bindings` entries point at checked-in generated
+TypeScript or Python binding files. Optional `examples` entries point at host
+embedding examples that show provider setup, `agent(...)`, generated output
+validators, and result handling. Manifest paths are resolved relative to the
+package manifest file.
 
 ```json
 {
@@ -25,7 +28,29 @@ file.
       "sourceSha256": "9ccf780f57f35f54f4da21291075f7728dcb530442efebc603c50073e580e9ec"
     }
   ],
-  "evalSuite": "forma.eval.json"
+  "evalSuite": "forma.eval.json",
+  "bindings": [
+    {
+      "target": "typescript",
+      "source": "review_diff.forma",
+      "output": "review_diff.forma.ts"
+    },
+    {
+      "target": "python",
+      "source": "review_diff.forma",
+      "output": "review_diff_forma.py"
+    }
+  ],
+  "examples": [
+    {
+      "runtime": "typescript",
+      "path": "review_diff_package.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_package.py"
+    }
+  ]
 }
 ```
 
@@ -39,7 +64,7 @@ Use the same vocabulary as `forma compare --fail-on`: `breaking`, `review`, and
 {
   "compatibility": {
     "breaking": ["input", "output", "schemas"],
-    "review": ["intent", "permissions", "verify", "sourceSha256"],
+    "review": ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
     "environment": ["provider", "endpoint", "model"]
   }
 }
@@ -71,8 +96,9 @@ array before approving a version bump.
 ## Verification
 
 The docs gate checks that `examples/review_diff.forma.pkg.json` has a package
-format marker, semver version, matching task source hash, eval suite path, and
-compatibility policy. The CLI exposes the same check for package users:
+format marker, semver version, matching task source hash, eval suite path,
+current generated bindings, existing host examples, and compatibility policy.
+The CLI exposes the same check for package users:
 
 ```bash
 corepack pnpm docs:check

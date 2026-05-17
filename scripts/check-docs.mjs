@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
+import { generatePythonBindings, generateTypeScriptBindings } from "../packages/forma-typescript/dist/index.js";
 
 const required = [
   "docs/index.md",
@@ -58,7 +59,7 @@ const requiredTerms = {
   "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],
   "docs/guides/testing-and-verification.md": ["docs:check", "tree-sitter test", "pytest", "vitest"],
   "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification"],
-  "docs/language/limitations.md": ["MVP", "single task", "provider"],
+  "docs/language/limitations.md": ["MVP", "named task", "provider"],
 };
 
 const scanRoots = [
@@ -226,6 +227,50 @@ function validatePackageManifest(path) {
   if (!existsSync(resolve(manifestDir, manifest.evalSuite))) {
     console.error(`${path}: evalSuite does not exist: ${manifest.evalSuite}`);
     process.exit(1);
+  }
+  if (manifest.bindings !== undefined) {
+    if (!Array.isArray(manifest.bindings)) {
+      console.error(`${path}: bindings must be an array`);
+      process.exit(1);
+    }
+    for (const binding of manifest.bindings) {
+      if (binding.target !== "typescript" && binding.target !== "python") {
+        console.error(`${path}: binding.target must be typescript or python`);
+        process.exit(1);
+      }
+      if (typeof binding.source !== "string" || typeof binding.output !== "string") {
+        console.error(`${path}: binding.source and binding.output are required`);
+        process.exit(1);
+      }
+      const sourcePath = resolve(manifestDir, binding.source);
+      const outputPath = resolve(manifestDir, binding.output);
+      if (!existsSync(sourcePath) || !existsSync(outputPath)) {
+        console.error(`${path}: binding source or output does not exist`);
+        process.exit(1);
+      }
+      const source = readFileSync(sourcePath, "utf8");
+      const expected = binding.target === "typescript" ? generateTypeScriptBindings(source) : generatePythonBindings(source);
+      if (readFileSync(outputPath, "utf8") !== expected) {
+        console.error(`${path}: generated bindings are out of date: ${binding.output}`);
+        process.exit(1);
+      }
+    }
+  }
+  if (manifest.examples !== undefined) {
+    if (!Array.isArray(manifest.examples)) {
+      console.error(`${path}: examples must be an array`);
+      process.exit(1);
+    }
+    for (const example of manifest.examples) {
+      if (example.runtime !== "typescript" && example.runtime !== "python") {
+        console.error(`${path}: example.runtime must be typescript or python`);
+        process.exit(1);
+      }
+      if (typeof example.path !== "string" || !existsSync(resolve(manifestDir, example.path))) {
+        console.error(`${path}: example.path does not exist: ${example.path}`);
+        process.exit(1);
+      }
+    }
   }
   if (!manifest.compatibility || typeof manifest.compatibility !== "object") {
     console.error(`${path}: compatibility policy is required`);
