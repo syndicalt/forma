@@ -77,6 +77,10 @@ const result = await runtime.runTask(source, "greet_user_warmly", {
 See `examples/embedded-agent.ts` and `examples/embedded_agent.py` for the full
 TypeScript and Python shape.
 
+The first coding-agent task example is `examples/review_diff.forma`; its
+conformance fixture shows structured review metadata with `Text`, `Number`, and
+`Boolean` output fields.
+
 ## Generated Bindings
 
 Forma can generate host-language types from task fields so applications do not

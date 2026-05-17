@@ -1,0 +1,28 @@
+task review_diff {
+  intent "Review a code diff and produce structured review metadata"
+
+  input {
+    diff: Text
+    max_findings: Number?
+  }
+
+  output {
+    summary: Text
+    finding_count: Number
+    clean: Boolean
+  }
+
+  agent {
+    instruction """
+    Review the supplied code diff.
+    Return a concise summary, a finding count, and whether the diff is clean.
+    Do not include commentary outside the declared output fields.
+    """
+  }
+
+  permissions {
+    read
+    search
+    test
+  }
+}

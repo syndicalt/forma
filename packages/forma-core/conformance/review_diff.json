@@ -1,0 +1,68 @@
+{
+  "name": "review_diff",
+  "source": "../fixtures/review_diff.forma",
+  "input": {
+    "diff": "diff --git a/packages/forma-typescript/src/evaluator.ts b/packages/forma-typescript/src/evaluator.ts",
+    "max_findings": 3
+  },
+  "fakeProviderOutput": {
+    "summary": "The diff adds output validation tests and matching runtime checks.",
+    "finding_count": 0,
+    "clean": true
+  },
+  "expectedIr": {
+    "tasks": [
+      {
+        "name": "review_diff",
+        "intent": "Review a code diff and produce structured review metadata",
+        "input": {
+          "diff": {
+            "type": "Text",
+            "optional": false
+          },
+          "max_findings": {
+            "type": "Number",
+            "optional": true
+          }
+        },
+        "output": {
+          "summary": {
+            "type": "Text",
+            "optional": false
+          },
+          "finding_count": {
+            "type": "Number",
+            "optional": false
+          },
+          "clean": {
+            "type": "Boolean",
+            "optional": false
+          }
+        },
+        "hasCompute": false,
+        "hasAgent": true,
+        "permissions": ["read", "search", "test"],
+        "verify": []
+      }
+    ]
+  },
+  "expectedResult": {
+    "ok": true,
+    "output": {
+      "summary": "The diff adds output validation tests and matching runtime checks.",
+      "finding_count": 0,
+      "clean": true
+    },
+    "trace": [
+      {
+        "step": "agent",
+        "detail": "review_diff"
+      }
+    ],
+    "diagnostics": [],
+    "verification": {
+      "ok": true
+    },
+    "error": null
+  }
+}

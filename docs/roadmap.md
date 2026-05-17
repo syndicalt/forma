@@ -55,6 +55,7 @@ The current MVP provides:
 - CLI evaluation reports for shared conformance fixtures.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
+- First coding-agent conformance task: `review_diff`.
 - Simple `verify` expressions.
 - Shared fixtures and conformance data.
 - Documentation and embedding examples.
@@ -71,7 +72,7 @@ Deliverables:
   nested `.forma` output blocks.
 - Structured provider response parsing with clear validation errors.
 - Better task lookup, duplicate task name diagnostics, and source spans.
-- Example coding task: "summarize a diff and produce review findings."
+- Richer coding tasks beyond the current `review_diff` structured summary.
 
 Exit criteria:
 

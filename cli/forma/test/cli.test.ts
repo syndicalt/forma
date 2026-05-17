@@ -46,4 +46,18 @@ describe("forma cli", () => {
     expect(report.result.output).toEqual({ message: "Hello, Sam. Good to see you." });
     expect(report.result.trace).toEqual([{ step: "agent", detail: "greet_user_warmly" }]);
   });
+
+  it("evaluates a coding-agent review fixture", async () => {
+    const result = await runCli(["eval", "../../packages/forma-core/conformance/review_diff.json"]);
+    const report = JSON.parse(result.stdout);
+
+    expect(result.exitCode).toBe(0);
+    expect(report.name).toBe("review_diff");
+    expect(report.passed).toBe(true);
+    expect(report.result.output).toEqual({
+      summary: "The diff adds output validation tests and matching runtime checks.",
+      finding_count: 0,
+      clean: true,
+    });
+  });
 });

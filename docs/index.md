@@ -41,6 +41,9 @@ TypeScript interfaces
 Python dataclasses
 ```
 
+The `review_diff` fixture is the first coding-agent example. It models a diff
+review task with structured `summary`, `finding_count`, and `clean` output.
+
 ## Language
 
 The language reference is split by concern:

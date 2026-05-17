@@ -54,6 +54,15 @@ node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.jso
 The JSON report includes `name`, `passed`, the runtime `result`, and checks for
 `ok`, `output`, and `error`.
 
+The `review_diff` conformance file is the first coding-agent fixture:
+
+```bash
+node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json
+```
+
+It exercises structured `Text`, `Number`, and `Boolean` output fields for a diff
+review task.
+
 ## Result Contract
 
 Conformance result objects are intentionally close to runtime output:
