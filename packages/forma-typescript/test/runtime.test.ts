@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { FormaRuntime, StaticProvider } from "../src/index.js";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const deterministicSource = `task greet_user {
   intent "Greet the current user"
@@ -137,6 +140,19 @@ describe("FormaRuntime", () => {
     expect(result.output).toEqual({ message: "Hello, Sam!" });
     expect(result.verification.ok).toBe(true);
     expect(result.diagnostics).toEqual([]);
+  });
+
+  it("executes a named task from a Forma file", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-runtime-"));
+    const path = join(dir, "task.forma");
+    await writeFile(path, deterministicSource);
+
+    const result = await new FormaRuntime().runFile(path, "greet_user", {
+      input: { user_name: "Sam" },
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.output).toEqual({ message: "Hello, Sam!" });
   });
 
   it("executes agent blocks through an explicit fake provider", async () => {

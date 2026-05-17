@@ -46,7 +46,8 @@ The current MVP provides:
 
 - Tree-sitter syntax grammar for `.forma`.
 - TypeScript and Python runtimes.
-- Named task execution through `runTask` and `run_task`.
+- Named task execution through `runTask`, `run_task`, `runFile`, and
+  `run_file`.
 - Agent provider interfaces for host-owned model calls.
 - Output contract validation for required scalar fields and arrays of named
   structured objects.

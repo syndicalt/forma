@@ -66,14 +66,12 @@ the `review_diff` coding-agent workflow. The product roadmap is in
 
 ## Embedding Shape
 
-Host programs load `.forma` source, choose a provider, and execute a task by
-name:
+Host programs choose a provider and execute a named task from a `.forma` file:
 
 ```ts
 const runtime = new FormaRuntime({ modelProvider });
-const result = await runtime.runTask(source, "greet_user_warmly", {
-  input: { user_name: "Sam" },
-  sourceName: "greet_user_warmly.forma",
+const result = await runtime.runFile("examples/review_diff.forma", "review_diff", {
+  input: { diff, max_findings: 5 },
 });
 ```
 

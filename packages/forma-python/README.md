@@ -32,8 +32,9 @@ runtime calls `run_agent(instruction, values, permissions, tools, output,
 schemas)` when it reaches the task's `agent` block; providers that only accept
 the original four arguments still work. Providers call `tools.require("read")`
 or another declared permission before host workspace actions. Use
-`run_task(source, "task_name", input, source_name)` when a source file contains
-multiple tasks.
+`run_task(source, "task_name", input, source_name)` when source text contains
+multiple tasks, or `run_file(path, "task_name", input)` when the contract lives
+on disk.
 
 ## Local Checks
 

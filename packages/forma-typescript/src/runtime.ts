@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { runCompute, validateOutputContract, verifyOutput } from "./evaluator.js";
 import { parseForma } from "./parser.js";
 import type { ModelProvider } from "./provider.js";
@@ -24,6 +25,11 @@ export class FormaRuntime {
     options: { input: Record<string, FormaValue>; sourceName: string },
   ): Promise<FormaResult> {
     return this.runSelectedTask(source, taskName, options);
+  }
+
+  async runFile(path: string, taskName: string, options: { input: Record<string, FormaValue> }): Promise<FormaResult> {
+    const source = await readFile(path, "utf8");
+    return this.runTask(source, taskName, { input: options.input, sourceName: path });
   }
 
   private async runSelectedTask(

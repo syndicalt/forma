@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from forma import FormaRuntime, StaticProvider
 
 
@@ -141,6 +143,20 @@ def test_executes_deterministic_compute_and_verify():
     assert result.output == {"message": "Hello, Sam!"}
     assert result.verification["ok"] is True
     assert result.diagnostics == []
+
+
+def test_executes_named_task_from_forma_file(tmp_path: Path):
+    source_path = tmp_path / "task.forma"
+    source_path.write_text(DETERMINISTIC_SOURCE, encoding="utf8")
+
+    result = FormaRuntime().run_file(
+        source_path,
+        "greet_user",
+        input={"user_name": "Sam"},
+    )
+
+    assert result.ok is True
+    assert result.output == {"message": "Hello, Sam!"}
 
 
 def test_executes_agent_blocks_through_explicit_fake_provider():

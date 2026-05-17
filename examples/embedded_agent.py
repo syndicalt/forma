@@ -21,11 +21,10 @@ runtime = FormaRuntime(
     )
 )
 
-result = runtime.run_task(
-    source_path.read_text(encoding="utf8"),
+result = runtime.run_file(
+    source_path,
     "review_diff",
     input={"diff": diff, "max_findings": 5},
-    source_name=str(source_path),
 )
 
 if not result.ok:

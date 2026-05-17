@@ -77,7 +77,16 @@ credentials, model selection, retry behavior, logging, and service-specific
 request formatting.
 
 `run_source` executes the first task in a source string. `run_task` executes a
-specific named task.
+specific named task from source text. `run_file` reads a `.forma` file and
+executes a named task:
+
+```python
+result = runtime.run_file(
+    "examples/review_diff.forma",
+    "review_diff",
+    input={"diff": diff, "max_findings": 5},
+)
+```
 
 `HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the
 Forma instruction, input values, permissions, and model name as JSON:

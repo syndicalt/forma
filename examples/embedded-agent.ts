@@ -1,8 +1,6 @@
-import { readFile } from "node:fs/promises";
 import { FormaRuntime, OpenAIResponsesProvider } from "@forma-lang/forma";
 
 const sourcePath = "examples/review_diff.forma";
-const source = await readFile(sourcePath, "utf8");
 const diff = process.env.FORMA_DIFF ?? `diff --git a/src/review.ts b/src/review.ts
 @@
 -return findings.length === 0;
@@ -15,9 +13,8 @@ const runtime = new FormaRuntime({
   }),
 });
 
-const result = await runtime.runTask(source, "review_diff", {
+const result = await runtime.runFile(sourcePath, "review_diff", {
   input: { diff, max_findings: 5 },
-  sourceName: sourcePath,
 });
 
 if (!result.ok) {

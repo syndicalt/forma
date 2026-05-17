@@ -69,9 +69,8 @@ const runtime = new FormaRuntime({
   }),
 });
 
-const result = await runtime.runTask(source, "review_diff", {
+const result = await runtime.runFile("examples/review_diff.forma", "review_diff", {
   input: { diff, max_findings: 5 },
-  sourceName: "review_diff.forma",
 });
 ```
 
@@ -83,11 +82,10 @@ runtime = FormaRuntime(
     )
 )
 
-result = runtime.run_task(
-    source,
+result = runtime.run_file(
+    "examples/review_diff.forma",
     "review_diff",
     input={"diff": diff, "max_findings": 5},
-    source_name="review_diff.forma",
 )
 ```
 

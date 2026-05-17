@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from .evaluator import run_compute, validate_output_contract, verify_output
 from .parser import parse_forma
 from .provider import ModelProvider
@@ -26,6 +28,20 @@ class FormaRuntime:
         source_name: str,
     ) -> FormaResult:
         return self._run_selected_task(source, task_name, input, source_name)
+
+    def run_file(
+        self,
+        path: str | Path,
+        task_name: str,
+        input: dict[str, FormaValue],
+    ) -> FormaResult:
+        source_path = Path(path)
+        return self.run_task(
+            source_path.read_text(encoding="utf8"),
+            task_name,
+            input=input,
+            source_name=str(source_path),
+        )
 
     def _run_selected_task(
         self,
