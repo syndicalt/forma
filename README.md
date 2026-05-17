@@ -20,6 +20,7 @@ The project ships a real `.forma` language package:
 - shared conformance fixtures
 - Python runtime package
 - TypeScript runtime package
+- HTTP JSON and OpenAI Responses provider adapters
 - TypeScript CLI
 - complete documentation for shipped behavior
 

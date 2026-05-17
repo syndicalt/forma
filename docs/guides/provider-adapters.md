@@ -258,3 +258,63 @@ Response body:
   }
 }
 ```
+
+## OpenAI Responses Provider
+
+`OpenAIResponsesProvider` is the first production provider adapter. It keeps
+the key and model in host configuration, uses the OpenAI Responses API, and
+turns the Forma `output` block into a strict JSON schema for structured output.
+
+```typescript
+import { FormaRuntime, OpenAIResponsesProvider } from "@forma-lang/forma";
+
+const runtime = new FormaRuntime({
+  modelProvider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    model: process.env.OPENAI_MODEL ?? "gpt-5",
+  }),
+});
+```
+
+```python
+from forma import FormaRuntime, OpenAIResponsesProvider
+
+runtime = FormaRuntime(
+    model_provider=OpenAIResponsesProvider(
+        api_key=os.environ["OPENAI_API_KEY"],
+        model=os.environ.get("OPENAI_MODEL", "gpt-5"),
+    )
+)
+```
+
+The adapter sends:
+
+```json
+{
+  "model": "gpt-5",
+  "instructions": "Review the supplied code diff.",
+  "input": "{\"input\":{\"diff\":\"...\"},\"permissions\":[\"read\",\"search\",\"test\"]}",
+  "text": {
+    "format": {
+      "type": "json_schema",
+      "name": "forma_output",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "summary": { "type": "string" },
+          "findings": { "type": "array", "items": { "type": "object" } },
+          "clean": { "type": "boolean" }
+        },
+        "required": ["summary", "findings", "clean"]
+      }
+    }
+  }
+}
+```
+
+The runtime still validates the returned object against the Forma contract
+after the provider returns. The provider-specific structured output request
+reduces malformed model responses; the runtime validation remains the final
+host-side trust boundary.

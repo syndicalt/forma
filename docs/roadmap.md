@@ -58,7 +58,7 @@ The current MVP provides:
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
-- HTTP JSON provider adapters for TypeScript and Python.
+- HTTP JSON and OpenAI Responses provider adapters for TypeScript and Python.
 - CLI live evaluation mode through `--provider http-json`.
 - First coding-agent conformance task: `review_diff` with structured findings.
 - Duplicate task name diagnostics.
@@ -91,9 +91,9 @@ Purpose: make real model execution easy without making Forma own credentials.
 Deliverables:
 
 - Optional TypeScript adapter package for a production model provider beyond
-  the current HTTP JSON adapter.
-- Optional Python adapter package for the same provider beyond the current HTTP
-  JSON adapter.
+  the built-in OpenAI Responses adapter.
+- Optional Python adapter package for the same provider beyond the built-in
+  OpenAI Responses adapter.
 - Common adapter interface for model name, temperature, response format, and
   timeout settings.
 - Test adapter that records requests and returns fixture responses.
@@ -186,7 +186,8 @@ The next three implementation slices should be:
 1. Schema compiler expansion: cover multiple structured finding cases in
    conformance fixtures.
 2. Evaluation fixtures: expand regression comparison across eval report files.
-3. Provider adapter kit: add optional production provider packages.
+3. Provider adapter kit: add configurable provider profiles and optional
+   production provider packages.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

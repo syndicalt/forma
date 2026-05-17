@@ -50,7 +50,8 @@ class FormaRuntime:
                 if self.model_provider is None:
                     raise ValueError("F3002: agent block requires model provider")
                 try:
-                    output = self.model_provider.run_agent(
+                    output = self._run_provider_agent(
+                        task,
                         task.agent_instruction,
                         input,
                         task.permissions,
@@ -78,6 +79,21 @@ class FormaRuntime:
             )
         except Exception as error:
             return FormaResult(False, {}, [], [], {"ok": False, "failures": []}, str(error))
+
+    def _run_provider_agent(self, task, instruction, input, permissions, tools):
+        try:
+            return self.model_provider.run_agent(
+                instruction,
+                input,
+                permissions,
+                tools,
+                output=task.output,
+                schemas=task.schemas,
+            )
+        except TypeError as error:
+            if "unexpected keyword" not in str(error):
+                raise
+            return self.model_provider.run_agent(instruction, input, permissions, tools)
 
 
 class _PermissionTools:

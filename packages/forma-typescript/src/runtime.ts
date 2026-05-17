@@ -47,7 +47,7 @@ export class FormaRuntime {
       let output: Record<string, FormaValue>;
       if (task.agentInstruction) {
         try {
-          output = await this.runAgent(task.agentInstruction, options.input, task.permissions, trace);
+          output = await this.runAgent(task.agentInstruction, options.input, task.permissions, task.output, task.schemas, trace);
         } catch (error) {
           return {
             ok: false,
@@ -94,6 +94,8 @@ export class FormaRuntime {
     instruction: string,
     values: Record<string, FormaValue>,
     permissions: string[],
+    output: Parameters<ModelProvider["runAgent"]>[0]["output"],
+    schemas: Parameters<ModelProvider["runAgent"]>[0]["schemas"],
     trace: FormaResult["trace"],
   ): Promise<Record<string, FormaValue>> {
     if (!this.options.modelProvider) {
@@ -146,7 +148,7 @@ export class FormaRuntime {
         return result;
       },
     };
-    return this.options.modelProvider.runAgent({ instruction, values, permissions, tools });
+    return this.options.modelProvider.runAgent({ instruction, values, permissions, output, schemas, tools });
   }
 }
 

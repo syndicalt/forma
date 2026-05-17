@@ -93,6 +93,20 @@ const runtime = new FormaRuntime({
 });
 ```
 
+`OpenAIResponsesProvider` can be used when a host wants Forma to call the
+OpenAI Responses API directly. The host supplies `apiKey` and `model`; the
+runtime supplies the task output contract so the provider can request strict
+structured output:
+
+```ts
+const runtime = new FormaRuntime({
+  modelProvider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    model: process.env.OPENAI_MODEL ?? "gpt-5",
+  }),
+});
+```
+
 ## Generated Bindings
 
 Use `generateTypeScriptBindings` when host code needs interfaces that match the

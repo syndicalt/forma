@@ -92,6 +92,20 @@ runtime = FormaRuntime(
 )
 ```
 
+`OpenAIResponsesProvider` can be used when a host wants Forma to call the
+OpenAI Responses API directly. The host supplies `api_key` and `model`; the
+runtime supplies the task output contract so the provider can request strict
+structured output:
+
+```python
+runtime = FormaRuntime(
+    model_provider=OpenAIResponsesProvider(
+        api_key=os.environ["OPENAI_API_KEY"],
+        model=os.environ.get("OPENAI_MODEL", "gpt-5"),
+    )
+)
+```
+
 ## Generated Bindings
 
 Use `generate_python_bindings` when host code needs dataclasses that match the
