@@ -52,8 +52,10 @@ node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.jso
 ```
 
 The JSON report includes `name`, `passed`, the runtime `result`, provider
-metadata, `durationMs`, and checks for `ok`, `output`, `trace`, `verification`,
-and `error`.
+metadata, `durationMs`, contract metadata, and checks for `ok`, `output`,
+`trace`, `verification`, and `error`. The contract metadata records the evaluated
+source path, source SHA-256, task intent, input fields, output fields, named
+schemas, permissions, and verify expressions.
 
 Multiple conformance files can be grouped in a suite file. The repo includes
 `examples/forma.eval.json`:

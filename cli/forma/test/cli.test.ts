@@ -115,6 +115,21 @@ describe("forma cli", () => {
       metadata: {
         provider: "none",
         durationMs: expect.any(Number),
+        contract: {
+          source: expect.stringContaining("greet_user.forma"),
+          sourceSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+          task: "greet_user",
+          intent: "Greet the current user",
+          input: {
+            user_name: { type: "Text", array: false, optional: true },
+          },
+          output: {
+            message: { type: "Text", array: false, optional: false },
+          },
+          schemas: {},
+          permissions: [],
+          verify: ["message.length > 0"],
+        },
       },
       checks: [
         { name: "ok", passed: true },
@@ -137,6 +152,7 @@ describe("forma cli", () => {
     expect(report.result.trace).toEqual([{ step: "agent", detail: "greet_user_warmly" }]);
     expect(report.metadata.provider).toBe("static");
     expect(typeof report.metadata.durationMs).toBe("number");
+    expect(report.metadata.contract.sourceSha256).toMatch(/^[a-f0-9]{64}$/);
   });
 
   it("evaluates a coding-agent review fixture", async () => {

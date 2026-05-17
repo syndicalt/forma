@@ -54,7 +54,10 @@ forma eval packages/forma-core/conformance/greet_user.json
 
 Agent fixtures can use `fakeProviderOutput`; the CLI evaluates those with
 `StaticProvider` so CI does not need a model key. Eval reports include provider
-metadata and `durationMs` for CI summaries.
+metadata, `durationMs`, and `metadata.contract` with the evaluated source path,
+source SHA-256, task intent, input fields, output fields, named schemas,
+permissions, and verify expressions. That makes an eval artifact useful in code
+review even before opening the `.forma` file.
 
 `forma eval-suite` reads a JSON suite file and prints an array of normal eval
 reports. The repo includes `examples/forma.eval.json` as a small CI-ready

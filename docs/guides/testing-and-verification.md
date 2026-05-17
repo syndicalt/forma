@@ -50,6 +50,10 @@ provider adapters, output schemas, or verification rules:
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary > candidate-artifact.json
 ```
 
+Each report in the artifact includes `metadata.contract`, so reviewers can see
+the evaluated source hash, fields, schemas, permissions, and verify expressions
+next to the pass/fail checks.
+
 The suite manifest is intentionally small and reviewable:
 
 ```json

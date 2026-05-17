@@ -2,8 +2,8 @@
 
 The TypeScript runtime package is `@forma-lang/forma`, with source under
 `packages/forma-typescript/src`. It exports `FormaRuntime`, `StaticProvider`,
-`HttpJsonProvider`, `ModelProvider`, and public result and AST types from
-`src/index.ts`.
+`HttpJsonProvider`, `OpenAIResponsesProvider`, `parseForma`, binding generators,
+`ModelProvider`, and public result and AST types from `src/index.ts`.
 
 ## Deterministic Runtime
 

@@ -62,6 +62,8 @@ The current MVP provides:
 - CLI eval suite artifacts with optional pass/fail summaries from JSON files
   that list conformance fixtures.
 - Checked-in `examples/forma.eval.json` suite manifest and CI artifact guidance.
+- Eval report contract metadata with source hashes, task fields, schemas,
+  permissions, and verify expressions.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
@@ -193,7 +195,7 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: generate richer Python models beyond dataclasses
    for nested `.forma` output blocks.
-2. Evaluation fixtures: expand suite artifacts with prompt/schema diff context.
+2. Evaluation fixtures: add richer compare output for changed contract metadata.
 3. Provider adapter kit: add configurable provider profiles and optional
    production provider packages.
 

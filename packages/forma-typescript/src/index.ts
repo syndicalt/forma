@@ -1,4 +1,5 @@
 export { generatePythonBindings, generateTypeScriptBindings } from "./bindings.js";
+export { parseForma } from "./parser.js";
 export { FormaRuntime } from "./runtime.js";
 export type { ToolHost } from "./runtime.js";
 export { HttpJsonProvider, OpenAIResponsesProvider, StaticProvider } from "./provider.js";

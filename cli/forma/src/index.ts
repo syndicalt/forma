@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -8,9 +9,10 @@ import {
   generateTypeScriptBindings,
   HttpJsonProvider,
   OpenAIResponsesProvider,
+  parseForma,
   StaticProvider,
 } from "@forma-lang/forma";
-import type { FormaDiagnostic, FormaResult, FormaValue, ModelProvider } from "@forma-lang/forma";
+import type { FormaDiagnostic, FormaField, FormaResult, FormaTask, FormaValue, ModelProvider } from "@forma-lang/forma";
 
 export interface CliResult {
   exitCode: number;
@@ -104,7 +106,24 @@ async function generateBindings(source: string, args: string[]): Promise<CliResu
 interface EvalReport {
   name: string;
   passed: boolean;
+  metadata?: {
+    provider: string;
+    durationMs: number;
+    contract?: EvalContract;
+  };
   checks?: Array<{ name: string; passed: boolean }>;
+}
+
+interface EvalContract {
+  source: string;
+  sourceSha256: string;
+  task: string;
+  intent: string;
+  input: Record<string, FormaField>;
+  output: Record<string, FormaField>;
+  schemas: Record<string, Record<string, FormaField>>;
+  permissions: string[];
+  verify: string[];
 }
 
 interface EvalSuiteArtifact {
@@ -250,6 +269,8 @@ async function evaluateFixtureReport(path: string, args: string[]) {
   const fixture = JSON.parse(await readFile(path, "utf8")) as EvalFixture;
   const sourcePath = resolve(dirname(path), fixture.source);
   const source = await readFile(sourcePath, "utf8");
+  const task = parseForma(source).tasks.find((candidate) => candidate.name === fixture.name);
+  if (!task) throw new Error(`task not found in fixture source: ${fixture.name}`);
   const evalOptions = parseEvalOptions(args);
   const modelProvider = createEvalProvider(fixture, evalOptions);
   const runtime = new FormaRuntime(modelProvider ? { modelProvider } : {});
@@ -273,10 +294,25 @@ async function evaluateFixtureReport(path: string, args: string[]) {
     metadata: {
       provider: providerName(fixture, evalOptions),
       durationMs,
+      contract: contractSummary(task, sourcePath, source),
     },
     checks,
   };
   return report;
+}
+
+function contractSummary(task: FormaTask, sourcePath: string, source: string): EvalContract {
+  return {
+    source: sourcePath,
+    sourceSha256: createHash("sha256").update(source).digest("hex"),
+    task: task.name,
+    intent: task.intent,
+    input: task.input,
+    output: task.output,
+    schemas: task.schemas,
+    permissions: task.permissions,
+    verify: task.verify,
+  };
 }
 
 function parseEvalOptions(args: string[]): EvalOptions {
