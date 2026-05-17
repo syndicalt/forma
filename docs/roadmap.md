@@ -49,6 +49,8 @@ The current MVP provides:
 - Named task execution through `runTask` and `run_task`.
 - Agent provider interfaces for host-owned model calls.
 - Basic output contract validation for required `Text` fields.
+- TypeScript interface and Python dataclass generation for `Text`, `Number`,
+  and `Boolean` task fields.
 - Simple `verify` expressions.
 - Shared fixtures and conformance data.
 - Documentation and embedding examples.
@@ -59,9 +61,10 @@ Purpose: make Forma valuable for one real embedded agent task.
 
 Deliverables:
 
-- Output schema validation for `Text`, `Number`, `Boolean`, arrays, and objects.
+- Output schema validation for `Number`, `Boolean`, arrays, and objects beyond
+  the current required `Text` validation.
 - Generated TypeScript types and Python dataclasses or Pydantic models from
-  `.forma` output blocks.
+  nested `.forma` output blocks.
 - Structured provider response parsing with clear validation errors.
 - Better task lookup, duplicate task name diagnostics, and source spans.
 - Example coding task: "summarize a diff and produce review findings."
@@ -172,7 +175,8 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Schema compiler: generate TypeScript and Python types from `.forma` fields.
+1. Schema compiler expansion: validate `Number` and `Boolean`, then support
+   arrays and objects in generated bindings.
 2. Evaluation fixtures: run a task against examples and emit JSON results.
 3. Coding-agent permission model: declare allowed workspace actions and expose
    host hooks.

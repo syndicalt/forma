@@ -77,6 +77,22 @@ const result = await runtime.runTask(source, "greet_user_warmly", {
 See `examples/embedded-agent.ts` and `examples/embedded_agent.py` for the full
 TypeScript and Python shape.
 
+## Generated Bindings
+
+Forma can generate host-language types from task fields so applications do not
+have to duplicate input and output shapes by hand:
+
+```ts
+const types = generateTypeScriptBindings(source);
+```
+
+```python
+bindings = generate_python_bindings(source)
+```
+
+The current generator maps `Text`, `Number`, and `Boolean` fields to TypeScript
+interfaces and Python dataclasses.
+
 ## Engineering Rules
 
 - Keep implementations simple, direct, readable, and inspectable.

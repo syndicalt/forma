@@ -33,6 +33,14 @@ runtime validates output fields and verify rules
 host receives FormaResult
 ```
 
+Forma can also generate host bindings from task fields:
+
+```text
+.forma input/output blocks
+TypeScript interfaces
+Python dataclasses
+```
+
 ## Language
 
 The language reference is split by concern:

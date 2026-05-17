@@ -93,6 +93,21 @@ output {
 If a provider returns `{}` for that task, the runtime returns `F3003`. If it
 returns a non-string `message`, the runtime returns `F3004`.
 
+## Binding Generation
+
+Host packages can generate language-native bindings from task fields:
+
+```typescript
+generateTypeScriptBindings(source)
+```
+
+```python
+generate_python_bindings(source)
+```
+
+This is separate from execution. It gives host programs a generated contract for
+the same input and output fields that the runtime validates.
+
 ## Verification
 
 The runtime evaluates shipped `verify` expressions against the output and stores

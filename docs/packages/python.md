@@ -71,6 +71,21 @@ request formatting.
 `run_source` executes the first task in a source string. `run_task` executes a
 specific named task.
 
+## Generated Bindings
+
+Use `generate_python_bindings` when host code needs dataclasses that match the
+task `input` and `output` blocks:
+
+```python
+from forma import generate_python_bindings
+
+generated = generate_python_bindings(source)
+```
+
+For a task named `review_diff`, the generator emits `ReviewDiffInput` and
+`ReviewDiffOutput`. The current generator maps `Text` to `str`, `Number` to
+`float`, and `Boolean` to `bool`.
+
 ## Result Fields
 
 `FormaResult` has the same public fields as the TypeScript result:

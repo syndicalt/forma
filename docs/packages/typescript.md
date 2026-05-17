@@ -69,6 +69,21 @@ request formatting.
 `runSource` executes the first task in a source string. `runTask` executes a
 specific named task.
 
+## Generated Bindings
+
+Use `generateTypeScriptBindings` when host code needs interfaces that match the
+task `input` and `output` blocks:
+
+```ts
+import { generateTypeScriptBindings } from "@forma-lang/forma";
+
+const generated = generateTypeScriptBindings(source);
+```
+
+For a task named `review_diff`, the generator emits `ReviewDiffInput` and
+`ReviewDiffOutput`. The current generator maps `Text` to `string`, `Number` to
+`number`, and `Boolean` to `boolean`.
+
 ## Verification
 
 For TypeScript package changes, run the focused test target first:

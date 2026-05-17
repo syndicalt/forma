@@ -1,3 +1,4 @@
+export { generateTypeScriptBindings } from "./bindings.js";
 export { FormaRuntime } from "./runtime.js";
 export { StaticProvider } from "./provider.js";
 export type { ModelProvider } from "./provider.js";
