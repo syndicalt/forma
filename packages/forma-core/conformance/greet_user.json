@@ -32,8 +32,16 @@
     "output": {
       "message": "Hello, Sam!"
     },
+    "trace": [
+      {
+        "step": "compute",
+        "detail": "greet_user"
+      }
+    ],
+    "diagnostics": [],
     "verification": {
       "ok": true
-    }
+    },
+    "error": null
   }
 }

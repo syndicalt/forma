@@ -5,7 +5,7 @@
   "type": "module",
   "files": ["fixtures", "conformance", "schema"],
   "scripts": {
-    "check": "node --check package.json",
+    "check": "node -e \"JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')); console.log('forma-core package ok')\"",
     "test": "node -e \"console.log('forma-core fixtures only')\""
   }
 }

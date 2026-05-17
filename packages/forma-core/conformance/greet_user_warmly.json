@@ -36,8 +36,16 @@
     "output": {
       "message": "Hello, Sam. Good to see you."
     },
+    "trace": [
+      {
+        "step": "agent",
+        "detail": "greet_user_warmly"
+      }
+    ],
+    "diagnostics": [],
     "verification": {
       "ok": true
-    }
+    },
+    "error": null
   }
 }
