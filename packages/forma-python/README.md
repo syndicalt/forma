@@ -2,9 +2,10 @@
 
 Python runtime package for Forma task files.
 
-The package exposes `FormaRuntime` for executing Forma source and `StaticProvider`
-for deterministic tests of agent blocks. The current runtime supports the MVP
-task shape used by the shared conformance fixtures:
+The package exposes `FormaRuntime` for executing Forma source, `ModelProvider`
+for custom adapters, and `StaticProvider` for deterministic tests of agent
+blocks. The current runtime supports the MVP task shape used by the shared
+conformance fixtures:
 
 - deterministic `compute` blocks that produce a `message` from `user_name`
 - `verify` checks for `message.length > 0` and `message.words <= 12`
@@ -23,6 +24,11 @@ result = runtime.run_source(source, input={"user_name": "Sam"}, source_name="tas
 
 `run_source` returns a `FormaResult` with `ok`, `output`, `trace`,
 `diagnostics`, `verification`, and `error` fields.
+
+For real agent execution, keep the provider key and model name in the host
+program or environment, then pass a provider object to `FormaRuntime`. The
+runtime calls `run_agent(instruction, values)` when it reaches the task's
+`agent` block.
 
 ## Local Checks
 

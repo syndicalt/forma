@@ -2,7 +2,7 @@
 
 The TypeScript runtime package is `@forma-lang/forma`, with source under
 `packages/forma-typescript/src`. It exports `FormaRuntime`, `StaticProvider`,
-and public result and AST types from `src/index.ts`.
+`ModelProvider`, and public result and AST types from `src/index.ts`.
 
 ## Deterministic Runtime
 
@@ -25,10 +25,30 @@ expression, and evaluates the `verify` block before returning.
 ## Agent Runtime
 
 ```ts
-import { FormaRuntime, StaticProvider } from "@forma-lang/forma";
+import { FormaRuntime, type ModelProvider } from "@forma-lang/forma";
+
+class HostedModelProvider implements ModelProvider {
+  constructor(private readonly apiKey: string, private readonly model: string) {}
+
+  async runAgent(input: {
+    instruction: string;
+    values: Record<string, unknown>;
+  }) {
+    const response = await callModelService({
+      apiKey: this.apiKey,
+      model: this.model,
+      instruction: input.instruction,
+      values: input.values,
+    });
+    return { message: response.message };
+  }
+}
 
 const agentRuntime = new FormaRuntime({
-  modelProvider: new StaticProvider({ message: "Hello, Sam. Good to see you." }),
+  modelProvider: new HostedModelProvider(
+    process.env.MODEL_API_KEY ?? "",
+    "example-model",
+  ),
 });
 ```
 
@@ -36,6 +56,10 @@ This API is exercised by `packages/forma-typescript/test/runtime.test.ts`.
 `runSource` returns a `FormaResult` with `ok`, `output`, `trace`,
 `diagnostics`, `verification`, and `error`. Agent blocks are routed through the
 configured provider and do not call an external model directly.
+
+The `.forma` file contains the `agent` instruction. The provider object contains
+credentials, model selection, retry behavior, logging, and service-specific
+request formatting.
 
 ## Verification
 

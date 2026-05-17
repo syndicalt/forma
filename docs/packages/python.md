@@ -2,8 +2,9 @@
 
 The Python runtime package is `forma-lang`, with source under
 `packages/forma-python/src/forma`. It exports `FormaRuntime` and
-`StaticProvider` from `forma`. `FormaRuntime.run_source` accepts source text,
-an input dictionary, and a source name, then returns a `FormaResult` dataclass.
+`StaticProvider` from `forma`. It also exports `ModelProvider` for typing custom
+adapters. `FormaRuntime.run_source` accepts source text, an input dictionary,
+and a source name, then returns a `FormaResult` dataclass.
 
 ## Deterministic Runtime
 
@@ -26,10 +27,28 @@ supported `compute` expression, then evaluates `verify` expressions.
 ## Agent Runtime
 
 ```python
-from forma import FormaRuntime, StaticProvider
+import os
+from forma import FormaRuntime, ModelProvider
+
+class HostedModelProvider(ModelProvider):
+    def __init__(self, api_key: str, model: str) -> None:
+        self.api_key = api_key
+        self.model = model
+
+    def run_agent(self, instruction: str, values: dict) -> dict:
+        response = call_model_service(
+            api_key=self.api_key,
+            model=self.model,
+            instruction=instruction,
+            values=values,
+        )
+        return {"message": response["message"]}
 
 agent_runtime = FormaRuntime(
-    model_provider=StaticProvider({"message": "Hello, Sam. Good to see you."})
+    model_provider=HostedModelProvider(
+        api_key=os.environ["MODEL_API_KEY"],
+        model="example-model",
+    )
 )
 ```
 
@@ -37,6 +56,10 @@ The deterministic and agent calls match
 `packages/forma-python/tests/test_runtime.py`. `StaticProvider` implements the
 provider protocol by returning the configured output. Agent tasks require a
 provider; without one the runtime returns an error containing `F3002`.
+
+The `.forma` file contains the `agent` instruction. The provider object contains
+credentials, model selection, retry behavior, logging, and service-specific
+request formatting.
 
 ## Result Fields
 
