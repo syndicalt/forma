@@ -18,3 +18,15 @@ The project ships a real `.forma` language package:
 - No fake CLI success paths.
 - No undocumented fallback behavior.
 - Documentation is part of every shipped feature.
+
+## Verification
+
+Run all JavaScript, TypeScript, Python, and documentation checks:
+
+```bash
+corepack pnpm install
+corepack pnpm check
+corepack pnpm test
+corepack pnpm docs:check
+python -m pytest packages/forma-python/tests -q
+```
