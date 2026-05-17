@@ -53,9 +53,8 @@ export async function runCli(args: string[]): Promise<CliResult> {
       return generateBindings(source, rest);
     }
 
-    const runtime = new FormaRuntime();
-
     if (command === "check") {
+      const runtime = new FormaRuntime();
       const result = await runtime.runSource(source, { input: {}, sourceName: path });
       if (result.diagnostics.length > 0) {
         return { exitCode: 1, stdout: "", stderr: formatDiagnostics(result.diagnostics) };
@@ -69,7 +68,13 @@ export async function runCli(args: string[]): Promise<CliResult> {
     }
 
     const input = parseInput(rest);
-    const result = await runtime.runSource(source, { input, sourceName: path });
+    const evalOptions = await parseEvalOptions(rest);
+    const modelProvider = evalOptions.provider === "fixture" ? undefined : createConfiguredProvider(evalOptions);
+    const runtime = new FormaRuntime(modelProvider ? { modelProvider } : {});
+    const taskName = optionValue(rest, "--task");
+    const result = taskName
+      ? await runtime.runTask(source, taskName, { input, sourceName: path })
+      : await runtime.runSource(source, { input, sourceName: path });
     return result.ok
       ? { exitCode: 0, stdout: `${JSON.stringify(result.output)}\n`, stderr: "" }
       : { exitCode: 1, stdout: "", stderr: `${result.error ?? "run failed"}\n` };
@@ -1054,6 +1059,13 @@ async function loadProviderProfile(args: string[]): Promise<ProviderProfile> {
 }
 
 function createEvalProvider(fixture: EvalFixture, options: EvalOptions): ModelProvider | undefined {
+  if (options.provider === "fixture") {
+    return fixture.fakeProviderOutput ? new StaticProvider(fixture.fakeProviderOutput) : undefined;
+  }
+  return createConfiguredProvider(options);
+}
+
+function createConfiguredProvider(options: EvalOptions): ModelProvider {
   if (options.provider === "http-json") {
     return new HttpJsonProvider({
       endpoint: options.endpoint ?? "",
@@ -1068,7 +1080,7 @@ function createEvalProvider(fixture: EvalFixture, options: EvalOptions): ModelPr
       ...(options.endpoint ? { endpoint: options.endpoint } : {}),
     });
   }
-  return fixture.fakeProviderOutput ? new StaticProvider(fixture.fakeProviderOutput) : undefined;
+  throw new Error(`unsupported eval provider '${options.provider}'`);
 }
 
 function providerName(fixture: EvalFixture, options: EvalOptions): string {

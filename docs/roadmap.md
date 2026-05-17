@@ -82,6 +82,8 @@ The current MVP provides:
 - CLI live evaluation mode through `--provider http-json`.
 - CLI provider profiles for reusable provider, endpoint, model, and key-env
   configuration.
+- CLI `run` supports named provider-backed tasks through provider flags and
+  provider profiles.
 - Python generated bindings include recursive `from_dict` constructors and
   `assert_<task>_output` validators for runtime output dictionaries and nested
   schema dataclasses.

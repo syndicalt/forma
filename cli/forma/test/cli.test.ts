@@ -17,6 +17,69 @@ describe("forma cli", () => {
     expect(result.stdout).toContain("Hello, Sam!");
   });
 
+  it("runs a named agent task with a provider profile", async () => {
+    const originalFetch = globalThis.fetch;
+    const originalApiKey = process.env.FORMA_TEST_RUN_KEY;
+    const dir = await mkdtemp(join(tmpdir(), "forma-run-provider-profile-"));
+    const profile = join(dir, "provider.json");
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    process.env.FORMA_TEST_RUN_KEY = "run-secret";
+    await writeFile(profile, JSON.stringify({
+      provider: "http-json",
+      endpoint: "https://run.example/v1/agent",
+      model: "run-model",
+      apiKeyEnv: "FORMA_TEST_RUN_KEY",
+    }));
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          output: {
+            summary: "Run provider reviewed the diff.",
+            findings: [],
+            clean: true,
+          },
+        }),
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "run",
+        "../../examples/review_diff.forma",
+        "--task",
+        "review_diff",
+        "--input",
+        "{\"diff\":\"diff --git a/src/example.ts b/src/example.ts\"}",
+        "--provider-profile",
+        profile,
+      ]);
+      const body = JSON.parse(String(requests[0]?.init.body));
+
+      expect(result).toEqual({
+        exitCode: 0,
+        stdout: "{\"summary\":\"Run provider reviewed the diff.\",\"findings\":[],\"clean\":true}\n",
+        stderr: "",
+      });
+      expect(requests[0]?.url).toBe("https://run.example/v1/agent");
+      expect(requests[0]?.init.headers).toEqual({
+        "content-type": "application/json",
+        authorization: "Bearer run-secret",
+      });
+      expect(body.model).toBe("run-model");
+      expect(body.input).toEqual({ diff: "diff --git a/src/example.ts b/src/example.ts" });
+    } finally {
+      globalThis.fetch = originalFetch;
+      if (originalApiKey === undefined) {
+        delete process.env.FORMA_TEST_RUN_KEY;
+      } else {
+        process.env.FORMA_TEST_RUN_KEY = originalApiKey;
+      }
+    }
+  });
+
   it("generates TypeScript bindings from a Forma file", async () => {
     const result = await runCli(["generate", "../../examples/review_diff.forma", "--target", "typescript"]);
 

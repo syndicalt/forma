@@ -58,8 +58,16 @@ corepack pnpm build
 ```
 
 If `forma run` fails on an agent task without a provider, that is expected for
-the CLI path. Agent tasks require an explicit host-provided provider in the
-runtime APIs.
+the default CLI path. Agent tasks require an explicit host-provided provider.
+Use `--provider-profile` when you want the CLI to execute a provider-backed
+task directly:
+
+```bash
+OPENAI_API_KEY=... node cli/forma/dist/index.js run examples/review_diff.forma \
+  --task review_diff \
+  --input '{"diff":"diff --git a/src/example.ts b/src/example.ts"}' \
+  --provider-profile examples/forma.provider.json
+```
 
 The embedded coding-agent examples show the same `review_diff` contract from
 TypeScript and Python. Both examples use `agent(...)` to bind the `.forma`

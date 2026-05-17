@@ -34,11 +34,16 @@ and TypeScript tests.
 
 ## Agent Execution
 
-Agent tasks require a provider. The CLI can check provider-backed tasks, but it
-does not execute them because no provider is configured in the CLI.
+Agent tasks require a provider. The CLI can check provider-backed tasks without
+a provider, and `forma run` can execute them when a provider is configured with
+`--provider`, `--provider-profile`, or the OpenAI environment defaults.
 
 ```bash
 node cli/forma/dist/index.js check examples/greet_user_warmly.forma
+node cli/forma/dist/index.js run examples/review_diff.forma \
+  --task review_diff \
+  --input '{"diff":"diff --git a/src/example.ts b/src/example.ts"}' \
+  --provider-profile examples/forma.provider.json
 ```
 
 ## Verification

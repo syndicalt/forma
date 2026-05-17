@@ -24,8 +24,22 @@ forma check examples/greet_user.forma
 forma run examples/greet_user.forma --input '{"user_name":"Sam"}'
 ```
 
-`forma run` executes deterministic files and prints the JSON output. Invalid
-usage exits with code 2 and prints `usage: forma
+`forma run` executes a task and prints the JSON output. By default it runs the
+first task in the file; use `--task` to select a named task. Deterministic tasks
+need only `--input`. Agent tasks can use the same provider options as
+`forma eval`, including `--provider-profile`:
+
+```bash
+forma run examples/greet_user.forma \
+  --input '{"user_name":"Sam"}'
+
+forma run examples/review_diff.forma \
+  --task review_diff \
+  --input '{"diff":"diff --git a/src/example.ts b/src/example.ts"}' \
+  --provider-profile examples/forma.provider.json
+```
+
+Invalid usage exits with code 2 and prints `usage: forma
 <check|run|eval|eval-suite|compare|generate|package-check|package-init> <path> [--input JSON]`.
 These behaviors are covered by `cli/forma/test/cli.test.ts`.
 
