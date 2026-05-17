@@ -84,6 +84,9 @@ The current MVP provides:
   configuration.
 - Python generated bindings include recursive `from_dict` constructors for
   runtime output dictionaries and nested schema dataclasses.
+- A first task package manifest schema, example package manifest, and
+  compatibility policy for versioned task contracts.
+- Manifest checking verifies task source hashes and eval suite paths.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
 - Duplicate task name diagnostics.
@@ -209,10 +212,9 @@ Exit criteria:
 The next three implementation slices should be:
 
 1. Provider adapter kit: add optional production provider packages.
-2. Registry and versioning: define the first task-package metadata and
-   compatibility policy document.
-3. Schema compiler expansion: add runtime validation helpers to generated
+2. Schema compiler expansion: add runtime validation helpers to generated
    bindings.
+3. Registry and versioning: add lockfile and publishing guidance.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

@@ -76,6 +76,7 @@ Package docs cover the host-facing surfaces:
 - `docs/packages/python.md` for the `forma-lang` Python package.
 - `docs/packages/cli.md` for `@forma-lang/cli`.
 - `docs/packages/conformance.md` for shared fixtures and expected results.
+- `docs/packages/registry.md` for versioned task package manifests.
 
 ## Contributing
 

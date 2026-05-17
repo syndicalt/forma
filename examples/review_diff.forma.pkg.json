@@ -1,0 +1,19 @@
+{
+  "formaPackage": 1,
+  "name": "examples/review-diff",
+  "version": "0.1.0",
+  "description": "Review a code diff and return structured findings.",
+  "tasks": [
+    {
+      "name": "review_diff",
+      "source": "examples/review_diff.forma",
+      "sourceSha256": "9ccf780f57f35f54f4da21291075f7728dcb530442efebc603c50073e580e9ec"
+    }
+  ],
+  "evalSuite": "examples/forma.eval.json",
+  "compatibility": {
+    "breaking": ["input", "output", "schemas"],
+    "review": ["intent", "permissions", "verify", "sourceSha256"],
+    "environment": ["provider", "endpoint", "model"]
+  }
+}

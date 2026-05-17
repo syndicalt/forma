@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 
 const required = [
@@ -20,6 +21,9 @@ const required = [
   "docs/packages/cli.md",
   "docs/packages/conformance.md",
   "docs/packages/contributing.md",
+  "docs/packages/registry.md",
+  "packages/forma-core/schema/package.schema.json",
+  "examples/review_diff.forma.pkg.json",
 ];
 
 const requiredTerms = {
@@ -47,6 +51,7 @@ const requiredTerms = {
   "docs/packages/python.md": ["FormaRuntime", "StaticProvider"],
   "docs/packages/typescript.md": ["FormaRuntime", "StaticProvider"],
   "docs/packages/cli.md": ["forma check", "forma run"],
+  "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite"],
   "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run"],
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
@@ -98,6 +103,9 @@ for (const path of required) {
     console.error(`too short ${path}`);
     process.exit(1);
   }
+  if (!path.endsWith(".md")) {
+    continue;
+  }
   for (const heading of requiredHeadings(path)) {
     if (!text.includes(heading)) {
       console.error(`missing heading ${path}: ${heading}`);
@@ -128,6 +136,8 @@ for (const path of scanFiles(scanRoots)) {
     }
   }
 }
+
+validatePackageManifest("examples/review_diff.forma.pkg.json");
 
 console.log("docs ok");
 
@@ -170,4 +180,53 @@ function requiredHeadings(path) {
     return ["## Purpose", "## Steps", "## Verification"];
   }
   return [];
+}
+
+function validatePackageManifest(path) {
+  const manifest = JSON.parse(readFileSync(path, "utf8"));
+  if (manifest.formaPackage !== 1) {
+    console.error(`${path}: formaPackage must be 1`);
+    process.exit(1);
+  }
+  if (!/^[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)?$/.test(manifest.name ?? "")) {
+    console.error(`${path}: invalid package name`);
+    process.exit(1);
+  }
+  if (!/^\d+\.\d+\.\d+$/.test(manifest.version ?? "")) {
+    console.error(`${path}: version must use x.y.z semver`);
+    process.exit(1);
+  }
+  if (!Array.isArray(manifest.tasks) || manifest.tasks.length === 0) {
+    console.error(`${path}: tasks must be a non-empty array`);
+    process.exit(1);
+  }
+  for (const task of manifest.tasks) {
+    for (const field of ["name", "source", "sourceSha256"]) {
+      if (typeof task[field] !== "string" || task[field].length === 0) {
+        console.error(`${path}: task.${field} is required`);
+        process.exit(1);
+      }
+    }
+    if (!existsSync(task.source)) {
+      console.error(`${path}: task source does not exist: ${task.source}`);
+      process.exit(1);
+    }
+    const sourceHash = createHash("sha256").update(readFileSync(task.source)).digest("hex");
+    if (sourceHash !== task.sourceSha256) {
+      console.error(`${path}: task sourceSha256 does not match ${task.source}`);
+      process.exit(1);
+    }
+  }
+  if (typeof manifest.evalSuite !== "string" || !manifest.evalSuite.endsWith(".json")) {
+    console.error(`${path}: evalSuite must point to a JSON suite`);
+    process.exit(1);
+  }
+  if (!existsSync(manifest.evalSuite)) {
+    console.error(`${path}: evalSuite does not exist: ${manifest.evalSuite}`);
+    process.exit(1);
+  }
+  if (!manifest.compatibility || typeof manifest.compatibility !== "object") {
+    console.error(`${path}: compatibility policy is required`);
+    process.exit(1);
+  }
 }
