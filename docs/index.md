@@ -19,6 +19,8 @@ node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name"
 ```
 
 Read `docs/guides/quickstart.md` for the full setup path and expected outputs.
+Read `docs/roadmap.md` for the path from the current contract runtime to a
+TypeScript and Python agent coding tool.
 
 The useful embedding path is:
 
@@ -42,6 +44,7 @@ The language reference is split by concern:
 - `docs/language/diagnostics.md` lists diagnostic codes.
 - `docs/language/limitations.md` states current MVP boundaries.
 - `docs/language/architecture.md` explains Tree-sitter, AST, IR, and runtimes.
+- `docs/roadmap.md` explains the product direction and phase gates.
 
 ## Packages
 
