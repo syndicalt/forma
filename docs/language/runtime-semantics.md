@@ -160,7 +160,9 @@ generate_python_bindings(source)
 ```
 
 This is separate from execution. It gives host programs a generated contract for
-the same input and output fields that the runtime validates.
+the same input and output fields that the runtime validates. Named output
+schemas may reference other named schemas; generated Python dataclasses are
+ordered so those references can be imported directly.
 
 ## Verification
 

@@ -22,7 +22,7 @@ ${renderSchemas(name, task.schemas)}
 
 function renderPythonTask(task: FormaTask): string {
   const name = toPascalCase(task.name);
-  const schemas = Object.entries(task.schemas).map(([schemaName, fields]) =>
+  const schemas = orderedSchemaEntries(task.schemas).map(([schemaName, fields]) =>
     renderPythonDataclass(`${name}${schemaName}`, fields, name, task.schemas),
   );
   return [
@@ -31,6 +31,31 @@ function renderPythonTask(task: FormaTask): string {
     ...schemas,
     renderPythonDataclass(`${name}Output`, task.output, name, task.schemas),
   ].join("\n\n\n").concat("\n");
+}
+
+function orderedSchemaEntries(schemas: FormaTask["schemas"]): Array<[string, FormaTask["schemas"][string]]> {
+  const ordered: Array<[string, FormaTask["schemas"][string]]> = [];
+  const visited = new Set<string>();
+  const visiting = new Set<string>();
+
+  const visit = (schemaName: string) => {
+    if (visited.has(schemaName) || visiting.has(schemaName)) return;
+    const fields = schemas[schemaName];
+    if (!fields) return;
+    visiting.add(schemaName);
+    for (const field of Object.values(fields)) {
+      if (schemas[field.type]) visit(field.type);
+    }
+    visiting.delete(schemaName);
+    visited.add(schemaName);
+    ordered.push([schemaName, fields]);
+  };
+
+  for (const schemaName of Object.keys(schemas)) {
+    visit(schemaName);
+  }
+
+  return ordered;
 }
 
 function renderInterface(name: string, fields: FormaTask["input"], taskName = "", schemas: FormaTask["schemas"] = {}): string {

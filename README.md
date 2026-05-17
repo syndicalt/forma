@@ -105,7 +105,8 @@ forma generate examples/review_diff.forma --target typescript --output src/revie
 ```
 
 The current generator maps `Text`, `Number`, `Boolean`, arrays, and named output
-object schemas to TypeScript interfaces and Python dataclasses.
+object schemas to TypeScript interfaces and Python dataclasses. Generated
+Python dataclasses are ordered so nested schema references are importable.
 
 ## Engineering Rules
 

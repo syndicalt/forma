@@ -11,7 +11,7 @@ def _render_task(task: FormaTask) -> str:
     name = _pascal_case(task.name)
     schema_classes = "\n\n\n".join(
         _render_dataclass(f"{name}{schema_name}", fields, name, task.schemas)
-        for schema_name, fields in task.schemas.items()
+        for schema_name, fields in _ordered_schema_items(task.schemas)
     )
     parts = [
         _render_header(),
@@ -21,6 +21,32 @@ def _render_task(task: FormaTask) -> str:
         parts.append(schema_classes)
     parts.append(_render_dataclass(f"{name}Output", task.output, name, task.schemas))
     return "\n\n\n".join(parts) + "\n"
+
+
+def _ordered_schema_items(schemas: dict[str, dict[str, dict[str, object]]]) -> list[tuple[str, dict[str, dict[str, object]]]]:
+    ordered: list[tuple[str, dict[str, dict[str, object]]]] = []
+    visited: set[str] = set()
+    visiting: set[str] = set()
+
+    def visit(schema_name: str) -> None:
+        if schema_name in visited or schema_name in visiting:
+            return
+        fields = schemas.get(schema_name)
+        if fields is None:
+            return
+        visiting.add(schema_name)
+        for field in fields.values():
+            field_type = str(field["type"])
+            if field_type in schemas:
+                visit(field_type)
+        visiting.remove(schema_name)
+        visited.add(schema_name)
+        ordered.append((schema_name, fields))
+
+    for schema_name in schemas:
+        visit(schema_name)
+
+    return ordered
 
 
 def _render_header() -> str:

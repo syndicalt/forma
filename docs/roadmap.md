@@ -53,6 +53,8 @@ The current MVP provides:
   structured objects.
 - TypeScript interface and Python dataclass generation for scalar fields and
   arrays of named structured objects.
+- Generated Python dataclasses are ordered for nested structured object
+  references.
 - CLI binding generation for TypeScript and Python.
 - CLI evaluation reports for shared conformance fixtures, including output,
   trace, verification, error checks, provider metadata, and timing.
@@ -186,8 +188,8 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Schema compiler expansion: cover nested structured output code generation
-   beyond the current structured finding fixtures.
+1. Schema compiler expansion: generate richer Python models beyond dataclasses
+   for nested `.forma` output blocks.
 2. Evaluation fixtures: expand regression comparison across eval report files.
 3. Provider adapter kit: add configurable provider profiles and optional
    production provider packages.

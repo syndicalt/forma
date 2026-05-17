@@ -28,6 +28,34 @@ const source = `task review_diff {
   }
 }`;
 
+const nestedSource = `task review_diff {
+  intent "Review a code diff"
+
+  input {
+    diff: Text
+  }
+
+  output {
+    findings: Finding[]
+
+    object Finding {
+      location: Location
+      message: Text
+    }
+
+    object Location {
+      path: Text
+      line: Number?
+    }
+  }
+
+  agent {
+    instruction """
+    Review the diff.
+    """
+  }
+}`;
+
 describe("generateTypeScriptBindings", () => {
   it("generates input and output interfaces from Forma task fields", () => {
     expect(generateTypeScriptBindings(source)).toBe(`export interface ReviewDiffInput {
@@ -73,6 +101,33 @@ class ReviewDiffOutput:
     summary: str
     findings: list[ReviewDiffFinding]
     clean: bool
+`);
+  });
+
+  it("orders nested schema dataclasses before the schemas that reference them", () => {
+    expect(generatePythonBindings(nestedSource)).toBe(`from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ReviewDiffInput:
+    diff: str
+
+
+@dataclass(frozen=True)
+class ReviewDiffLocation:
+    path: str
+    line: float | None = None
+
+
+@dataclass(frozen=True)
+class ReviewDiffFinding:
+    location: ReviewDiffLocation
+    message: str
+
+
+@dataclass(frozen=True)
+class ReviewDiffOutput:
+    findings: list[ReviewDiffFinding]
 `);
   });
 });

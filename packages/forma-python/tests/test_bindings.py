@@ -29,6 +29,35 @@ SOURCE = '''task review_diff {
 }'''
 
 
+NESTED_SOURCE = '''task review_diff {
+  intent "Review a code diff"
+
+  input {
+    diff: Text
+  }
+
+  output {
+    findings: Finding[]
+
+    object Finding {
+      location: Location
+      message: Text
+    }
+
+    object Location {
+      path: Text
+      line: Number?
+    }
+  }
+
+  agent {
+    instruction """
+    Review the diff.
+    """
+  }
+}'''
+
+
 def test_generates_python_dataclasses_from_forma_task_fields():
     assert generate_python_bindings(SOURCE) == '''from dataclasses import dataclass
 
@@ -52,3 +81,33 @@ class ReviewDiffOutput:
     findings: list[ReviewDiffFinding]
     clean: bool
 '''
+
+
+def test_orders_nested_schema_dataclasses_before_the_schemas_that_reference_them():
+    generated = generate_python_bindings(NESTED_SOURCE)
+
+    assert generated == '''from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ReviewDiffInput:
+    diff: str
+
+
+@dataclass(frozen=True)
+class ReviewDiffLocation:
+    path: str
+    line: float | None = None
+
+
+@dataclass(frozen=True)
+class ReviewDiffFinding:
+    location: ReviewDiffLocation
+    message: str
+
+
+@dataclass(frozen=True)
+class ReviewDiffOutput:
+    findings: list[ReviewDiffFinding]
+'''
+    exec(generated, {})
