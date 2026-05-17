@@ -31,6 +31,7 @@ function renderPythonTask(task: FormaTask): string {
     renderPythonDataclass(`${name}Input`, task.input, name, task.schemas),
     ...schemas,
     renderPythonDataclass(`${name}Output`, task.output, name, task.schemas),
+    renderPythonValidators(task.name, name, task.output, task.schemas),
   ].join("\n\n\n").concat("\n");
 }
 
@@ -243,10 +244,134 @@ function pythonFromDictValue(
   return source;
 }
 
+function renderPythonValidators(
+  taskIdentifier: string,
+  taskClassName: string,
+  output: FormaTask["output"],
+  schemas: FormaTask["schemas"],
+): string {
+  const prefix = toSnakeCase(taskIdentifier);
+  return [
+    renderPythonValidator(`assert_${prefix}_output`, `${taskClassName}Output`, prefix, output, schemas, true),
+    ...orderedSchemaEntries(schemas).map(([schemaName, fields]) =>
+      renderPythonValidator(`_assert_${prefix}_${toSnakeCase(schemaName)}`, `${taskClassName}${schemaName}`, prefix, fields, schemas, false),
+    ),
+    renderPythonValidatorHelpers(prefix),
+  ].join("\n\n\n");
+}
+
+function renderPythonValidator(
+  functionName: string,
+  className: string,
+  prefix: string,
+  fields: FormaTask["output"],
+  schemas: FormaTask["schemas"],
+  exported: boolean,
+): string {
+  const lines = exported
+    ? [`def ${functionName}(value: Any) -> ${className}:`, `    data = _assert_${prefix}_record(value, "${className}")`]
+    : [`def ${functionName}(value: Any, path: str) -> ${className}:`, `    data = _assert_${prefix}_record(value, path)`];
+  const basePath = exported ? `"${className}"` : "path";
+  for (const [fieldName, field] of Object.entries(fields)) {
+    lines.push(...pythonFieldValidation(fieldName, field, basePath, prefix, schemas));
+  }
+  lines.push(`    return ${className}.from_dict(data)`);
+  return lines.join("\n");
+}
+
+function pythonFieldValidation(
+  fieldName: string,
+  field: FormaTask["output"][string],
+  basePath: string,
+  prefix: string,
+  schemas: FormaTask["schemas"],
+): string[] {
+  const access = `data["${fieldName}"]`;
+  const path = pythonFieldPath(basePath, fieldName);
+  if (field.optional) {
+    return [
+      `    if "${fieldName}" in data and ${access} is not None:`,
+      ...pythonValueValidation(access, field, path, prefix, schemas, "        "),
+    ];
+  }
+  return [
+    `    if "${fieldName}" not in data:`,
+    `        raise ValueError(f'${pythonLiteralPathText(path)} is required')`,
+    ...pythonValueValidation(access, field, path, prefix, schemas, "    "),
+  ];
+}
+
+function pythonValueValidation(
+  access: string,
+  field: FormaTask["output"][string],
+  path: string,
+  prefix: string,
+  schemas: FormaTask["schemas"],
+  indent: string,
+): string[] {
+  if (field.array) {
+    const pathText = pythonLiteralPathText(path);
+    return [
+      `${indent}if not isinstance(${access}, list):`,
+      `${indent}    raise ValueError(f'${pathText} must be a list')`,
+      `${indent}for index, _ in enumerate(${access}):`,
+      ...pythonValueValidation(`${access}[index]`, { ...field, array: false }, pythonIndexedPath(path), prefix, schemas, `${indent}    `),
+    ];
+  }
+  if (field.type === "Text") return [`${indent}_assert_${prefix}_string(${access}, ${path})`];
+  if (field.type === "Number") return [`${indent}_assert_${prefix}_number(${access}, ${path})`];
+  if (field.type === "Boolean") return [`${indent}_assert_${prefix}_boolean(${access}, ${path})`];
+  if (schemas[field.type]) return [`${indent}_assert_${prefix}_${toSnakeCase(field.type)}(${access}, ${path})`];
+  return [`${indent}if ${access} is None:`, `${indent}    raise ValueError(f'${pythonLiteralPathText(path)} is required')`];
+}
+
+function pythonFieldPath(basePath: string, fieldName: string): string {
+  if (basePath.startsWith("\"")) {
+    return `"${basePath.slice(1, -1)}.${fieldName}"`;
+  }
+  return `f"{${basePath}}.${fieldName}"`;
+}
+
+function pythonIndexedPath(path: string): string {
+  return `f"${pythonLiteralPathText(path)}[{index}]"`;
+}
+
+function pythonLiteralPathText(path: string): string {
+  if (path.startsWith("\"")) return path.slice(1, -1);
+  if (path.startsWith("f\"")) return path.slice(2, -1);
+  return path;
+}
+
+function renderPythonValidatorHelpers(prefix: string): string {
+  return `def _assert_${prefix}_record(value: Any, path: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError(f"{path} must be an object")
+    return value
+
+
+def _assert_${prefix}_string(value: Any, path: str) -> None:
+    if not isinstance(value, str):
+        raise ValueError(f"{path} must be a string")
+
+
+def _assert_${prefix}_number(value: Any, path: str) -> None:
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ValueError(f"{path} must be a number")
+
+
+def _assert_${prefix}_boolean(value: Any, path: str) -> None:
+    if not isinstance(value, bool):
+        raise ValueError(f"{path} must be a boolean")`;
+}
+
 function toPascalCase(value: string): string {
   return value
     .split("_")
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join("");
+}
+
+function toSnakeCase(value: string): string {
+  return value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
 }

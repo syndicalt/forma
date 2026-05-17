@@ -144,7 +144,8 @@ schemas to prefixed interfaces such as `ReviewDiffFinding`. It also emits an
 `assertReviewDiffOutput(value)` helper that validates unknown runtime output and
 returns the typed output. The Python target orders generated dataclasses so
 nested schema references are importable and emits `from_dict` constructors for
-converting runtime dictionaries into nested dataclass instances.
+converting runtime dictionaries into nested dataclass instances. It also emits
+`assert_<task>_output(value)` validators for Python runtime dictionaries.
 
 ## Verification
 

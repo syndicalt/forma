@@ -82,8 +82,9 @@ The current MVP provides:
 - CLI live evaluation mode through `--provider http-json`.
 - CLI provider profiles for reusable provider, endpoint, model, and key-env
   configuration.
-- Python generated bindings include recursive `from_dict` constructors for
-  runtime output dictionaries and nested schema dataclasses.
+- Python generated bindings include recursive `from_dict` constructors and
+  `assert_<task>_output` validators for runtime output dictionaries and nested
+  schema dataclasses.
 - TypeScript generated bindings include `assert<Task>Output` validators for
   runtime output dictionaries and nested schema arrays.
 - A first task package manifest schema, example package manifest, and
@@ -215,9 +216,9 @@ Exit criteria:
 The next three implementation slices should be:
 
 1. Provider adapter kit: add optional production provider packages.
-2. Schema compiler expansion: add Python runtime validation helpers to generated
-   bindings.
-3. Registry and versioning: add lockfile and publishing guidance.
+2. Registry and versioning: add lockfile and publishing guidance.
+3. Coding-agent ergonomics: add generated package examples that combine
+   `agent(...)`, provider setup, output validators, and eval fixtures.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

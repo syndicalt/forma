@@ -41,6 +41,7 @@ Forma can also generate host bindings from task fields:
 .forma input/output blocks
 TypeScript interfaces
 Python dataclasses
+runtime output validators
 ```
 
 The `review_diff` fixture is the first coding-agent example. It models a diff

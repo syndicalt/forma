@@ -114,7 +114,9 @@ forma generate examples/review_diff.forma --target typescript --output src/revie
 
 The current generator maps `Text`, `Number`, `Boolean`, arrays, and named output
 object schemas to TypeScript interfaces and Python dataclasses. Generated
-Python dataclasses are ordered so nested schema references are importable.
+TypeScript bindings include `assert<Task>Output` validators. Generated Python
+dataclasses are ordered so nested schema references are importable and include
+`assert_<task>_output` validators for runtime dictionaries.
 
 ## Engineering Rules
 

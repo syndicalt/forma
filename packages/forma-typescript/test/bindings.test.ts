@@ -126,7 +126,9 @@ function assertReviewDiffBoolean(value: unknown, path: string): void {
 
 describe("generatePythonBindings", () => {
   it("generates dataclasses from Forma task fields", () => {
-    expect(generatePythonBindings(source)).toBe(`from dataclasses import dataclass
+    const generated = generatePythonBindings(source);
+
+    expect(generated).toContain(`from dataclasses import dataclass
 from typing import Any
 
 
@@ -175,7 +177,9 @@ class ReviewDiffOutput:
   });
 
   it("orders nested schema dataclasses before the schemas that reference them", () => {
-    expect(generatePythonBindings(nestedSource)).toBe(`from dataclasses import dataclass
+    const generated = generatePythonBindings(nestedSource);
+
+    expect(generated).toContain(`from dataclasses import dataclass
 from typing import Any
 
 
@@ -242,5 +246,13 @@ class ReviewDiffOutput:
         return cls(
             findings=[ReviewDiffFinding.from_dict(item) for item in data["findings"]],
         )`);
+  });
+
+  it("generates Python output validators for nested runtime dictionaries", () => {
+    const generated = generatePythonBindings(nestedSource);
+
+    expect(generated).toContain("def assert_review_diff_output(value: Any) -> ReviewDiffOutput:");
+    expect(generated).toContain("_assert_review_diff_finding(data[\"findings\"][index], f\"ReviewDiffOutput.findings[{index}]\")");
+    expect(generated).toContain("def _assert_review_diff_location(value: Any, path: str) -> ReviewDiffLocation:");
   });
 });

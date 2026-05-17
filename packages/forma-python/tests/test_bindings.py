@@ -1,4 +1,5 @@
 from forma import generate_python_bindings
+import pytest
 
 
 SOURCE = '''task review_diff {
@@ -59,7 +60,8 @@ NESTED_SOURCE = '''task review_diff {
 
 
 def test_generates_python_dataclasses_from_forma_task_fields():
-    assert generate_python_bindings(SOURCE) == '''from dataclasses import dataclass
+    generated = generate_python_bindings(SOURCE)
+    assert '''from dataclasses import dataclass
 from typing import Any
 
 
@@ -104,13 +106,13 @@ class ReviewDiffOutput:
             findings=[ReviewDiffFinding.from_dict(item) for item in data["findings"]],
             clean=data["clean"],
         )
-'''
+''' in generated
 
 
 def test_orders_nested_schema_dataclasses_before_the_schemas_that_reference_them():
     generated = generate_python_bindings(NESTED_SOURCE)
 
-    assert generated == '''from dataclasses import dataclass
+    assert '''from dataclasses import dataclass
 from typing import Any
 
 
@@ -160,7 +162,7 @@ class ReviewDiffOutput:
         return cls(
             findings=[ReviewDiffFinding.from_dict(item) for item in data["findings"]],
         )
-'''
+''' in generated
     namespace = {}
     exec(generated, namespace)
     output = namespace["ReviewDiffOutput"].from_dict({
@@ -189,3 +191,29 @@ def test_generates_constructors_for_nested_output_dictionaries():
         return cls(
             findings=[ReviewDiffFinding.from_dict(item) for item in data["findings"]],
         )''' in generated
+
+
+def test_generates_output_validator_for_nested_runtime_dictionaries():
+    generated = generate_python_bindings(NESTED_SOURCE)
+    namespace = {}
+    exec(generated, namespace)
+
+    output = namespace["assert_review_diff_output"]({
+        "findings": [
+            {
+                "location": {"path": "src/review.py"},
+                "message": "Check bounds.",
+            }
+        ]
+    })
+
+    assert output.findings[0].location.path == "src/review.py"
+    with pytest.raises(ValueError, match=r"ReviewDiffOutput.findings\[0\].location.path must be a string"):
+        namespace["assert_review_diff_output"]({
+            "findings": [
+                {
+                    "location": {"path": 123},
+                    "message": "Check bounds.",
+                }
+            ]
+        })

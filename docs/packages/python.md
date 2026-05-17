@@ -141,7 +141,10 @@ schemas to prefixed dataclasses such as `ReviewDiffFinding`. When one schema
 references another, referenced dataclasses are emitted first so generated code
 can be imported without forward-reference errors. Generated dataclasses include
 `from_dict` constructors that recursively convert runtime output dictionaries
-into typed nested dataclass instances.
+into typed nested dataclass instances. They also include
+`assert_<task>_output(value)` validators that reject missing fields, wrong
+primitive types, non-list arrays, and invalid nested schema objects before
+returning the typed output dataclass.
 
 ## Result Fields
 
