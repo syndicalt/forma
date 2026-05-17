@@ -129,9 +129,11 @@ comparison lists `regressions` and `improvements` by check name. Suite
 comparison aggregates per-task changes with names like `review_diff:output` and
 includes a `reports` array for task-level detail. When both sides include
 `metadata.contract`, compare also reports informational `contractChanges` entries
-such as `review_diff:sourceSha256` or `review_diff:output`. This is the CI path
-for reviewing prompt, schema, task, provider, or model changes without treating
-a raw model response as enough evidence.
+such as `review_diff:sourceSha256` or `review_diff:output`. When both sides are
+summary artifacts, compare also reports informational `settingChanges` such as
+`provider`, `endpoint`, or `model`. This is the CI path for reviewing prompt,
+schema, task, provider, or model changes without treating a raw model response
+as enough evidence.
 
 ## Input Handling
 

@@ -66,6 +66,8 @@ The current MVP provides:
   permissions, and verify expressions.
 - Compare output includes informational changed contract metadata fields.
 - Eval suite summaries include redacted provider, endpoint, and model settings.
+- Compare output includes informational provider, endpoint, and model setting
+  changes.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
@@ -197,7 +199,8 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: generate richer Python models beyond dataclasses
    for nested `.forma` output blocks.
-2. Evaluation fixtures: add provider/model setting changes to compare output.
+2. Evaluation fixtures: add machine-readable compatibility severity for
+   contract and provider changes.
 3. Provider adapter kit: add configurable provider profiles and optional
    production provider packages.
 

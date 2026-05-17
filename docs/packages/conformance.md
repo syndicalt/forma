@@ -92,6 +92,8 @@ summary artifact, so CI can compare a full fixture suite and get aggregate
 regressions such as `review_diff:output`. If both artifacts include contract
 metadata, compare also lists changed contract fields such as
 `review_diff:sourceSha256`, `review_diff:output`, or `review_diff:permissions`.
+If both artifacts include summary settings, compare also lists changed provider
+settings such as `provider`, `endpoint`, or `model`.
 That makes task-contract changes reviewable in CI: a prompt, schema, tool
 permission, provider, or model update can ship with an artifact that shows which
 behavior improved or regressed.

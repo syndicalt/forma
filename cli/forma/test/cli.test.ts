@@ -683,4 +683,54 @@ describe("forma cli", () => {
       ],
     });
   });
+
+  it("compares eval suite artifacts and reports provider setting changes", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-compare-settings-"));
+    const baseline = join(dir, "baseline.json");
+    const candidate = join(dir, "candidate.json");
+    const report = {
+      name: "review_diff",
+      passed: true,
+      checks: [{ name: "output", passed: true }],
+    };
+    await writeFile(baseline, JSON.stringify({
+      passed: true,
+      summary: {
+        total: 1,
+        passed: 1,
+        failed: 0,
+        durationMs: 5,
+        settings: { provider: "http-json", endpoint: "https://model.example/v1/agent", model: "baseline-model" },
+      },
+      reports: [report],
+    }));
+    await writeFile(candidate, JSON.stringify({
+      passed: true,
+      summary: {
+        total: 1,
+        passed: 1,
+        failed: 0,
+        durationMs: 6,
+        settings: { provider: "http-json", endpoint: "https://model.example/v1/agent", model: "candidate-model" },
+      },
+      reports: [report],
+    }));
+
+    const result = await runCli(["compare", baseline, candidate]);
+    expect(result.exitCode).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      passed: true,
+      regressions: [],
+      improvements: [],
+      settingChanges: ["model"],
+      reports: [
+        {
+          name: "review_diff",
+          passed: true,
+          regressions: [],
+          improvements: [],
+        },
+      ],
+    });
+  });
 });

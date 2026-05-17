@@ -171,11 +171,13 @@ async function compareReports(baselinePath: string, candidatePath: string | unde
   const regressions = reports.flatMap((report) => report.regressions.map((check) => `${report.name}:${check}`));
   const improvements = reports.flatMap((report) => report.improvements.map((check) => `${report.name}:${check}`));
   const contractChanges = reports.flatMap((report) => (report.contractChanges ?? []).map((field) => `${report.name}:${field}`));
+  const settingChanges = compareSettings(summarySettings(baselineRaw), summarySettings(candidateRaw));
   const report = {
     passed: reports.every((item) => item.passed) && regressions.length === 0,
     regressions,
     improvements,
     ...(contractChanges.length > 0 ? { contractChanges } : {}),
+    ...(settingChanges.length > 0 ? { settingChanges } : {}),
     reports,
   };
 
@@ -194,6 +196,16 @@ function normalizeReportFile(report: EvalReport | EvalReport[] | EvalSuiteArtifa
 
 function isSingleReportFile(report: EvalReport | EvalReport[] | EvalSuiteArtifact): report is EvalReport {
   return !Array.isArray(report) && !("reports" in report);
+}
+
+function summarySettings(report: EvalReport | EvalReport[] | EvalSuiteArtifact): EvalSettings | undefined {
+  return Array.isArray(report) || !("summary" in report) ? undefined : report.summary.settings;
+}
+
+function compareSettings(baseline: EvalSettings | undefined, candidate: EvalSettings | undefined): string[] {
+  if (!baseline || !candidate) return [];
+  const fields: Array<keyof EvalSettings> = ["provider", "endpoint", "model"];
+  return fields.filter((field) => baseline[field] !== candidate[field]);
 }
 
 function compareReport(baseline: EvalReport | undefined, candidate: EvalReport | undefined): ReportComparison {
