@@ -13,11 +13,15 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "compare")) {
     return usage();
   }
 
   try {
+    if (command === "compare") {
+      return compareReports(path, rest[0]);
+    }
+
     if (command === "eval") {
       return evaluateFixture(path, rest);
     }
@@ -49,7 +53,39 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|compare> <path> [--input JSON]\n" };
+}
+
+interface EvalReport {
+  name: string;
+  passed: boolean;
+  checks?: Array<{ name: string; passed: boolean }>;
+}
+
+async function compareReports(baselinePath: string, candidatePath: string | undefined): Promise<CliResult> {
+  if (!candidatePath) {
+    return usage();
+  }
+
+  const baseline = JSON.parse(await readFile(baselinePath, "utf8")) as EvalReport;
+  const candidate = JSON.parse(await readFile(candidatePath, "utf8")) as EvalReport;
+  const baselineChecks = new Map((baseline.checks ?? []).map((check) => [check.name, check.passed]));
+  const candidateChecks = new Map((candidate.checks ?? []).map((check) => [check.name, check.passed]));
+  const names = Array.from(new Set([...baselineChecks.keys(), ...candidateChecks.keys()])).sort();
+  const regressions = names.filter((name) => baselineChecks.get(name) === true && candidateChecks.get(name) !== true);
+  const improvements = names.filter((name) => baselineChecks.get(name) !== true && candidateChecks.get(name) === true);
+  const report = {
+    name: candidate.name || baseline.name,
+    passed: candidate.passed && regressions.length === 0,
+    regressions,
+    improvements,
+  };
+
+  return {
+    exitCode: report.passed ? 0 : 1,
+    stdout: `${JSON.stringify(report, null, 2)}\n`,
+    stderr: "",
+  };
 }
 
 interface EvalFixture {

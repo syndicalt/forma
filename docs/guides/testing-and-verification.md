@@ -52,6 +52,16 @@ node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.js
   --model "$MODEL_NAME"
 ```
 
+Compare saved eval reports when changing a task contract, prompt, provider, or
+model:
+
+```bash
+node cli/forma/dist/index.js compare baseline.json candidate.json
+```
+
+The command exits with code 1 when the candidate loses a check that passed in
+the baseline. Use that as a PR gate for coding-agent task changes.
+
 ## Verification
 
 Expected smoke output:

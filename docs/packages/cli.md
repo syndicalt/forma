@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|eval> <path> [--input JSON]
+forma <check|run|eval|compare> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -25,7 +25,7 @@ forma run examples/greet_user.forma --input '{"user_name":"Sam"}'
 ```
 
 `forma run` executes deterministic files and prints the JSON output. Invalid
-usage exits with code 2 and prints `usage: forma <check|run|eval> <path>
+usage exits with code 2 and prints `usage: forma <check|run|eval|compare> <path>
 [--input JSON]`. These behaviors are covered by `cli/forma/test/cli.test.ts`.
 
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
@@ -52,6 +52,23 @@ forma eval packages/forma-core/conformance/review_diff.json \
 
 The HTTP provider ignores `fakeProviderOutput`, sends the fixture input to the
 configured endpoint, and compares the live output with `expectedResult`.
+
+`forma compare` compares two JSON eval reports and exits with code 1 when the
+candidate regresses from a passing check to a failing check:
+
+```bash
+forma eval packages/forma-core/conformance/review_diff.json > baseline.json
+forma eval packages/forma-core/conformance/review_diff.json \
+  --provider http-json \
+  --endpoint "$MODEL_ENDPOINT" \
+  --model "$MODEL_NAME" \
+  --api-key "$MODEL_API_KEY" > candidate.json
+forma compare baseline.json candidate.json
+```
+
+The compare report lists `regressions` and `improvements` by check name. This
+is the CI path for reviewing prompt, schema, task, provider, or model changes
+without treating a raw model response as enough evidence.
 
 ## Input Handling
 

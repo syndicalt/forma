@@ -54,6 +54,7 @@ The current MVP provides:
   and `Boolean` task fields.
 - CLI evaluation reports for shared conformance fixtures, including output,
   trace, verification, error checks, provider metadata, and timing.
+- CLI regression comparison across saved eval reports.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
@@ -118,7 +119,7 @@ Deliverables:
 - CLI command for running evaluations against static fixtures and HTTP JSON
   provider endpoints.
 - Richer live provider evaluation snapshots beyond the current HTTP JSON mode.
-- Regression comparison for prompt, schema, and model changes.
+- Richer regression comparison for prompt, schema, and model changes.
 - CI-friendly JSON output.
 
 Exit criteria:
@@ -186,7 +187,7 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: support arrays and objects in generated bindings
    and output validation.
-2. Evaluation fixtures: add regression comparison across eval report files.
+2. Evaluation fixtures: expand regression comparison across eval report files.
 3. Provider adapter kit: add optional production provider packages.
 
 This order keeps the project honest. Schema generation proves Forma saves host

@@ -55,6 +55,17 @@ The JSON report includes `name`, `passed`, the runtime `result`, provider
 metadata, `durationMs`, and checks for `ok`, `output`, `trace`, `verification`,
 and `error`.
 
+Eval reports can be compared directly:
+
+```bash
+node cli/forma/dist/index.js compare baseline.json candidate.json
+```
+
+The compare command flags any check that passed in the baseline and failed in
+the candidate. That makes task-contract changes reviewable in CI: a prompt,
+schema, tool permission, provider, or model update can ship with an artifact
+that shows which behavior improved or regressed.
+
 The `review_diff` conformance file is the first coding-agent fixture:
 
 ```bash

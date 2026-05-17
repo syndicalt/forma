@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { runCli } from "../src/index.js";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 
 describe("forma cli", () => {
   it("checks a valid source file", async () => {
@@ -117,5 +120,36 @@ describe("forma cli", () => {
     } finally {
       globalThis.fetch = originalFetch;
     }
+  });
+
+  it("compares eval reports and flags regressions", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-compare-"));
+    const baseline = join(dir, "baseline.json");
+    const candidate = join(dir, "candidate.json");
+    await writeFile(baseline, JSON.stringify({
+      name: "review_diff",
+      passed: true,
+      checks: [
+        { name: "ok", passed: true },
+        { name: "output", passed: true },
+      ],
+    }));
+    await writeFile(candidate, JSON.stringify({
+      name: "review_diff",
+      passed: false,
+      checks: [
+        { name: "ok", passed: true },
+        { name: "output", passed: false },
+      ],
+    }));
+
+    const result = await runCli(["compare", baseline, candidate]);
+    expect(result.exitCode).toBe(1);
+    expect(JSON.parse(result.stdout)).toEqual({
+      name: "review_diff",
+      passed: false,
+      regressions: ["output"],
+      improvements: [],
+    });
   });
 });
