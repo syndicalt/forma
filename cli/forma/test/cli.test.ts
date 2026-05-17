@@ -98,6 +98,43 @@ describe("forma cli", () => {
     });
   });
 
+  it("checks a Forma package manifest", async () => {
+    const result = await runCli(["package-check", "../../examples/review_diff.forma.pkg.json"]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+  });
+
+  it("fails package checks when a task source hash is stale", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-check-"));
+    const manifest = join(dir, "review-diff.pkg.json");
+    await writeFile(manifest, JSON.stringify({
+      formaPackage: 1,
+      name: "examples/review-diff",
+      version: "0.1.0",
+      tasks: [
+        {
+          name: "review_diff",
+          source: resolve(process.cwd(), "../../examples/review_diff.forma"),
+          sourceSha256: "0".repeat(64),
+        },
+      ],
+      evalSuite: resolve(process.cwd(), "../../examples/forma.eval.json"),
+      compatibility: {
+        breaking: ["input", "output", "schemas"],
+        review: ["intent", "permissions", "verify", "sourceSha256"],
+        environment: ["provider", "endpoint", "model"],
+      },
+    }));
+
+    const result = await runCli(["package-check", manifest]);
+
+    expect(result).toEqual({
+      exitCode: 1,
+      stdout: "",
+      stderr: expect.stringContaining("task sourceSha256 does not match"),
+    });
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);

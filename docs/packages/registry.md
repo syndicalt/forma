@@ -10,7 +10,8 @@ Use `formaPackage: 1` to identify the manifest format. The package `name` is a
 stable registry identifier, and `version` uses semver. Each task entry records
 the task name, source path, and source SHA-256 so hosts can detect contract
 drift before runtime. `evalSuite` points at the suite that should be archived
-with releases.
+with releases. Task and eval paths are resolved relative to the package manifest
+file.
 
 ```json
 {
@@ -20,11 +21,11 @@ with releases.
   "tasks": [
     {
       "name": "review_diff",
-      "source": "examples/review_diff.forma",
+      "source": "review_diff.forma",
       "sourceSha256": "9ccf780f57f35f54f4da21291075f7728dcb530442efebc603c50073e580e9ec"
     }
   ],
-  "evalSuite": "examples/forma.eval.json"
+  "evalSuite": "forma.eval.json"
 }
 ```
 
@@ -70,9 +71,10 @@ array before approving a version bump.
 ## Verification
 
 The docs gate checks that `examples/review_diff.forma.pkg.json` has a package
-format marker, semver version, task source hash, eval suite path, and
-compatibility policy:
+format marker, semver version, matching task source hash, eval suite path, and
+compatibility policy. The CLI exposes the same check for package users:
 
 ```bash
 corepack pnpm docs:check
+node cli/forma/dist/index.js package-check examples/review_diff.forma.pkg.json
 ```

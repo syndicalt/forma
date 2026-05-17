@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|eval|eval-suite|compare|generate> <path> [--input JSON]
+forma <check|run|eval|eval-suite|compare|generate|package-check> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -26,8 +26,8 @@ forma run examples/greet_user.forma --input '{"user_name":"Sam"}'
 
 `forma run` executes deterministic files and prints the JSON output. Invalid
 usage exits with code 2 and prints `usage: forma
-<check|run|eval|eval-suite|compare|generate> <path> [--input JSON]`. These behaviors are
-covered by `cli/forma/test/cli.test.ts`.
+<check|run|eval|eval-suite|compare|generate|package-check> <path> [--input JSON]`.
+These behaviors are covered by `cli/forma/test/cli.test.ts`.
 
 `forma generate` reads a `.forma` file and prints host-language bindings:
 
@@ -43,6 +43,14 @@ Both targets use the same parser and schema compiler as the runtime. Use
 `--output` to write generated bindings directly to a file; otherwise the CLI
 prints them to stdout. Use `--check` with `--output` in CI to fail when a
 checked-in generated file is out of date.
+
+`forma package-check` validates a versioned task package manifest. It checks the
+manifest marker, semver version, task source hashes, eval suite path, and
+compatibility policy:
+
+```bash
+forma package-check examples/review_diff.forma.pkg.json
+```
 
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
 runs the named task, compares `ok`, `output`, `trace`, `verification`, and

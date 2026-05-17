@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 const required = [
   "docs/index.md",
@@ -184,6 +184,7 @@ function requiredHeadings(path) {
 
 function validatePackageManifest(path) {
   const manifest = JSON.parse(readFileSync(path, "utf8"));
+  const manifestDir = dirname(path);
   if (manifest.formaPackage !== 1) {
     console.error(`${path}: formaPackage must be 1`);
     process.exit(1);
@@ -207,13 +208,14 @@ function validatePackageManifest(path) {
         process.exit(1);
       }
     }
-    if (!existsSync(task.source)) {
+    const sourcePath = resolve(manifestDir, task.source);
+    if (!existsSync(sourcePath)) {
       console.error(`${path}: task source does not exist: ${task.source}`);
       process.exit(1);
     }
-    const sourceHash = createHash("sha256").update(readFileSync(task.source)).digest("hex");
+    const sourceHash = createHash("sha256").update(readFileSync(sourcePath)).digest("hex");
     if (sourceHash !== task.sourceSha256) {
-      console.error(`${path}: task sourceSha256 does not match ${task.source}`);
+      console.error(`${path}: task sourceSha256 does not match ${sourcePath}`);
       process.exit(1);
     }
   }
@@ -221,7 +223,7 @@ function validatePackageManifest(path) {
     console.error(`${path}: evalSuite must point to a JSON suite`);
     process.exit(1);
   }
-  if (!existsSync(manifest.evalSuite)) {
+  if (!existsSync(resolve(manifestDir, manifest.evalSuite))) {
     console.error(`${path}: evalSuite does not exist: ${manifest.evalSuite}`);
     process.exit(1);
   }

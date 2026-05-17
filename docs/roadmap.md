@@ -86,7 +86,8 @@ The current MVP provides:
   runtime output dictionaries and nested schema dataclasses.
 - A first task package manifest schema, example package manifest, and
   compatibility policy for versioned task contracts.
-- Manifest checking verifies task source hashes and eval suite paths.
+- Manifest checking verifies task source hashes and eval suite paths through
+  `docs:check` and `forma package-check`.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
 - Duplicate task name diagnostics.

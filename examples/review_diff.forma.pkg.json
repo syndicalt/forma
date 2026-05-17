@@ -6,11 +6,11 @@
   "tasks": [
     {
       "name": "review_diff",
-      "source": "examples/review_diff.forma",
+      "source": "review_diff.forma",
       "sourceSha256": "9ccf780f57f35f54f4da21291075f7728dcb530442efebc603c50073e580e9ec"
     }
   ],
-  "evalSuite": "examples/forma.eval.json",
+  "evalSuite": "forma.eval.json",
   "compatibility": {
     "breaking": ["input", "output", "schemas"],
     "review": ["intent", "permissions", "verify", "sourceSha256"],

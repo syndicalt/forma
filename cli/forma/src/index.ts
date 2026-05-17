@@ -22,11 +22,15 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check")) {
     return usage();
   }
 
   try {
+    if (command === "package-check") {
+      return await checkPackageManifest(path);
+    }
+
     if (command === "compare") {
       return compareReports(path, rest);
     }
@@ -71,7 +75,59 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate|package-check> <path> [--input JSON]\n" };
+}
+
+interface FormaPackageManifest {
+  formaPackage: number;
+  name?: string;
+  version?: string;
+  tasks?: Array<{
+    name?: string;
+    source?: string;
+    sourceSha256?: string;
+  }>;
+  evalSuite?: string;
+  compatibility?: unknown;
+}
+
+async function checkPackageManifest(path: string): Promise<CliResult> {
+  const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
+  await validatePackageManifest(manifest, dirname(path));
+  return { exitCode: 0, stdout: "ok\n", stderr: "" };
+}
+
+async function validatePackageManifest(manifest: FormaPackageManifest, manifestDir: string): Promise<void> {
+  if (manifest.formaPackage !== 1) {
+    throw new Error("formaPackage must be 1");
+  }
+  if (!/^[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)?$/.test(manifest.name ?? "")) {
+    throw new Error("invalid package name");
+  }
+  if (!/^\d+\.\d+\.\d+$/.test(manifest.version ?? "")) {
+    throw new Error("version must use x.y.z semver");
+  }
+  if (!Array.isArray(manifest.tasks) || manifest.tasks.length === 0) {
+    throw new Error("tasks must be a non-empty array");
+  }
+  for (const task of manifest.tasks) {
+    if (!task.name) throw new Error("task.name is required");
+    if (!task.source) throw new Error("task.source is required");
+    if (!task.sourceSha256) throw new Error("task.sourceSha256 is required");
+    const sourcePath = resolve(manifestDir, task.source);
+    const source = await readFile(sourcePath);
+    const sourceHash = createHash("sha256").update(source).digest("hex");
+    if (sourceHash !== task.sourceSha256) {
+      throw new Error(`task sourceSha256 does not match ${sourcePath}`);
+    }
+  }
+  if (!manifest.evalSuite || !manifest.evalSuite.endsWith(".json")) {
+    throw new Error("evalSuite must point to a JSON suite");
+  }
+  await readFile(resolve(manifestDir, manifest.evalSuite));
+  if (!manifest.compatibility || typeof manifest.compatibility !== "object") {
+    throw new Error("compatibility policy is required");
+  }
 }
 
 async function generateBindings(source: string, args: string[]): Promise<CliResult> {
