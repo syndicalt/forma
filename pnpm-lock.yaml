@@ -15,6 +15,16 @@ importers:
         specifier: ^3.1.4
         version: 3.2.4(@types/node@22.19.19)
 
+  cli/forma:
+    dependencies:
+      '@forma-lang/forma':
+        specifier: workspace:*
+        version: link:../../packages/forma-typescript
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.18
+        version: 22.19.19
+
   packages/forma-core: {}
 
   packages/forma-typescript:
