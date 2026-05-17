@@ -71,6 +71,7 @@ function usage(): CliResult {
 async function generateBindings(source: string, args: string[]): Promise<CliResult> {
   const target = optionValue(args, "--target");
   const outputPath = optionValue(args, "--output");
+  const check = args.includes("--check");
   let generated: string;
   if (target === "typescript") {
     generated = generateTypeScriptBindings(source);
@@ -78,6 +79,16 @@ async function generateBindings(source: string, args: string[]): Promise<CliResu
     generated = generatePythonBindings(source);
   } else {
     throw new Error("--target must be typescript or python");
+  }
+  if (check) {
+    if (!outputPath) {
+      throw new Error("--output is required for --check");
+    }
+    const current = await readFile(outputPath, "utf8").catch(() => "");
+    if (current !== generated) {
+      return { exitCode: 1, stdout: "", stderr: `generated bindings are out of date: ${outputPath}\n` };
+    }
+    return { exitCode: 0, stdout: "ok\n", stderr: "" };
   }
   if (outputPath) {
     await writeFile(outputPath, generated, "utf8");

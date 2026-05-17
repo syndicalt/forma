@@ -52,6 +52,7 @@ Generate host bindings from the same contract with:
 forma generate examples/review_diff.forma --target typescript
 forma generate examples/review_diff.forma --target python
 forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts
+forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts --check
 ```
 
 ## Language

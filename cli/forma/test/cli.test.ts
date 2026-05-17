@@ -51,6 +51,53 @@ describe("forma cli", () => {
     expect(await readFile(output, "utf8")).toContain("export interface ReviewDiffOutput");
   });
 
+  it("passes generated binding checks when the output file is current", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-generate-check-"));
+    const output = join(dir, "review-diff.ts");
+    await runCli([
+      "generate",
+      "../../examples/review_diff.forma",
+      "--target",
+      "typescript",
+      "--output",
+      output,
+    ]);
+
+    const result = await runCli([
+      "generate",
+      "../../examples/review_diff.forma",
+      "--target",
+      "typescript",
+      "--output",
+      output,
+      "--check",
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+  });
+
+  it("fails generated binding checks when the output file is stale", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-generate-check-"));
+    const output = join(dir, "review-diff.ts");
+    await writeFile(output, "stale bindings\n");
+
+    const result = await runCli([
+      "generate",
+      "../../examples/review_diff.forma",
+      "--target",
+      "typescript",
+      "--output",
+      output,
+      "--check",
+    ]);
+
+    expect(result).toEqual({
+      exitCode: 1,
+      stdout: "",
+      stderr: `generated bindings are out of date: ${output}\n`,
+    });
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);

@@ -101,6 +101,7 @@ The CLI can generate the same bindings without writing host code:
 forma generate examples/review_diff.forma --target typescript
 forma generate examples/review_diff.forma --target python
 forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts
+forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts --check
 ```
 
 The current generator maps `Text`, `Number`, `Boolean`, arrays, and named output
