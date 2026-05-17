@@ -86,17 +86,29 @@ executes a specific named task from source text. `runFile` reads a `.forma`
 file and executes a named task:
 
 ```ts
+import { readFileSync } from "node:fs";
+
+const providerProfile = JSON.parse(readFileSync("examples/forma.provider.json", "utf8")) as {
+  provider: string;
+  model: string;
+  apiKeyEnv: string;
+};
+
 const reviewDiff = agent({
   file: "examples/review_diff.forma",
   task: "review_diff",
   provider: new OpenAIResponsesProvider({
-    apiKey: process.env.OPENAI_API_KEY ?? "",
-    model: process.env.OPENAI_MODEL ?? "gpt-5",
+    apiKey: process.env[providerProfile.apiKeyEnv] ?? "",
+    model: providerProfile.model,
   }),
 });
 
 const result = await reviewDiff.run({ diff, max_findings: 5 });
 ```
+
+`forma package-init` writes the same profile shape to `forma.provider.json`.
+Use the profile for deploy-time provider and model selection; keep the actual
+secret in the named environment variable.
 
 `HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the
 Forma instruction, input values, permissions, and model name as JSON:

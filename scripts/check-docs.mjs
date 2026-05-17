@@ -272,6 +272,42 @@ function validatePackageManifest(path) {
       }
     }
   }
+  if (manifest.providerProfile !== undefined) {
+    if (typeof manifest.providerProfile !== "string" || !manifest.providerProfile.endsWith(".json")) {
+      console.error(`${path}: providerProfile must point to a JSON file`);
+      process.exit(1);
+    }
+    const profilePath = resolve(manifestDir, manifest.providerProfile);
+    if (!existsSync(profilePath)) {
+      console.error(`${path}: providerProfile does not exist: ${manifest.providerProfile}`);
+      process.exit(1);
+    }
+    const profile = JSON.parse(readFileSync(profilePath, "utf8"));
+    if (!profile || typeof profile !== "object" || Array.isArray(profile)) {
+      console.error(`${path}: providerProfile must contain a JSON object`);
+      process.exit(1);
+    }
+    if (profile.provider !== "http-json" && profile.provider !== "openai-responses") {
+      console.error(`${path}: providerProfile.provider must be http-json or openai-responses`);
+      process.exit(1);
+    }
+    if (profile.provider === "http-json" && typeof profile.endpoint !== "string") {
+      console.error(`${path}: providerProfile.endpoint is required for http-json`);
+      process.exit(1);
+    }
+    if (typeof profile.model !== "string" || profile.model.length === 0) {
+      console.error(`${path}: providerProfile.model is required`);
+      process.exit(1);
+    }
+    if (profile.apiKey !== undefined && typeof profile.apiKey !== "string") {
+      console.error(`${path}: providerProfile.apiKey must be a string`);
+      process.exit(1);
+    }
+    if (profile.apiKeyEnv !== undefined && typeof profile.apiKeyEnv !== "string") {
+      console.error(`${path}: providerProfile.apiKeyEnv must be a string`);
+      process.exit(1);
+    }
+  }
   if (!manifest.compatibility || typeof manifest.compatibility !== "object") {
     console.error(`${path}: compatibility policy is required`);
     process.exit(1);

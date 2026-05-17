@@ -1,0 +1,5 @@
+{
+  "provider": "openai-responses",
+  "model": "gpt-5",
+  "apiKeyEnv": "OPENAI_API_KEY"
+}

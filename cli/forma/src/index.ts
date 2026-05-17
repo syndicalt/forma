@@ -101,6 +101,7 @@ interface FormaPackageManifest {
     runtime?: string;
     path?: string;
   }>;
+  providerProfile?: string;
   compatibility?: unknown;
 }
 
@@ -130,12 +131,14 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const evalFixture = `${taskName}.eval.json`;
   const evalSuite = "forma.eval.json";
   const manifestFile = `${taskName}.forma.pkg.json`;
+  const providerProfileFile = "forma.provider.json";
   const source = scaffoldSource(taskName, kind);
   await writeFile(resolve(path, taskFile), source, "utf8");
   await writeFile(resolve(path, typeScriptBindings), generateTypeScriptBindings(source), "utf8");
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
   await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName, kind), "utf8");
   await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName, kind), "utf8");
+  await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(scaffoldProviderProfile(), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
   const manifest = {
@@ -151,6 +154,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
       },
     ],
     evalSuite,
+    providerProfile: providerProfileFile,
     bindings: [
       { target: "typescript", source: taskFile, output: typeScriptBindings },
       { target: "python", source: taskFile, output: pythonBindings },
@@ -182,6 +186,14 @@ function scaffoldKind(args: string[]): ScaffoldKind {
 
 function scaffoldSource(taskName: string, kind: ScaffoldKind): string {
   return kind === "tool" ? scaffoldToolSource(taskName) : scaffoldReviewSource(taskName);
+}
+
+function scaffoldProviderProfile() {
+  return {
+    provider: "openai-responses",
+    model: "gpt-5",
+    apiKeyEnv: "OPENAI_API_KEY",
+  };
 }
 
 function scaffoldReviewSource(taskName: string): string {
@@ -318,16 +330,33 @@ function scaffoldTypeScriptExample(taskName: string, kind: ScaffoldKind): string
   }
   const pascalName = toPascalCase(taskName);
   const camelName = toCamelCase(taskName);
-  return `import { fileURLToPath } from "node:url";
+  return `import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { OpenAIResponsesProvider, agent } from "@forma-lang/forma";
 import { assert${pascalName}Output, type ${pascalName}Output } from "./${taskName}.forma.js";
+
+interface ProviderProfile {
+  provider: string;
+  model: string;
+  apiKeyEnv: string;
+}
+
+function loadProviderProfile(): ProviderProfile {
+  const path = fileURLToPath(new URL("./forma.provider.json", import.meta.url));
+  return JSON.parse(readFileSync(path, "utf8")) as ProviderProfile;
+}
+
+const providerProfile = loadProviderProfile();
+if (providerProfile.provider !== "openai-responses") {
+  throw new Error(\`Unsupported Forma provider: \${providerProfile.provider}\`);
+}
 
 const ${camelName} = agent({
   file: fileURLToPath(new URL("./${taskName}.forma", import.meta.url)),
   task: "${taskName}",
   provider: new OpenAIResponsesProvider({
-    apiKey: process.env.OPENAI_API_KEY ?? "",
-    model: process.env.OPENAI_MODEL ?? "gpt-5",
+    apiKey: process.env[providerProfile.apiKeyEnv] ?? "",
+    model: providerProfile.model,
   }),
 });
 
@@ -391,19 +420,29 @@ function scaffoldPythonExample(taskName: string, kind: ScaffoldKind): string {
     return scaffoldToolPythonExample(taskName);
   }
   const pascalName = toPascalCase(taskName);
-  return `import os
+  return `import json
+import os
 from pathlib import Path
 
 from forma import OpenAIResponsesProvider, agent
 from ${taskName}_forma import ${pascalName}Output, assert_${taskName}_output
 
 
+def load_provider_profile() -> dict[str, str]:
+    return json.loads(Path(__file__).with_name("forma.provider.json").read_text(encoding="utf8"))
+
+
+provider_profile = load_provider_profile()
+if provider_profile["provider"] != "openai-responses":
+    raise RuntimeError(f"Unsupported Forma provider: {provider_profile['provider']}")
+
+
 ${taskName} = agent(
     file=Path(__file__).with_name("${taskName}.forma"),
     task="${taskName}",
     provider=OpenAIResponsesProvider(
-        api_key=os.environ["OPENAI_API_KEY"],
-        model=os.environ.get("OPENAI_MODEL", "gpt-5"),
+        api_key=os.environ[provider_profile["apiKeyEnv"]],
+        model=provider_profile["model"],
     ),
 )
 
@@ -536,8 +575,36 @@ async function validatePackageManifest(manifest: FormaPackageManifest, manifestD
       await readFile(resolve(manifestDir, example.path));
     }
   }
+  if (manifest.providerProfile !== undefined) {
+    if (!manifest.providerProfile.endsWith(".json")) {
+      throw new Error("providerProfile must point to a JSON file");
+    }
+    const profile = JSON.parse(await readFile(resolve(manifestDir, manifest.providerProfile), "utf8")) as ProviderProfile;
+    validateProviderProfile(profile);
+  }
   if (!manifest.compatibility || typeof manifest.compatibility !== "object") {
     throw new Error("compatibility policy is required");
+  }
+}
+
+function validateProviderProfile(profile: ProviderProfile): void {
+  if (!profile || typeof profile !== "object" || Array.isArray(profile)) {
+    throw new Error("provider profile must be a JSON object");
+  }
+  if (profile.provider !== "http-json" && profile.provider !== "openai-responses") {
+    throw new Error("provider profile provider must be http-json or openai-responses");
+  }
+  if (profile.provider === "http-json" && typeof profile.endpoint !== "string") {
+    throw new Error("provider profile endpoint is required for http-json");
+  }
+  if (typeof profile.model !== "string" || profile.model.length === 0) {
+    throw new Error("provider profile model is required");
+  }
+  if (profile.apiKey !== undefined && typeof profile.apiKey !== "string") {
+    throw new Error("provider profile apiKey must be a string");
+  }
+  if (profile.apiKeyEnv !== undefined && typeof profile.apiKeyEnv !== "string") {
+    throw new Error("provider profile apiKeyEnv must be a string");
   }
 }
 

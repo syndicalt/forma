@@ -33,6 +33,7 @@
       }
     },
     "evalSuite": { "type": "string" },
+    "providerProfile": { "type": "string" },
     "bindings": {
       "type": "array",
       "items": {

@@ -25,6 +25,10 @@ forma package-init ./repair-package --name acme/tool-repair --task tool_assisted
 forma package-check ./review-diff-package/review_diff.forma.pkg.json
 ```
 
+Scaffolded packages include `forma.provider.json` so runtime configuration is a
+reviewable file instead of hidden in host code. The package manifest records it
+as `providerProfile`.
+
 ```json
 {
   "formaPackage": 1,
@@ -38,6 +42,7 @@ forma package-check ./review-diff-package/review_diff.forma.pkg.json
     }
   ],
   "evalSuite": "forma.eval.json",
+  "providerProfile": "forma.provider.json",
   "bindings": [
     {
       "target": "typescript",

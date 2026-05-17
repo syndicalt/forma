@@ -59,7 +59,18 @@ task review_diff {
 
 The `.forma` file is not called by the model directly. The host program loads
 the file, chooses the provider, supplies the key and model name, and runs the
-named task:
+named task. Generated packages keep provider selection, model selection, and
+the API-key environment variable in `forma.provider.json`:
+
+```json
+{
+  "provider": "openai-responses",
+  "model": "gpt-5",
+  "apiKeyEnv": "OPENAI_API_KEY"
+}
+```
+
+The host reads that file and creates the provider:
 
 ```typescript
 const reviewDiff = agent({
@@ -100,7 +111,7 @@ the application consumes it.
 Inline prompt code usually scatters the contract:
 
 - prompt text in one function
-- provider key and model choice in another module
+- provider key environment variable and model choice in another module
 - output parsing near the call site
 - permissions hidden in tool glue
 - evals in a separate test or not present at all

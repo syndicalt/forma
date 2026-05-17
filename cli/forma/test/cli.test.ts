@@ -201,12 +201,20 @@ describe("forma cli", () => {
       name: "acme/review-diff",
       version: "0.1.0",
       evalSuite: "forma.eval.json",
+      providerProfile: "forma.provider.json",
+    });
+    expect(JSON.parse(await readFile(join(dir, "forma.provider.json"), "utf8"))).toEqual({
+      provider: "openai-responses",
+      model: "gpt-5",
+      apiKeyEnv: "OPENAI_API_KEY",
     });
     expect(await readFile(join(dir, "review_diff.forma"), "utf8")).toContain("task review_diff");
     expect(await readFile(join(dir, "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
     expect(await readFile(join(dir, "review_diff_forma.py"), "utf8")).toContain("assert_review_diff_output");
-    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("agent({");
-    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("agent(");
+    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("loadProviderProfile");
+    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("process.env[providerProfile.apiKeyEnv]");
+    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("load_provider_profile");
+    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("os.environ[provider_profile[\"apiKeyEnv\"]]");
     expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({
       fixtures: ["review_diff.eval.json"],
     });

@@ -83,17 +83,25 @@ executes a specific named task from source text. `run_file` reads a `.forma`
 file and executes a named task:
 
 ```python
+import json
+
+provider_profile = json.loads(Path("examples/forma.provider.json").read_text(encoding="utf8"))
+
 review_diff = agent(
     file="examples/review_diff.forma",
     task="review_diff",
     provider=OpenAIResponsesProvider(
-        api_key=os.environ["OPENAI_API_KEY"],
-        model=os.environ.get("OPENAI_MODEL", "gpt-5"),
+        api_key=os.environ[provider_profile["apiKeyEnv"]],
+        model=provider_profile["model"],
     ),
 )
 
 result = review_diff.run({"diff": diff, "max_findings": 5})
 ```
+
+`forma package-init` writes the same profile shape to `forma.provider.json`.
+Use the profile for deploy-time provider and model selection; keep the actual
+secret in the named environment variable.
 
 `HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the
 Forma instruction, input values, permissions, and model name as JSON:

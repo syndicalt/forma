@@ -102,6 +102,10 @@ forma package-init ./review-diff-package --name acme/review-diff --task review_d
 forma package-init ./repair-package --name acme/tool-repair --task tool_assisted_repair --kind tool
 ```
 
+`package-init` also writes `forma.provider.json`. Generated host examples read
+that profile to choose the provider, model, and key environment variable before
+calling `agent(...)`.
+
 `examples/tool_assisted_repair.forma`, `examples/tool_permission_workflow.ts`,
 and `examples/tool_permission_workflow.py` show the coding-tool side of the
 runtime: a host provider uses declared `read`, `search`, `test`, and `edit`
