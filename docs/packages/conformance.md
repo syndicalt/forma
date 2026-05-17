@@ -73,7 +73,9 @@ node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.js
 ```
 
 It exercises scalar fields and an array of typed finding objects for a diff
-review task.
+review task. The companion `review_diff_invalid_findings.json` fixture records
+the expected failure when a provider returns an invalid field inside that typed
+array, such as a string `line` value where the contract requires `Number`.
 
 Live-style evaluation can use the HTTP JSON provider:
 

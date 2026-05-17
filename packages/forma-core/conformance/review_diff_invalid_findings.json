@@ -1,0 +1,34 @@
+{
+  "name": "review_diff",
+  "source": "../fixtures/review_diff.forma",
+  "input": {
+    "diff": "diff --git a/packages/forma-typescript/src/evaluator.ts b/packages/forma-typescript/src/evaluator.ts",
+    "max_findings": 3
+  },
+  "fakeProviderOutput": {
+    "summary": "One issue found.",
+    "findings": [
+      {
+        "path": "packages/forma-typescript/src/evaluator.ts",
+        "line": "42",
+        "message": "Line should be numeric."
+      }
+    ],
+    "clean": false
+  },
+  "expectedResult": {
+    "ok": false,
+    "output": {},
+    "trace": [
+      {
+        "step": "agent",
+        "detail": "review_diff"
+      }
+    ],
+    "diagnostics": [],
+    "verification": {
+      "ok": false
+    },
+    "error": "F3004: output field 'findings[0].line' must be Number"
+  }
+}

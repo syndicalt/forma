@@ -62,7 +62,8 @@ The current MVP provides:
 - Host read, search, test, and edit tool mapping through runtime tools.
 - HTTP JSON and OpenAI Responses provider adapters for TypeScript and Python.
 - CLI live evaluation mode through `--provider http-json`.
-- First coding-agent conformance task: `review_diff` with structured findings.
+- First coding-agent conformance task: `review_diff` with structured findings
+  and a failing structured-output fixture.
 - Duplicate task name diagnostics.
 - Simple `verify` expressions.
 - Shared fixtures and conformance data.
@@ -185,8 +186,8 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Schema compiler expansion: cover multiple structured finding cases in
-   conformance fixtures.
+1. Schema compiler expansion: cover nested structured output code generation
+   beyond the current structured finding fixtures.
 2. Evaluation fixtures: expand regression comparison across eval report files.
 3. Provider adapter kit: add configurable provider profiles and optional
    production provider packages.

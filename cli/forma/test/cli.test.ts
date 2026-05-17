@@ -159,6 +159,24 @@ describe("forma cli", () => {
     });
   });
 
+  it("evaluates a coding-agent review fixture with invalid structured findings", async () => {
+    const result = await runCli(["eval", "../../packages/forma-core/conformance/review_diff_invalid_findings.json"]);
+    const report = JSON.parse(result.stdout);
+
+    expect(result.exitCode).toBe(0);
+    expect(report.name).toBe("review_diff");
+    expect(report.passed).toBe(true);
+    expect(report.result.ok).toBe(false);
+    expect(report.result.error).toBe("F3004: output field 'findings[0].line' must be Number");
+    expect(report.checks).toEqual([
+      { name: "ok", passed: true },
+      { name: "output", passed: true },
+      { name: "trace", passed: true },
+      { name: "verification", passed: true },
+      { name: "error", passed: true },
+    ]);
+  });
+
   it("evaluates a fixture with an HTTP JSON provider", async () => {
     const originalFetch = globalThis.fetch;
     const requests: Array<{ url: string; init: RequestInit }> = [];
