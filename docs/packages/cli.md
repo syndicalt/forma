@@ -121,6 +121,7 @@ forma eval packages/forma-core/conformance/review_diff.json \
   --model "$MODEL_NAME" \
   --api-key "$MODEL_API_KEY" > candidate.json
 forma compare baseline.json candidate.json
+forma compare baseline-artifact.json candidate-artifact.json --fail-on breaking
 ```
 
 Each file can contain one eval report, an array produced by `forma eval-suite`,
@@ -136,7 +137,9 @@ array with `kind`, `field`, and `severity`; output, input, and schema contract
 changes are marked `breaking`, other contract changes are marked `review`, and
 provider settings are marked `environment`. This is the CI path for reviewing
 prompt, schema, task, provider, or model changes without treating a raw model
-response as enough evidence.
+response as enough evidence. Use `--fail-on` with a comma-separated list of
+severities such as `breaking`, `environment`, or `review` to fail CI for
+selected change classes in addition to check regressions.
 
 ## Input Handling
 

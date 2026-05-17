@@ -91,6 +91,7 @@ prompt, provider, or model:
 ```bash
 node cli/forma/dist/index.js compare baseline.json candidate.json
 node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json
+node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json --fail-on breaking,environment
 ```
 
 The command exits with code 1 when the candidate loses a check that passed in
@@ -99,6 +100,8 @@ hash, prompt intent, fields, schemas, permissions, or verify expressions changed
 For suite summary artifacts, it reports informational `settingChanges` when the
 provider, endpoint, or model changed. The `changes` array adds machine-readable
 severity labels: `breaking`, `review`, or `environment`.
+Use `--fail-on` to fail CI for selected severity labels in addition to normal
+check regressions.
 Use that as a PR gate for coding-agent task changes.
 
 For GitHub Actions, the relevant CI step is:
@@ -108,7 +111,7 @@ For GitHub Actions, the relevant CI step is:
   run: |
     corepack pnpm build
     node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary > candidate-artifact.json
-    test ! -f baseline-artifact.json || node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json
+    test ! -f baseline-artifact.json || node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json --fail-on breaking,environment
 
 - uses: actions/upload-artifact@v4
   if: always()

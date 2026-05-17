@@ -692,6 +692,79 @@ describe("forma cli", () => {
     });
   });
 
+  it("fails compare when a selected change severity is present", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-compare-fail-on-"));
+    const baseline = join(dir, "baseline.json");
+    const candidate = join(dir, "candidate.json");
+    const baselineContract = {
+      source: "packages/forma-core/fixtures/review_diff.forma",
+      sourceSha256: "a".repeat(64),
+      task: "review_diff",
+      intent: "Review a code diff",
+      input: { diff: { type: "Text", array: false, optional: false } },
+      output: { summary: { type: "Text", array: false, optional: false } },
+      schemas: {},
+      permissions: ["read"],
+      verify: [],
+    };
+    const candidateContract = {
+      ...baselineContract,
+      output: {
+        summary: { type: "Text", array: false, optional: false },
+        clean: { type: "Boolean", array: false, optional: false },
+      },
+    };
+    await writeFile(baseline, JSON.stringify({
+      passed: true,
+      summary: { total: 1, passed: 1, failed: 0, durationMs: 5 },
+      reports: [
+        {
+          name: "review_diff",
+          passed: true,
+          metadata: { provider: "static", durationMs: 1, contract: baselineContract },
+          checks: [{ name: "output", passed: true }],
+        },
+      ],
+    }));
+    await writeFile(candidate, JSON.stringify({
+      passed: true,
+      summary: { total: 1, passed: 1, failed: 0, durationMs: 6 },
+      reports: [
+        {
+          name: "review_diff",
+          passed: true,
+          metadata: { provider: "static", durationMs: 1, contract: candidateContract },
+          checks: [{ name: "output", passed: true }],
+        },
+      ],
+    }));
+
+    const result = await runCli(["compare", baseline, candidate, "--fail-on", "breaking"]);
+    expect(result.exitCode).toBe(1);
+    expect(JSON.parse(result.stdout)).toEqual({
+      passed: false,
+      regressions: [],
+      improvements: [],
+      contractChanges: ["review_diff:output"],
+      changes: [
+        { kind: "contract", name: "review_diff", field: "output", severity: "breaking" },
+      ],
+      failedOn: ["breaking"],
+      reports: [
+        {
+          name: "review_diff",
+          passed: true,
+          regressions: [],
+          improvements: [],
+          contractChanges: ["output"],
+          changes: [
+            { kind: "contract", field: "output", severity: "breaking" },
+          ],
+        },
+      ],
+    });
+  });
+
   it("compares eval suite artifacts and reports provider setting changes", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-compare-settings-"));
     const baseline = join(dir, "baseline.json");

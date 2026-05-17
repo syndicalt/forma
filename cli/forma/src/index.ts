@@ -28,7 +28,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 
   try {
     if (command === "compare") {
-      return compareReports(path, rest[0]);
+      return compareReports(path, rest);
     }
 
     if (command === "eval") {
@@ -154,7 +154,8 @@ interface ChangeDetail {
   severity: "breaking" | "review" | "environment";
 }
 
-async function compareReports(baselinePath: string, candidatePath: string | undefined): Promise<CliResult> {
+async function compareReports(baselinePath: string, args: string[]): Promise<CliResult> {
+  const candidatePath = args[0];
   if (!candidatePath) {
     return usage();
   }
@@ -184,13 +185,16 @@ async function compareReports(baselinePath: string, candidatePath: string | unde
     ...reports.flatMap((report) => (report.changes ?? []).map((change) => ({ ...change, name: report.name }))),
     ...settingChanges.map((field): ChangeDetail => ({ kind: "setting", field, severity: "environment" })),
   ];
+  const failOn = failOnSeverities(args);
+  const failedOn = Array.from(new Set(changes.filter((change) => failOn.has(change.severity)).map((change) => change.severity)));
   const report = {
-    passed: reports.every((item) => item.passed) && regressions.length === 0,
+    passed: reports.every((item) => item.passed) && regressions.length === 0 && failedOn.length === 0,
     regressions,
     improvements,
     ...(contractChanges.length > 0 ? { contractChanges } : {}),
     ...(settingChanges.length > 0 ? { settingChanges } : {}),
     ...(changes.length > 0 ? { changes } : {}),
+    ...(failedOn.length > 0 ? { failedOn } : {}),
     reports,
   };
 
@@ -199,6 +203,18 @@ async function compareReports(baselinePath: string, candidatePath: string | unde
     stdout: `${JSON.stringify(report, null, 2)}\n`,
     stderr: "",
   };
+}
+
+function failOnSeverities(args: string[]): Set<ChangeDetail["severity"]> {
+  const value = optionValue(args, "--fail-on");
+  if (!value) return new Set();
+  const severities = value.split(",").map((item) => item.trim()).filter(Boolean);
+  for (const severity of severities) {
+    if (severity !== "breaking" && severity !== "review" && severity !== "environment") {
+      throw new Error("--fail-on must include breaking, review, or environment");
+    }
+  }
+  return new Set(severities as Array<ChangeDetail["severity"]>);
 }
 
 function normalizeReportFile(report: EvalReport | EvalReport[] | EvalSuiteArtifact): EvalReport[] {
