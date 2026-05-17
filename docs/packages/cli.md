@@ -83,8 +83,8 @@ The provider reads `OPENAI_API_KEY` when `--api-key` is omitted and
 `OPENAI_MODEL` when `--model` is omitted. `--endpoint` is optional and defaults
 to `https://api.openai.com/v1/responses`.
 
-`forma compare` compares two JSON eval reports and exits with code 1 when the
-candidate regresses from a passing check to a failing check:
+`forma compare` compares two JSON eval report files and exits with code 1 when
+the candidate regresses from a passing check to a failing check:
 
 ```bash
 forma eval packages/forma-core/conformance/review_diff.json > baseline.json
@@ -96,9 +96,12 @@ forma eval packages/forma-core/conformance/review_diff.json \
 forma compare baseline.json candidate.json
 ```
 
-The compare report lists `regressions` and `improvements` by check name. This
-is the CI path for reviewing prompt, schema, task, provider, or model changes
-without treating a raw model response as enough evidence.
+Each file can contain one eval report or an array of eval reports. Single-report
+comparison lists `regressions` and `improvements` by check name. Suite
+comparison aggregates per-task changes with names like `review_diff:output` and
+includes a `reports` array for task-level detail. This is the CI path for
+reviewing prompt, schema, task, provider, or model changes without treating a
+raw model response as enough evidence.
 
 ## Input Handling
 

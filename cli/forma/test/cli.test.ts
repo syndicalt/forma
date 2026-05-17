@@ -371,4 +371,68 @@ describe("forma cli", () => {
       improvements: [],
     });
   });
+
+  it("compares eval report suites and flags per-task regressions", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-compare-suite-"));
+    const baseline = join(dir, "baseline.json");
+    const candidate = join(dir, "candidate.json");
+    await writeFile(baseline, JSON.stringify([
+      {
+        name: "greet_user",
+        passed: false,
+        checks: [
+          { name: "ok", passed: true },
+          { name: "error", passed: false },
+        ],
+      },
+      {
+        name: "review_diff",
+        passed: true,
+        checks: [
+          { name: "ok", passed: true },
+          { name: "output", passed: true },
+        ],
+      },
+    ]));
+    await writeFile(candidate, JSON.stringify([
+      {
+        name: "greet_user",
+        passed: true,
+        checks: [
+          { name: "ok", passed: true },
+          { name: "error", passed: true },
+        ],
+      },
+      {
+        name: "review_diff",
+        passed: false,
+        checks: [
+          { name: "ok", passed: true },
+          { name: "output", passed: false },
+        ],
+      },
+    ]));
+
+    const result = await runCli(["compare", baseline, candidate]);
+    expect(result.exitCode).toBe(1);
+    expect(JSON.parse(result.stdout)).toEqual({
+      passed: false,
+      regressions: ["review_diff:output"],
+      improvements: ["greet_user:error"],
+      reports: [
+        {
+          name: "greet_user",
+          passed: true,
+          regressions: [],
+          improvements: ["error"],
+        },
+        {
+          name: "review_diff",
+          passed: false,
+          regressions: ["output"],
+          improvements: [],
+        },
+      ],
+    });
+  });
 });

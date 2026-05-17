@@ -58,7 +58,7 @@ The current MVP provides:
 - CLI binding generation for TypeScript and Python.
 - CLI evaluation reports for shared conformance fixtures, including output,
   trace, verification, error checks, provider metadata, and timing.
-- CLI regression comparison across saved eval reports.
+- CLI regression comparison across saved eval reports and eval report suites.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
@@ -190,7 +190,8 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: generate richer Python models beyond dataclasses
    for nested `.forma` output blocks.
-2. Evaluation fixtures: expand regression comparison across eval report files.
+2. Evaluation fixtures: add first-class commands for writing multi-fixture eval
+   suite artifacts.
 3. Provider adapter kit: add configurable provider profiles and optional
    production provider packages.
 

@@ -103,29 +103,66 @@ interface EvalReport {
   checks?: Array<{ name: string; passed: boolean }>;
 }
 
+interface ReportComparison {
+  name: string;
+  passed: boolean;
+  regressions: string[];
+  improvements: string[];
+}
+
 async function compareReports(baselinePath: string, candidatePath: string | undefined): Promise<CliResult> {
   if (!candidatePath) {
     return usage();
   }
 
-  const baseline = JSON.parse(await readFile(baselinePath, "utf8")) as EvalReport;
-  const candidate = JSON.parse(await readFile(candidatePath, "utf8")) as EvalReport;
-  const baselineChecks = new Map((baseline.checks ?? []).map((check) => [check.name, check.passed]));
-  const candidateChecks = new Map((candidate.checks ?? []).map((check) => [check.name, check.passed]));
-  const names = Array.from(new Set([...baselineChecks.keys(), ...candidateChecks.keys()])).sort();
-  const regressions = names.filter((name) => baselineChecks.get(name) === true && candidateChecks.get(name) !== true);
-  const improvements = names.filter((name) => baselineChecks.get(name) !== true && candidateChecks.get(name) === true);
+  const baselineRaw = JSON.parse(await readFile(baselinePath, "utf8")) as EvalReport | EvalReport[];
+  const candidateRaw = JSON.parse(await readFile(candidatePath, "utf8")) as EvalReport | EvalReport[];
+  const baselineReports = normalizeReportFile(baselineRaw);
+  const candidateReports = normalizeReportFile(candidateRaw);
+  if (baselineReports.length === 1 && candidateReports.length === 1) {
+    const report = compareReport(baselineReports[0], candidateReports[0]);
+    return {
+      exitCode: report.passed ? 0 : 1,
+      stdout: `${JSON.stringify(report, null, 2)}\n`,
+      stderr: "",
+    };
+  }
+
+  const baselineByName = new Map(baselineReports.map((report) => [report.name, report]));
+  const candidateByName = new Map(candidateReports.map((report) => [report.name, report]));
+  const names = Array.from(new Set([...baselineByName.keys(), ...candidateByName.keys()])).sort();
+  const reports = names.map((name) => compareReport(baselineByName.get(name), candidateByName.get(name)));
+  const regressions = reports.flatMap((report) => report.regressions.map((check) => `${report.name}:${check}`));
+  const improvements = reports.flatMap((report) => report.improvements.map((check) => `${report.name}:${check}`));
   const report = {
-    name: candidate.name || baseline.name,
-    passed: candidate.passed && regressions.length === 0,
+    passed: reports.every((item) => item.passed) && regressions.length === 0,
     regressions,
     improvements,
+    reports,
   };
 
   return {
     exitCode: report.passed ? 0 : 1,
     stdout: `${JSON.stringify(report, null, 2)}\n`,
     stderr: "",
+  };
+}
+
+function normalizeReportFile(report: EvalReport | EvalReport[]): EvalReport[] {
+  return Array.isArray(report) ? report : [report];
+}
+
+function compareReport(baseline: EvalReport | undefined, candidate: EvalReport | undefined): ReportComparison {
+  const baselineChecks = new Map((baseline?.checks ?? []).map((check) => [check.name, check.passed]));
+  const candidateChecks = new Map((candidate?.checks ?? []).map((check) => [check.name, check.passed]));
+  const names = Array.from(new Set([...baselineChecks.keys(), ...candidateChecks.keys()])).sort();
+  const regressions = names.filter((name) => baselineChecks.get(name) === true && candidateChecks.get(name) !== true);
+  const improvements = names.filter((name) => baselineChecks.get(name) !== true && candidateChecks.get(name) === true);
+  return {
+    name: candidate?.name || baseline?.name || "unknown",
+    passed: Boolean(candidate?.passed) && regressions.length === 0,
+    regressions,
+    improvements,
   };
 }
 
