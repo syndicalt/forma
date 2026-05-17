@@ -15,6 +15,7 @@ The MVP establishes Forma as its own language rather than a Python-only or TypeS
 - Provide shared conformance fixtures so Python and TypeScript implementations stay aligned.
 - Support deterministic `compute` and `verify` behavior in the first runtime slice.
 - Include `agent` blocks in the language syntax and IR, with fake-provider tests first and real provider adapters added after the core language contract is stable.
+- Follow the project engineering rules: Karpathy-style simple, direct, readable implementations; no hacks; and complete user-facing and contributor-facing documentation for shipped behavior.
 
 ## Non-Goals
 
@@ -22,6 +23,56 @@ The MVP establishes Forma as its own language rather than a Python-only or TypeS
 - The MVP will not include a package manager, language server, formatter, debugger, import system, approval UI, or tool marketplace.
 - The MVP will not attempt to share one runtime implementation across Python and TypeScript.
 - The MVP will not make Tree-sitter responsible for type checking, verification, or runtime semantics.
+- The MVP will not include temporary parser shortcuts, fixture-only behavior, fake CLI success paths, or untested compatibility claims.
+
+## Engineering Rules
+
+Forma implementation work must follow these rules.
+
+### Karpathy-Style Implementation Rules
+
+For this project, Karpathy-style engineering means:
+
+- Keep implementations simple, direct, and readable before making them clever.
+- Prefer small files and obvious data structures over premature abstraction.
+- Build the smallest complete version that exercises the real path end to end.
+- Make every intermediate representation inspectable and easy to print, diff, and test.
+- Write code that can be understood locally without hidden framework magic.
+- Use real tests and examples as the measure of progress, not optimistic architecture.
+- Keep the runtime deterministic wherever the language says behavior is deterministic.
+
+If a future contributor wants to use a more specific published list of "Karpathy's rules", that list must be added to the repository and this section must be reconciled with it before implementation changes rely on it.
+
+### No Hacks
+
+The MVP must not use hacks to appear complete. In practice, this forbids:
+
+- hard-coded fixture detection
+- parser behavior that only recognizes the bundled examples
+- CLI commands that return success without validating real files
+- fake runtime outputs outside explicit fake-provider tests
+- broad exception swallowing to make tests pass
+- undocumented fallback behavior
+- duplicate Python and TypeScript behavior that is not covered by conformance fixtures
+
+Temporary scaffolding is allowed only when it is explicit, documented, tested as scaffolding, and not presented as shipped language behavior.
+
+### Full Documentation
+
+Documentation is part of the deliverable, not a follow-up task. Every shipped behavior needs documentation at the same level as its implementation.
+
+The MVP documentation set must include:
+
+- language overview
+- syntax reference for supported blocks
+- expression subset reference for `compute` and `verify`
+- diagnostics reference with codes and examples
+- CLI reference for `forma check` and `forma run`
+- Python package quickstart and API reference
+- TypeScript package quickstart and API reference
+- conformance fixture guide
+- contributor guide for grammar, AST, IR, validator, runtime, and tests
+- architecture notes explaining why Tree-sitter owns syntax but not semantics
 
 ## Language Shape
 
