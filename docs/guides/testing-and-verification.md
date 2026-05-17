@@ -1,0 +1,55 @@
+# Testing And Verification
+
+## Purpose
+
+Forma uses layered verification so language syntax, host runtimes, CLI behavior,
+documentation, and package hygiene stay aligned. This guide lists the commands
+that should run before merging changes.
+
+## Steps
+
+Run the full JavaScript and TypeScript checks:
+
+```bash
+corepack pnpm install --frozen-lockfile
+corepack pnpm check
+corepack pnpm test
+corepack pnpm docs:check
+```
+
+Run Python tests:
+
+```bash
+python -m pytest packages/forma-python/tests -q
+```
+
+Run package-specific tests while iterating:
+
+```bash
+corepack pnpm --filter tree-sitter-forma test
+corepack pnpm --filter @forma-lang/forma test
+corepack pnpm --filter @forma-lang/cli test
+```
+
+The Tree-sitter package uses `tree-sitter test`. The TypeScript packages use
+`vitest`. The Python package uses `pytest`.
+
+Run CLI smoke tests after building:
+
+```bash
+corepack pnpm build
+node cli/forma/dist/index.js check examples/greet_user.forma
+node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name":"Sam"}'
+```
+
+## Verification
+
+Expected smoke output:
+
+```text
+ok
+{"message":"Hello, Sam!"}
+```
+
+Use `git -c core.excludesfile=/dev/null status --short --branch` after a full
+build to confirm generated artifacts are covered by repository-local ignores.

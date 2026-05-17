@@ -1,0 +1,62 @@
+# Quickstart
+
+## Purpose
+
+This guide takes a clean checkout through installation, verification, and the
+first Forma task execution. It uses only behavior shipped in this repository.
+
+## Steps
+
+Install JavaScript dependencies through Corepack and the pinned package manager:
+
+```bash
+corepack pnpm install
+```
+
+Run the main JavaScript and TypeScript checks. `corepack pnpm check` builds the
+TypeScript runtime before checking the CLI, so it works without preexisting
+`dist` output.
+
+```bash
+corepack pnpm check
+corepack pnpm test
+corepack pnpm docs:check
+```
+
+Run the Python runtime tests:
+
+```bash
+python -m pytest packages/forma-python/tests -q
+```
+
+Build the TypeScript runtime and CLI, then execute the deterministic example:
+
+```bash
+corepack pnpm build
+node cli/forma/dist/index.js check examples/greet_user.forma
+node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name":"Sam"}'
+```
+
+Expected CLI output:
+
+```text
+ok
+{"message":"Hello, Sam!"}
+```
+
+## Verification
+
+A clean local verification run should include these commands:
+
+```bash
+corepack pnpm install --frozen-lockfile
+corepack pnpm check
+corepack pnpm test
+corepack pnpm docs:check
+python -m pytest packages/forma-python/tests -q
+corepack pnpm build
+```
+
+If `forma run` fails on an agent task without a provider, that is expected for
+the CLI path. Agent tasks require an explicit host-provided provider in the
+runtime APIs.

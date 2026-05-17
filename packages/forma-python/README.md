@@ -23,3 +23,17 @@ result = runtime.run_source(source, input={"user_name": "Sam"}, source_name="tas
 
 `run_source` returns a `FormaResult` with `ok`, `output`, `trace`,
 `diagnostics`, `verification`, and `error` fields.
+
+## Local Checks
+
+Run the Python package tests from the repository root:
+
+```bash
+python -m pytest packages/forma-python/tests -q
+```
+
+For workspace-level validation, also run:
+
+```bash
+corepack pnpm check
+```

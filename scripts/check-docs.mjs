@@ -2,11 +2,19 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const required = [
+  "docs/index.md",
+  "docs/guides/quickstart.md",
+  "docs/guides/task-authoring.md",
+  "docs/guides/runtime-results.md",
+  "docs/guides/provider-adapters.md",
+  "docs/guides/testing-and-verification.md",
   "docs/language/overview.md",
   "docs/language/syntax.md",
   "docs/language/expressions.md",
   "docs/language/diagnostics.md",
   "docs/language/architecture.md",
+  "docs/language/runtime-semantics.md",
+  "docs/language/limitations.md",
   "docs/packages/python.md",
   "docs/packages/typescript.md",
   "docs/packages/cli.md",
@@ -39,6 +47,13 @@ const requiredTerms = {
   "docs/packages/python.md": ["FormaRuntime", "StaticProvider"],
   "docs/packages/typescript.md": ["FormaRuntime", "StaticProvider"],
   "docs/packages/cli.md": ["forma check", "forma run"],
+  "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run"],
+  "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
+  "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
+  "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],
+  "docs/guides/testing-and-verification.md": ["docs:check", "tree-sitter test", "pytest", "vitest"],
+  "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification"],
+  "docs/language/limitations.md": ["MVP", "single task", "provider"],
 };
 
 const scanRoots = [
@@ -47,6 +62,7 @@ const scanRoots = [
   "examples",
   "scripts",
   "README.md",
+  "docs/guides",
   "docs/language",
   "docs/packages",
 ];
@@ -81,6 +97,12 @@ for (const path of required) {
   if (text.trim().length < 200) {
     console.error(`too short ${path}`);
     process.exit(1);
+  }
+  for (const heading of requiredHeadings(path)) {
+    if (!text.includes(heading)) {
+      console.error(`missing heading ${path}: ${heading}`);
+      process.exit(1);
+    }
   }
   if (!hasExample(text)) {
     console.error(`missing example ${path}`);
@@ -138,4 +160,14 @@ function scanFiles(paths) {
 
 function isAllowed(path, phrase) {
   return phraseAllowlist[path]?.has(phrase) ?? false;
+}
+
+function requiredHeadings(path) {
+  if (path === "docs/index.md") {
+    return ["## Start Here", "## Language", "## Packages", "## Contributing"];
+  }
+  if (path.startsWith("docs/guides/")) {
+    return ["## Purpose", "## Steps", "## Verification"];
+  }
+  return [];
 }

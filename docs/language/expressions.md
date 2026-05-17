@@ -4,6 +4,8 @@ The MVP parser stores raw `compute`, `constraints`, and `verify` lines, but the
 runtime evaluator supports only the expressions listed here. Other compute
 expressions fail at runtime with `F3001: unsupported compute expression`.
 
+## Compute Expression
+
 Supported `compute` expression:
 
 ```forma
@@ -18,6 +20,12 @@ is interpolated with `{user_name}`; otherwise the else string is assigned to
 `packages/forma-typescript/test/runtime.test.ts` and
 `packages/forma-python/tests/test_runtime.py`.
 
+The output field name is currently `message`, and the optional input field is
+currently `user_name`. This is the expression shape represented in
+`packages/forma-core/conformance/greet_user.json`.
+
+## Verification Expressions
+
 Supported `verify` expressions:
 
 ```forma
@@ -29,3 +37,19 @@ message.words <= 12
 whitespace-separated words and fails when the count is greater than 12. The
 `constraints` block is parsed and included in conformance IR, but current
 runtime enforcement is performed through `verify`.
+
+## Adding Expressions
+
+Expression changes should start in the shared conformance layer:
+
+```bash
+packages/forma-core/fixtures
+packages/forma-core/conformance
+```
+
+Then update both runtimes and both test suites:
+
+```bash
+corepack pnpm --filter @forma-lang/forma test
+python -m pytest packages/forma-python/tests -q
+```
