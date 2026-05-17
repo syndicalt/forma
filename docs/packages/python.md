@@ -1,10 +1,11 @@
 # Python Package
 
 The Python runtime package is `forma-lang`, with source under
-`packages/forma-python/src/forma`. It exports `FormaRuntime`, `StaticProvider`,
-and `HttpJsonProvider` from `forma`. It also exports `ModelProvider` for typing
-custom adapters. `FormaRuntime.run_source` accepts source text, an input
-dictionary, and a source name, then returns a `FormaResult` dataclass.
+`packages/forma-python/src/forma`. It exports `agent`, `FormaRuntime`,
+`StaticProvider`, `HttpJsonProvider`, and `OpenAIResponsesProvider` from
+`forma`. It also exports `ModelProvider` for typing custom adapters.
+`FormaRuntime.run_source` accepts source text, an input dictionary, and a source
+name, then returns a `FormaResult` dataclass.
 
 ## Deterministic Runtime
 
@@ -28,7 +29,7 @@ supported `compute` expression, then evaluates `verify` expressions.
 
 ```python
 import os
-from forma import FormaRuntime, ModelProvider, PermissionTools
+from forma import ModelProvider, PermissionTools, agent
 
 class HostedModelProvider(ModelProvider):
     def __init__(self, api_key: str, model: str) -> None:
@@ -46,8 +47,11 @@ class HostedModelProvider(ModelProvider):
         )
         return {"message": response["message"]}
 
-agent_runtime = FormaRuntime(
-    model_provider=HostedModelProvider(
+greet_user_warmly = agent(
+    source=source,
+    source_name="examples/greet_user_warmly.forma",
+    task="greet_user_warmly",
+    provider=HostedModelProvider(
         api_key=os.environ["MODEL_API_KEY"],
         model="example-model",
     ),
@@ -59,12 +63,7 @@ agent_runtime = FormaRuntime(
     },
 )
 
-result = agent_runtime.run_task(
-    source,
-    "greet_user_warmly",
-    input={"user_name": "Sam"},
-    source_name="examples/greet_user_warmly.forma",
-)
+result = greet_user_warmly.run({"user_name": "Sam"})
 ```
 
 The deterministic and agent calls match
@@ -76,16 +75,24 @@ The `.forma` file contains the `agent` instruction. The provider object contains
 credentials, model selection, retry behavior, logging, and service-specific
 request formatting.
 
-`run_source` executes the first task in a source string. `run_task` executes a
-specific named task from source text. `run_file` reads a `.forma` file and
-executes a named task:
+`agent(...)` is the embedded convenience API. It binds a `.forma` source or
+file, named task, provider, and optional tools into a reusable object with
+`run(input)`. It calls `FormaRuntime.run_task` or `FormaRuntime.run_file` under
+the hood. `run_source` executes the first task in a source string. `run_task`
+executes a specific named task from source text. `run_file` reads a `.forma`
+file and executes a named task:
 
 ```python
-result = runtime.run_file(
-    "examples/review_diff.forma",
-    "review_diff",
-    input={"diff": diff, "max_findings": 5},
+review_diff = agent(
+    file="examples/review_diff.forma",
+    task="review_diff",
+    provider=OpenAIResponsesProvider(
+        api_key=os.environ["OPENAI_API_KEY"],
+        model=os.environ.get("OPENAI_MODEL", "gpt-5"),
+    ),
 )
+
+result = review_diff.run({"diff": diff, "max_findings": 5})
 ```
 
 `HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the

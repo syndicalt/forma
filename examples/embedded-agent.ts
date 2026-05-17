@@ -1,4 +1,4 @@
-import { FormaRuntime, OpenAIResponsesProvider } from "@forma-lang/forma";
+import { OpenAIResponsesProvider, agent } from "@forma-lang/forma";
 
 const sourcePath = "examples/review_diff.forma";
 const diff = process.env.FORMA_DIFF ?? `diff --git a/src/review.ts b/src/review.ts
@@ -6,16 +6,16 @@ const diff = process.env.FORMA_DIFF ?? `diff --git a/src/review.ts b/src/review.
 -return findings.length === 0;
 +return findings.every((finding) => finding.severity !== "error");`;
 
-const runtime = new FormaRuntime({
-  modelProvider: new OpenAIResponsesProvider({
+const reviewDiff = agent({
+  file: sourcePath,
+  task: "review_diff",
+  provider: new OpenAIResponsesProvider({
     apiKey: process.env.OPENAI_API_KEY ?? "",
     model: process.env.OPENAI_MODEL ?? "gpt-5",
   }),
 });
 
-const result = await runtime.runFile(sourcePath, "review_diff", {
-  input: { diff, max_findings: 5 },
-});
+const result = await reviewDiff.run({ diff, max_findings: 5 });
 
 if (!result.ok) {
   throw new Error(result.error ?? "Forma task failed");

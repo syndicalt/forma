@@ -1,3 +1,5 @@
+export { agent } from "./agent.js";
+export type { FormaAgent, FormaAgentOptions } from "./agent.js";
 export { generatePythonBindings, generateTypeScriptBindings } from "./bindings.js";
 export { parseForma } from "./parser.js";
 export { FormaRuntime } from "./runtime.js";

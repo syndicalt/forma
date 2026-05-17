@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FormaRuntime, StaticProvider } from "../src/index.js";
+import { FormaRuntime, StaticProvider, agent } from "../src/index.js";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -129,6 +129,37 @@ const editSource = `task update_file {
 }`;
 
 describe("FormaRuntime", () => {
+  it("embeds a named source task through the agent facade", async () => {
+    const greet = agent({
+      source: agentSource,
+      sourceName: "agent.forma",
+      task: "greet_user_warmly",
+      provider: new StaticProvider({ message: "Hello, Sam. Good to see you." }),
+    });
+
+    const result = await greet.run({ user_name: "Sam" });
+
+    expect(result.ok).toBe(true);
+    expect(result.output).toEqual({ message: "Hello, Sam. Good to see you." });
+  });
+
+  it("embeds a named file task through the agent facade", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-agent-"));
+    const path = join(dir, "task.forma");
+    await writeFile(path, agentSource);
+
+    const greet = agent({
+      file: path,
+      task: "greet_user_warmly",
+      provider: new StaticProvider({ message: "Hello, Sam. Good to see you." }),
+    });
+
+    const result = await greet.run({ user_name: "Sam" });
+
+    expect(result.ok).toBe(true);
+    expect(result.output).toEqual({ message: "Hello, Sam. Good to see you." });
+  });
+
   it("executes deterministic compute and verify", async () => {
     const runtime = new FormaRuntime();
     const result = await runtime.runSource(deterministicSource, {

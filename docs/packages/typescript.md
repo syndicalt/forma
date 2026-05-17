@@ -1,9 +1,10 @@
 # TypeScript Package
 
 The TypeScript runtime package is `@forma-lang/forma`, with source under
-`packages/forma-typescript/src`. It exports `FormaRuntime`, `StaticProvider`,
-`HttpJsonProvider`, `OpenAIResponsesProvider`, `parseForma`, binding generators,
-`ModelProvider`, and public result and AST types from `src/index.ts`.
+`packages/forma-typescript/src`. It exports `agent`, `FormaRuntime`,
+`StaticProvider`, `HttpJsonProvider`, `OpenAIResponsesProvider`, `parseForma`,
+binding generators, `ModelProvider`, and public result and AST types from
+`src/index.ts`.
 
 ## Deterministic Runtime
 
@@ -26,7 +27,7 @@ expression, and evaluates the `verify` block before returning.
 ## Agent Runtime
 
 ```ts
-import { FormaRuntime, type ModelProvider } from "@forma-lang/forma";
+import { agent, type ModelProvider } from "@forma-lang/forma";
 
 class HostedModelProvider implements ModelProvider {
   constructor(private readonly apiKey: string, private readonly model: string) {}
@@ -49,8 +50,11 @@ class HostedModelProvider implements ModelProvider {
   }
 }
 
-const agentRuntime = new FormaRuntime({
-  modelProvider: new HostedModelProvider(
+const greetUserWarmly = agent({
+  source,
+  sourceName: "examples/greet_user_warmly.forma",
+  task: "greet_user_warmly",
+  provider: new HostedModelProvider(
     process.env.MODEL_API_KEY ?? "",
     "example-model",
   ),
@@ -62,10 +66,7 @@ const agentRuntime = new FormaRuntime({
   },
 });
 
-const result = await agentRuntime.runTask(source, "greet_user_warmly", {
-  input: { user_name: "Sam" },
-  sourceName: "examples/greet_user_warmly.forma",
-});
+const result = await greetUserWarmly.run({ user_name: "Sam" });
 ```
 
 This API is exercised by `packages/forma-typescript/test/runtime.test.ts`.
@@ -77,14 +78,24 @@ The `.forma` file contains the `agent` instruction. The provider object contains
 credentials, model selection, retry behavior, logging, and service-specific
 request formatting.
 
-`runSource` executes the first task in a source string. `runTask` executes a
-specific named task from source text. `runFile` reads a `.forma` file and
-executes a named task:
+`agent(...)` is the embedded convenience API. It binds a `.forma` source or
+file, named task, provider, and optional tools into a reusable object with
+`run(input)`. It calls `FormaRuntime.runTask` or `FormaRuntime.runFile` under
+the hood. `runSource` executes the first task in a source string. `runTask`
+executes a specific named task from source text. `runFile` reads a `.forma`
+file and executes a named task:
 
 ```ts
-const result = await runtime.runFile("examples/review_diff.forma", "review_diff", {
-  input: { diff, max_findings: 5 },
+const reviewDiff = agent({
+  file: "examples/review_diff.forma",
+  task: "review_diff",
+  provider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    model: process.env.OPENAI_MODEL ?? "gpt-5",
+  }),
 });
+
+const result = await reviewDiff.run({ diff, max_findings: 5 });
 ```
 
 `HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the

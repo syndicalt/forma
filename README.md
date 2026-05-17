@@ -69,10 +69,18 @@ the `review_diff` coding-agent workflow. The product roadmap is in
 Host programs choose a provider and execute a named task from a `.forma` file:
 
 ```ts
-const runtime = new FormaRuntime({ modelProvider });
-const result = await runtime.runFile("examples/review_diff.forma", "review_diff", {
-  input: { diff, max_findings: 5 },
+import { OpenAIResponsesProvider, agent } from "@forma-lang/forma";
+
+const reviewDiff = agent({
+  file: "examples/review_diff.forma",
+  task: "review_diff",
+  provider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    model: process.env.OPENAI_MODEL ?? "gpt-5",
+  }),
 });
+
+const result = await reviewDiff.run({ diff, max_findings: 5 });
 ```
 
 See `examples/embedded-agent.ts` and `examples/embedded_agent.py` for the full

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from forma import FormaRuntime, StaticProvider
+from forma import FormaRuntime, StaticProvider, agent
 
 
 DETERMINISTIC_SOURCE = '''task greet_user {
@@ -129,6 +129,36 @@ EDIT_SOURCE = '''task update_file {
     edit
   }
 }'''
+
+
+def test_embeds_named_source_task_through_agent_facade():
+    greet = agent(
+        source=AGENT_SOURCE,
+        source_name="agent.forma",
+        task="greet_user_warmly",
+        provider=StaticProvider({"message": "Hello, Sam. Good to see you."}),
+    )
+
+    result = greet.run({"user_name": "Sam"})
+
+    assert result.ok is True
+    assert result.output == {"message": "Hello, Sam. Good to see you."}
+
+
+def test_embeds_named_file_task_through_agent_facade(tmp_path: Path):
+    source_path = tmp_path / "task.forma"
+    source_path.write_text(AGENT_SOURCE, encoding="utf8")
+
+    greet = agent(
+        file=source_path,
+        task="greet_user_warmly",
+        provider=StaticProvider({"message": "Hello, Sam. Good to see you."}),
+    )
+
+    result = greet.run({"user_name": "Sam"})
+
+    assert result.ok is True
+    assert result.output == {"message": "Hello, Sam. Good to see you."}
 
 
 def test_executes_deterministic_compute_and_verify():

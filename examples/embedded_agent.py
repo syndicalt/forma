@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 
-from forma import FormaRuntime, OpenAIResponsesProvider
+from forma import OpenAIResponsesProvider, agent
 
 
 source_path = Path("examples/review_diff.forma")
@@ -14,18 +14,16 @@ diff = os.environ.get(
 +return all(finding["severity"] != "error" for finding in findings)""",
 )
 
-runtime = FormaRuntime(
-    model_provider=OpenAIResponsesProvider(
+review_diff = agent(
+    file=source_path,
+    task="review_diff",
+    provider=OpenAIResponsesProvider(
         api_key=os.environ["OPENAI_API_KEY"],
         model=os.environ.get("OPENAI_MODEL", "gpt-5"),
-    )
+    ),
 )
 
-result = runtime.run_file(
-    source_path,
-    "review_diff",
-    input={"diff": diff, "max_findings": 5},
-)
+result = review_diff.run({"diff": diff, "max_findings": 5})
 
 if not result.ok:
     raise RuntimeError(result.error or "Forma task failed")

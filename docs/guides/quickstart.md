@@ -62,7 +62,8 @@ the CLI path. Agent tasks require an explicit host-provided provider in the
 runtime APIs.
 
 The embedded coding-agent examples show the same `review_diff` contract from
-TypeScript and Python:
+TypeScript and Python. Both examples use `agent(...)` to bind the `.forma`
+file, provider, model, and task name into a reusable `run(input)` call:
 
 ```bash
 OPENAI_API_KEY=... OPENAI_MODEL=gpt-5 node examples/embedded-agent.ts

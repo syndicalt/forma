@@ -29,7 +29,7 @@ The useful embedding path is:
 ```text
 host program loads .forma source
 host program creates provider with key and model
-FormaRuntime selects a named task
+agent(...) binds provider, source/file, and named task
 runtime calls provider with instruction and input values
 runtime validates output fields and verify rules
 host receives FormaResult

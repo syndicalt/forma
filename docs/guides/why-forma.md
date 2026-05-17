@@ -62,37 +62,38 @@ the file, chooses the provider, supplies the key and model name, and runs the
 named task:
 
 ```typescript
-const runtime = new FormaRuntime({
-  modelProvider: new OpenAIResponsesProvider({
+const reviewDiff = agent({
+  file: "examples/review_diff.forma",
+  task: "review_diff",
+  provider: new OpenAIResponsesProvider({
     apiKey: process.env.OPENAI_API_KEY ?? "",
     model: process.env.OPENAI_MODEL ?? "gpt-5",
   }),
 });
 
-const result = await runtime.runFile("examples/review_diff.forma", "review_diff", {
-  input: { diff, max_findings: 5 },
-});
+const result = await reviewDiff.run({ diff, max_findings: 5 });
 ```
 
 ```python
-runtime = FormaRuntime(
-    model_provider=OpenAIResponsesProvider(
+review_diff = agent(
+    file="examples/review_diff.forma",
+    task="review_diff",
+    provider=OpenAIResponsesProvider(
         api_key=os.environ["OPENAI_API_KEY"],
         model=os.environ.get("OPENAI_MODEL", "gpt-5"),
-    )
+    ),
 )
 
-result = runtime.run_file(
-    "examples/review_diff.forma",
-    "review_diff",
-    input={"diff": diff, "max_findings": 5},
-)
+result = review_diff.run({"diff": diff, "max_findings": 5})
 ```
 
-When the runtime reaches the `agent` block, it calls the configured provider
-with the instruction, input values, declared permissions, and host tool gate.
-The provider returns an object. Forma validates that object against the declared
-output fields before the application consumes it.
+The public `agent(...)` helper calls `FormaRuntime.runFile` or
+`FormaRuntime.runTask` in TypeScript and `FormaRuntime.run_file` or
+`FormaRuntime.run_task` in Python. When the runtime reaches the `.forma`
+`agent` block, it calls the configured provider with the instruction, input
+values, declared permissions, and host tool gate. The provider returns an
+object. Forma validates that object against the declared output fields before
+the application consumes it.
 
 ## What Forma Adds
 

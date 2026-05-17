@@ -11,13 +11,16 @@ decides which model service to call and how to authenticate.
 
 ## Steps
 
-In TypeScript, pass a provider when constructing `FormaRuntime`:
+In TypeScript, pass a provider when constructing an embedded `agent` or a
+lower-level `FormaRuntime`:
 
 ```typescript
-import { FormaRuntime, StaticProvider } from "@forma-lang/forma";
+import { StaticProvider, agent } from "@forma-lang/forma";
 
-const runtime = new FormaRuntime({
-  modelProvider: new StaticProvider({
+const greetUser = agent({
+  source,
+  task: "greet_user_warmly",
+  provider: new StaticProvider({
     message: "Hello, Sam. Good to see you.",
   }),
 });
@@ -27,7 +30,7 @@ For a real model service, keep the key in an environment variable or secret
 manager, select the model in the adapter, and return the Forma output fields:
 
 ```typescript
-import { FormaRuntime, type ModelProvider } from "@forma-lang/forma";
+import { agent, type ModelProvider } from "@forma-lang/forma";
 
 class HostedModelProvider implements ModelProvider {
   constructor(
@@ -54,17 +57,16 @@ class HostedModelProvider implements ModelProvider {
   }
 }
 
-const runtime = new FormaRuntime({
-  modelProvider: new HostedModelProvider(
+const greetUser = agent({
+  source,
+  task: "greet_user_warmly",
+  provider: new HostedModelProvider(
     process.env.MODEL_API_KEY ?? "",
     "example-model",
   ),
 });
 
-const result = await runtime.runTask(source, "greet_user_warmly", {
-  input: { user_name: "Sam" },
-  sourceName: "greet_user_warmly.forma",
-});
+const result = await greetUser.run({ user_name: "Sam" });
 ```
 
 When the runtime reaches an `agent` block, it calls:
@@ -286,10 +288,12 @@ the key and model in host configuration, uses the OpenAI Responses API, and
 turns the Forma `output` block into a strict JSON schema for structured output.
 
 ```typescript
-import { FormaRuntime, OpenAIResponsesProvider } from "@forma-lang/forma";
+import { OpenAIResponsesProvider, agent } from "@forma-lang/forma";
 
-const runtime = new FormaRuntime({
-  modelProvider: new OpenAIResponsesProvider({
+const reviewDiff = agent({
+  file: "examples/review_diff.forma",
+  task: "review_diff",
+  provider: new OpenAIResponsesProvider({
     apiKey: process.env.OPENAI_API_KEY ?? "",
     model: process.env.OPENAI_MODEL ?? "gpt-5",
   }),
@@ -297,13 +301,15 @@ const runtime = new FormaRuntime({
 ```
 
 ```python
-from forma import FormaRuntime, OpenAIResponsesProvider
+from forma import OpenAIResponsesProvider, agent
 
-runtime = FormaRuntime(
-    model_provider=OpenAIResponsesProvider(
+review_diff = agent(
+    file="examples/review_diff.forma",
+    task="review_diff",
+    provider=OpenAIResponsesProvider(
         api_key=os.environ["OPENAI_API_KEY"],
         model=os.environ.get("OPENAI_MODEL", "gpt-5"),
-    )
+    ),
 )
 ```
 
