@@ -164,6 +164,57 @@ describe("FormaRuntime", () => {
     expect(result.trace).toContainEqual({ step: "permission_denied", detail: "write" });
   });
 
+  it("maps provider read tool calls to host readText hooks", async () => {
+    const runtime = new FormaRuntime({
+      tools: {
+        async readText(path) {
+          expect(path).toBe("README.md");
+          return "Forma contracts";
+        },
+      },
+      modelProvider: {
+        async runAgent(input) {
+          const content = await input.tools.readText("README.md");
+          return { message: content };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(agentSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "agent.forma",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.output).toEqual({ message: "Forma contracts" });
+    expect(result.trace).toContainEqual({ step: "tool", detail: "read:README.md" });
+  });
+
+  it("denies read tool calls when read permission is undeclared", async () => {
+    const runtime = new FormaRuntime({
+      tools: {
+        async readText() {
+          throw new Error("host read should not run");
+        },
+      },
+      modelProvider: {
+        async runAgent(input) {
+          await input.tools.readText("README.md");
+          return { summary: "No issues", finding_count: 0, clean: true };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(metricsSource, "summarize_metrics", {
+      input: { diff: "diff --git a/file.ts b/file.ts" },
+      sourceName: "metrics.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F4001: permission 'read' is not declared");
+    expect(result.trace).toContainEqual({ step: "permission_denied", detail: "read" });
+  });
+
   it("executes a named task from a multi-task source", async () => {
     const runtime = new FormaRuntime({
       modelProvider: new StaticProvider({ message: "Hello, Sam. Good to see you." }),

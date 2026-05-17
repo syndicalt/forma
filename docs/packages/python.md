@@ -50,7 +50,8 @@ agent_runtime = FormaRuntime(
     model_provider=HostedModelProvider(
         api_key=os.environ["MODEL_API_KEY"],
         model="example-model",
-    )
+    ),
+    tools={"read_text": lambda path: open(path, encoding="utf8").read()},
 )
 
 result = agent_runtime.run_task(

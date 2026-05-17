@@ -53,6 +53,9 @@ const agentRuntime = new FormaRuntime({
     process.env.MODEL_API_KEY ?? "",
     "example-model",
   ),
+  tools: {
+    readText: async (path) => readFile(path, "utf8"),
+  },
 });
 
 const result = await agentRuntime.runTask(source, "greet_user_warmly", {

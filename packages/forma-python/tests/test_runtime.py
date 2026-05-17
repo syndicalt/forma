@@ -164,6 +164,50 @@ def test_fails_when_provider_requests_undeclared_permission():
     assert {"step": "permission_denied", "detail": "write"} in result.trace
 
 
+def test_maps_provider_read_tool_calls_to_host_read_text_hooks():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            content = tools.read_text("README.md")
+            return {"message": content}
+
+    runtime = FormaRuntime(
+        model_provider=ToolUsingProvider(),
+        tools={"read_text": lambda path: "Forma contracts"},
+    )
+    result = runtime.run_task(
+        AGENT_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="agent.forma",
+    )
+
+    assert result.ok is True
+    assert result.output == {"message": "Forma contracts"}
+    assert {"step": "tool", "detail": "read:README.md"} in result.trace
+
+
+def test_denies_read_tool_calls_when_read_permission_is_undeclared():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            tools.read_text("README.md")
+            return {"summary": "No issues", "finding_count": 0, "clean": True}
+
+    runtime = FormaRuntime(
+        model_provider=ToolUsingProvider(),
+        tools={"read_text": lambda path: (_ for _ in ()).throw(RuntimeError("host read should not run"))},
+    )
+    result = runtime.run_task(
+        METRICS_SOURCE,
+        "summarize_metrics",
+        input={"diff": "diff --git a/file.py b/file.py"},
+        source_name="metrics.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F4001: permission 'read' is not declared"
+    assert {"step": "permission_denied", "detail": "read"} in result.trace
+
+
 def test_executes_named_task_from_multi_task_source():
     runtime = FormaRuntime(
         model_provider=StaticProvider({"message": "Hello, Sam. Good to see you."})

@@ -4,8 +4,12 @@ import type { ModelProvider } from "./provider.js";
 import type { FormaResult, FormaValue } from "./types.js";
 import { validateProgram } from "./validator.js";
 
+export interface ToolHost {
+  readText?(path: string): string | Promise<string>;
+}
+
 export class FormaRuntime {
-  constructor(private readonly options: { modelProvider?: ModelProvider } = {}) {}
+  constructor(private readonly options: { modelProvider?: ModelProvider; tools?: ToolHost } = {}) {}
 
   async runSource(source: string, options: { input: Record<string, FormaValue>; sourceName: string }): Promise<FormaResult> {
     return this.runSelectedTask(source, undefined, options);
@@ -93,6 +97,7 @@ export class FormaRuntime {
       throw new Error("F3002: agent block requires model provider");
     }
     const allowed = new Set(permissions);
+    const runtimeTools = this.options.tools ?? {};
     const tools = {
       require(permission: string): void {
         if (!allowed.has(permission)) {
@@ -100,6 +105,15 @@ export class FormaRuntime {
           throw new Error(`F4001: permission '${permission}' is not declared`);
         }
         trace.push({ step: "permission", detail: permission });
+      },
+      async readText(path: string): Promise<string> {
+        tools.require("read");
+        if (!runtimeTools.readText) {
+          throw new Error("F4002: read tool is not configured");
+        }
+        const content = await runtimeTools.readText(path);
+        trace.push({ step: "tool", detail: `read:${path}` });
+        return content;
       },
     };
     return this.options.modelProvider.runAgent({ instruction, values, permissions, tools });

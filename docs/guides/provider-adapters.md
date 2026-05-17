@@ -155,6 +155,29 @@ runtime also passes `tools.require(permission)`. Host adapters can call it befor
 performing a workspace action; undeclared permissions fail with `F4001` and are
 recorded in the runtime trace.
 
+Host programs can configure read access and let the runtime enforce the
+declared `read` permission:
+
+```typescript
+const runtime = new FormaRuntime({
+  modelProvider,
+  tools: {
+    readText: async (path) => readFile(path, "utf8"),
+  },
+});
+```
+
+```python
+runtime = FormaRuntime(
+    model_provider=provider,
+    tools={"read_text": lambda path: Path(path).read_text(encoding="utf8")},
+)
+```
+
+Providers call `tools.readText("README.md")` in TypeScript or
+`tools.read_text("README.md")` in Python. The runtime records the tool call in
+`trace`.
+
 ## Verification
 
 Provider behavior is covered by both runtime test files:

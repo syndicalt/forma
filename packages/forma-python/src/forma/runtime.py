@@ -6,8 +6,9 @@ from .validator import validate_program
 
 
 class FormaRuntime:
-    def __init__(self, model_provider: ModelProvider | None = None) -> None:
+    def __init__(self, model_provider: ModelProvider | None = None, tools: dict[str, object] | None = None) -> None:
         self.model_provider = model_provider
+        self.tools = tools or {}
 
     def run_source(
         self,
@@ -53,7 +54,7 @@ class FormaRuntime:
                         task.agent_instruction,
                         input,
                         task.permissions,
-                        _PermissionTools(task.permissions, trace),
+                        _PermissionTools(task.permissions, trace, self.tools),
                     )
                 except Exception as error:
                     return FormaResult(False, {}, trace, [], {"ok": False, "failures": []}, str(error))
@@ -80,12 +81,22 @@ class FormaRuntime:
 
 
 class _PermissionTools:
-    def __init__(self, permissions: list[str], trace: list[dict[str, str]]) -> None:
+    def __init__(self, permissions: list[str], trace: list[dict[str, str]], tools: dict[str, object]) -> None:
         self.permissions = set(permissions)
         self.trace = trace
+        self.tools = tools
 
     def require(self, permission: str) -> None:
         if permission not in self.permissions:
             self.trace.append({"step": "permission_denied", "detail": permission})
             raise ValueError(f"F4001: permission '{permission}' is not declared")
         self.trace.append({"step": "permission", "detail": permission})
+
+    def read_text(self, path: str) -> str:
+        self.require("read")
+        read_text = self.tools.get("read_text")
+        if not callable(read_text):
+            raise ValueError("F4002: read tool is not configured")
+        content = read_text(path)
+        self.trace.append({"step": "tool", "detail": f"read:{path}"})
+        return str(content)

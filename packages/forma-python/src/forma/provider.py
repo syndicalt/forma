@@ -7,6 +7,9 @@ class PermissionTools(Protocol):
     def require(self, permission: str) -> None:
         ...
 
+    def read_text(self, path: str) -> str:
+        ...
+
 
 class ModelProvider(Protocol):
     def run_agent(
