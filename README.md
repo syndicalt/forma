@@ -78,7 +78,7 @@ const result = await runtime.runTask(source, "greet_user_warmly", {
 ```
 
 See `examples/embedded-agent.ts` and `examples/embedded_agent.py` for the full
-TypeScript and Python shape.
+TypeScript and Python `review_diff` embedding shape.
 
 The first coding-agent task example is `examples/review_diff.forma`; its
 conformance fixture shows structured review metadata with scalar fields and an

@@ -60,3 +60,11 @@ corepack pnpm build
 If `forma run` fails on an agent task without a provider, that is expected for
 the CLI path. Agent tasks require an explicit host-provided provider in the
 runtime APIs.
+
+The embedded coding-agent examples show the same `review_diff` contract from
+TypeScript and Python:
+
+```bash
+OPENAI_API_KEY=... OPENAI_MODEL=gpt-5 node examples/embedded-agent.ts
+OPENAI_API_KEY=... OPENAI_MODEL=gpt-5 PYTHONPATH=packages/forma-python/src python examples/embedded_agent.py
+```

@@ -1,61 +1,27 @@
 import { readFile } from "node:fs/promises";
-import { FormaRuntime, type FormaValue, type ModelProvider } from "@forma-lang/forma";
+import { FormaRuntime, OpenAIResponsesProvider } from "@forma-lang/forma";
 
-class HostedModelProvider implements ModelProvider {
-  constructor(
-    private readonly apiKey: string,
-    private readonly model: string,
-  ) {}
+const sourcePath = "examples/review_diff.forma";
+const source = await readFile(sourcePath, "utf8");
+const diff = process.env.FORMA_DIFF ?? `diff --git a/src/review.ts b/src/review.ts
+@@
+-return findings.length === 0;
++return findings.every((finding) => finding.severity !== "error");`;
 
-  async runAgent(input: {
-    instruction: string;
-    values: Record<string, unknown>;
-    permissions: string[];
-    tools: { require(permission: string): void };
-  }): Promise<Record<string, FormaValue>> {
-    input.tools.require("read");
-    const response = await callModelService({
-      apiKey: this.apiKey,
-      model: this.model,
-      instruction: input.instruction,
-      values: input.values,
-      permissions: input.permissions,
-    });
-
-    return { message: response.message };
-  }
-}
-
-const source = await readFile("examples/greet_user_warmly.forma", "utf8");
 const runtime = new FormaRuntime({
-  modelProvider: new HostedModelProvider(
-    process.env.MODEL_API_KEY ?? "",
-    process.env.MODEL_NAME ?? "example-model",
-  ),
+  modelProvider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    model: process.env.OPENAI_MODEL ?? "gpt-5",
+  }),
 });
 
-const result = await runtime.runTask(source, "greet_user_warmly", {
-  input: { user_name: "Sam" },
-  sourceName: "examples/greet_user_warmly.forma",
+const result = await runtime.runTask(source, "review_diff", {
+  input: { diff, max_findings: 5 },
+  sourceName: sourcePath,
 });
 
 if (!result.ok) {
   throw new Error(result.error ?? "Forma task failed");
 }
 
-console.log(result.output);
-
-async function callModelService(input: {
-  apiKey: string;
-  model: string;
-  instruction: string;
-  values: Record<string, unknown>;
-  permissions: string[];
-}): Promise<{ message: string }> {
-  if (!input.apiKey) {
-    throw new Error("MODEL_API_KEY is required");
-  }
-  return {
-    message: `Hello, ${String(input.values.user_name ?? "there")}. Good to see you.`,
-  };
-}
+console.log(JSON.stringify(result.output, null, 2));

@@ -63,10 +63,9 @@ named task:
 
 ```typescript
 const runtime = new FormaRuntime({
-  modelProvider: new HttpJsonProvider({
-    endpoint: process.env.MODEL_ENDPOINT ?? "",
-    apiKey: process.env.MODEL_API_KEY,
-    model: process.env.MODEL_NAME ?? "example-model",
+  modelProvider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    model: process.env.OPENAI_MODEL ?? "gpt-5",
   }),
 });
 
@@ -78,10 +77,9 @@ const result = await runtime.runTask(source, "review_diff", {
 
 ```python
 runtime = FormaRuntime(
-    model_provider=HttpJsonProvider(
-        endpoint=os.environ["MODEL_ENDPOINT"],
-        api_key=os.environ.get("MODEL_API_KEY"),
-        model=os.environ.get("MODEL_NAME", "example-model"),
+    model_provider=OpenAIResponsesProvider(
+        api_key=os.environ["OPENAI_API_KEY"],
+        model=os.environ.get("OPENAI_MODEL", "gpt-5"),
     )
 )
 
@@ -115,6 +113,7 @@ Python and TypeScript.
 The useful artifact is not only the `.forma` file. It is the set:
 
 - `examples/review_diff.forma` for the contract
+- `examples/embedded-agent.ts` and `examples/embedded_agent.py` for host usage
 - generated TypeScript and Python bindings for host types
 - runtime output validation before host code trusts the result
 - permission checks around host tools such as read, search, test, and edit
