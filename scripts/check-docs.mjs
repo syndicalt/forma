@@ -1,4 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 const required = [
   "docs/language/overview.md",
@@ -40,14 +41,36 @@ const requiredTerms = {
   "docs/packages/cli.md": ["forma check", "forma run"],
 };
 
-const bannedPhrases = [
-  "coming soon",
-  "will support",
-  "TODO",
-  "TBD",
-  "placeholder",
-  "not implemented",
+const scanRoots = [
+  "packages",
+  "cli",
+  "examples",
+  "scripts",
+  "README.md",
+  "docs/language",
+  "docs/packages",
 ];
+
+const bannedPhrases = [
+  ["fixture", "-", "only"],
+  ["hard", "-", "coded"],
+  ["st", "ub"],
+  ["fake", " success"],
+  ["pretend", " pass"],
+  ["TO", "DO"],
+  ["T", "BD"],
+  ["place", "holder"],
+  ["coming", " soon"],
+  ["will", " support"],
+  ["not", " implemented"],
+].map(phrase);
+
+const phraseAllowlist = {
+  "README.md": new Set([phrase(["fixture", "-", "only"])]),
+  "docs/packages/contributing.md": new Set([phrase(["fixture", "-", "only"])]),
+};
+
+const ignoredDirs = new Set(["node_modules", "dist", "build", ".git"]);
 
 for (const path of required) {
   if (!existsSync(path)) {
@@ -63,15 +86,22 @@ for (const path of required) {
     console.error(`missing example ${path}`);
     process.exit(1);
   }
-  for (const phrase of bannedPhrases) {
-    if (text.toLowerCase().includes(phrase.toLowerCase())) {
-      console.error(`banned phrase ${path}: ${phrase}`);
-      process.exit(1);
-    }
-  }
   for (const term of requiredTerms[path] ?? []) {
     if (!text.includes(term)) {
       console.error(`missing required term ${path}: ${term}`);
+      process.exit(1);
+    }
+  }
+}
+
+for (const path of scanFiles(scanRoots)) {
+  const text = readFileSync(path, "utf8");
+  for (const phrase of bannedPhrases) {
+    if (isAllowed(path, phrase)) {
+      continue;
+    }
+    if (text.toLowerCase().includes(phrase.toLowerCase())) {
+      console.error(`banned phrase ${path}: ${phrase}`);
       process.exit(1);
     }
   }
@@ -81,4 +111,31 @@ console.log("docs ok");
 
 function hasExample(text) {
   return /```[\s\S]*?```/.test(text) || /`[^`]*(corepack|pnpm|python|forma|examples\/|packages\/)[^`]*`/.test(text);
+}
+
+function phrase(parts) {
+  return parts.join("");
+}
+
+function scanFiles(paths) {
+  return paths.flatMap((path) => {
+    if (!existsSync(path)) {
+      return [];
+    }
+    const stats = statSync(path);
+    if (stats.isFile()) {
+      return [path];
+    }
+    if (!stats.isDirectory()) {
+      return [];
+    }
+    return readdirSync(path)
+      .filter((entry) => !ignoredDirs.has(entry))
+      .flatMap((entry) => scanFiles([join(path, entry)]))
+      .sort();
+  });
+}
+
+function isAllowed(path, phrase) {
+  return phraseAllowlist[path]?.has(phrase) ?? false;
 }

@@ -4,10 +4,10 @@
   "type": "module",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "check": "pnpm -r run check",
-    "test": "pnpm -r run test",
-    "test:ts": "pnpm --filter @forma-lang/forma test && pnpm --filter @forma-lang/cli test",
-    "test:tree-sitter": "pnpm --filter tree-sitter-forma test",
+    "check": "corepack pnpm -r run check",
+    "test": "corepack pnpm -r run test",
+    "test:ts": "corepack pnpm --filter @forma-lang/forma test && corepack pnpm --filter @forma-lang/cli test",
+    "test:tree-sitter": "corepack pnpm --filter tree-sitter-forma test",
     "docs:check": "node scripts/check-docs.mjs"
   },
   "devDependencies": {
