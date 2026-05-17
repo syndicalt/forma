@@ -247,7 +247,7 @@ function compareReport(baseline: EvalReport | undefined, candidate: EvalReport |
   const changes = contractChanges.map((field): ChangeDetail => ({
     kind: "contract",
     field,
-    severity: contractSeverity(field),
+    severity: contractSeverity(field, baseline?.metadata?.contract, candidate?.metadata?.contract),
   }));
   return {
     name: candidate?.name || baseline?.name || "unknown",
@@ -259,8 +259,22 @@ function compareReport(baseline: EvalReport | undefined, candidate: EvalReport |
   };
 }
 
-function contractSeverity(field: string): ChangeDetail["severity"] {
+function contractSeverity(field: string, baseline?: EvalContract, candidate?: EvalContract): ChangeDetail["severity"] {
+  if (field === "output" && baseline && candidate && onlyAddsOptionalFields(baseline.output, candidate.output)) {
+    return "review";
+  }
   return field === "input" || field === "output" || field === "schemas" ? "breaking" : "review";
+}
+
+function onlyAddsOptionalFields(
+  baseline: Record<string, FormaField>,
+  candidate: Record<string, FormaField>,
+): boolean {
+  for (const [name, field] of Object.entries(baseline)) {
+    if (!deepEqual(candidate[name], field)) return false;
+  }
+  const added = Object.keys(candidate).filter((name) => !(name in baseline));
+  return added.length > 0 && added.every((name) => candidate[name]?.optional === true);
 }
 
 function compareContracts(baseline: EvalContract | undefined, candidate: EvalContract | undefined): string[] {

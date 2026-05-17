@@ -71,6 +71,8 @@ The current MVP provides:
 - Compare output includes machine-readable change details and compatibility
   severity labels.
 - Compare can fail on selected change severities with `--fail-on`.
+- Compatibility severity distinguishes additive optional output fields and
+  permission changes from breaking contract changes.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
@@ -202,8 +204,8 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: generate richer Python models beyond dataclasses
    for nested `.forma` output blocks.
-2. Evaluation fixtures: add richer compatibility classification for optional
-   field additions and permission changes.
+2. Evaluation fixtures: add compatibility details for exact added, removed, and
+   changed fields.
 3. Provider adapter kit: add configurable provider profiles and optional
    production provider packages.
 

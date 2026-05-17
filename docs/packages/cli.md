@@ -134,7 +134,8 @@ such as `review_diff:sourceSha256` or `review_diff:output`. When both sides are
 summary artifacts, compare also reports informational `settingChanges` such as
 `provider`, `endpoint`, or `model`. It also emits a machine-readable `changes`
 array with `kind`, `field`, and `severity`; output, input, and schema contract
-changes are marked `breaking`, other contract changes are marked `review`, and
+changes are marked `breaking`, additive optional output fields and permission
+changes are marked `review`, other contract changes are marked `review`, and
 provider settings are marked `environment`. This is the CI path for reviewing
 prompt, schema, task, provider, or model changes without treating a raw model
 response as enough evidence. Use `--fail-on` with a comma-separated list of

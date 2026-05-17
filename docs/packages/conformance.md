@@ -96,9 +96,10 @@ metadata, compare also lists changed contract fields such as
 If both artifacts include summary settings, compare also lists changed provider
 settings such as `provider`, `endpoint`, or `model`. The `changes` array gives
 each change a `kind`, `field`, and `severity`: `breaking` for input, output, and
-schema contract changes; `review` for other contract changes; and `environment`
-for provider settings. Use `--fail-on` with one or more comma-separated
-severities to turn those informational changes into a failing compare result.
+schema contract changes; `review` for additive optional output fields,
+permission changes, and other contract changes; and `environment` for provider
+settings. Use `--fail-on` with one or more comma-separated severities to turn
+those informational changes into a failing compare result.
 That makes task-contract changes reviewable in CI: a prompt, schema, tool
 permission, provider, or model update can ship with an artifact that shows which
 behavior improved or regressed.
