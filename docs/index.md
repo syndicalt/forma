@@ -19,6 +19,8 @@ node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name"
 ```
 
 Read `docs/guides/quickstart.md` for the full setup path and expected outputs.
+Read `docs/guides/why-forma.md` for the concrete product problem and the
+`review_diff` coding-agent workflow.
 Read `docs/roadmap.md` for the path from the current contract runtime to a
 TypeScript and Python agent coding tool.
 

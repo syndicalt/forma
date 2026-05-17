@@ -59,7 +59,9 @@ Expected CLI output:
 
 Start with `docs/index.md`. Practical guides are in `docs/guides/`, language
 reference material is in `docs/language/`, and host package docs are in
-`docs/packages/`. The product roadmap is in `docs/roadmap.md`.
+`docs/packages/`. Read `docs/guides/why-forma.md` for the product problem and
+the `review_diff` coding-agent workflow. The product roadmap is in
+`docs/roadmap.md`.
 
 ## Embedding Shape
 
