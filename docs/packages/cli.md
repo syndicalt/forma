@@ -60,12 +60,12 @@ the request can use structured outputs derived from the `.forma` file:
 ```bash
 forma eval packages/forma-core/conformance/review_diff.json \
   --provider openai-responses \
-  --model "$OPENAI_MODEL" \
-  --api-key "$OPENAI_API_KEY"
+  --model "$OPENAI_MODEL"
 ```
 
-`--endpoint` is optional for this provider and defaults to
-`https://api.openai.com/v1/responses`.
+The provider reads `OPENAI_API_KEY` when `--api-key` is omitted and
+`OPENAI_MODEL` when `--model` is omitted. `--endpoint` is optional and defaults
+to `https://api.openai.com/v1/responses`.
 
 `forma compare` compares two JSON eval reports and exits with code 1 when the
 candidate regresses from a passing check to a failing check:

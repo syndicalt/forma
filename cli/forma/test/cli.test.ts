@@ -189,6 +189,59 @@ describe("forma cli", () => {
     }
   });
 
+  it("uses OpenAI environment variables for eval provider configuration", async () => {
+    const originalFetch = globalThis.fetch;
+    const originalApiKey = process.env.OPENAI_API_KEY;
+    const originalModel = process.env.OPENAI_MODEL;
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    process.env.OPENAI_API_KEY = "env-secret";
+    process.env.OPENAI_MODEL = "gpt-env";
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          output_text: JSON.stringify({
+            summary: "OpenAI reviewed the diff.",
+            findings: [],
+            clean: true,
+          }),
+        }),
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "eval",
+        "../../packages/forma-core/conformance/review_diff.json",
+        "--provider",
+        "openai-responses",
+      ]);
+      const body = JSON.parse(String(requests[0]?.init.body));
+
+      expect(result.exitCode).toBe(1);
+      expect(JSON.parse(result.stdout).metadata.provider).toBe("openai-responses");
+      expect(requests[0]?.init.headers).toEqual({
+        "content-type": "application/json",
+        authorization: "Bearer env-secret",
+      });
+      expect(body.model).toBe("gpt-env");
+    } finally {
+      globalThis.fetch = originalFetch;
+      if (originalApiKey === undefined) {
+        delete process.env.OPENAI_API_KEY;
+      } else {
+        process.env.OPENAI_API_KEY = originalApiKey;
+      }
+      if (originalModel === undefined) {
+        delete process.env.OPENAI_MODEL;
+      } else {
+        process.env.OPENAI_MODEL = originalModel;
+      }
+    }
+  });
+
   it("compares eval reports and flags regressions", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-compare-"));
     const baseline = join(dir, "baseline.json");

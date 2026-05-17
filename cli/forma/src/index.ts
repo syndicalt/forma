@@ -146,9 +146,9 @@ function parseEvalOptions(args: string[]): EvalOptions {
   if (provider !== "http-json" && provider !== "openai-responses") {
     throw new Error(`unsupported eval provider '${provider}'`);
   }
-  const model = optionValue(args, "--model");
-  if (!model) throw new Error("--model is required for --provider http-json");
-  const apiKey = optionValue(args, "--api-key");
+  const model = optionValue(args, "--model") ?? (provider === "openai-responses" ? process.env.OPENAI_MODEL : undefined);
+  if (!model) throw new Error(`--model is required for --provider ${provider}`);
+  const apiKey = optionValue(args, "--api-key") ?? (provider === "openai-responses" ? process.env.OPENAI_API_KEY : undefined);
   if (provider === "openai-responses" && !apiKey) {
     throw new Error("--api-key is required for --provider openai-responses");
   }
