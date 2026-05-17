@@ -55,6 +55,23 @@ The JSON report includes `name`, `passed`, the runtime `result`, provider
 metadata, `durationMs`, and checks for `ok`, `output`, `trace`, `verification`,
 and `error`.
 
+Multiple conformance files can be grouped in a suite file:
+
+```json
+{
+  "fixtures": [
+    "packages/forma-core/conformance/greet_user.json",
+    "packages/forma-core/conformance/review_diff.json"
+  ]
+}
+```
+
+Run the suite with:
+
+```bash
+node cli/forma/dist/index.js eval-suite forma.eval.json > candidate-suite.json
+```
+
 Eval reports can be compared directly:
 
 ```bash

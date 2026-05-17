@@ -20,7 +20,7 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "compare" && command !== "generate")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate")) {
     return usage();
   }
 
@@ -31,6 +31,10 @@ export async function runCli(args: string[]): Promise<CliResult> {
 
     if (command === "eval") {
       return evaluateFixture(path, rest);
+    }
+
+    if (command === "eval-suite") {
+      return evaluateSuite(path, rest);
     }
 
     const source = await readFile(path, "utf8");
@@ -65,7 +69,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|compare|generate> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate> <path> [--input JSON]\n" };
 }
 
 async function generateBindings(source: string, args: string[]): Promise<CliResult> {
@@ -174,6 +178,10 @@ interface EvalFixture {
   expectedResult: Partial<Pick<FormaResult, "ok" | "output" | "trace" | "verification" | "error">>;
 }
 
+interface EvalSuite {
+  fixtures: string[];
+}
+
 interface EvalOptions {
   provider: "fixture" | "http-json" | "openai-responses";
   endpoint?: string;
@@ -182,6 +190,27 @@ interface EvalOptions {
 }
 
 async function evaluateFixture(path: string, args: string[]): Promise<CliResult> {
+  const report = await evaluateFixtureReport(path, args);
+  return {
+    exitCode: report.passed ? 0 : 1,
+    stdout: `${JSON.stringify(report, null, 2)}\n`,
+    stderr: "",
+  };
+}
+
+async function evaluateSuite(path: string, args: string[]): Promise<CliResult> {
+  const suite = JSON.parse(await readFile(path, "utf8")) as EvalSuite;
+  const reports = await Promise.all(
+    suite.fixtures.map((fixturePath) => evaluateFixtureReport(resolve(dirname(path), fixturePath), args)),
+  );
+  return {
+    exitCode: reports.every((report) => report.passed) ? 0 : 1,
+    stdout: `${JSON.stringify(reports, null, 2)}\n`,
+    stderr: "",
+  };
+}
+
+async function evaluateFixtureReport(path: string, args: string[]) {
   const fixture = JSON.parse(await readFile(path, "utf8")) as EvalFixture;
   const sourcePath = resolve(dirname(path), fixture.source);
   const source = await readFile(sourcePath, "utf8");
@@ -211,11 +240,7 @@ async function evaluateFixture(path: string, args: string[]): Promise<CliResult>
     },
     checks,
   };
-  return {
-    exitCode: report.passed ? 0 : 1,
-    stdout: `${JSON.stringify(report, null, 2)}\n`,
-    stderr: "",
-  };
+  return report;
 }
 
 function parseEvalOptions(args: string[]): EvalOptions {

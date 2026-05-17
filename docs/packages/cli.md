@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|eval|compare|generate> <path> [--input JSON]
+forma <check|run|eval|eval-suite|compare|generate> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -26,7 +26,7 @@ forma run examples/greet_user.forma --input '{"user_name":"Sam"}'
 
 `forma run` executes deterministic files and prints the JSON output. Invalid
 usage exits with code 2 and prints `usage: forma
-<check|run|eval|compare|generate> <path> [--input JSON]`. These behaviors are
+<check|run|eval|eval-suite|compare|generate> <path> [--input JSON]`. These behaviors are
 covered by `cli/forma/test/cli.test.ts`.
 
 `forma generate` reads a `.forma` file and prints host-language bindings:
@@ -55,6 +55,26 @@ forma eval packages/forma-core/conformance/greet_user.json
 Agent fixtures can use `fakeProviderOutput`; the CLI evaluates those with
 `StaticProvider` so CI does not need a model key. Eval reports include provider
 metadata and `durationMs` for CI summaries.
+
+`forma eval-suite` reads a JSON suite file and prints an array of normal eval
+reports:
+
+```json
+{
+  "fixtures": [
+    "packages/forma-core/conformance/greet_user.json",
+    "packages/forma-core/conformance/review_diff.json"
+  ]
+}
+```
+
+```bash
+forma eval-suite forma.eval.json > candidate-suite.json
+```
+
+Fixture paths are resolved relative to the suite file. The command exits with
+code 1 when any report fails, but still prints the full report array so CI can
+archive and compare it.
 
 Use `--provider http-json` to evaluate against an HTTP JSON model endpoint:
 
@@ -96,12 +116,12 @@ forma eval packages/forma-core/conformance/review_diff.json \
 forma compare baseline.json candidate.json
 ```
 
-Each file can contain one eval report or an array of eval reports. Single-report
-comparison lists `regressions` and `improvements` by check name. Suite
-comparison aggregates per-task changes with names like `review_diff:output` and
-includes a `reports` array for task-level detail. This is the CI path for
-reviewing prompt, schema, task, provider, or model changes without treating a
-raw model response as enough evidence.
+Each file can contain one eval report or an array produced by `forma
+eval-suite`. Single-report comparison lists `regressions` and `improvements` by
+check name. Suite comparison aggregates per-task changes with names like
+`review_diff:output` and includes a `reports` array for task-level detail. This
+is the CI path for reviewing prompt, schema, task, provider, or model changes
+without treating a raw model response as enough evidence.
 
 ## Input Handling
 

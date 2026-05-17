@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { runCli } from "../src/index.js";
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 
 describe("forma cli", () => {
@@ -175,6 +175,27 @@ describe("forma cli", () => {
       { name: "verification", passed: true },
       { name: "error", passed: true },
     ]);
+  });
+
+  it("evaluates a suite of conformance fixtures as JSON reports", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-eval-suite-"));
+    const suite = join(dir, "suite.json");
+    await writeFile(suite, JSON.stringify({
+      fixtures: [
+        resolve(process.cwd(), "../../packages/forma-core/conformance/greet_user.json"),
+        resolve(process.cwd(), "../../packages/forma-core/conformance/review_diff.json"),
+      ],
+    }));
+
+    const result = await runCli(["eval-suite", suite]);
+    const reports = JSON.parse(result.stdout);
+
+    expect(result.exitCode).toBe(0);
+    expect(reports).toHaveLength(2);
+    expect(reports[0].name).toBe("greet_user");
+    expect(reports[0].passed).toBe(true);
+    expect(reports[1].name).toBe("review_diff");
+    expect(reports[1].passed).toBe(true);
   });
 
   it("evaluates a fixture with an HTTP JSON provider", async () => {
