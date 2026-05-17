@@ -1,0 +1,17 @@
+{
+  "name": "forma-lang-workspace",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "check": "pnpm -r run check",
+    "test": "pnpm -r run test",
+    "test:ts": "pnpm --filter @forma-lang/forma test && pnpm --filter @forma-lang/cli test",
+    "test:tree-sitter": "pnpm --filter tree-sitter-forma test",
+    "docs:check": "node scripts/check-docs.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.4"
+  }
+}

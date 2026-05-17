@@ -1,0 +1,28 @@
+task greet_user_warmly {
+  intent "Write a short friendly greeting for the current user"
+
+  input {
+    user_name: Text?
+  }
+
+  output {
+    message: Text
+  }
+
+  agent {
+    instruction """
+    Write one concise greeting.
+    Use the user's name if present.
+    Do not ask a follow-up question.
+    """
+  }
+
+  constraints {
+    message.words <= 12
+  }
+
+  verify {
+    message.length > 0
+    message.words <= 12
+  }
+}

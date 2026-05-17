@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+testpaths = ["packages/forma-python/tests"]
+pythonpath = ["packages/forma-python/src"]
+addopts = "-q"
