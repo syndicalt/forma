@@ -84,6 +84,8 @@ The current MVP provides:
   configuration.
 - Python generated bindings include recursive `from_dict` constructors for
   runtime output dictionaries and nested schema dataclasses.
+- TypeScript generated bindings include `assert<Task>Output` validators for
+  runtime output dictionaries and nested schema arrays.
 - A first task package manifest schema, example package manifest, and
   compatibility policy for versioned task contracts.
 - Manifest checking verifies task source hashes and eval suite paths through
@@ -213,7 +215,7 @@ Exit criteria:
 The next three implementation slices should be:
 
 1. Provider adapter kit: add optional production provider packages.
-2. Schema compiler expansion: add runtime validation helpers to generated
+2. Schema compiler expansion: add Python runtime validation helpers to generated
    bindings.
 3. Registry and versioning: add lockfile and publishing guidance.
 

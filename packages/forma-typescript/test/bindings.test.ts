@@ -74,7 +74,53 @@ export interface ReviewDiffFinding {
   line?: number;
   message: string;
 }
+export function assertReviewDiffOutput(value: unknown): ReviewDiffOutput {
+  const data = assertReviewDiffRecord(value, "ReviewDiffOutput");
+  assertReviewDiffString(data.summary, "ReviewDiffOutput.summary");
+  if (!Array.isArray(data.findings)) throw new Error(\`ReviewDiffOutput.findings must be an array\`);
+  data.findings.forEach((_, index) => {
+    assertReviewDiffFinding(data.findings[index], \`ReviewDiffOutput.findings[\${index}]\`);
+  });
+  assertReviewDiffBoolean(data.clean, "ReviewDiffOutput.clean");
+  return data as ReviewDiffOutput;
+}
+
+function assertReviewDiffFinding(value: unknown, path: string): ReviewDiffFinding {
+  const data = assertReviewDiffRecord(value, path);
+  assertReviewDiffString(data.path, \`\${path}.path\`);
+  if (data.line !== undefined) {
+    assertReviewDiffNumber(data.line, \`\${path}.line\`);
+  }
+  assertReviewDiffString(data.message, \`\${path}.message\`);
+  return data as ReviewDiffFinding;
+}
+
+function assertReviewDiffRecord(value: unknown, path: string): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(\`\${path} must be an object\`);
+  return value as Record<string, unknown>;
+}
+
+function assertReviewDiffString(value: unknown, path: string): void {
+  if (typeof value !== "string") throw new Error(\`\${path} must be a string\`);
+}
+
+function assertReviewDiffNumber(value: unknown, path: string): void {
+  if (typeof value !== "number") throw new Error(\`\${path} must be a number\`);
+}
+
+function assertReviewDiffBoolean(value: unknown, path: string): void {
+  if (typeof value !== "boolean") throw new Error(\`\${path} must be a boolean\`);
+}
 `);
+  });
+
+  it("generates TypeScript output validators for nested schema fields", () => {
+    const generated = generateTypeScriptBindings(source);
+
+    expect(generated).toContain("export function assertReviewDiffOutput(value: unknown): ReviewDiffOutput");
+    expect(generated).toContain("assertReviewDiffString(data.summary, \"ReviewDiffOutput.summary\");");
+    expect(generated).toContain("assertReviewDiffFinding(data.findings[index], `ReviewDiffOutput.findings[${index}]`);");
+    expect(generated).toContain("function assertReviewDiffFinding(value: unknown, path: string): ReviewDiffFinding");
   });
 });
 

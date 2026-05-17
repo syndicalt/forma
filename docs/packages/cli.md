@@ -38,11 +38,11 @@ forma generate examples/review_diff.forma --target typescript --output src/revie
 forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts --check
 ```
 
-The TypeScript target emits interfaces. The Python target emits dataclasses.
-Both targets use the same parser and schema compiler as the runtime. Use
-`--output` to write generated bindings directly to a file; otherwise the CLI
-prints them to stdout. Use `--check` with `--output` in CI to fail when a
-checked-in generated file is out of date.
+The TypeScript target emits interfaces plus an `assert<Task>Output` validator.
+The Python target emits dataclasses. Both targets use the same parser and schema
+compiler as the runtime. Use `--output` to write generated bindings directly to
+a file; otherwise the CLI prints them to stdout. Use `--check` with `--output`
+in CI to fail when a checked-in generated file is out of date.
 
 `forma package-check` validates a versioned task package manifest. It checks the
 manifest marker, semver version, task source hashes, eval suite path, and
