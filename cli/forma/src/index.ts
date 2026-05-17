@@ -2,7 +2,14 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { FormaRuntime, HttpJsonProvider, OpenAIResponsesProvider, StaticProvider } from "@forma-lang/forma";
+import {
+  FormaRuntime,
+  generatePythonBindings,
+  generateTypeScriptBindings,
+  HttpJsonProvider,
+  OpenAIResponsesProvider,
+  StaticProvider,
+} from "@forma-lang/forma";
 import type { FormaDiagnostic, FormaResult, FormaValue, ModelProvider } from "@forma-lang/forma";
 
 export interface CliResult {
@@ -13,7 +20,7 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "compare")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "compare" && command !== "generate")) {
     return usage();
   }
 
@@ -27,6 +34,11 @@ export async function runCli(args: string[]): Promise<CliResult> {
     }
 
     const source = await readFile(path, "utf8");
+
+    if (command === "generate") {
+      return generateBindings(source, rest);
+    }
+
     const runtime = new FormaRuntime();
 
     if (command === "check") {
@@ -53,7 +65,18 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|compare> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|compare|generate> <path> [--input JSON]\n" };
+}
+
+function generateBindings(source: string, args: string[]): CliResult {
+  const target = optionValue(args, "--target");
+  if (target === "typescript") {
+    return { exitCode: 0, stdout: generateTypeScriptBindings(source), stderr: "" };
+  }
+  if (target === "python") {
+    return { exitCode: 0, stdout: generatePythonBindings(source), stderr: "" };
+  }
+  throw new Error("--target must be typescript or python");
 }
 
 interface EvalReport {

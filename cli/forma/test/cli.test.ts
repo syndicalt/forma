@@ -17,6 +17,24 @@ describe("forma cli", () => {
     expect(result.stdout).toContain("Hello, Sam!");
   });
 
+  it("generates TypeScript bindings from a Forma file", async () => {
+    const result = await runCli(["generate", "../../examples/review_diff.forma", "--target", "typescript"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("export interface ReviewDiffInput");
+    expect(result.stdout).toContain("findings: ReviewDiffFinding[];");
+    expect(result.stdout).toContain("export interface ReviewDiffFinding");
+  });
+
+  it("generates Python bindings from a Forma file", async () => {
+    const result = await runCli(["generate", "../../examples/review_diff.forma", "--target", "python"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("class ReviewDiffInput:");
+    expect(result.stdout).toContain("findings: list[ReviewDiffFinding]");
+    expect(result.stdout).toContain("class ReviewDiffFinding:");
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);

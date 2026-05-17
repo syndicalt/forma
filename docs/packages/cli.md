@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|eval|compare> <path> [--input JSON]
+forma <check|run|eval|compare|generate> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -25,8 +25,19 @@ forma run examples/greet_user.forma --input '{"user_name":"Sam"}'
 ```
 
 `forma run` executes deterministic files and prints the JSON output. Invalid
-usage exits with code 2 and prints `usage: forma <check|run|eval|compare> <path>
-[--input JSON]`. These behaviors are covered by `cli/forma/test/cli.test.ts`.
+usage exits with code 2 and prints `usage: forma
+<check|run|eval|compare|generate> <path> [--input JSON]`. These behaviors are
+covered by `cli/forma/test/cli.test.ts`.
+
+`forma generate` reads a `.forma` file and prints host-language bindings:
+
+```bash
+forma generate examples/review_diff.forma --target typescript
+forma generate examples/review_diff.forma --target python
+```
+
+The TypeScript target emits interfaces. The Python target emits dataclasses.
+Both targets use the same parser and schema compiler as the runtime.
 
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
 runs the named task, compares `ok`, `output`, `trace`, `verification`, and

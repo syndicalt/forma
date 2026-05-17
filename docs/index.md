@@ -46,6 +46,13 @@ Python dataclasses
 The `review_diff` fixture is the first coding-agent example. It models a diff
 review task with a summary, typed finding objects, and a clean flag.
 
+Generate host bindings from the same contract with:
+
+```bash
+forma generate examples/review_diff.forma --target typescript
+forma generate examples/review_diff.forma --target python
+```
+
 ## Language
 
 The language reference is split by concern:

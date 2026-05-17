@@ -53,6 +53,7 @@ The current MVP provides:
   structured objects.
 - TypeScript interface and Python dataclass generation for scalar fields and
   arrays of named structured objects.
+- CLI binding generation for TypeScript and Python.
 - CLI evaluation reports for shared conformance fixtures, including output,
   trace, verification, error checks, provider metadata, and timing.
 - CLI regression comparison across saved eval reports.

@@ -118,7 +118,8 @@ runtime = FormaRuntime(
 ## Generated Bindings
 
 Use `generate_python_bindings` when host code needs dataclasses that match the
-task `input` and `output` blocks:
+task `input` and `output` blocks. The same generator is available from the CLI
+with `forma generate examples/review_diff.forma --target python`.
 
 ```python
 from forma import generate_python_bindings

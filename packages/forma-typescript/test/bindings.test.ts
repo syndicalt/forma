@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateTypeScriptBindings } from "../src/index.js";
+import { generatePythonBindings, generateTypeScriptBindings } from "../src/index.js";
 
 const source = `task review_diff {
   intent "Review a code diff"
@@ -46,6 +46,33 @@ export interface ReviewDiffFinding {
   line?: number;
   message: string;
 }
+`);
+  });
+});
+
+describe("generatePythonBindings", () => {
+  it("generates dataclasses from Forma task fields", () => {
+    expect(generatePythonBindings(source)).toBe(`from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ReviewDiffInput:
+    diff: str
+    max_findings: float | None = None
+
+
+@dataclass(frozen=True)
+class ReviewDiffFinding:
+    path: str
+    message: str
+    line: float | None = None
+
+
+@dataclass(frozen=True)
+class ReviewDiffOutput:
+    summary: str
+    findings: list[ReviewDiffFinding]
+    clean: bool
 `);
   });
 });

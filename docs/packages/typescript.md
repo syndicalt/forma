@@ -117,7 +117,8 @@ const runtime = new FormaRuntime({
 ## Generated Bindings
 
 Use `generateTypeScriptBindings` when host code needs interfaces that match the
-task `input` and `output` blocks:
+task `input` and `output` blocks. The same generator is available from the CLI
+with `forma generate examples/review_diff.forma --target typescript`.
 
 ```ts
 import { generateTypeScriptBindings } from "@forma-lang/forma";

@@ -95,6 +95,13 @@ const types = generateTypeScriptBindings(source);
 bindings = generate_python_bindings(source)
 ```
 
+The CLI can generate the same bindings without writing host code:
+
+```bash
+forma generate examples/review_diff.forma --target typescript
+forma generate examples/review_diff.forma --target python
+```
+
 The current generator maps `Text`, `Number`, `Boolean`, arrays, and named output
 object schemas to TypeScript interfaces and Python dataclasses.
 
