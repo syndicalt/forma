@@ -198,6 +198,30 @@ describe("forma cli", () => {
     expect(reports[1].passed).toBe(true);
   });
 
+  it("evaluates a suite with an artifact summary", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-eval-suite-summary-"));
+    const suite = join(dir, "suite.json");
+    await writeFile(suite, JSON.stringify({
+      fixtures: [
+        resolve(process.cwd(), "../../packages/forma-core/conformance/greet_user.json"),
+        resolve(process.cwd(), "../../packages/forma-core/conformance/review_diff.json"),
+      ],
+    }));
+
+    const result = await runCli(["eval-suite", suite, "--summary"]);
+    const artifact = JSON.parse(result.stdout);
+
+    expect(result.exitCode).toBe(0);
+    expect(artifact.passed).toBe(true);
+    expect(artifact.summary).toEqual({
+      total: 2,
+      passed: 2,
+      failed: 0,
+      durationMs: expect.any(Number),
+    });
+    expect(artifact.reports.map((report: { name: string }) => report.name)).toEqual(["greet_user", "review_diff"]);
+  });
+
   it("evaluates a fixture with an HTTP JSON provider", async () => {
     const originalFetch = globalThis.fetch;
     const requests: Array<{ url: string; init: RequestInit }> = [];
@@ -447,6 +471,56 @@ describe("forma cli", () => {
           regressions: [],
           improvements: ["error"],
         },
+        {
+          name: "review_diff",
+          passed: false,
+          regressions: ["output"],
+          improvements: [],
+        },
+      ],
+    });
+  });
+
+  it("compares eval suite artifacts with summaries", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-compare-suite-artifact-"));
+    const baseline = join(dir, "baseline.json");
+    const candidate = join(dir, "candidate.json");
+    await writeFile(baseline, JSON.stringify({
+      passed: true,
+      summary: { total: 1, passed: 1, failed: 0, durationMs: 5 },
+      reports: [
+        {
+          name: "review_diff",
+          passed: true,
+          checks: [
+            { name: "ok", passed: true },
+            { name: "output", passed: true },
+          ],
+        },
+      ],
+    }));
+    await writeFile(candidate, JSON.stringify({
+      passed: false,
+      summary: { total: 1, passed: 0, failed: 1, durationMs: 6 },
+      reports: [
+        {
+          name: "review_diff",
+          passed: false,
+          checks: [
+            { name: "ok", passed: true },
+            { name: "output", passed: false },
+          ],
+        },
+      ],
+    }));
+
+    const result = await runCli(["compare", baseline, candidate]);
+    expect(result.exitCode).toBe(1);
+    expect(JSON.parse(result.stdout)).toEqual({
+      passed: false,
+      regressions: ["review_diff:output"],
+      improvements: [],
+      reports: [
         {
           name: "review_diff",
           passed: false,

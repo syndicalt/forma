@@ -70,11 +70,13 @@ reports:
 
 ```bash
 forma eval-suite forma.eval.json > candidate-suite.json
+forma eval-suite forma.eval.json --summary > candidate-artifact.json
 ```
 
 Fixture paths are resolved relative to the suite file. The command exits with
 code 1 when any report fails, but still prints the full report array so CI can
-archive and compare it.
+archive and compare it. Use `--summary` to wrap the reports with `passed` and
+`summary` fields containing `total`, `passed`, `failed`, and `durationMs`.
 
 Use `--provider http-json` to evaluate against an HTTP JSON model endpoint:
 
@@ -116,12 +118,13 @@ forma eval packages/forma-core/conformance/review_diff.json \
 forma compare baseline.json candidate.json
 ```
 
-Each file can contain one eval report or an array produced by `forma
-eval-suite`. Single-report comparison lists `regressions` and `improvements` by
-check name. Suite comparison aggregates per-task changes with names like
-`review_diff:output` and includes a `reports` array for task-level detail. This
-is the CI path for reviewing prompt, schema, task, provider, or model changes
-without treating a raw model response as enough evidence.
+Each file can contain one eval report, an array produced by `forma eval-suite`,
+or a summary artifact produced by `forma eval-suite --summary`. Single-report
+comparison lists `regressions` and `improvements` by check name. Suite
+comparison aggregates per-task changes with names like `review_diff:output` and
+includes a `reports` array for task-level detail. This is the CI path for
+reviewing prompt, schema, task, provider, or model changes without treating a
+raw model response as enough evidence.
 
 ## Input Handling
 

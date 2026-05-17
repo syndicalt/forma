@@ -70,7 +70,11 @@ Run the suite with:
 
 ```bash
 node cli/forma/dist/index.js eval-suite forma.eval.json > candidate-suite.json
+node cli/forma/dist/index.js eval-suite forma.eval.json --summary > candidate-artifact.json
 ```
+
+The `--summary` form wraps the report array with pass/fail totals and total
+duration, which is better suited to CI artifact summaries.
 
 Eval reports can be compared directly:
 
@@ -79,11 +83,11 @@ node cli/forma/dist/index.js compare baseline.json candidate.json
 ```
 
 The compare command flags any check that passed in the baseline and failed in
-the candidate. Each input file can contain one report or an array of reports,
-so CI can compare a full fixture suite and get aggregate regressions such as
-`review_diff:output`. That makes task-contract changes reviewable in CI: a
-prompt, schema, tool permission, provider, or model update can ship with an
-artifact that shows which behavior improved or regressed.
+the candidate. Each input file can contain one report, an array of reports, or a
+summary artifact, so CI can compare a full fixture suite and get aggregate
+regressions such as `review_diff:output`. That makes task-contract changes
+reviewable in CI: a prompt, schema, tool permission, provider, or model update
+can ship with an artifact that shows which behavior improved or regressed.
 
 The `review_diff` conformance file is the first coding-agent fixture:
 

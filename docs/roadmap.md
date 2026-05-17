@@ -59,7 +59,8 @@ The current MVP provides:
 - CLI evaluation reports for shared conformance fixtures, including output,
   trace, verification, error checks, provider metadata, and timing.
 - CLI regression comparison across saved eval reports and eval report suites.
-- CLI eval suite artifacts from JSON files that list conformance fixtures.
+- CLI eval suite artifacts with optional pass/fail summaries from JSON files
+  that list conformance fixtures.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
@@ -191,7 +192,8 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: generate richer Python models beyond dataclasses
    for nested `.forma` output blocks.
-2. Evaluation fixtures: add richer suite artifact summaries and CI examples.
+2. Evaluation fixtures: add CI examples for saving and comparing eval suite
+   artifacts.
 3. Provider adapter kit: add configurable provider profiles and optional
    production provider packages.
 

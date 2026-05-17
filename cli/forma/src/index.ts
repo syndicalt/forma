@@ -107,6 +107,17 @@ interface EvalReport {
   checks?: Array<{ name: string; passed: boolean }>;
 }
 
+interface EvalSuiteArtifact {
+  passed: boolean;
+  summary: {
+    total: number;
+    passed: number;
+    failed: number;
+    durationMs: number;
+  };
+  reports: EvalReport[];
+}
+
 interface ReportComparison {
   name: string;
   passed: boolean;
@@ -119,11 +130,11 @@ async function compareReports(baselinePath: string, candidatePath: string | unde
     return usage();
   }
 
-  const baselineRaw = JSON.parse(await readFile(baselinePath, "utf8")) as EvalReport | EvalReport[];
-  const candidateRaw = JSON.parse(await readFile(candidatePath, "utf8")) as EvalReport | EvalReport[];
+  const baselineRaw = JSON.parse(await readFile(baselinePath, "utf8")) as EvalReport | EvalReport[] | EvalSuiteArtifact;
+  const candidateRaw = JSON.parse(await readFile(candidatePath, "utf8")) as EvalReport | EvalReport[] | EvalSuiteArtifact;
   const baselineReports = normalizeReportFile(baselineRaw);
   const candidateReports = normalizeReportFile(candidateRaw);
-  if (baselineReports.length === 1 && candidateReports.length === 1) {
+  if (isSingleReportFile(baselineRaw) && isSingleReportFile(candidateRaw)) {
     const report = compareReport(baselineReports[0], candidateReports[0]);
     return {
       exitCode: report.passed ? 0 : 1,
@@ -152,8 +163,14 @@ async function compareReports(baselinePath: string, candidatePath: string | unde
   };
 }
 
-function normalizeReportFile(report: EvalReport | EvalReport[]): EvalReport[] {
-  return Array.isArray(report) ? report : [report];
+function normalizeReportFile(report: EvalReport | EvalReport[] | EvalSuiteArtifact): EvalReport[] {
+  if (Array.isArray(report)) return report;
+  if ("reports" in report) return report.reports;
+  return [report];
+}
+
+function isSingleReportFile(report: EvalReport | EvalReport[] | EvalSuiteArtifact): report is EvalReport {
+  return !Array.isArray(report) && !("reports" in report);
 }
 
 function compareReport(baseline: EvalReport | undefined, candidate: EvalReport | undefined): ReportComparison {
@@ -200,11 +217,30 @@ async function evaluateFixture(path: string, args: string[]): Promise<CliResult>
 
 async function evaluateSuite(path: string, args: string[]): Promise<CliResult> {
   const suite = JSON.parse(await readFile(path, "utf8")) as EvalSuite;
+  const startedAt = Date.now();
   const reports = await Promise.all(
     suite.fixtures.map((fixturePath) => evaluateFixtureReport(resolve(dirname(path), fixturePath), args)),
   );
+  const passed = reports.every((report) => report.passed);
+  if (args.includes("--summary")) {
+    const artifact: EvalSuiteArtifact = {
+      passed,
+      summary: {
+        total: reports.length,
+        passed: reports.filter((report) => report.passed).length,
+        failed: reports.filter((report) => !report.passed).length,
+        durationMs: Date.now() - startedAt,
+      },
+      reports,
+    };
+    return {
+      exitCode: passed ? 0 : 1,
+      stdout: `${JSON.stringify(artifact, null, 2)}\n`,
+      stderr: "",
+    };
+  }
   return {
-    exitCode: reports.every((report) => report.passed) ? 0 : 1,
+    exitCode: passed ? 0 : 1,
     stdout: `${JSON.stringify(reports, null, 2)}\n`,
     stderr: "",
   };
