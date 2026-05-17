@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FormaDiagnostic",
+  "type": "object",
+  "required": ["severity", "code", "message", "source", "start", "end"],
+  "properties": {
+    "severity": { "enum": ["error", "warning", "info"] },
+    "code": { "type": "string" },
+    "message": { "type": "string" },
+    "source": { "type": "string" },
+    "start": { "type": "object" },
+    "end": { "type": "object" }
+  }
+}

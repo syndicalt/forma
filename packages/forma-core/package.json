@@ -1,0 +1,11 @@
+{
+  "name": "@forma-lang/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": ["fixtures", "conformance", "schema"],
+  "scripts": {
+    "check": "node --check package.json",
+    "test": "node -e \"console.log('forma-core fixtures only')\""
+  }
+}

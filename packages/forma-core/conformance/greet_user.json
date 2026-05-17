@@ -1,0 +1,39 @@
+{
+  "name": "greet_user",
+  "source": "../fixtures/greet_user.forma",
+  "input": {
+    "user_name": "Sam"
+  },
+  "expectedIr": {
+    "tasks": [
+      {
+        "name": "greet_user",
+        "intent": "Greet the current user",
+        "input": {
+          "user_name": {
+            "type": "Text",
+            "optional": true
+          }
+        },
+        "output": {
+          "message": {
+            "type": "Text",
+            "optional": false
+          }
+        },
+        "hasCompute": true,
+        "hasAgent": false,
+        "verify": ["message.length > 0"]
+      }
+    ]
+  },
+  "expectedResult": {
+    "ok": true,
+    "output": {
+      "message": "Hello, Sam!"
+    },
+    "verification": {
+      "ok": true
+    }
+  }
+}

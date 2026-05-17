@@ -1,0 +1,43 @@
+{
+  "name": "greet_user_warmly",
+  "source": "../fixtures/greet_user_warmly.forma",
+  "input": {
+    "user_name": "Sam"
+  },
+  "fakeProviderOutput": {
+    "message": "Hello, Sam. Good to see you."
+  },
+  "expectedIr": {
+    "tasks": [
+      {
+        "name": "greet_user_warmly",
+        "intent": "Write a short friendly greeting for the current user",
+        "input": {
+          "user_name": {
+            "type": "Text",
+            "optional": true
+          }
+        },
+        "output": {
+          "message": {
+            "type": "Text",
+            "optional": false
+          }
+        },
+        "hasCompute": false,
+        "hasAgent": true,
+        "constraints": ["message.words <= 12"],
+        "verify": ["message.length > 0", "message.words <= 12"]
+      }
+    ]
+  },
+  "expectedResult": {
+    "ok": true,
+    "output": {
+      "message": "Hello, Sam. Good to see you."
+    },
+    "verification": {
+      "ok": true
+    }
+  }
+}

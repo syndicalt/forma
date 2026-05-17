@@ -1,0 +1,21 @@
+task greet_user {
+  intent "Greet the current user"
+
+  input {
+    user_name: Text?
+  }
+
+  output {
+    message: Text
+  }
+
+  compute {
+    message = if user_name
+      then "Hello, {user_name}!"
+      else "Hello, world!"
+  }
+
+  verify {
+    message.length > 0
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FormaResult",
+  "type": "object",
+  "required": ["ok", "output", "trace", "diagnostics", "verification"],
+  "properties": {
+    "ok": { "type": "boolean" },
+    "output": { "type": "object" },
+    "trace": { "type": "array" },
+    "diagnostics": { "type": "array" },
+    "verification": { "type": "object" },
+    "error": { "type": ["string", "null"] }
+  }
+}
