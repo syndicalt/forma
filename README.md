@@ -100,6 +100,7 @@ The CLI can generate the same bindings without writing host code:
 ```bash
 forma generate examples/review_diff.forma --target typescript
 forma generate examples/review_diff.forma --target python
+forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts
 ```
 
 The current generator maps `Text`, `Number`, `Boolean`, arrays, and named output

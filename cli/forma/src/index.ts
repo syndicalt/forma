@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -68,15 +68,22 @@ function usage(): CliResult {
   return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|compare|generate> <path> [--input JSON]\n" };
 }
 
-function generateBindings(source: string, args: string[]): CliResult {
+async function generateBindings(source: string, args: string[]): Promise<CliResult> {
   const target = optionValue(args, "--target");
+  const outputPath = optionValue(args, "--output");
+  let generated: string;
   if (target === "typescript") {
-    return { exitCode: 0, stdout: generateTypeScriptBindings(source), stderr: "" };
+    generated = generateTypeScriptBindings(source);
+  } else if (target === "python") {
+    generated = generatePythonBindings(source);
+  } else {
+    throw new Error("--target must be typescript or python");
   }
-  if (target === "python") {
-    return { exitCode: 0, stdout: generatePythonBindings(source), stderr: "" };
+  if (outputPath) {
+    await writeFile(outputPath, generated, "utf8");
+    return { exitCode: 0, stdout: "", stderr: "" };
   }
-  throw new Error("--target must be typescript or python");
+  return { exitCode: 0, stdout: generated, stderr: "" };
 }
 
 interface EvalReport {

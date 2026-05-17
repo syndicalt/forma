@@ -34,10 +34,13 @@ covered by `cli/forma/test/cli.test.ts`.
 ```bash
 forma generate examples/review_diff.forma --target typescript
 forma generate examples/review_diff.forma --target python
+forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts
 ```
 
 The TypeScript target emits interfaces. The Python target emits dataclasses.
-Both targets use the same parser and schema compiler as the runtime.
+Both targets use the same parser and schema compiler as the runtime. Use
+`--output` to write generated bindings directly to a file; otherwise the CLI
+prints them to stdout.
 
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
 runs the named task, compares `ok`, `output`, `trace`, `verification`, and

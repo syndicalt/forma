@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { runCli } from "../src/index.js";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -33,6 +33,22 @@ describe("forma cli", () => {
     expect(result.stdout).toContain("class ReviewDiffInput:");
     expect(result.stdout).toContain("findings: list[ReviewDiffFinding]");
     expect(result.stdout).toContain("class ReviewDiffFinding:");
+  });
+
+  it("writes generated bindings to an output file", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-generate-"));
+    const output = join(dir, "review-diff.ts");
+    const result = await runCli([
+      "generate",
+      "../../examples/review_diff.forma",
+      "--target",
+      "typescript",
+      "--output",
+      output,
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "", stderr: "" });
+    expect(await readFile(output, "utf8")).toContain("export interface ReviewDiffOutput");
   });
 
   it("evaluates a deterministic conformance fixture as JSON", async () => {
