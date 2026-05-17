@@ -152,6 +152,13 @@ interface ChangeDetail {
   name?: string;
   field: string;
   severity: "breaking" | "review" | "environment";
+  details?: FieldChangeDetails;
+}
+
+interface FieldChangeDetails {
+  added?: string[];
+  removed?: string[];
+  changed?: string[];
 }
 
 async function compareReports(baselinePath: string, args: string[]): Promise<CliResult> {
@@ -248,6 +255,7 @@ function compareReport(baseline: EvalReport | undefined, candidate: EvalReport |
     kind: "contract",
     field,
     severity: contractSeverity(field, baseline?.metadata?.contract, candidate?.metadata?.contract),
+    ...contractChangeDetails(field, baseline?.metadata?.contract, candidate?.metadata?.contract),
   }));
   return {
     name: candidate?.name || baseline?.name || "unknown",
@@ -275,6 +283,83 @@ function onlyAddsOptionalFields(
   }
   const added = Object.keys(candidate).filter((name) => !(name in baseline));
   return added.length > 0 && added.every((name) => candidate[name]?.optional === true);
+}
+
+function contractChangeDetails(
+  field: string,
+  baseline: EvalContract | undefined,
+  candidate: EvalContract | undefined,
+): { details?: FieldChangeDetails } {
+  if (!baseline || !candidate) return {};
+  if (field === "input" || field === "output") {
+    return optionalDetails(diffRecordFields(baseline[field], candidate[field]));
+  }
+  if (field === "schemas") {
+    return optionalDetails(diffSchemas(baseline.schemas, candidate.schemas));
+  }
+  if (field === "permissions" || field === "verify") {
+    return optionalDetails(diffStringList(baseline[field], candidate[field]));
+  }
+  return {};
+}
+
+function optionalDetails(details: FieldChangeDetails): { details?: FieldChangeDetails } {
+  return Object.keys(details).length > 0 ? { details } : {};
+}
+
+function diffRecordFields(
+  baseline: Record<string, FormaField>,
+  candidate: Record<string, FormaField>,
+  prefix = "",
+): FieldChangeDetails {
+  const names = Array.from(new Set([...Object.keys(baseline), ...Object.keys(candidate)])).sort();
+  return collectDetails(names.map((name) => {
+    const path = `${prefix}${name}`;
+    if (!(name in baseline)) return { added: path };
+    if (!(name in candidate)) return { removed: path };
+    if (!deepEqual(baseline[name], candidate[name])) return { changed: path };
+    return {};
+  }));
+}
+
+function diffSchemas(
+  baseline: Record<string, Record<string, FormaField>>,
+  candidate: Record<string, Record<string, FormaField>>,
+): FieldChangeDetails {
+  const names = Array.from(new Set([...Object.keys(baseline), ...Object.keys(candidate)])).sort();
+  return collectDetails(names.map((name) => {
+    if (!(name in baseline)) return { added: name };
+    if (!(name in candidate)) return { removed: name };
+    return diffRecordFields(baseline[name]!, candidate[name]!, `${name}.`);
+  }));
+}
+
+function diffStringList(baseline: string[], candidate: string[]): FieldChangeDetails {
+  const baselineSet = new Set(baseline);
+  const candidateSet = new Set(candidate);
+  const added = candidate.filter((item) => !baselineSet.has(item)).sort();
+  const removed = baseline.filter((item) => !candidateSet.has(item)).sort();
+  return collectDetails([
+    {
+      ...(added.length > 0 ? { added } : {}),
+      ...(removed.length > 0 ? { removed } : {}),
+    },
+  ]);
+}
+
+function collectDetails(items: Array<{ added?: string | string[]; removed?: string | string[]; changed?: string | string[] }>): FieldChangeDetails {
+  const details: FieldChangeDetails = {};
+  for (const item of items) {
+    appendDetail(details, "added", item.added);
+    appendDetail(details, "removed", item.removed);
+    appendDetail(details, "changed", item.changed);
+  }
+  return details;
+}
+
+function appendDetail(details: FieldChangeDetails, key: keyof FieldChangeDetails, value: string | string[] | undefined): void {
+  if (!value) return;
+  details[key] = [...(details[key] ?? []), ...(Array.isArray(value) ? value : [value])];
 }
 
 function compareContracts(baseline: EvalContract | undefined, candidate: EvalContract | undefined): string[] {

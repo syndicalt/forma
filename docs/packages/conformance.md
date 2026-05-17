@@ -100,6 +100,9 @@ schema contract changes; `review` for additive optional output fields,
 permission changes, and other contract changes; and `environment` for provider
 settings. Use `--fail-on` with one or more comma-separated severities to turn
 those informational changes into a failing compare result.
+Contract changes can include a `details` object that lists exact `added`,
+`removed`, and `changed` field paths, including schema paths such as
+`Finding.message`.
 That makes task-contract changes reviewable in CI: a prompt, schema, tool
 permission, provider, or model update can ship with an artifact that shows which
 behavior improved or regressed.

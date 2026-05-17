@@ -674,7 +674,13 @@ describe("forma cli", () => {
       contractChanges: ["review_diff:sourceSha256", "review_diff:output"],
       changes: [
         { kind: "contract", name: "review_diff", field: "sourceSha256", severity: "review" },
-        { kind: "contract", name: "review_diff", field: "output", severity: "breaking" },
+        {
+          kind: "contract",
+          name: "review_diff",
+          field: "output",
+          severity: "breaking",
+          details: { added: ["clean"] },
+        },
       ],
       reports: [
         {
@@ -685,7 +691,7 @@ describe("forma cli", () => {
           contractChanges: ["sourceSha256", "output"],
           changes: [
             { kind: "contract", field: "sourceSha256", severity: "review" },
-            { kind: "contract", field: "output", severity: "breaking" },
+            { kind: "contract", field: "output", severity: "breaking", details: { added: ["clean"] } },
           ],
         },
       ],
@@ -747,7 +753,13 @@ describe("forma cli", () => {
       improvements: [],
       contractChanges: ["review_diff:output"],
       changes: [
-        { kind: "contract", name: "review_diff", field: "output", severity: "breaking" },
+        {
+          kind: "contract",
+          name: "review_diff",
+          field: "output",
+          severity: "breaking",
+          details: { added: ["clean"] },
+        },
       ],
       failedOn: ["breaking"],
       reports: [
@@ -758,7 +770,7 @@ describe("forma cli", () => {
           improvements: [],
           contractChanges: ["output"],
           changes: [
-            { kind: "contract", field: "output", severity: "breaking" },
+            { kind: "contract", field: "output", severity: "breaking", details: { added: ["clean"] } },
           ],
         },
       ],
@@ -801,7 +813,90 @@ describe("forma cli", () => {
     const result = await runCli(["compare", baseline, candidate, "--fail-on", "breaking"]);
     expect(result.exitCode).toBe(0);
     expect(JSON.parse(result.stdout).changes).toEqual([
-      { kind: "contract", name: "review_diff", field: "output", severity: "review" },
+      {
+        kind: "contract",
+        name: "review_diff",
+        field: "output",
+        severity: "review",
+        details: { added: ["notes"] },
+      },
+    ]);
+  });
+
+  it("reports exact added, removed, and changed contract fields", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-compare-field-details-"));
+    const baseline = join(dir, "baseline.json");
+    const candidate = join(dir, "candidate.json");
+    const baselineContract = {
+      source: "packages/forma-core/fixtures/review_diff.forma",
+      sourceSha256: "a".repeat(64),
+      task: "review_diff",
+      intent: "Review a code diff",
+      input: { diff: { type: "Text", array: false, optional: false } },
+      output: {
+        summary: { type: "Text", array: false, optional: false },
+        clean: { type: "Boolean", array: false, optional: false },
+        score: { type: "Number", array: false, optional: true },
+      },
+      schemas: {
+        Finding: {
+          path: { type: "Text", array: false, optional: false },
+          line: { type: "Number", array: false, optional: true },
+        },
+      },
+      permissions: ["read"],
+      verify: [],
+    };
+    const candidateContract = {
+      ...baselineContract,
+      output: {
+        summary: { type: "Text", array: false, optional: false },
+        clean: { type: "Boolean", array: false, optional: true },
+        notes: { type: "Text", array: false, optional: true },
+      },
+      schemas: {
+        Finding: {
+          path: { type: "Text", array: false, optional: false },
+          line: { type: "Number", array: false, optional: false },
+          message: { type: "Text", array: false, optional: false },
+        },
+      },
+    };
+    await writeFile(baseline, JSON.stringify({
+      passed: true,
+      summary: { total: 1, passed: 1, failed: 0, durationMs: 5 },
+      reports: [{ name: "review_diff", passed: true, metadata: { provider: "static", durationMs: 1, contract: baselineContract }, checks: [] }],
+    }));
+    await writeFile(candidate, JSON.stringify({
+      passed: true,
+      summary: { total: 1, passed: 1, failed: 0, durationMs: 6 },
+      reports: [{ name: "review_diff", passed: true, metadata: { provider: "static", durationMs: 1, contract: candidateContract }, checks: [] }],
+    }));
+
+    const result = await runCli(["compare", baseline, candidate]);
+    expect(result.exitCode).toBe(0);
+    expect(JSON.parse(result.stdout).changes).toEqual([
+      {
+        kind: "contract",
+        name: "review_diff",
+        field: "output",
+        severity: "breaking",
+        details: {
+          added: ["notes"],
+          removed: ["score"],
+          changed: ["clean"],
+        },
+      },
+      {
+        kind: "contract",
+        name: "review_diff",
+        field: "schemas",
+        severity: "breaking",
+        details: {
+          added: ["Finding.message"],
+          changed: ["Finding.line"],
+        },
+      },
     ]);
   });
 
@@ -838,7 +933,13 @@ describe("forma cli", () => {
     const result = await runCli(["compare", baseline, candidate, "--fail-on", "breaking"]);
     expect(result.exitCode).toBe(0);
     expect(JSON.parse(result.stdout).changes).toEqual([
-      { kind: "contract", name: "review_diff", field: "permissions", severity: "review" },
+      {
+        kind: "contract",
+        name: "review_diff",
+        field: "permissions",
+        severity: "review",
+        details: { added: ["test"] },
+      },
     ]);
   });
 

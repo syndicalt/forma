@@ -73,6 +73,8 @@ The current MVP provides:
 - Compare can fail on selected change severities with `--fail-on`.
 - Compatibility severity distinguishes additive optional output fields and
   permission changes from breaking contract changes.
+- Compare contract changes include exact added, removed, and changed field paths
+  for input, output, schema, permission, and verify diffs.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
@@ -204,10 +206,10 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: generate richer Python models beyond dataclasses
    for nested `.forma` output blocks.
-2. Evaluation fixtures: add compatibility details for exact added, removed, and
-   changed fields.
-3. Provider adapter kit: add configurable provider profiles and optional
+2. Provider adapter kit: add configurable provider profiles and optional
    production provider packages.
+3. Registry and versioning: define the first task-package metadata and
+   compatibility policy document.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

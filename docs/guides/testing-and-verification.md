@@ -101,6 +101,8 @@ For suite summary artifacts, it reports informational `settingChanges` when the
 provider, endpoint, or model changed. The `changes` array adds machine-readable
 severity labels: `breaking`, `review`, or `environment`. Additive optional
 output fields and permission changes are classified as `review`.
+Contract changes can include exact `details.added`, `details.removed`, and
+`details.changed` field paths for reviewing the compatibility impact.
 Use `--fail-on` to fail CI for selected severity labels in addition to normal
 check regressions.
 Use that as a PR gate for coding-agent task changes.

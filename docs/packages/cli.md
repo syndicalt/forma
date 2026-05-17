@@ -136,11 +136,14 @@ summary artifacts, compare also reports informational `settingChanges` such as
 array with `kind`, `field`, and `severity`; output, input, and schema contract
 changes are marked `breaking`, additive optional output fields and permission
 changes are marked `review`, other contract changes are marked `review`, and
-provider settings are marked `environment`. This is the CI path for reviewing
-prompt, schema, task, provider, or model changes without treating a raw model
-response as enough evidence. Use `--fail-on` with a comma-separated list of
-severities such as `breaking`, `environment`, or `review` to fail CI for
-selected change classes in addition to check regressions.
+provider settings are marked `environment`. Contract changes can also include a
+`details` object with exact `added`, `removed`, and `changed` field paths, such
+as `notes` for an output field or `Finding.message` for a schema field. This is
+the CI path for reviewing prompt, schema, task, provider, or model changes
+without treating a raw model response as enough evidence. Use `--fail-on` with a
+comma-separated list of severities such as `breaking`, `environment`, or
+`review` to fail CI for selected change classes in addition to check
+regressions.
 
 ## Input Handling
 
