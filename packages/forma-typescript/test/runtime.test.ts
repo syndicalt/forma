@@ -266,6 +266,57 @@ describe("FormaRuntime", () => {
     expect(result.trace).toContainEqual({ step: "permission_denied", detail: "search" });
   });
 
+  it("maps provider test tool calls to host runTest hooks", async () => {
+    const runtime = new FormaRuntime({
+      tools: {
+        async runTest(command) {
+          expect(command).toBe("pnpm test");
+          return { ok: true, output: "tests passed" };
+        },
+      },
+      modelProvider: {
+        async runAgent(input) {
+          const result = await input.tools.runTest("pnpm test");
+          return { message: result.output };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(agentSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "agent.forma",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.output).toEqual({ message: "tests passed" });
+    expect(result.trace).toContainEqual({ step: "tool", detail: "test:pnpm test" });
+  });
+
+  it("denies test tool calls when test permission is undeclared", async () => {
+    const runtime = new FormaRuntime({
+      tools: {
+        async runTest() {
+          throw new Error("host test should not run");
+        },
+      },
+      modelProvider: {
+        async runAgent(input) {
+          await input.tools.runTest("pnpm test");
+          return { summary: "No issues", finding_count: 0, clean: true };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(metricsSource, "summarize_metrics", {
+      input: { diff: "diff --git a/file.ts b/file.ts" },
+      sourceName: "metrics.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F4001: permission 'test' is not declared");
+    expect(result.trace).toContainEqual({ step: "permission_denied", detail: "test" });
+  });
+
   it("executes a named task from a multi-task source", async () => {
     const runtime = new FormaRuntime({
       modelProvider: new StaticProvider({ message: "Hello, Sam. Good to see you." }),

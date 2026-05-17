@@ -13,6 +13,9 @@ class PermissionTools(Protocol):
     def search_text(self, query: str) -> list[str]:
         ...
 
+    def run_test(self, command: str) -> dict[str, object]:
+        ...
+
 
 class ModelProvider(Protocol):
     def run_agent(

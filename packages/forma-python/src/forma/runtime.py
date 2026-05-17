@@ -109,3 +109,12 @@ class _PermissionTools:
         matches = search_text(query)
         self.trace.append({"step": "tool", "detail": f"search:{query}"})
         return [str(match) for match in matches]
+
+    def run_test(self, command: str) -> dict[str, object]:
+        self.require("test")
+        run_test = self.tools.get("run_test")
+        if not callable(run_test):
+            raise ValueError("F4002: test tool is not configured")
+        result = run_test(command)
+        self.trace.append({"step": "tool", "detail": f"test:{command}"})
+        return dict(result)

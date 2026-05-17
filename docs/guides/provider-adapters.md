@@ -164,6 +164,7 @@ const runtime = new FormaRuntime({
   tools: {
     readText: async (path) => readFile(path, "utf8"),
     searchText: async (query) => searchWorkspace(query),
+    runTest: async (command) => runCommand(command),
   },
 });
 ```
@@ -174,6 +175,7 @@ runtime = FormaRuntime(
     tools={
         "read_text": lambda path: Path(path).read_text(encoding="utf8"),
         "search_text": lambda query: search_workspace(query),
+        "run_test": lambda command: run_command(command),
     },
 )
 ```
@@ -181,8 +183,9 @@ runtime = FormaRuntime(
 Providers call `tools.readText("README.md")` in TypeScript or
 `tools.read_text("README.md")` in Python. Providers call
 `tools.searchText("FormaRuntime")` in TypeScript or
-`tools.search_text("FormaRuntime")` in Python. The runtime records each tool
-call in `trace`.
+`tools.search_text("FormaRuntime")` in Python. Providers call
+`tools.runTest("pnpm test")` in TypeScript or `tools.run_test("pytest")` in
+Python. The runtime records each tool call in `trace`.
 
 ## Verification
 

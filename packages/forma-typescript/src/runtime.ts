@@ -7,6 +7,7 @@ import { validateProgram } from "./validator.js";
 export interface ToolHost {
   readText?(path: string): string | Promise<string>;
   searchText?(query: string): string[] | Promise<string[]>;
+  runTest?(command: string): { ok: boolean; output: string } | Promise<{ ok: boolean; output: string }>;
 }
 
 export class FormaRuntime {
@@ -124,6 +125,15 @@ export class FormaRuntime {
         const matches = await runtimeTools.searchText(query);
         trace.push({ step: "tool", detail: `search:${query}` });
         return matches;
+      },
+      async runTest(command: string): Promise<{ ok: boolean; output: string }> {
+        tools.require("test");
+        if (!runtimeTools.runTest) {
+          throw new Error("F4002: test tool is not configured");
+        }
+        const result = await runtimeTools.runTest(command);
+        trace.push({ step: "tool", detail: `test:${command}` });
+        return result;
       },
     };
     return this.options.modelProvider.runAgent({ instruction, values, permissions, tools });

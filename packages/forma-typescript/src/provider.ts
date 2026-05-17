@@ -4,6 +4,7 @@ export interface PermissionTools {
   require(permission: string): void;
   readText(path: string): Promise<string>;
   searchText(query: string): Promise<string[]>;
+  runTest(command: string): Promise<{ ok: boolean; output: string }>;
 }
 
 export interface ModelProvider {

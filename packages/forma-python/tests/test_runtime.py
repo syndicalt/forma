@@ -252,6 +252,50 @@ def test_denies_search_tool_calls_when_search_permission_is_undeclared():
     assert {"step": "permission_denied", "detail": "search"} in result.trace
 
 
+def test_maps_provider_test_tool_calls_to_host_run_test_hooks():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            result = tools.run_test("pytest")
+            return {"message": result["output"]}
+
+    runtime = FormaRuntime(
+        model_provider=ToolUsingProvider(),
+        tools={"run_test": lambda command: {"ok": True, "output": "tests passed"}},
+    )
+    result = runtime.run_task(
+        AGENT_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="agent.forma",
+    )
+
+    assert result.ok is True
+    assert result.output == {"message": "tests passed"}
+    assert {"step": "tool", "detail": "test:pytest"} in result.trace
+
+
+def test_denies_test_tool_calls_when_test_permission_is_undeclared():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            tools.run_test("pytest")
+            return {"summary": "No issues", "finding_count": 0, "clean": True}
+
+    runtime = FormaRuntime(
+        model_provider=ToolUsingProvider(),
+        tools={"run_test": lambda command: (_ for _ in ()).throw(RuntimeError("host test should not run"))},
+    )
+    result = runtime.run_task(
+        METRICS_SOURCE,
+        "summarize_metrics",
+        input={"diff": "diff --git a/file.py b/file.py"},
+        source_name="metrics.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F4001: permission 'test' is not declared"
+    assert {"step": "permission_denied", "detail": "test"} in result.trace
+
+
 def test_executes_named_task_from_multi_task_source():
     runtime = FormaRuntime(
         model_provider=StaticProvider({"message": "Hello, Sam. Good to see you."})
