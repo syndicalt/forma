@@ -1,10 +1,15 @@
 # Forma Language Overview
 
-Forma describes one or more typed tasks that a host runtime can parse, validate,
-and execute. The MVP runtimes are the Python package in
-`packages/forma-python` and the TypeScript package in
-`packages/forma-typescript`. Both expose a `FormaRuntime` that runs source text
-with host-provided input and returns a structured `FormaResult`.
+Forma describes typed tasks that a host runtime can validate and execute. The
+Tree-sitter grammar accepts repeated `task` declarations in one source file, but
+the current Python and TypeScript runtimes execute the first task in a source
+string or file. The shipped examples use one task per file. Multi-task runtime
+selection is not shipped in the MVP.
+
+The MVP runtimes are the Python package in `packages/forma-python` and the
+TypeScript package in `packages/forma-typescript`. Both expose a `FormaRuntime`
+that runs source text with host-provided input and returns a structured
+`FormaResult`.
 
 A task has an `intent`, `input`, `output`, and either deterministic `compute`
 behavior or an `agent` block. Deterministic tasks currently support the
