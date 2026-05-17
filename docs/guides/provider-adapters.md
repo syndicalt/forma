@@ -253,7 +253,7 @@ Response body:
 {
   "output": {
     "summary": "No issues found.",
-    "finding_count": 0,
+    "findings": [],
     "clean": true
   }
 }

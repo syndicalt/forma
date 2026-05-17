@@ -12,15 +12,18 @@
         "input": {
           "user_name": {
             "type": "Text",
+            "array": false,
             "optional": true
           }
         },
         "output": {
           "message": {
             "type": "Text",
+            "array": false,
             "optional": false
           }
         },
+        "schemas": {},
         "hasCompute": true,
         "hasAgent": false,
         "verify": ["message.length > 0"]

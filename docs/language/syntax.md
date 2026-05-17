@@ -2,8 +2,8 @@
 
 Forma source is built from `task` declarations. The Tree-sitter grammar accepts
 task members in a task body, while the MVP runtimes validate the subset they can
-execute. Fields use `name: Type` or `name: Type?`; the shipped fixtures use
-`Text` and optional `Text?`.
+execute. Fields use `name: Type`, `name: Type?`, `name: Type[]`, or
+`name: Type[]?`. The shipped scalar types are `Text`, `Number`, and `Boolean`.
 
 ## Task Declaration
 
@@ -19,7 +19,8 @@ Task names use identifiers such as `greet_user` or `greet_user_warmly`.
 
 ## Field Declarations
 
-Input and output fields use `name: Type` or `name: Type?`:
+Input and output fields use `name: Type`, `name: Type?`, `name: Type[]`, or
+`name: Type[]?`:
 
 ```forma
 input {
@@ -31,8 +32,27 @@ output {
 }
 ```
 
-`Text?` means the host may omit the field. The current runtimes validate field
-shape, while deeper type conversion is intentionally small in the MVP.
+`Text?` means the host may omit the field. `Finding[]` means the field must be
+an array. Output blocks can define named object schemas for structured provider
+results:
+
+```forma
+output {
+  summary: Text
+  findings: Finding[]
+  clean: Boolean
+
+  object Finding {
+    path: Text
+    line: Number?
+    message: Text
+  }
+}
+```
+
+The current runtimes validate scalar fields, arrays, and named output object
+schemas. Input object schemas are parsed by the grammar, but runtime validation
+currently focuses on provider output.
 
 ## Task Members
 

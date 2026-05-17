@@ -77,6 +77,32 @@ const metricsSource = `task summarize_metrics {
   }
 }`;
 
+const reviewFindingsSource = `task review_diff {
+  intent "Review a code diff"
+
+  input {
+    diff: Text
+  }
+
+  output {
+    summary: Text
+    findings: Finding[]
+    clean: Boolean
+
+    object Finding {
+      path: Text
+      line: Number?
+      message: Text
+    }
+  }
+
+  agent {
+    instruction """
+    Return structured review findings.
+    """
+  }
+}`;
+
 const editSource = `task update_file {
   intent "Update a source file"
 
@@ -488,5 +514,63 @@ describe("FormaRuntime", () => {
 
     expect(result.ok).toBe(false);
     expect(result.error).toBe("F3004: output field 'finding_count' must be Number");
+  });
+
+  it("validates arrays of structured output objects", async () => {
+    const runtime = new FormaRuntime({
+      modelProvider: new StaticProvider({
+        summary: "One issue found.",
+        findings: [
+          {
+            path: "src/review.ts",
+            line: 42,
+            message: "Handle the empty diff case.",
+          },
+        ],
+        clean: false,
+      }),
+    });
+
+    const result = await runtime.runTask(reviewFindingsSource, "review_diff", {
+      input: { diff: "diff --git a/src/review.ts b/src/review.ts" },
+      sourceName: "review.forma",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.output).toEqual({
+      summary: "One issue found.",
+      findings: [
+        {
+          path: "src/review.ts",
+          line: 42,
+          message: "Handle the empty diff case.",
+        },
+      ],
+      clean: false,
+    });
+  });
+
+  it("fails when structured output object fields use the wrong type", async () => {
+    const runtime = new FormaRuntime({
+      modelProvider: new StaticProvider({
+        summary: "One issue found.",
+        findings: [
+          {
+            path: "src/review.ts",
+            line: "42",
+            message: "Handle the empty diff case.",
+          },
+        ],
+        clean: false,
+      }),
+    });
+
+    const result = await runtime.runTask(reviewFindingsSource, "review_diff", {
+      input: { diff: "diff --git a/src/review.ts b/src/review.ts" },
+      sourceName: "review.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("F3004: output field 'findings[0].line' must be Number");
   });
 });

@@ -48,10 +48,10 @@ The current MVP provides:
 - TypeScript and Python runtimes.
 - Named task execution through `runTask` and `run_task`.
 - Agent provider interfaces for host-owned model calls.
-- Basic output contract validation for required `Text`, `Number`, and `Boolean`
-  fields.
-- TypeScript interface and Python dataclass generation for `Text`, `Number`,
-  and `Boolean` task fields.
+- Output contract validation for required scalar fields and arrays of named
+  structured objects.
+- TypeScript interface and Python dataclass generation for scalar fields and
+  arrays of named structured objects.
 - CLI evaluation reports for shared conformance fixtures, including output,
   trace, verification, error checks, provider metadata, and timing.
 - CLI regression comparison across saved eval reports.
@@ -60,7 +60,7 @@ The current MVP provides:
 - Host read, search, test, and edit tool mapping through runtime tools.
 - HTTP JSON provider adapters for TypeScript and Python.
 - CLI live evaluation mode through `--provider http-json`.
-- First coding-agent conformance task: `review_diff`.
+- First coding-agent conformance task: `review_diff` with structured findings.
 - Duplicate task name diagnostics.
 - Simple `verify` expressions.
 - Shared fixtures and conformance data.
@@ -72,10 +72,8 @@ Purpose: make Forma valuable for one real embedded agent task.
 
 Deliverables:
 
-- Output schema validation for arrays and objects beyond the current scalar
-  validation.
-- Generated TypeScript types and Python dataclasses or Pydantic models from
-  nested `.forma` output blocks.
+- Generated Pydantic models from nested `.forma` output blocks.
+- Shared coding-agent fixtures that cover multiple structured finding cases.
 - Structured provider response parsing with clear validation errors.
 - Better task lookup and source spans.
 - Richer coding tasks beyond the current `review_diff` structured summary.
@@ -185,8 +183,8 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Schema compiler expansion: support arrays and objects in generated bindings
-   and output validation.
+1. Schema compiler expansion: cover multiple structured finding cases in
+   conformance fixtures.
 2. Evaluation fixtures: expand regression comparison across eval report files.
 3. Provider adapter kit: add optional production provider packages.
 

@@ -31,14 +31,20 @@ task review_diff {
 
   output {
     summary: Text
-    finding_count: Number
+    findings: Finding[]
     clean: Boolean
+
+    object Finding {
+      path: Text
+      line: Number?
+      message: Text
+    }
   }
 
   agent {
     instruction """
     Review the supplied code diff.
-    Return a concise summary, a finding count, and whether the diff is clean.
+    Return a concise summary, structured findings, and whether the diff is clean.
     Do not include commentary outside the declared output fields.
     """
   }
@@ -128,7 +134,7 @@ temporary prompt, the more the contract pays for itself.
 ## Current Limit
 
 The current project is still an MVP. It proves the boundary with scalar output
-types, provider adapters, permissions, traces, and eval comparison. The next
-major usefulness jump is nested schema support so realistic review findings can
-be represented as arrays of structured objects instead of only a summary,
-count, and clean flag.
+types, arrays of structured output objects, provider adapters, permissions,
+traces, and eval comparison. The next major usefulness jump is richer provider
+adapters and review examples that use the structured findings to drive a real
+host workflow.

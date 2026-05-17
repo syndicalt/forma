@@ -125,19 +125,27 @@ requested tool is not configured, the runtime returns `F4002`.
 ## Output Contract
 
 Provider and compute output is validated against the task `output` block before
-`verify` expressions run. In the MVP, required fields must be present, `Text`
-fields must be strings, `Number` fields must be numbers, and `Boolean` fields
-must be booleans.
+`verify` expressions run. Required fields must be present, `Text` fields must
+be strings, `Number` fields must be numbers, and `Boolean` fields must be
+booleans. Array fields such as `Finding[]` must be arrays. Named output object
+schemas validate each object item recursively.
 
 ```forma
 output {
-  message: Text
+  summary: Text
+  findings: Finding[]
+
+  object Finding {
+    path: Text
+    line: Number?
+    message: Text
+  }
 }
 ```
 
-If a provider returns `{}` for that task, the runtime returns `F3003`. If it
-returns a non-string `message`, a non-number `Number`, or a non-boolean
-`Boolean`, the runtime returns `F3004`.
+If a provider returns `{}` for a required field, the runtime returns `F3003`.
+If it returns a value with the wrong type, including a nested value such as
+`findings[0].line`, the runtime returns `F3004`.
 
 ## Binding Generation
 

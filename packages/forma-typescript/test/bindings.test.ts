@@ -11,8 +11,14 @@ const source = `task review_diff {
 
   output {
     summary: Text
-    finding_count: Number
+    findings: Finding[]
     clean: Boolean
+
+    object Finding {
+      path: Text
+      line: Number?
+      message: Text
+    }
   }
 
   agent {
@@ -31,8 +37,14 @@ describe("generateTypeScriptBindings", () => {
 
 export interface ReviewDiffOutput {
   summary: string;
-  finding_count: number;
+  findings: ReviewDiffFinding[];
   clean: boolean;
+}
+
+export interface ReviewDiffFinding {
+  path: string;
+  line?: number;
+  message: string;
 }
 `);
   });

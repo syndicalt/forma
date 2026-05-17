@@ -67,8 +67,14 @@ describe("forma cli", () => {
     expect(report.passed).toBe(true);
     expect(report.result.output).toEqual({
       summary: "The diff adds output validation tests and matching runtime checks.",
-      finding_count: 0,
-      clean: true,
+      findings: [
+        {
+          path: "packages/forma-typescript/src/evaluator.ts",
+          line: 42,
+          message: "Validate provider output before running verification.",
+        },
+      ],
+      clean: false,
     });
   });
 
@@ -83,7 +89,7 @@ describe("forma cli", () => {
         text: async () => JSON.stringify({
           output: {
             summary: "Live provider reviewed the diff.",
-            finding_count: 0,
+            findings: [],
             clean: true,
           },
         }),
@@ -109,7 +115,7 @@ describe("forma cli", () => {
       expect(report.metadata.provider).toBe("http-json");
       expect(report.result.output).toEqual({
         summary: "Live provider reviewed the diff.",
-        finding_count: 0,
+        findings: [],
         clean: true,
       });
       expect(report.checks.find((check: { name: string }) => check.name === "output")).toEqual({

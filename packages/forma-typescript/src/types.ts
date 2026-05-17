@@ -1,4 +1,4 @@
-export type FormaValue = string | number | boolean | null | Record<string, unknown>;
+export type FormaValue = string | number | boolean | null | Record<string, unknown> | unknown[];
 
 export interface FormaDiagnostic {
   severity: "error" | "warning" | "info";
@@ -9,11 +9,18 @@ export interface FormaDiagnostic {
   end: { line: number; column: number };
 }
 
+export interface FormaField {
+  type: string;
+  optional: boolean;
+  array: boolean;
+}
+
 export interface FormaTask {
   name: string;
   intent: string;
-  input: Record<string, { type: string; optional: boolean }>;
-  output: Record<string, { type: string; optional: boolean }>;
+  input: Record<string, FormaField>;
+  output: Record<string, FormaField>;
+  schemas: Record<string, Record<string, FormaField>>;
   compute: string[];
   agentInstruction?: string;
   permissions: string[];

@@ -86,3 +86,45 @@ task greet_user_warmly {
     (permissions_block)
     (constraints_block)
     (verify_block)))
+
+=================================
+structured output task
+=================================
+
+task review_diff {
+  intent "Review a code diff"
+
+  input {
+    diff: Text
+  }
+
+  output {
+    summary: Text
+    findings: Finding[]
+    clean: Boolean
+
+    object Finding {
+      path: Text
+      line: Number?
+      message: Text
+    }
+  }
+
+  agent {
+    instruction """
+    Return structured review findings.
+    """
+  }
+}
+
+---
+
+(source_file
+  (task_declaration
+    name: (identifier)
+    (intent_block)
+    (input_block)
+    (output_block
+      (object_schema
+        name: (identifier)))
+    (agent_block)))

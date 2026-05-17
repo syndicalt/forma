@@ -30,10 +30,11 @@ export default grammar({
     constraints_block: ($) => seq("constraints", $._raw_block),
     verify_block: ($) => seq("verify", $._raw_block),
 
-    _field_block: ($) => seq("{", repeat($._field_declaration), "}"),
+    _field_block: ($) => seq("{", repeat(choice($._field_declaration, $.object_schema)), "}"),
     _field_declaration: ($) =>
       seq(field("name", $._field_identifier), ":", field("type", $._type_reference)),
-    _type_reference: ($) => seq($._field_identifier, optional("?")),
+    object_schema: ($) => seq("object", field("name", $.identifier), $._field_block),
+    _type_reference: ($) => seq($._field_identifier, optional("[]"), optional("?")),
 
     _raw_block: ($) => seq("{", repeat(choice($._triple_string, /[^{}"]+/, $._string)), "}"),
     _string: () => token(seq('"', repeat(choice(/[^"\\]/, /\\./)), '"')),

@@ -7,8 +7,14 @@
   },
   "fakeProviderOutput": {
     "summary": "The diff adds output validation tests and matching runtime checks.",
-    "finding_count": 0,
-    "clean": true
+    "findings": [
+      {
+        "path": "packages/forma-typescript/src/evaluator.ts",
+        "line": 42,
+        "message": "Validate provider output before running verification."
+      }
+    ],
+    "clean": false
   },
   "expectedIr": {
     "tasks": [
@@ -18,25 +24,49 @@
         "input": {
           "diff": {
             "type": "Text",
+            "array": false,
             "optional": false
           },
           "max_findings": {
             "type": "Number",
+            "array": false,
             "optional": true
           }
         },
         "output": {
           "summary": {
             "type": "Text",
+            "array": false,
             "optional": false
           },
-          "finding_count": {
-            "type": "Number",
+          "findings": {
+            "type": "Finding",
+            "array": true,
             "optional": false
           },
           "clean": {
             "type": "Boolean",
+            "array": false,
             "optional": false
+          }
+        },
+        "schemas": {
+          "Finding": {
+            "path": {
+              "type": "Text",
+              "array": false,
+              "optional": false
+            },
+            "line": {
+              "type": "Number",
+              "array": false,
+              "optional": true
+            },
+            "message": {
+              "type": "Text",
+              "array": false,
+              "optional": false
+            }
           }
         },
         "hasCompute": false,
@@ -50,8 +80,14 @@
     "ok": true,
     "output": {
       "summary": "The diff adds output validation tests and matching runtime checks.",
-      "finding_count": 0,
-      "clean": true
+      "findings": [
+        {
+          "path": "packages/forma-typescript/src/evaluator.ts",
+          "line": 42,
+          "message": "Validate provider output before running verification."
+        }
+      ],
+      "clean": false
     },
     "trace": [
       {

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-FormaValue = str | int | float | bool | None | dict[str, Any]
+FormaValue = str | int | float | bool | None | dict[str, Any] | list[Any]
 
 
 @dataclass(frozen=True)
@@ -10,6 +10,7 @@ class FormaTask:
     intent: str
     input: dict[str, dict[str, Any]]
     output: dict[str, dict[str, Any]]
+    schemas: dict[str, dict[str, dict[str, Any]]]
     compute: list[str]
     permissions: list[str] = field(default_factory=list)
     constraints: list[str] = field(default_factory=list)

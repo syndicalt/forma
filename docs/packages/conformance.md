@@ -72,7 +72,7 @@ The `review_diff` conformance file is the first coding-agent fixture:
 node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json
 ```
 
-It exercises structured `Text`, `Number`, and `Boolean` output fields for a diff
+It exercises scalar fields and an array of typed finding objects for a diff
 review task.
 
 Live-style evaluation can use the HTTP JSON provider:

@@ -30,15 +30,69 @@
           {
             "type": "?",
             "named": false
+          },
+          {
+            "type": "[]",
+            "named": false
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "object_schema",
+          "named": true
+        }
+      ]
     }
   },
   {
     "type": "intent_block",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "object_schema",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "?",
+            "named": false
+          },
+          {
+            "type": "[]",
+            "named": false
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "object_schema",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "output_block",
@@ -51,9 +105,23 @@
           {
             "type": "?",
             "named": false
+          },
+          {
+            "type": "[]",
+            "named": false
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "object_schema",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -145,6 +213,10 @@
     "named": false
   },
   {
+    "type": "[]",
+    "named": false
+  },
+  {
     "type": "agent",
     "named": false
   },
@@ -167,6 +239,10 @@
   },
   {
     "type": "intent",
+    "named": false
+  },
+  {
+    "type": "object",
     "named": false
   },
   {

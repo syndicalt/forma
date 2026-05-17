@@ -15,15 +15,18 @@
         "input": {
           "user_name": {
             "type": "Text",
+            "array": false,
             "optional": true
           }
         },
         "output": {
           "message": {
             "type": "Text",
+            "array": false,
             "optional": false
           }
         },
+        "schemas": {},
         "hasCompute": false,
         "hasAgent": true,
         "permissions": ["read", "search", "test"],

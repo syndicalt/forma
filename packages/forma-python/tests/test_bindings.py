@@ -11,8 +11,14 @@ SOURCE = '''task review_diff {
 
   output {
     summary: Text
-    finding_count: Number
+    findings: Finding[]
     clean: Boolean
+
+    object Finding {
+      path: Text
+      line: Number?
+      message: Text
+    }
   }
 
   agent {
@@ -34,8 +40,15 @@ class ReviewDiffInput:
 
 
 @dataclass(frozen=True)
+class ReviewDiffFinding:
+    path: str
+    message: str
+    line: float | None = None
+
+
+@dataclass(frozen=True)
 class ReviewDiffOutput:
     summary: str
-    finding_count: float
+    findings: list[ReviewDiffFinding]
     clean: bool
 '''

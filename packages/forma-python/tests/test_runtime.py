@@ -79,6 +79,33 @@ METRICS_SOURCE = '''task summarize_metrics {
 }'''
 
 
+REVIEW_FINDINGS_SOURCE = '''task review_diff {
+  intent "Review a code diff"
+
+  input {
+    diff: Text
+  }
+
+  output {
+    summary: Text
+    findings: Finding[]
+    clean: Boolean
+
+    object Finding {
+      path: Text
+      line: Number?
+      message: Text
+    }
+  }
+
+  agent {
+    instruction """
+    Return structured review findings.
+    """
+  }
+}'''
+
+
 EDIT_SOURCE = '''task update_file {
   intent "Update a source file"
 
@@ -468,3 +495,67 @@ def test_rejects_boolean_values_for_number_output_fields():
 
     assert result.ok is False
     assert result.error == "F3004: output field 'finding_count' must be Number"
+
+
+def test_validates_arrays_of_structured_output_objects():
+    runtime = FormaRuntime(
+        model_provider=StaticProvider(
+            {
+                "summary": "One issue found.",
+                "findings": [
+                    {
+                        "path": "src/review.py",
+                        "line": 42,
+                        "message": "Handle the empty diff case.",
+                    }
+                ],
+                "clean": False,
+            }
+        )
+    )
+    result = runtime.run_task(
+        REVIEW_FINDINGS_SOURCE,
+        "review_diff",
+        input={"diff": "diff --git a/src/review.py b/src/review.py"},
+        source_name="review.forma",
+    )
+
+    assert result.ok is True
+    assert result.output == {
+        "summary": "One issue found.",
+        "findings": [
+            {
+                "path": "src/review.py",
+                "line": 42,
+                "message": "Handle the empty diff case.",
+            }
+        ],
+        "clean": False,
+    }
+
+
+def test_fails_when_structured_output_object_fields_use_the_wrong_type():
+    runtime = FormaRuntime(
+        model_provider=StaticProvider(
+            {
+                "summary": "One issue found.",
+                "findings": [
+                    {
+                        "path": "src/review.py",
+                        "line": "42",
+                        "message": "Handle the empty diff case.",
+                    }
+                ],
+                "clean": False,
+            }
+        )
+    )
+    result = runtime.run_task(
+        REVIEW_FINDINGS_SOURCE,
+        "review_diff",
+        input={"diff": "diff --git a/src/review.py b/src/review.py"},
+        source_name="review.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "F3004: output field 'findings[0].line' must be Number"

@@ -105,7 +105,8 @@ generated = generate_python_bindings(source)
 
 For a task named `review_diff`, the generator emits `ReviewDiffInput` and
 `ReviewDiffOutput`. The current generator maps `Text` to `str`, `Number` to
-`float`, and `Boolean` to `bool`.
+`float`, `Boolean` to `bool`, arrays to `list[T]`, and named output object
+schemas to prefixed dataclasses such as `ReviewDiffFinding`.
 
 ## Result Fields
 

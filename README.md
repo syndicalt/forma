@@ -80,8 +80,8 @@ See `examples/embedded-agent.ts` and `examples/embedded_agent.py` for the full
 TypeScript and Python shape.
 
 The first coding-agent task example is `examples/review_diff.forma`; its
-conformance fixture shows structured review metadata with `Text`, `Number`, and
-`Boolean` output fields.
+conformance fixture shows structured review metadata with scalar fields and an
+array of typed finding objects.
 
 ## Generated Bindings
 
@@ -96,8 +96,8 @@ const types = generateTypeScriptBindings(source);
 bindings = generate_python_bindings(source)
 ```
 
-The current generator maps `Text`, `Number`, and `Boolean` fields to TypeScript
-interfaces and Python dataclasses.
+The current generator maps `Text`, `Number`, `Boolean`, arrays, and named output
+object schemas to TypeScript interfaces and Python dataclasses.
 
 ## Engineering Rules
 

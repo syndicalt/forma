@@ -8,14 +8,20 @@ task review_diff {
 
   output {
     summary: Text
-    finding_count: Number
+    findings: Finding[]
     clean: Boolean
+
+    object Finding {
+      path: Text
+      line: Number?
+      message: Text
+    }
   }
 
   agent {
     instruction """
     Review the supplied code diff.
-    Return a concise summary, a finding count, and whether the diff is clean.
+    Return a concise summary, structured findings, and whether the diff is clean.
     Do not include commentary outside the declared output fields.
     """
   }
