@@ -57,7 +57,7 @@ interface EvalFixture {
   source: string;
   input?: Record<string, FormaValue>;
   fakeProviderOutput?: Record<string, FormaValue>;
-  expectedResult: Partial<Pick<FormaResult, "ok" | "output" | "error">>;
+  expectedResult: Partial<Pick<FormaResult, "ok" | "output" | "trace" | "verification" | "error">>;
 }
 
 async function evaluateFixture(path: string): Promise<CliResult> {
@@ -76,6 +76,8 @@ async function evaluateFixture(path: string): Promise<CliResult> {
   const checks = [
     { name: "ok", passed: result.ok === fixture.expectedResult.ok },
     { name: "output", passed: deepEqual(result.output, fixture.expectedResult.output ?? {}) },
+    { name: "trace", passed: deepEqual(result.trace, fixture.expectedResult.trace ?? []) },
+    { name: "verification", passed: deepEqual(result.verification, normalizeVerification(fixture.expectedResult.verification)) },
     { name: "error", passed: result.error === (fixture.expectedResult.error ?? null) },
   ];
   const report = {
@@ -93,6 +95,10 @@ async function evaluateFixture(path: string): Promise<CliResult> {
 
 function deepEqual(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function normalizeVerification(verification: FormaResult["verification"] | undefined): FormaResult["verification"] {
+  return { ok: verification?.ok ?? false, failures: verification?.failures ?? [] };
 }
 
 function parseInput(args: string[]): Record<string, FormaValue> {

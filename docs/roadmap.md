@@ -52,7 +52,8 @@ The current MVP provides:
   fields.
 - TypeScript interface and Python dataclass generation for `Text`, `Number`,
   and `Boolean` task fields.
-- CLI evaluation reports for shared conformance fixtures.
+- CLI evaluation reports for shared conformance fixtures, including output,
+  trace, verification, and error checks.
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - First coding-agent conformance task: `review_diff`.
@@ -110,8 +111,7 @@ Deliverables:
   output properties.
 - CLI command for running evaluations against static fixtures, with live
   provider adapters still to add.
-- Result snapshots with trace, output, verification, provider metadata, and
-  timing.
+- Result snapshots with provider metadata and timing.
 - Regression comparison for prompt, schema, and model changes.
 - CI-friendly JSON output.
 
@@ -180,7 +180,7 @@ The next three implementation slices should be:
 
 1. Schema compiler expansion: support arrays and objects in generated bindings
    and output validation.
-2. Evaluation fixtures: compare richer verification and trace properties.
+2. Evaluation fixtures: add provider metadata and timing to eval reports.
 3. Coding-agent tool mapping: connect declared workspace actions to real host
    tool hooks.
 

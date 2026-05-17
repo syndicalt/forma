@@ -52,7 +52,7 @@ node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.jso
 ```
 
 The JSON report includes `name`, `passed`, the runtime `result`, and checks for
-`ok`, `output`, and `error`.
+`ok`, `output`, `trace`, `verification`, and `error`.
 
 The `review_diff` conformance file is the first coding-agent fixture:
 

@@ -31,6 +31,8 @@ describe("forma cli", () => {
       checks: [
         { name: "ok", passed: true },
         { name: "output", passed: true },
+        { name: "trace", passed: true },
+        { name: "verification", passed: true },
         { name: "error", passed: true },
       ],
     });

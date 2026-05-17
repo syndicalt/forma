@@ -29,8 +29,8 @@ usage exits with code 2 and prints `usage: forma <check|run|eval> <path>
 [--input JSON]`. These behaviors are covered by `cli/forma/test/cli.test.ts`.
 
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
-runs the named task, compares `ok`, `output`, and `error`, and prints a JSON
-evaluation report:
+runs the named task, compares `ok`, `output`, `trace`, `verification`, and
+`error`, and prints a JSON evaluation report:
 
 ```bash
 forma eval packages/forma-core/conformance/greet_user.json
