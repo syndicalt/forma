@@ -221,6 +221,9 @@ The current MVP provides:
 - CLI docs now map each `project-init` scaffold choice to the proof command to
   run before depending on that scaffold: local smoke tests, `project-check`
   plus direct smoke tests, or `project-check` plus package-lock smoke tests.
+- Documentation index now frames Forma as an agent contract compiler for Python
+  and TypeScript, not a prompt file format, so the first docs page points at
+  generated bindings, runtime validation, and the `agent(...)` facade.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -752,13 +755,13 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add docs index wording that names Forma as an agent
-   contract compiler rather than only a prompt file format.
-2. Product clarity: add a short architecture note that distinguishes the
+1. Product clarity: add a short architecture note that distinguishes the
    `.forma` contract, generated bindings, runtime agent facade, and provider
    adapter responsibilities.
-3. Product clarity: add README wording that explicitly calls the minimal
+2. Product clarity: add README wording that explicitly calls the minimal
    scaffold a product test, not an adoption commitment.
+3. Product clarity: add quickstart wording that tells users to stop after the
+   minimal scaffold if the before/after host code is not simpler.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

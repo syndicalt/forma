@@ -1,9 +1,11 @@
 # Forma Documentation
 
-Forma is a contract language for agent tasks. It moves task instructions,
-input/output shape, and verification rules into `.forma` files that Python and
-TypeScript programs can load at runtime. The host program still owns the actual
-model provider, provider key, model choice, logging, retries, and deployment.
+Forma is an agent contract compiler for Python and TypeScript programs. It is
+not a prompt file format. It moves task instructions, input/output shape, and
+verification rules into `.forma` contracts, then generates host bindings and
+runtime validation around the `agent(...)` facade. The host program still owns
+the actual model provider, provider key, model choice, logging, retries, and
+deployment.
 
 ## Start Here
 
