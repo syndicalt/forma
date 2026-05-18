@@ -57,6 +57,7 @@ corepack pnpm examples:check
 corepack pnpm docs:check
 python -m pytest packages/forma-python/tests -q
 corepack pnpm build
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
 ```
 
 If `forma run` fails on an agent task without a provider, that is expected for
