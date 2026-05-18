@@ -59,3 +59,7 @@ If package review reports `missingProviderOverrideTests`, restore the generated
 TypeScript and Python lockfile smoke tests. Keep them in the manifest `tests`
 array, add their commands back to README and CI, include them in the publish
 bundle, and regenerate the package lock.
+If package review reports `missingMigrationParityTests`, restore the TypeScript
+and Python migration parity fixtures. Keep them in the manifest `tests` array,
+add their commands back to README and CI, include them in the publish bundle,
+and regenerate the package lock.

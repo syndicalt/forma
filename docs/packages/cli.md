@@ -453,6 +453,18 @@ tests. If it is removed, the `readme` row reports it as missing guidance:
 }
 ```
 
+Generated READMEs must also keep the recovery token for migration parity
+fixtures. If it is removed, the `readme` row reports it as missing guidance:
+
+```json
+{
+  "name": "readme",
+  "passed": false,
+  "total": 11,
+  "missingGuidance": ["missingMigrationParityTests"]
+}
+```
+
 Generated workflows must also keep their failure guidance link. If the package
 workflow omits it, the `ci-workflow` row reports `missingGuidance`:
 

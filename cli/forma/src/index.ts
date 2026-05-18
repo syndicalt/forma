@@ -184,6 +184,7 @@ const requiredPackageReleaseFiles = [
 const packageEmbeddingGuidance = "docs/guides/package-consumer-quickstart.md#what-the-helper-calls";
 const packageProviderOverrideGuidance = "docs/guides/package-consumer-quickstart.md#explicit-provider-overrides";
 const packageProviderOverrideRecoveryGuidance = "missingProviderOverrideTests";
+const packageMigrationParityRecoveryGuidance = "missingMigrationParityTests";
 const packageTroubleshootingGuidance = "docs/guides/package-consumer-quickstart.md#troubleshooting";
 
 async function checkPackageManifest(path: string): Promise<CliResult> {
@@ -466,7 +467,13 @@ async function packageReadmeCheck(manifestPath: string, manifest: FormaPackageMa
   const missingCommands = commands.filter((command) => !readme.includes(command));
   const missingMigrationParityTests = packageMigrationParityTestPaths(manifest.tests ?? [])
     .filter((path) => !readme.includes(path));
-  const guidance = [packageEmbeddingGuidance, packageProviderOverrideGuidance, packageProviderOverrideRecoveryGuidance];
+  const migrationParityTests = packageMigrationParityTestPaths(manifest.tests ?? []);
+  const guidance = [
+    packageEmbeddingGuidance,
+    packageProviderOverrideGuidance,
+    packageProviderOverrideRecoveryGuidance,
+    ...(migrationParityTests.length > 0 ? [packageMigrationParityRecoveryGuidance] : []),
+  ];
   const missingGuidance = guidance.filter((item) => !readme.includes(item));
   return {
     name: "readme",
@@ -1279,6 +1286,7 @@ ${packageTroubleshootingGuidance} when lockfile checks,
 provider profiles, or generated smoke tests fail.
 
 If package review reports \`missingProviderOverrideTests\`, restore the generated TypeScript and Python lockfile smoke tests. Keep them in the manifest \`tests\` array, add their commands back to README and CI, include them in the publish bundle, and regenerate the package lock.
+If package review reports \`missingMigrationParityTests\`, restore the TypeScript and Python migration parity fixtures. Keep them in the manifest \`tests\` array, add their commands back to README and CI, include them in the publish bundle, and regenerate the package lock.
 `;
 }
 
