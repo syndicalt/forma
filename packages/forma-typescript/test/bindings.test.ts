@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generatePythonBindings, generateTypeScriptBindings } from "../src/index.js";
+import { generatePydanticBindings, generatePythonBindings, generateTypeScriptBindings } from "../src/index.js";
 
 const source = `task review_diff {
   intent "Review a code diff"
@@ -254,5 +254,40 @@ class ReviewDiffOutput:
     expect(generated).toContain("def assert_review_diff_output(value: Any) -> ReviewDiffOutput:");
     expect(generated).toContain("_assert_review_diff_finding(data[\"findings\"][index], f\"ReviewDiffOutput.findings[{index}]\")");
     expect(generated).toContain("def _assert_review_diff_location(value: Any, path: str) -> ReviewDiffLocation:");
+  });
+});
+
+describe("generatePydanticBindings", () => {
+  it("generates strict Pydantic models from nested Forma output blocks", () => {
+    const generated = generatePydanticBindings(nestedSource);
+
+    expect(generated).toContain(`from pydantic import BaseModel, ConfigDict
+
+
+class ReviewDiffInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    diff: str
+
+
+class ReviewDiffLocation(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    path: str
+    line: float | None = None
+
+
+class ReviewDiffFinding(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    location: ReviewDiffLocation
+    message: str
+
+
+class ReviewDiffOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    findings: list[ReviewDiffFinding]
+`);
   });
 });

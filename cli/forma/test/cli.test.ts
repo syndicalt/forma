@@ -405,6 +405,15 @@ describe("forma cli", () => {
     expect(result.stdout).toContain("class ReviewDiffFinding:");
   });
 
+  it("generates Pydantic bindings from a Forma file", async () => {
+    const result = await runCli(["generate", "../../examples/review_diff.forma", "--target", "python-pydantic"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("from pydantic import BaseModel, ConfigDict");
+    expect(result.stdout).toContain("class ReviewDiffInput(BaseModel)");
+    expect(result.stdout).toContain("class ReviewDiffOutput(BaseModel)");
+  });
+
   it("writes generated bindings to an output file", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-generate-"));
     const output = join(dir, "review-diff.ts");

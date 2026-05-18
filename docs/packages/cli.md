@@ -70,16 +70,20 @@ These behaviors are covered by `cli/forma/test/cli.test.ts`.
 ```bash
 forma generate examples/review_diff.forma --target typescript
 forma generate examples/review_diff.forma --target python
+forma generate examples/review_diff.forma --target python-pydantic
 forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts
 forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts --check
 ```
 
 The TypeScript target emits interfaces plus an `assert<Task>Output` validator.
 The Python target emits dataclasses plus an `assert_<task>_output` validator.
-Both targets use the same parser and schema compiler as the runtime. Use
-`--output` to write generated bindings directly to a file; otherwise the CLI
-prints them to stdout. Use `--check` with `--output` in CI to fail when a
-checked-in generated file is out of date.
+The `python-pydantic` target emits strict Pydantic v2 `BaseModel` classes with
+nested object models ordered before the classes that reference them. Host
+projects using that target should install Pydantic. All targets use the same
+parser and schema compiler as the runtime. Use `--output` to write generated
+bindings directly to a file; otherwise the CLI prints them to stdout. Use
+`--check` with `--output` in CI to fail when a checked-in generated file is out
+of date.
 
 `forma package-check` validates a versioned task package manifest. It checks the
 manifest marker, semver version, task source hashes, eval suite path, generated

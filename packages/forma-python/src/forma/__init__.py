@@ -1,5 +1,5 @@
 from .agent import FormaAgent, agent
-from .bindings import generate_python_bindings
+from .bindings import generate_pydantic_bindings, generate_python_bindings
 from .provider import (
     HttpJsonProvider,
     ModelProvider,
@@ -27,6 +27,7 @@ __all__ = [
     "RecordingProvider",
     "StaticProvider",
     "agent",
+    "generate_pydantic_bindings",
     "generate_python_bindings",
     "provider_from_profile",
     "provider_profile_from_file",

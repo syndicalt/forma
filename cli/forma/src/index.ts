@@ -8,6 +8,7 @@ import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import {
   FormaRuntime,
+  generatePydanticBindings,
   generatePythonBindings,
   generateTypeScriptBindings,
   HttpJsonProvider,
@@ -1146,8 +1147,10 @@ async function generateBindings(source: string, args: string[]): Promise<CliResu
     generated = generateTypeScriptBindings(source);
   } else if (target === "python") {
     generated = generatePythonBindings(source);
+  } else if (target === "python-pydantic") {
+    generated = generatePydanticBindings(source);
   } else {
-    throw new Error("--target must be typescript or python");
+    throw new Error("--target must be typescript, python, or python-pydantic");
   }
   if (check) {
     if (!outputPath) {

@@ -7,6 +7,11 @@ def generate_python_bindings(source: str) -> str:
     return "\n".join(_render_task(task) for task in program.tasks)
 
 
+def generate_pydantic_bindings(source: str) -> str:
+    program = parse_forma(source)
+    return "\n".join(_render_pydantic_task(task) for task in program.tasks)
+
+
 def _render_task(task: FormaTask) -> str:
     name = _pascal_case(task.name)
     schema_classes = "\n\n\n".join(
@@ -21,6 +26,22 @@ def _render_task(task: FormaTask) -> str:
         parts.append(schema_classes)
     parts.append(_render_dataclass(f"{name}Output", task.output, name, task.schemas))
     parts.append(_render_validators(task.name, name, task.output, task.schemas))
+    return "\n\n\n".join(parts) + "\n"
+
+
+def _render_pydantic_task(task: FormaTask) -> str:
+    name = _pascal_case(task.name)
+    schema_classes = "\n\n\n".join(
+        _render_pydantic_model(f"{name}{schema_name}", fields, name, task.schemas)
+        for schema_name, fields in _ordered_schema_items(task.schemas)
+    )
+    parts = [
+        "from pydantic import BaseModel, ConfigDict",
+        _render_pydantic_model(f"{name}Input", task.input, name, task.schemas),
+    ]
+    if schema_classes:
+        parts.append(schema_classes)
+    parts.append(_render_pydantic_model(f"{name}Output", task.output, name, task.schemas))
     return "\n\n\n".join(parts) + "\n"
 
 
@@ -71,6 +92,24 @@ def _render_dataclass(name: str, fields: dict[str, dict[str, object]], task_name
         for field_name, field in required + optional:
             lines.append(f"            {field_name}={_from_dict_value(field_name, field, task_name, schemas)},")
         lines.append("        )")
+    return "\n".join(lines)
+
+
+def _render_pydantic_model(name: str, fields: dict[str, dict[str, object]], task_name: str, schemas: dict[str, dict[str, dict[str, object]]]) -> str:
+    required = [(field_name, field) for field_name, field in fields.items() if not field["optional"]]
+    optional = [(field_name, field) for field_name, field in fields.items() if field["optional"]]
+    lines = [
+        f"class {name}(BaseModel):",
+        '    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)',
+    ]
+    if not required and not optional:
+        lines.append("")
+        lines.append("    pass")
+        return "\n".join(lines)
+    lines.append("")
+    for field_name, field in required + optional:
+        suffix = " | None = None" if field["optional"] else ""
+        lines.append(f"    {field_name}: {_type_name(field, task_name, schemas)}{suffix}")
     return "\n".join(lines)
 
 

@@ -11,6 +11,11 @@ export function generatePythonBindings(source: string): string {
   return program.tasks.map(renderPythonTask).join("\n");
 }
 
+export function generatePydanticBindings(source: string): string {
+  const program = parseForma(source);
+  return program.tasks.map(renderPydanticTask).join("\n");
+}
+
 function renderTask(task: FormaTask): string {
   const name = toPascalCase(task.name);
   return `${renderInterface(`${name}Input`, task.input)}
@@ -32,6 +37,19 @@ function renderPythonTask(task: FormaTask): string {
     ...schemas,
     renderPythonDataclass(`${name}Output`, task.output, name, task.schemas),
     renderPythonValidators(task.name, name, task.output, task.schemas),
+  ].join("\n\n\n").concat("\n");
+}
+
+function renderPydanticTask(task: FormaTask): string {
+  const name = toPascalCase(task.name);
+  const schemas = orderedSchemaEntries(task.schemas).map(([schemaName, fields]) =>
+    renderPydanticModel(`${name}${schemaName}`, fields, name, task.schemas),
+  );
+  return [
+    "from pydantic import BaseModel, ConfigDict",
+    renderPydanticModel(`${name}Input`, task.input, name, task.schemas),
+    ...schemas,
+    renderPydanticModel(`${name}Output`, task.output, name, task.schemas),
   ].join("\n\n\n").concat("\n");
 }
 
@@ -211,6 +229,25 @@ function renderPythonDataclass(name: string, fields: FormaTask["input"], taskNam
       lines.push(`            ${fieldName}=${pythonFromDictValue(fieldName, field, taskName, schemas)},`);
     }
     lines.push("        )");
+  }
+  return lines.join("\n");
+}
+
+function renderPydanticModel(name: string, fields: FormaTask["input"], taskName: string, schemas: FormaTask["schemas"]): string {
+  const required = Object.entries(fields).filter(([, field]) => !field.optional);
+  const optional = Object.entries(fields).filter(([, field]) => field.optional);
+  const lines = [
+    `class ${name}(BaseModel):`,
+    "    model_config = ConfigDict(extra=\"forbid\", frozen=True, strict=True)",
+  ];
+  if (required.length === 0 && optional.length === 0) {
+    lines.push("");
+    lines.push("    pass");
+    return lines.join("\n");
+  }
+  lines.push("");
+  for (const [fieldName, field] of [...required, ...optional]) {
+    lines.push(`    ${fieldName}: ${pythonTypeName(field, taskName, schemas)}${field.optional ? " | None = None" : ""}`);
   }
   return lines.join("\n");
 }

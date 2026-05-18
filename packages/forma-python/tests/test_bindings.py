@@ -1,4 +1,4 @@
-from forma import generate_python_bindings
+from forma import generate_pydantic_bindings, generate_python_bindings
 import pytest
 
 
@@ -210,6 +210,58 @@ def test_generates_output_validator_for_nested_runtime_dictionaries():
     assert output.findings[0].location.path == "src/review.py"
     with pytest.raises(ValueError, match=r"ReviewDiffOutput.findings\[0\].location.path must be a string"):
         namespace["assert_review_diff_output"]({
+            "findings": [
+                {
+                    "location": {"path": 123},
+                    "message": "Check bounds.",
+                }
+            ]
+        })
+
+
+def test_generates_strict_pydantic_models_for_nested_output_blocks():
+    generated = generate_pydantic_bindings(NESTED_SOURCE)
+    assert '''from pydantic import BaseModel, ConfigDict
+
+
+class ReviewDiffInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    diff: str
+
+
+class ReviewDiffLocation(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    path: str
+    line: float | None = None
+
+
+class ReviewDiffFinding(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    location: ReviewDiffLocation
+    message: str
+
+
+class ReviewDiffOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    findings: list[ReviewDiffFinding]
+''' in generated
+    namespace = {}
+    exec(generated, namespace)
+    output = namespace["ReviewDiffOutput"].model_validate({
+        "findings": [
+            {
+                "location": {"path": "src/review.py"},
+                "message": "Check bounds.",
+            }
+        ]
+    })
+    assert output.findings[0].location.path == "src/review.py"
+    with pytest.raises(Exception, match="Input should be a valid string"):
+        namespace["ReviewDiffOutput"].model_validate({
             "findings": [
                 {
                     "location": {"path": 123},

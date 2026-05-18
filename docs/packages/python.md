@@ -161,13 +161,18 @@ print(provider.requests[0]["instruction"])
 ## Generated Bindings
 
 Use `generate_python_bindings` when host code needs dataclasses that match the
-task `input` and `output` blocks. The same generator is available from the CLI
-with `forma generate examples/review_diff.forma --target python`.
+task `input` and `output` blocks. Use `generate_pydantic_bindings` when host
+code should validate task inputs and outputs through strict Pydantic v2 models;
+host projects using those generated models should install Pydantic. The same
+generators are available from the CLI with
+`forma generate examples/review_diff.forma --target python` and
+`forma generate examples/review_diff.forma --target python-pydantic`.
 
 ```python
-from forma import generate_python_bindings
+from forma import generate_pydantic_bindings, generate_python_bindings
 
 generated = generate_python_bindings(source)
+pydantic_models = generate_pydantic_bindings(source)
 ```
 
 For a task named `review_diff`, the generator emits `ReviewDiffInput` and

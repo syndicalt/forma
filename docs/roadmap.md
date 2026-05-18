@@ -53,6 +53,8 @@ The current MVP provides:
   structured objects.
 - TypeScript interface and Python dataclass generation for scalar fields and
   arrays of named structured objects.
+- Generated strict Pydantic models for Python hosts that want BaseModel
+  validation instead of dataclasses.
 - Generated Python dataclasses are ordered for nested structured object
   references.
 - CLI binding generation for TypeScript and Python.
