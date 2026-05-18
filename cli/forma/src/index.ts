@@ -183,14 +183,16 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     return { exitCode: 1, stdout: "", stderr: suiteResult.stderr || "eval suite failed\n" };
   }
   const suite = JSON.parse(suiteResult.stdout) as EvalSuiteArtifact;
+  const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
   const checks: Array<Record<string, unknown>> = [
     { name: "package-check", passed: true },
     { name: "package-lock", passed: true, path: lockPath },
+    bindingsCheck,
     examplesCheck,
     { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
   ];
-  let passed = examplesCheck.passed === true;
+  let passed = bindingsCheck.passed === true && examplesCheck.passed === true;
   const baselinePath = optionValue(args, "--baseline");
   if (baselinePath) {
     const failOnArgs = optionValue(args, "--fail-on") ? args : [...args, "--fail-on", "breaking,environment"];
@@ -222,6 +224,22 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
       checks,
     }, null, 2)}\n`,
     stderr: "",
+  };
+}
+
+function packageBindingsCheck(manifest: FormaPackageManifest): Record<string, unknown> {
+  const bindings = manifest.bindings ?? [];
+  const requiredTargets = ["typescript", "python"];
+  const targets = Array.from(
+    new Set(bindings.flatMap((binding) => binding.target === "typescript" || binding.target === "python" ? [binding.target] : [])),
+  );
+  const missingTargets = requiredTargets.filter((target) => !targets.includes(target));
+  return {
+    name: "bindings",
+    passed: missingTargets.length === 0,
+    total: bindings.length,
+    targets,
+    ...(missingTargets.length > 0 ? { missingTargets } : {}),
   };
 }
 

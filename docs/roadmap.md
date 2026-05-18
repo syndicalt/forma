@@ -136,6 +136,8 @@ The current MVP provides:
 - `forma package-review` runs a machine-readable package publishing checklist
   across manifest validation, lockfile verification, and eval-suite execution.
 - `forma package-review` fails package reviews that omit TypeScript or Python
+  generated bindings and reports included and missing targets.
+- `forma package-review` fails package reviews that omit TypeScript or Python
   host examples and reports included and missing runtimes.
 - `forma package-review --baseline` folds previous-release eval comparison into
   the package publishing checklist.

@@ -165,6 +165,8 @@ Publishing checklist:
 
 - Run `forma package-review` against the manifest, with `--baseline` when a
   previous release artifact is available.
+- Confirm the `bindings` row in package-review lists both `typescript` and
+  `python`; missing targets fail the review.
 - Confirm the `examples` row in package-review lists both `typescript` and
   `python`; missing runtimes fail the review.
 - Run `forma package-check` against the manifest.
