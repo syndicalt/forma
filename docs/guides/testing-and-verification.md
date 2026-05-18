@@ -137,6 +137,25 @@ release-bundle coverage without running the full release proof:
 - run: corepack pnpm packages:installed-smoke
 ```
 
+Triage by the last `installed package smoke: ...` marker before the failure:
+
+- `review-diff package-lock consumer failure`: restore the reviewed
+  `review_diff` package artifacts, especially `review_diff.forma.lock.json`,
+  `review_diff_contract.test.ts`, `review_diff_contract_test.py`, generated
+  TypeScript/Python bindings, and package README/workflows. Rerun
+  `corepack pnpm packages:installed-smoke`.
+- `function-repair tool package failure`: restore the function-repair manifest,
+  lockfile, `.forma` source, generated bindings, host examples, provider
+  profile, and workflows. If the error mentions read, search, edit, or test
+  tools, verify the explicit tool-provider smoke fixtures before rerunning the
+  installed-package smoke.
+- `reviewed package-lock project consumer failure`: rerun
+  `node cli/forma/dist/index.js project-init ... --package-lock ...` or restore
+  the generated package-lock host project scaffold. Confirm `pnpm run
+  smoke:lock:ts`, `test/review_diff_package_lock_smoke.py`, and the reviewed
+  lock path still point at the extracted package bundle, then rerun
+  `corepack pnpm packages:installed-smoke`.
+
 Run CLI smoke tests after building:
 
 ```bash
