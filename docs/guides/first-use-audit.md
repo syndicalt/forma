@@ -72,6 +72,9 @@ renamed or redacted.
 Cleaned-up route labels should not change the first-use proof command. Keep the
 minimal or checked smoke proof command fixed while cleaning labels so adoption
 review still measures host-code simplification instead of deployment naming.
+Cleaned-up route labels should not change local smoke fixture ownership. Keep
+the minimal smoke inputs, expected outputs, and fixture files owned by the host
+application while route names are cleaned up in provider configuration.
 
 ## Steps
 
