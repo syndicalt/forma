@@ -174,8 +174,9 @@ The checked consumer examples `examples/review_diff_lock_consumer.ts` and
 `examples/review_diff_lock_consumer.py` demonstrate that flow in TypeScript and
 Python through `agentFromPackageLock(...)` and `agent_from_package_lock(...)`.
 Those helpers read the lockfile, check the pinned task source hash, load the
-reviewed provider profile, and construct `agent(...)` only after the artifact
-matches the reviewed lock.
+reviewed provider profile, verify generated binding and provider profile
+hashes, and construct `agent(...)` only after the artifacts match the reviewed
+lock.
 The importable package entrypoints `examples/review_diff_contract/index.ts` and
 `examples/review_diff_contract/__init__.py` wrap those helpers behind stable
 TypeScript and Python module names so consumers can depend on the reviewed

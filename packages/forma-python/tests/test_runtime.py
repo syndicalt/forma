@@ -203,6 +203,86 @@ def test_rejects_package_lock_agents_when_pinned_task_source_drifts(tmp_path: Pa
         raise AssertionError("expected lock drift to fail")
 
 
+def test_rejects_package_lock_agents_when_provider_profile_drifts(tmp_path: Path):
+    source_path = tmp_path / "task.forma"
+    profile_path = tmp_path / "forma.provider.json"
+    lock_path = tmp_path / "task.forma.lock.json"
+    source_path.write_text(AGENT_SOURCE, encoding="utf8")
+    profile_path.write_text(
+        json.dumps({"provider": "http-json", "endpoint": "https://example.test/agent", "model": "changed-model"}),
+        encoding="utf8",
+    )
+    lock_path.write_text(
+        json.dumps(
+            {
+                "formaPackageLock": 1,
+                "tasks": [
+                    {
+                        "name": "greet_user_warmly",
+                        "source": "task.forma",
+                        "sourceSha256": hashlib.sha256(AGENT_SOURCE.encode("utf8")).hexdigest(),
+                    }
+                ],
+                "providerProfile": {"path": "forma.provider.json", "sha256": "0" * 64},
+            }
+        ),
+        encoding="utf8",
+    )
+
+    try:
+        agent_from_package_lock(
+            lock_file=lock_path,
+            task="greet_user_warmly",
+            provider=StaticProvider({"message": "unused"}),
+        )
+    except ValueError as error:
+        assert "provider profile does not match reviewed package lock" in str(error)
+    else:
+        raise AssertionError("expected provider profile drift to fail")
+
+
+def test_rejects_package_lock_agents_when_generated_binding_drifts(tmp_path: Path):
+    source_path = tmp_path / "task.forma"
+    binding_path = tmp_path / "task.forma.py"
+    lock_path = tmp_path / "task.forma.lock.json"
+    source_path.write_text(AGENT_SOURCE, encoding="utf8")
+    binding_path.write_text("class Drifted: pass\n", encoding="utf8")
+    lock_path.write_text(
+        json.dumps(
+            {
+                "formaPackageLock": 1,
+                "tasks": [
+                    {
+                        "name": "greet_user_warmly",
+                        "source": "task.forma",
+                        "sourceSha256": hashlib.sha256(AGENT_SOURCE.encode("utf8")).hexdigest(),
+                    }
+                ],
+                "bindings": [
+                    {
+                        "target": "python",
+                        "source": "task.forma",
+                        "output": "task.forma.py",
+                        "sha256": "0" * 64,
+                    }
+                ],
+            }
+        ),
+        encoding="utf8",
+    )
+
+    try:
+        agent_from_package_lock(
+            lock_file=lock_path,
+            task="greet_user_warmly",
+            provider=StaticProvider({"message": "unused"}),
+        )
+    except ValueError as error:
+        assert "generated binding does not match reviewed package lock" in str(error)
+    else:
+        raise AssertionError("expected generated binding drift to fail")
+
+
 def test_embeds_named_source_task_through_agent_facade():
     greet = agent(
         source=AGENT_SOURCE,

@@ -74,6 +74,7 @@ def agent_from_package_lock(
     source_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
     if source_sha256 != locked_task["sourceSha256"]:
         raise ValueError(f"task source does not match reviewed package lock: {source_path}")
+    _verify_package_lock_artifacts(lock, lock_path.parent)
 
     return agent(
         file=source_path,
@@ -88,6 +89,21 @@ def _locked_task(lock: dict[str, Any], name: str) -> dict[str, str]:
         if task.get("name") == name and task.get("source") and task.get("sourceSha256"):
             return task
     raise ValueError(f"{name} is not pinned by the Forma package lock")
+
+
+def _verify_package_lock_artifacts(lock: dict[str, Any], lock_dir: Path) -> None:
+    provider_profile = lock.get("providerProfile")
+    if isinstance(provider_profile, dict) and provider_profile.get("path") and provider_profile.get("sha256"):
+        _verify_package_lock_hash(lock_dir / provider_profile["path"], provider_profile["sha256"], "provider profile")
+    for binding in lock.get("bindings", []):
+        if binding.get("output") and binding.get("sha256"):
+            _verify_package_lock_hash(lock_dir / binding["output"], binding["sha256"], "generated binding")
+
+
+def _verify_package_lock_hash(path: Path, expected_sha256: str, artifact_name: str) -> None:
+    actual_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+    if actual_sha256 != expected_sha256:
+        raise ValueError(f"{artifact_name} does not match reviewed package lock: {path}")
 
 
 def _provider_from_package_lock(lock: dict[str, Any], lock_dir: Path) -> ModelProvider:

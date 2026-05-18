@@ -43,7 +43,12 @@ interface FormaPackageLock {
   }>;
   providerProfile?: {
     path?: string;
+    sha256?: string;
   };
+  bindings?: Array<{
+    output?: string;
+    sha256?: string;
+  }>;
 }
 
 export function agent(options: FormaAgentOptions): FormaAgent {
@@ -89,6 +94,7 @@ export function agentFromPackageLock(options: FormaPackageLockAgentOptions): For
   if (sourceSha256 !== task.sourceSha256) {
     throw new Error(`task source does not match reviewed package lock: ${sourcePath}`);
   }
+  verifyPackageLockArtifacts(lock, lockDir);
 
   const provider = options.provider ?? providerFromPackageLock(lock, lockDir);
   return agent({
@@ -97,6 +103,25 @@ export function agentFromPackageLock(options: FormaPackageLockAgentOptions): For
     provider,
     ...(options.tools ? { tools: options.tools } : {}),
   });
+}
+
+function verifyPackageLockArtifacts(lock: FormaPackageLock, lockDir: string): void {
+  const profile = lock.providerProfile;
+  if (profile?.path && profile.sha256) {
+    verifyPackageLockHash(join(lockDir, profile.path), profile.sha256, "provider profile");
+  }
+  for (const binding of lock.bindings ?? []) {
+    if (binding.output && binding.sha256) {
+      verifyPackageLockHash(join(lockDir, binding.output), binding.sha256, "generated binding");
+    }
+  }
+}
+
+function verifyPackageLockHash(path: string, expectedSha256: string, artifactName: string): void {
+  const actualSha256 = createHash("sha256").update(readFileSync(path)).digest("hex");
+  if (actualSha256 !== expectedSha256) {
+    throw new Error(`${artifactName} does not match reviewed package lock: ${path}`);
+  }
 }
 
 function providerFromPackageLock(lock: FormaPackageLock, lockDir: string): ModelProvider {

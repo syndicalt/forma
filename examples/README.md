@@ -8,7 +8,8 @@ The `review_diff_lock_consumer.ts` and `review_diff_lock_consumer.py` examples
 show consumer-side embedding from the reviewed lockfile through
 `agentFromPackageLock(...)` and `agent_from_package_lock(...)`. The helpers read
 `review_diff.forma.lock.json`, verify the pinned `review_diff.forma` source
-hash, load the reviewed provider profile, and only then construct `agent(...)`.
+hash, generated binding hashes, and reviewed provider profile hash, and only
+then construct `agent(...)`.
 The importable `review_diff_contract/index.ts` and
 `review_diff_contract/__init__.py` entrypoints wrap the same lock-aware agent
 helper so package consumers can import a stable contract module instead of

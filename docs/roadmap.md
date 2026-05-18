@@ -169,11 +169,13 @@ The current MVP provides:
   generated binding, host example, and release file hashes for publishable
   packages.
 - Checked-in TypeScript and Python consumer examples depend on
-  `examples/review_diff.forma.lock.json` by verifying the pinned task source
-  before constructing `agent(...)`.
+  `examples/review_diff.forma.lock.json` by verifying pinned task source,
+  generated binding, and provider profile hashes before constructing
+  `agent(...)`.
 - TypeScript `agentFromPackageLock(...)` and Python
   `agent_from_package_lock(...)` load reviewed package locks, verify pinned task
-  source hashes, and return the standard agent facade.
+  source, generated binding, and provider profile hashes, and return the
+  standard agent facade.
 - Checked-in importable TypeScript and Python contract entrypoints expose the
   reviewed `review_diff` package through stable module layouts.
 - Package scaffolding supports review-agent, generic tool-using coding-agent,
@@ -322,10 +324,10 @@ The next three implementation slices should be:
 1. Clean-project onboarding: add installed-project smoke tests for the
    published TypeScript and Python package names once release packaging is
    available.
-2. Runtime ergonomics: add lockfile verification for generated bindings and
-   provider profile hashes, not only task source hashes.
-3. Registry and versioning: teach `forma package-init` to scaffold the
+2. Registry and versioning: teach `forma package-init` to scaffold the
    importable contract module layout for new packages.
+3. Runtime ergonomics: add package-lock verification for host examples and
+   release files in the public lock helpers.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

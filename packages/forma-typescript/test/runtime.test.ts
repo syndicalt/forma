@@ -186,6 +186,68 @@ describe("FormaRuntime", () => {
     })).toThrow("task source does not match reviewed package lock");
   });
 
+  it("rejects package lock agents when the provider profile drifts", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-agent-lock-profile-drift-"));
+    const sourcePath = join(dir, "task.forma");
+    const profilePath = join(dir, "forma.provider.json");
+    const lockPath = join(dir, "task.forma.lock.json");
+    await writeFile(sourcePath, agentSource);
+    await writeFile(profilePath, JSON.stringify({ provider: "http-json", endpoint: "https://example.test/agent", model: "changed-model" }));
+    await writeFile(lockPath, JSON.stringify({
+      formaPackageLock: 1,
+      tasks: [
+        {
+          name: "greet_user_warmly",
+          source: "task.forma",
+          sourceSha256: createHash("sha256").update(agentSource).digest("hex"),
+        },
+      ],
+      providerProfile: {
+        path: "forma.provider.json",
+        sha256: "0".repeat(64),
+      },
+    }));
+
+    expect(() => agentFromPackageLock({
+      lockFile: lockPath,
+      task: "greet_user_warmly",
+      provider: new StaticProvider({ message: "unused" }),
+    })).toThrow("provider profile does not match reviewed package lock");
+  });
+
+  it("rejects package lock agents when a generated binding drifts", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-agent-lock-binding-drift-"));
+    const sourcePath = join(dir, "task.forma");
+    const bindingPath = join(dir, "task.forma.ts");
+    const lockPath = join(dir, "task.forma.lock.json");
+    await writeFile(sourcePath, agentSource);
+    await writeFile(bindingPath, "export interface Drifted {}\n");
+    await writeFile(lockPath, JSON.stringify({
+      formaPackageLock: 1,
+      tasks: [
+        {
+          name: "greet_user_warmly",
+          source: "task.forma",
+          sourceSha256: createHash("sha256").update(agentSource).digest("hex"),
+        },
+      ],
+      bindings: [
+        {
+          target: "typescript",
+          source: "task.forma",
+          output: "task.forma.ts",
+          sha256: "0".repeat(64),
+        },
+      ],
+    }));
+
+    expect(() => agentFromPackageLock({
+      lockFile: lockPath,
+      task: "greet_user_warmly",
+      provider: new StaticProvider({ message: "unused" }),
+    })).toThrow("generated binding does not match reviewed package lock");
+  });
+
   it("embeds a named source task through the agent facade", async () => {
     const greet = agent({
       source: agentSource,
