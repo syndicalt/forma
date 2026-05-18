@@ -282,6 +282,8 @@ The current MVP provides:
   `StaticProvider` smoke tests and the before/after host boundary show that
   generated bindings and `agent(...)` entrypoints are clearer than inline
   prompt plus local schemas.
+- Provider-adapter docs now distinguish local smoke providers for embedding
+  proof from production adapters for real model-service routing and credentials.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -813,12 +815,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-adapter wording that distinguishes local smoke
-   providers from production provider adapters.
-2. Product clarity: add package-consumer quickstart wording that says not every
+1. Product clarity: add package-consumer quickstart wording that says not every
    reviewed local task should become a reusable package.
-3. Product clarity: add package-init README wording that says generated package
+2. Product clarity: add package-init README wording that says generated package
    scaffolds are release candidates, not first-use proofs.
+3. Product clarity: add runtime-result docs wording that describes failed
+   validation as a host integration bug until proven to be model behavior.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

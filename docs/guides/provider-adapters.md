@@ -10,6 +10,11 @@ requests, and optional OpenAI adapter packages for production Responses API
 calls. Provider credentials and model names belong in host application code,
 not in the `.forma` file. A Forma task describes what should be done; the
 provider adapter decides which model service to call and how to authenticate.
+Use local smoke providers to prove embedding shape; use production adapters to call real model services.
+`StaticProvider` and `RecordingProvider` should prove generated bindings,
+`agent(...)` entrypoints, permissions, and validation without a model key.
+HTTP JSON and OpenAI providers should be introduced only when the host is ready
+to exercise real routing, credentials, timeouts, and model behavior.
 Operational keys, model choice, routing, and retries live in host code so the
 application can keep deployment policy separate from the reviewed task
 contract.
