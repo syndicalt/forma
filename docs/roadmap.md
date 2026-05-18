@@ -168,6 +168,10 @@ The current MVP provides:
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,
   generated binding, host example, package test, and release file hashes for
   publishable packages.
+- `forma package-lock --check` now tells reviewers to inspect artifact group
+  changes before regenerating stale locks, and the CLI fixture proves a new
+  release artifact is visible as a changed path and hash across package
+  versions.
 - Checked-in TypeScript and Python consumer examples depend on
   `examples/review_diff.forma.lock.json` by verifying pinned task source,
   generated binding, provider profile, host example, package test, and release
@@ -683,12 +687,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: add a package-lock compatibility fixture that
-   proves artifact group changes are reviewable across versions.
-2. Registry and versioning: add package artifact group change notes to registry
-   publishing guidance.
-3. Product clarity: add a short release-artifact reading guide for
+1. Product clarity: add a short release-artifact reading guide for
    `forma-release-proof-artifacts`.
+2. Registry and versioning: add a package-lock compare command or report that
+   summarizes changed artifact groups directly.
+3. Registry and versioning: add release notes guidance for package lock
+   artifact group changes.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

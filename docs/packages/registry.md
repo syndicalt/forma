@@ -217,6 +217,12 @@ Those helpers read the lockfile, check the pinned task source hash, load the
 reviewed provider profile, verify generated binding, provider profile, host
 example, package test, and release file hashes, and construct `agent(...)` only
 after the artifacts match the reviewed lock.
+When a package version adds a new `releaseFiles`, `examples`, `tests`, or
+`bindings` entry, `forma package-lock --check` fails until the lock is
+regenerated. Treat that as an artifact group change: review the new lock before
+merging so the added path and hash are visible across package versions. The CLI
+prints `review artifact group changes before regenerating the package lock` on
+stale lock checks to keep that review step in the release log.
 The importable package entrypoints `examples/review_diff_contract/index.ts` and
 `examples/review_diff_contract/__init__.py` wrap those helpers behind stable
 TypeScript and Python module names so consumers can depend on the reviewed

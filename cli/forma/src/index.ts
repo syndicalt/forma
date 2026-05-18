@@ -208,6 +208,14 @@ const packageMigrationParityRecoveryGuidance = "missingMigrationParityTests";
 const packageMigrationParityTroubleshootingGuidance = "docs/guides/package-consumer-quickstart.md#missingmigrationparitytests";
 const packageTroubleshootingGuidance = "docs/guides/package-consumer-quickstart.md#troubleshooting";
 
+function packageLockOutOfDateMessage(outputPath: string): string {
+  return [
+    `package lock is out of date: ${outputPath}`,
+    "review artifact group changes before regenerating the package lock",
+    "",
+  ].join("\n");
+}
+
 async function checkPackageManifest(path: string): Promise<CliResult> {
   const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
   await validatePackageManifest(manifest, dirname(path));
@@ -228,7 +236,7 @@ async function lockPackageManifest(path: string, args: string[]): Promise<CliRes
     const current = await readFile(outputPath, "utf8").catch(() => "");
     return current === serialized
       ? { exitCode: 0, stdout: "ok\n", stderr: "" }
-      : { exitCode: 1, stdout: "", stderr: `package lock is out of date: ${outputPath}\n` };
+      : { exitCode: 1, stdout: "", stderr: packageLockOutOfDateMessage(outputPath) };
   }
   if (outputPath) {
     await writeFile(outputPath, serialized, "utf8");

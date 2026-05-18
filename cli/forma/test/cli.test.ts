@@ -1006,6 +1006,35 @@ describe("forma cli", () => {
     });
   });
 
+  it("makes package artifact group changes reviewable across lock versions", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-lock-artifact-groups-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "forma.lock.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.version = "0.2.0";
+    manifest.releaseFiles.push({ path: "CHANGELOG.md" });
+    await writeFile(join(dir, "CHANGELOG.md"), "## 0.2.0\n\n- Add reviewed artifact group.\n");
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+    const check = await runCli(["package-lock", manifestPath, "--output", lockPath, "--check"]);
+    const candidate = await runCli(["package-lock", manifestPath]);
+    const candidateLock = JSON.parse(candidate.stdout);
+
+    expect(check).toEqual({
+      exitCode: 1,
+      stdout: "",
+      stderr: expect.stringContaining("review artifact group changes before regenerating the package lock"),
+    });
+    expect(candidateLock.package.version).toBe("0.2.0");
+    expect(candidateLock.releaseFiles).toContainEqual({
+      path: "CHANGELOG.md",
+      sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+  });
+
   it("reviews a package with manifest, lockfile, and eval-suite checks", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");
