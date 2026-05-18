@@ -65,6 +65,9 @@ Retries and routing are host workflow concerns after local contract proof. Add
 fallback models, regional routing, retry budgets, and request logging only
 after the local `StaticProvider` smoke path proves the contract makes host code
 clearer than an inline prompt plus local schemas.
+Fallback models belong after the first local smoke proof. If the generated
+bindings and no-credential smoke tests do not improve the host boundary, adding
+provider failover only hides that Forma is not helping this task yet.
 That means TypeScript embedding is just a provider plus the named task:
 
 ```ts

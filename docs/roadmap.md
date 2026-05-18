@@ -369,6 +369,7 @@ The current MVP provides:
   release artifacts.
 - Package-consumer troubleshooting now says fallback failures should preserve
   package-lock smoke evidence.
+- Quickstart now says fallback models belong after the first local smoke proof.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -931,12 +932,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add quickstart wording that fallback models belong after
-   the first local smoke proof.
-2. Product clarity: add runtime-semantics wording that fallback policy cannot
+1. Product clarity: add runtime-semantics wording that fallback policy cannot
    turn invalid provider output into trusted data.
-3. Product clarity: add provider-adapter troubleshooting wording that fallback
+2. Product clarity: add provider-adapter troubleshooting wording that fallback
    overrides should log the original failed result.
+3. Product clarity: add testing-guide wording that fallback reruns should
+   compare against the saved failed artifact.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
