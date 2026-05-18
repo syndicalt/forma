@@ -202,7 +202,7 @@ const requiredTerms = {
     "missingMigrationParityProofCommand",
     "Keep the inline prompt when it is still a one-language, one-application detail",
   ],
-  "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification", "Provider output validation is part of the host trust boundary", "Runtime traces are host workflow evidence", "Fallback policy cannot turn invalid provider output into trusted data"],
+  "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification", "Provider output validation is part of the host trust boundary", "Runtime traces are host workflow evidence", "Fallback policy cannot turn invalid provider output into trusted data", "Fallback diagnostics are host evidence, not prompt repair instructions"],
   "docs/language/limitations.md": ["MVP", "named task", "provider"],
   "examples/README.md": ["proof:release", "corepack pnpm proof:release", "projects:check", "Each proof command answers a different adoption question"],
   ".github/workflows/forma-release-proof.yml": ["proof:release", "corepack pnpm proof:release", "installed-package-smoke-summary.jsonl", "actions/upload-artifact", "installedPackageSmokeSummary"],

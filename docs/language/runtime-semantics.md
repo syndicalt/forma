@@ -162,6 +162,10 @@ Fallback policy cannot turn invalid provider output into trusted data. When a
 host retries with another model or route, the replacement response must pass
 the same Forma output validation and verification before application code uses
 it.
+Fallback diagnostics are host evidence, not prompt repair instructions. Use
+diagnostics to decide whether the host contract, provider adapter, or model
+route needs work; do not paste diagnostics back into the next prompt as a way
+to bypass the runtime trust boundary.
 
 ```forma
 output {
