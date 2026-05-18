@@ -70,6 +70,10 @@ The checked package example `examples/review_diff.forma.pkg.json` records the
 task source hash, eval suite, generated binding files, and TypeScript/Python
 host examples. Use `forma package-check` to catch stale generated files or
 missing embedding examples before depending on a task package.
+The checked package example
+`examples/function_repair/repair_function.forma.pkg.json` covers the
+function-repair coding-agent workflow with host tools, evals, generated
+bindings, and package review gates.
 
 ## Language
 

@@ -1,0 +1,70 @@
+{
+  "formaPackageLock": 1,
+  "package": {
+    "name": "examples/function-repair",
+    "version": "0.1.0",
+    "manifest": "repair_function.forma.pkg.json",
+    "manifestSha256": "f21f50215fea225c83d0ad3dd43d3e1eb9ef72e885e19f6b8fa6cf7be9ed91d1"
+  },
+  "tasks": [
+    {
+      "name": "repair_function",
+      "source": "repair_function.forma",
+      "sourceSha256": "ea943b53689aa22146dac555b7bf0e4bf7a51af9d50179a4d5855a85435c1cfc"
+    }
+  ],
+  "evalSuite": {
+    "path": "forma.eval.json",
+    "sha256": "10cf8dc62771c571fa4403ba78d32f201cabd1b0dd7ac0f8324583746878c04e"
+  },
+  "providerProfile": {
+    "path": "forma.provider.json",
+    "sha256": "2e4f43f0e18fa0712256033b4584c5b8956a2396adc322faf66af66f63f28fa7",
+    "provider": "openai-responses",
+    "model": "gpt-5",
+    "apiKeyEnv": "OPENAI_API_KEY",
+    "responseFormat": "json_schema",
+    "temperature": 0.2,
+    "timeoutMs": 30000
+  },
+  "bindings": [
+    {
+      "target": "typescript",
+      "source": "repair_function.forma",
+      "output": "repair_function.forma.ts",
+      "sha256": "380a79abce192972d194b77c83643934298bea0fcbfafd91f192ee40a41737ad"
+    },
+    {
+      "target": "python",
+      "source": "repair_function.forma",
+      "output": "repair_function_forma.py",
+      "sha256": "370d24cd5e959f5d579770ea1b6679dd5cdcfff76fcdeca734efc1efc4c6e01a"
+    }
+  ],
+  "examples": [
+    {
+      "runtime": "typescript",
+      "path": "repair_function_package.ts",
+      "sha256": "46b61437c72e87052e774c0801a558f3e2db8482115c4f2a736ace1a3737411d"
+    },
+    {
+      "runtime": "python",
+      "path": "repair_function_package.py",
+      "sha256": "907d6ee04706a63ca5a41912469b36446ba726ac6f4115cd0321456304714620"
+    }
+  ],
+  "releaseFiles": [
+    {
+      "path": "README.md",
+      "sha256": "b7bd4a30dcb89f702c6e955faad37702484b6ff174e01e96b0cc9720eec6330a"
+    },
+    {
+      "path": ".github/workflows/forma-package.yml",
+      "sha256": "5259774c46b8cb2df1c8ca59a01ab8aea6ff7c2ba7c321e01210765d97cce4bc"
+    },
+    {
+      "path": ".github/workflows/forma-publish.yml",
+      "sha256": "895b5931bfb92e323ef85fbf5da3599ce1ba6d7e62e92cc135d0dfda37b9aa62"
+    }
+  ]
+}

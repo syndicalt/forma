@@ -29,6 +29,8 @@ const required = [
   "packages/forma-core/schema/package-lock.schema.json",
   "examples/review_diff.forma.pkg.json",
   "examples/review_diff.forma.lock.json",
+  "examples/function_repair/repair_function.forma.pkg.json",
+  "examples/function_repair/repair_function.forma.lock.json",
 ];
 
 const requiredTerms = {
@@ -146,6 +148,8 @@ for (const path of scanFiles(scanRoots)) {
 
 validatePackageManifest("examples/review_diff.forma.pkg.json");
 validatePackageLock("examples/review_diff.forma.lock.json");
+validatePackageManifest("examples/function_repair/repair_function.forma.pkg.json");
+validatePackageLock("examples/function_repair/repair_function.forma.lock.json");
 
 console.log("docs ok");
 

@@ -1,0 +1,44 @@
+name: Publish Forma package
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "repair_function-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-forma-package:
+    name: examples/function-repair
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Forma CLI
+        run: npm install --global @forma-lang/cli
+      - name: Review package
+        run: forma package-review repair_function.forma.pkg.json
+      - name: Run eval suite
+        run: forma eval-suite forma.eval.json --summary > candidate.json
+      - name: Build package bundle
+        run: |
+          mkdir -p dist
+          tar -czf dist/repair_function.forma-package.tgz repair_function.forma.pkg.json repair_function.forma.lock.json repair_function.forma repair_function.eval.json forma.eval.json forma.provider.json repair_function.forma.ts repair_function_forma.py repair_function_package.ts repair_function_package.py README.md .github/workflows/forma-package.yml .github/workflows/forma-publish.yml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forma-package
+          path: |
+            dist/repair_function.forma-package.tgz
+            candidate.json
+      - name: Publish GitHub release assets
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Forma package examples/function-repair"
+          gh release upload "$GITHUB_REF_NAME" dist/repair_function.forma-package.tgz candidate.json --clobber

@@ -590,6 +590,22 @@ describe("forma cli", () => {
     expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
   });
 
+  it("reviews the checked function repair example package", async () => {
+    const result = await runCli(["package-review", "../../examples/function_repair/repair_function.forma.pkg.json"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(JSON.parse(result.stdout)).toMatchObject({
+      passed: true,
+      package: {
+        name: "examples/function-repair",
+      },
+      checks: expect.arrayContaining([
+        expect.objectContaining({ name: "package-check", passed: true }),
+        expect.objectContaining({ name: "eval-coverage", passed: true, tasks: ["repair_function"] }),
+      ]),
+    });
+  });
+
   it("fails package checks when a task source hash is stale", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-check-"));
     const manifest = join(dir, "review-diff.pkg.json");

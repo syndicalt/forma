@@ -169,6 +169,9 @@ The current MVP provides:
 - Package scaffolding supports review-agent, generic tool-using coding-agent,
   and focused function-repair templates through `--kind review`, `--kind tool`,
   and `--kind function-repair`.
+- Checked-in function-repair example package with manifest, lockfile, eval
+  suite, provider profile, generated TypeScript/Python bindings, host examples,
+  README, and package workflows.
 - Package scaffolding customizes generated provider profiles with provider,
   endpoint, model, key-env, response-format, temperature, and timeout flags.
 - Package scaffolding customizes generated input fields, output fields, and
@@ -309,10 +312,10 @@ The next three implementation slices should be:
 1. Clean-project onboarding: add installed-project smoke tests for the
    published TypeScript and Python package names once release packaging is
    available.
-2. Coding-agent ergonomics: add a checked example package for the
-   function-repair template.
-3. Developer experience: add editor-facing diagnostics output that pairs
+2. Developer experience: add editor-facing diagnostics output that pairs
    preview payloads with parser and validation errors.
+3. Registry and versioning: add a checked consumer example for depending on a
+   reviewed Forma package lock.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

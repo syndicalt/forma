@@ -1,0 +1,36 @@
+{
+  "name": "repair_function",
+  "source": "repair_function.forma",
+  "input": {
+    "path": "src/billing.ts",
+    "function_name": "calculateTotal",
+    "desired_behavior": "Return the total including discounts.",
+    "test_command": "pnpm test -- billing"
+  },
+  "fakeProviderOutput": {
+    "summary": "Updated calculateTotal and verified the focused billing test.",
+    "function_name": "calculateTotal",
+    "test_passed": true,
+    "edited": true
+  },
+  "expectedResult": {
+    "ok": true,
+    "output": {
+      "summary": "Updated calculateTotal and verified the focused billing test.",
+      "function_name": "calculateTotal",
+      "test_passed": true,
+      "edited": true
+    },
+    "trace": [
+      {
+        "step": "agent",
+        "detail": "repair_function"
+      }
+    ],
+    "diagnostics": [],
+    "verification": {
+      "ok": true
+    },
+    "error": null
+  }
+}

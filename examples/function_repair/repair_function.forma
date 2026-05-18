@@ -1,0 +1,34 @@
+task repair_function {
+  intent "Modify one named function and run its focused tests"
+
+  input {
+    path: Text
+    function_name: Text
+    desired_behavior: Text
+    test_command: Text
+  }
+
+  output {
+    summary: Text
+    function_name: Text
+    test_passed: Boolean
+    edited: Boolean
+
+  }
+
+  agent {
+    instruction """
+    Use the host read and search tools to inspect the named function and nearby context.
+    Apply the smallest edit needed to satisfy the desired behavior.
+    Run the focused test command before returning.
+    Return only the declared structured output fields.
+    """
+  }
+
+  permissions {
+    read
+    search
+    test
+    edit
+  }
+}

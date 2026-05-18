@@ -1,0 +1,72 @@
+{
+  "formaPackage": 1,
+  "name": "examples/function-repair",
+  "version": "0.1.0",
+  "description": "Modify one named function and run its focused tests.",
+  "tasks": [
+    {
+      "name": "repair_function",
+      "source": "repair_function.forma",
+      "sourceSha256": "ea943b53689aa22146dac555b7bf0e4bf7a51af9d50179a4d5855a85435c1cfc"
+    }
+  ],
+  "evalSuite": "forma.eval.json",
+  "providerProfile": "forma.provider.json",
+  "bindings": [
+    {
+      "target": "typescript",
+      "source": "repair_function.forma",
+      "output": "repair_function.forma.ts"
+    },
+    {
+      "target": "python",
+      "source": "repair_function.forma",
+      "output": "repair_function_forma.py"
+    }
+  ],
+  "examples": [
+    {
+      "runtime": "typescript",
+      "path": "repair_function_package.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "repair_function_package.py"
+    }
+  ],
+  "releaseFiles": [
+    {
+      "path": "README.md"
+    },
+    {
+      "path": ".github/workflows/forma-package.yml"
+    },
+    {
+      "path": ".github/workflows/forma-publish.yml"
+    }
+  ],
+  "compatibility": {
+    "breaking": [
+      "input",
+      "output",
+      "schemas"
+    ],
+    "review": [
+      "intent",
+      "permissions",
+      "verify",
+      "sourceSha256",
+      "bindings",
+      "examples",
+      "releaseFiles"
+    ],
+    "environment": [
+      "provider",
+      "endpoint",
+      "model",
+      "responseFormat",
+      "temperature",
+      "timeoutMs"
+    ]
+  }
+}
