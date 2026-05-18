@@ -158,6 +158,10 @@ treat provider output as untrusted until the runtime has returned an `ok`
 `FormaResult`; validation failure means the application should inspect
 diagnostics and preserve the failed result instead of coercing model output into
 typed application data.
+Fallback policy cannot turn invalid provider output into trusted data. When a
+host retries with another model or route, the replacement response must pass
+the same Forma output validation and verification before application code uses
+it.
 
 ```forma
 output {
