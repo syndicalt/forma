@@ -196,6 +196,27 @@ The importable package entrypoints `examples/review_diff_contract/index.ts` and
 TypeScript and Python module names so consumers can depend on the reviewed
 contract without copying loose example files into their application.
 
+## Consumer CI
+
+Consumer CI should treat the lockfile as the review boundary and then execute
+the host-language tests pinned by that lock. For the checked
+`examples/review_diff.forma.pkg.json` package, the sequence is:
+
+```bash
+forma package-check review_diff.forma.pkg.json
+forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
+npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts
+python review_diff_decision_test.py
+python tool_permission_workflow_test.py
+forma eval-suite forma.eval.json --summary > candidate.json
+forma package-review review_diff.forma.pkg.json
+```
+
+Run the test commands after lock verification so the files being executed are
+the same files that reviewers approved. `forma package-review` checks that the
+README and package CI workflow include the package test commands whenever the
+manifest has a `tests` section.
+
 ## Review
 
 Before publishing a package version, run the eval suite and compare it with the

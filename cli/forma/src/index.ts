@@ -451,6 +451,7 @@ function packageReadmeCommands(manifestPath: string, manifest: FormaPackageManif
     `forma package-review ${manifestFile}`,
     `forma package-check ${manifestFile}`,
     `forma package-lock ${manifestFile} --output ${lockFile} --check`,
+    ...packageTestCommands(manifest.tests),
     `forma eval-suite ${manifest.evalSuite ?? ""} --summary > candidate.json`,
     `forma package-review ${manifestFile} --baseline baseline.json`,
     "forma compare baseline.json candidate.json --fail-on breaking,environment",
@@ -477,8 +478,22 @@ function packageCiWorkflowCommands(manifestPath: string, manifest: FormaPackageM
   return [
     `forma package-check ${manifestFile}`,
     `forma package-lock ${manifestFile} --output ${lockFile} --check`,
+    ...packageTestCommands(manifest.tests),
     `forma eval-suite ${manifest.evalSuite ?? ""} --summary`,
     `forma package-review ${manifestFile}`,
+  ];
+}
+
+function packageTestCommands(tests: Array<{ runtime?: string; path?: string }> = []): string[] {
+  const typeScriptTests = tests
+    .filter((test) => test.runtime === "typescript" && test.path)
+    .map((test) => test.path as string);
+  const pythonTests = tests
+    .filter((test) => test.runtime === "python" && test.path)
+    .map((test) => test.path as string);
+  return [
+    ...(typeScriptTests.length > 0 ? [`npx vitest run ${typeScriptTests.join(" ")}`] : []),
+    ...pythonTests.map((testPath) => `python ${testPath}`),
   ];
 }
 
@@ -579,7 +594,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(scaffoldProviderProfile(args), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind, schema), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
-  const packageTests = kind === "tool"
+  const packageTests: Array<{ runtime: "typescript" | "python"; path: string }> | undefined = kind === "tool"
     ? [
         { runtime: "typescript", path: typeScriptPlanTest },
         { runtime: "python", path: pythonPlanTest },
@@ -625,9 +640,9 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   }) as FormaPackageManifest;
   const manifestPath = resolve(path, manifestFile);
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-  await writeFile(resolve(path, readmeFile), scaffoldPackageReadme(packageName, taskName, manifestFile, lockFile, evalSuite), "utf8");
+  await writeFile(resolve(path, readmeFile), scaffoldPackageReadme(packageName, taskName, manifestFile, lockFile, evalSuite, packageTests), "utf8");
   await mkdir(resolve(path, workflowDir), { recursive: true });
-  await writeFile(resolve(path, workflowDir, workflowFile), scaffoldPackageWorkflow(packageName, manifestFile, lockFile, evalSuite), "utf8");
+  await writeFile(resolve(path, workflowDir, workflowFile), scaffoldPackageWorkflow(packageName, manifestFile, lockFile, evalSuite, packageTests), "utf8");
   await writeFile(
     resolve(path, workflowDir, publishWorkflowFile),
     scaffoldPackagePublishWorkflow({
@@ -1160,7 +1175,15 @@ function scaffoldAgentEvalFixture(taskName: string, taskFile: string, input: Rec
   };
 }
 
-function scaffoldPackageReadme(packageName: string, taskName: string, manifestFile: string, lockFile: string, evalSuite: string): string {
+function scaffoldPackageReadme(
+  packageName: string,
+  taskName: string,
+  manifestFile: string,
+  lockFile: string,
+  evalSuite: string,
+  tests?: Array<{ runtime: "typescript" | "python"; path: string }>,
+): string {
+  const testCommands = packageTestCommands(tests);
   return `# ${packageName}
 
 This Forma package defines the \`${taskName}\` agent task contract, generated
@@ -1175,6 +1198,7 @@ Run these checks before publishing or consuming a changed package:
 forma package-review ${manifestFile}
 forma package-check ${manifestFile}
 forma package-lock ${manifestFile} --output ${lockFile} --check
+${testCommands.length > 0 ? `${testCommands.join("\n")}\n` : ""}\
 forma eval-suite ${evalSuite} --summary > candidate.json
 forma package-review ${manifestFile} --baseline baseline.json
 forma compare baseline.json candidate.json --fail-on breaking,environment
@@ -1186,7 +1210,14 @@ consumers review the same contract.
 `;
 }
 
-function scaffoldPackageWorkflow(packageName: string, manifestFile: string, lockFile: string, evalSuite: string): string {
+function scaffoldPackageWorkflow(
+  packageName: string,
+  manifestFile: string,
+  lockFile: string,
+  evalSuite: string,
+  tests?: Array<{ runtime: "typescript" | "python"; path: string }>,
+): string {
+  const testSteps = packageTestWorkflowSteps(packageTestCommands(tests));
   return `name: Forma package
 
 on:
@@ -1210,6 +1241,7 @@ jobs:
         run: forma package-check ${manifestFile}
       - name: Check package lock
         run: forma package-lock ${manifestFile} --output ${lockFile} --check
+${testSteps}\
       - name: Run eval suite
         run: forma eval-suite ${evalSuite} --summary > candidate.json
       - name: Review package
@@ -1219,6 +1251,12 @@ jobs:
           name: forma-candidate
           path: candidate.json
 `;
+}
+
+function packageTestWorkflowSteps(commands: string[]): string {
+  return commands.map((command) => `      - name: ${command.startsWith("npx vitest") ? "Run TypeScript package tests" : "Run Python package test"}
+        run: ${command}
+`).join("");
 }
 
 function scaffoldPackagePublishWorkflow(options: {

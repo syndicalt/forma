@@ -139,6 +139,11 @@ forma package-lock examples/review_diff.forma.pkg.json --output examples/review_
 forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check
 ```
 
+When the manifest includes `tests`, scaffolded package READMEs and CI workflows
+run the locked package test files after `forma package-lock --check` and before
+the eval suite. TypeScript tests use `npx vitest run ...`; Python tests are
+written as script-runnable files and use `python <test-file>`.
+
 `forma package-review` runs the publish-review checklist for a package:
 manifest validation, adjacent lockfile verification, TypeScript and Python
 binding presence, TypeScript and Python host example presence, checked test

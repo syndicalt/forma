@@ -128,11 +128,11 @@
   "releaseFiles": [
     {
       "path": "README.md",
-      "sha256": "9cb794922ddd06938ddb6305672af2a712fa493e7fa26729220fb70b87489930"
+      "sha256": "19de1273fe32809259868227b61e1393d0d3cf34a8c2f836ecead3a9693f2d1e"
     },
     {
       "path": ".github/workflows/forma-package.yml",
-      "sha256": "52093ee751feafb6d3b8930d6aa67fc739b88baab7330d888f0dd8bb5a4be475"
+      "sha256": "bf625b56987a345f669151ec9ed150f8da42df180888642e1d9d15d37de0805e"
     },
     {
       "path": ".github/workflows/forma-publish.yml",

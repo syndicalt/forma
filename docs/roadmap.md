@@ -211,6 +211,9 @@ The current MVP provides:
 - Package manifests, package locks, and package review support checked
   TypeScript/Python test artifacts, and `package-init --kind tool` scaffolds
   follow-up helper tests for generated tool packages.
+- Scaffolded package READMEs and CI workflows run pinned package tests after
+  lock verification, and package review fails when those test commands are
+  omitted from a package that declares test artifacts.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -341,8 +344,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add lock-aware package consumer docs that show how CI
-   should run the pinned host tests after lock verification.
+3. Coding workflow depth: surface the exact pinned package test commands in
+   package-review output so consumers can copy the verified test plan.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
