@@ -91,6 +91,10 @@ Cleaned-up route labels should not require lock regeneration. If the cleanup is
 host-only naming, keep the reviewed lock unchanged and record the new label in
 application configuration or smoke evidence instead of regenerating package
 artifacts.
+Cleaned-up route labels should remain app-owned until reviewed. Keep renamed or
+redacted deployment labels beside the consuming application's provider adapter,
+and promote them into the package only through a reviewed release when every
+consumer should inherit the same label.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
