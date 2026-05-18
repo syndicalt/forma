@@ -1,0 +1,44 @@
+name: Publish Forma package
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "review_diff-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-forma-package:
+    name: examples/review-diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Forma CLI
+        run: npm install --global @forma-lang/cli
+      - name: Review package
+        run: forma package-review review_diff.forma.pkg.json
+      - name: Run eval suite
+        run: forma eval-suite forma.eval.json --summary > candidate.json
+      - name: Build package bundle
+        run: |
+          mkdir -p dist
+          tar -czf dist/review_diff.forma-package.tgz review_diff.forma.pkg.json review_diff.forma.lock.json review_diff.forma review_diff.eval.json forma.eval.json forma.provider.json review_diff.forma.ts review_diff_forma.py review_diff_package.ts review_diff_package.py tool_permission_workflow.ts tool_permission_workflow.py README.md .github/workflows/forma-package.yml .github/workflows/forma-publish.yml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forma-package
+          path: |
+            dist/review_diff.forma-package.tgz
+            candidate.json
+      - name: Publish GitHub release assets
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Forma package examples/review-diff"
+          gh release upload "$GITHUB_REF_NAME" dist/review_diff.forma-package.tgz candidate.json --clobber

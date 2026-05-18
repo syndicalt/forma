@@ -42,9 +42,20 @@
       "path": "tool_permission_workflow.py"
     }
   ],
+  "releaseFiles": [
+    {
+      "path": "README.md"
+    },
+    {
+      "path": ".github/workflows/forma-package.yml"
+    },
+    {
+      "path": ".github/workflows/forma-publish.yml"
+    }
+  ],
   "compatibility": {
     "breaking": ["input", "output", "schemas"],
-    "review": ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
+    "review": ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples", "releaseFiles"],
     "environment": ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"]
   }
 }

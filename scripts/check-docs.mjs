@@ -277,6 +277,18 @@ function validatePackageManifest(path) {
       }
     }
   }
+  if (manifest.releaseFiles !== undefined) {
+    if (!Array.isArray(manifest.releaseFiles)) {
+      console.error(`${path}: releaseFiles must be an array`);
+      process.exit(1);
+    }
+    for (const file of manifest.releaseFiles) {
+      if (typeof file.path !== "string" || !existsSync(resolve(manifestDir, file.path))) {
+        console.error(`${path}: releaseFiles.path does not exist: ${file.path}`);
+        process.exit(1);
+      }
+    }
+  }
   if (manifest.providerProfile !== undefined) {
     if (typeof manifest.providerProfile !== "string" || !manifest.providerProfile.endsWith(".json")) {
       console.error(`${path}: providerProfile must point to a JSON file`);
@@ -357,6 +369,9 @@ function validatePackageLock(path) {
   }
   for (const example of lock.examples ?? []) {
     assertLockedHash(path, lockDir, example.path, example.sha256, "example");
+  }
+  for (const file of lock.releaseFiles ?? []) {
+    assertLockedHash(path, lockDir, file.path, file.sha256, "release file");
   }
 }
 

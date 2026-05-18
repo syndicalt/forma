@@ -76,14 +76,15 @@ node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
 The package review output should report `package-check`, `package-lock`,
-`provider-profile`, `bindings`, `examples`, `eval-coverage`, and `eval-suite`
-as passed, with `bindings.targets` and `examples.runtimes` listing both
-`typescript` and `python`, and `eval-coverage.tasks` listing the packaged task
-names. Eval coverage also checks that each evaluated task source hash matches
-the package manifest. Provider profile review fails if the profile embeds an
-`apiKey`; agent task packages should include a provider profile that uses
-`apiKeyEnv`, and OpenAI profiles fail review when that key environment variable
-is missing.
+`provider-profile`, `bindings`, `examples`, `release-files`, `eval-coverage`,
+and `eval-suite` as passed, with `bindings.targets` and `examples.runtimes`
+listing both `typescript` and `python`, and `eval-coverage.tasks` listing the
+packaged task names. Eval coverage also checks that each evaluated task source
+hash matches the package manifest. Release file review checks that the package
+README and scaffolded CI workflows are present in the reviewed artifact set.
+Provider profile review fails if the profile embeds an `apiKey`; agent task
+packages should include a provider profile that uses `apiKeyEnv`, and OpenAI
+profiles fail review when that key environment variable is missing.
 `examples:check` should finish without output. A live provider run requires
 `OPENAI_API_KEY`; without it, the failure is expected and confirms that
 credentials stay in host configuration instead of the `.forma` contract.

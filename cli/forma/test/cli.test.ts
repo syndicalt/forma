@@ -723,6 +723,7 @@ describe("forma cli", () => {
         { name: "provider-profile", passed: true, provider: "openai-responses", model: "gpt-5", required: true, apiKeyEnv: "OPENAI_API_KEY" },
         { name: "bindings", passed: true, total: 2, targets: ["typescript", "python"] },
         { name: "examples", passed: true, total: 2, runtimes: ["typescript", "python"] },
+        { name: "release-files", passed: true, total: 3, paths: ["README.md", ".github/workflows/forma-package.yml", ".github/workflows/forma-publish.yml"] },
         { name: "eval-coverage", passed: true, tasks: ["review_diff"] },
         { name: "eval-suite", passed: true, total: 1, failed: 0 },
       ],
@@ -951,6 +952,30 @@ describe("forma cli", () => {
     });
   });
 
+  it("fails package review when release files are missing", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-release-files-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.releaseFiles = manifest.releaseFiles.filter((file: { path: string }) => file.path !== ".github/workflows/forma-publish.yml");
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "release-files",
+      passed: false,
+      total: 2,
+      paths: ["README.md", ".github/workflows/forma-package.yml"],
+      missingPaths: [".github/workflows/forma-publish.yml"],
+    });
+  });
+
   it("reviews a package against a baseline eval artifact", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-baseline-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");
@@ -992,6 +1017,11 @@ describe("forma cli", () => {
       version: "0.1.0",
       evalSuite: "forma.eval.json",
       providerProfile: "forma.provider.json",
+      releaseFiles: [
+        { path: "README.md" },
+        { path: ".github/workflows/forma-package.yml" },
+        { path: ".github/workflows/forma-publish.yml" },
+      ],
     });
     expect(JSON.parse(await readFile(join(dir, "forma.provider.json"), "utf8"))).toEqual({
       provider: "openai-responses",
@@ -1035,6 +1065,11 @@ describe("forma cli", () => {
         manifest: "review_diff.forma.pkg.json",
         manifestSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
       },
+      releaseFiles: [
+        { path: "README.md", sha256: expect.stringMatching(/^[a-f0-9]{64}$/) },
+        { path: ".github/workflows/forma-package.yml", sha256: expect.stringMatching(/^[a-f0-9]{64}$/) },
+        { path: ".github/workflows/forma-publish.yml", sha256: expect.stringMatching(/^[a-f0-9]{64}$/) },
+      ],
     });
 
     const check = await runCli(["package-check", manifestPath]);

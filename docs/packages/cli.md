@@ -119,11 +119,13 @@ forma package-lock examples/review_diff.forma.pkg.json --output examples/review_
 `forma package-review` runs the publish-review checklist for a package:
 manifest validation, adjacent lockfile verification, TypeScript and Python
 binding presence, TypeScript and Python host example presence, provider profile
-secret hygiene, and eval suite summary. It prints a machine-readable checklist
-result. The review fails when a publishable package embeds provider secrets,
-omits a provider profile for an agent task, does not include generated bindings
-and host examples for both runtimes, or when the eval suite does not cover every
-task in the package manifest with matching task source hashes. Add `--baseline
+secret hygiene, release file presence, and eval suite summary. It prints a
+machine-readable checklist result. The review fails when a publishable package
+embeds provider secrets, omits a provider profile for an agent task, does not
+include generated bindings and host examples for both runtimes, omits the
+package README or scaffolded CI workflows from `releaseFiles`, or when the eval
+suite does not cover every task in the package manifest with matching task
+source hashes. Add `--baseline
 baseline.json` to compare the candidate eval suite against a previous release
 artifact; baseline comparisons default to
 `--fail-on breaking,environment` unless you pass a different `--fail-on`
@@ -142,7 +144,9 @@ Actions starting point for package checks. It also writes
 `.github/workflows/forma-publish.yml`, which reviews the package, builds a
 versioned `.tgz` bundle, uploads the bundle and candidate eval summary as
 workflow artifacts, and uploads those assets to a GitHub Release when a matching
-tag is pushed. Use `--kind review` for the default code-review agent shape or
+tag is pushed. The scaffolded manifest records those publish-facing files in
+`releaseFiles`, and the lockfile pins their hashes with the rest of the package
+artifact set. Use `--kind review` for the default code-review agent shape or
 `--kind tool` for a coding-agent shape that declares `read`, `search`, `test`,
 and `edit` permissions and generates host examples that call those tools. The
 scaffold also writes `forma.provider.json`; review-agent host examples load it

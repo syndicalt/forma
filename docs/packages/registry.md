@@ -13,8 +13,9 @@ drift before runtime. `evalSuite` points at the suite that should be archived
 with releases. Optional `bindings` entries point at checked-in generated
 TypeScript or Python binding files. Optional `examples` entries point at host
 embedding examples that show provider setup, `agent(...)`, generated output
-validators, and result handling. Manifest paths are resolved relative to the
-package manifest file.
+validators, and result handling. Optional `releaseFiles` entries point at the
+package README and CI workflows that should ship with the reviewed artifact.
+Manifest paths are resolved relative to the package manifest file.
 
 Start a new package with the CLI when you want the task, evals, bindings,
 manifest, lockfile, host examples, and package CI commands created together:
@@ -50,7 +51,9 @@ package. The scaffolded `.github/workflows/forma-package.yml` runs the package
 check, lock check, and eval-suite summary in GitHub Actions and uploads the
 candidate eval artifact. It also runs `forma package-review`, which combines
 manifest validation, lockfile verification, and eval-suite execution into one
-machine-readable publishing checklist.
+machine-readable publishing checklist. The package manifest records these
+publish-facing files under `releaseFiles` so package review can fail when the
+README or workflows are omitted.
 
 The scaffolded `.github/workflows/forma-publish.yml` automates the release
 artifact path for registry-style sharing. It runs `forma package-review`, writes
@@ -95,6 +98,17 @@ GitHub Release so consumers can depend on the exact reviewed artifact set.
       "runtime": "python",
       "path": "review_diff_package.py"
     }
+  ],
+  "releaseFiles": [
+    {
+      "path": "README.md"
+    },
+    {
+      "path": ".github/workflows/forma-package.yml"
+    },
+    {
+      "path": ".github/workflows/forma-publish.yml"
+    }
   ]
 }
 ```
@@ -109,7 +123,7 @@ Use the same vocabulary as `forma compare --fail-on`: `breaking`, `review`, and
 {
   "compatibility": {
     "breaking": ["input", "output", "schemas"],
-    "review": ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
+    "review": ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples", "releaseFiles"],
     "environment": ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"]
   }
 }
@@ -130,9 +144,10 @@ Use `forma package-lock` to produce a reviewed artifact lock for a package
 manifest. The lockfile schema lives at
 `packages/forma-core/schema/package-lock.schema.json`. A lock pins the package
 manifest hash, task source hashes, eval suite hash, provider profile hash,
-generated binding hashes, and host example hashes. Provider secrets stay out of
-the lock; the provider section records reviewable settings such as provider,
-endpoint, model, `apiKeyEnv`, response format, temperature, and timeout.
+generated binding hashes, host example hashes, and release file hashes. Provider
+secrets stay out of the lock; the provider section records reviewable settings
+such as provider, endpoint, model, `apiKeyEnv`, response format, temperature,
+and timeout.
 
 ```bash
 node cli/forma/dist/index.js package-lock examples/review_diff.forma.pkg.json \
@@ -175,6 +190,9 @@ Publishing checklist:
   `python`; missing targets fail the review.
 - Confirm the `examples` row in package-review lists both `typescript` and
   `python`; missing runtimes fail the review.
+- Confirm the `release-files` row in package-review lists `README.md`,
+  `.github/workflows/forma-package.yml`, and
+  `.github/workflows/forma-publish.yml`; missing paths fail the review.
 - Confirm the `eval-coverage` row in package-review lists every task from the
   manifest; missing tasks or mismatched source hashes fail the review.
 - Run `forma package-check` against the manifest.
@@ -183,7 +201,8 @@ Publishing checklist:
 - Compare the candidate summary against the previous release with
   `forma compare --fail-on breaking,environment`.
 - Publish the manifest, lockfile, `.forma` sources, eval suite, provider
-  profile, generated TypeScript/Python bindings, and host examples together.
+  profile, generated TypeScript/Python bindings, host examples, README, and
+  workflows together.
 - Use the scaffolded `forma-publish.yml` workflow when publishing release
   assets from tags.
 
@@ -191,9 +210,10 @@ Publishing checklist:
 
 The docs gate checks that `examples/review_diff.forma.pkg.json` has a package
 format marker, semver version, matching task source hash, eval suite path,
-current generated bindings, existing host examples, and compatibility policy.
+current generated bindings, existing host examples, release files, and
+compatibility policy.
 It also checks that `examples/review_diff.forma.lock.json` matches the locked
-manifest and artifact hashes.
+manifest and artifact hashes, including README and workflow hashes.
 The CLI exposes the same check for package users:
 
 ```bash

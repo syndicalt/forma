@@ -135,9 +135,18 @@ interface FormaPackageManifest {
     runtime?: string;
     path?: string;
   }>;
+  releaseFiles?: Array<{
+    path?: string;
+  }>;
   providerProfile?: string;
   compatibility?: unknown;
 }
+
+const requiredPackageReleaseFiles = [
+  "README.md",
+  ".github/workflows/forma-package.yml",
+  ".github/workflows/forma-publish.yml",
+];
 
 async function checkPackageManifest(path: string): Promise<CliResult> {
   const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
@@ -186,6 +195,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
   const providerProfileCheck = await packageProviderProfileCheck(manifest, manifestDir);
   const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
+  const releaseFilesCheck = packageReleaseFilesCheck(manifest);
   const evalCoverageCheck = packageEvalCoverageCheck(manifest, suite);
   const checks: Array<Record<string, unknown>> = [
     { name: "package-check", passed: true },
@@ -193,12 +203,14 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     providerProfileCheck,
     bindingsCheck,
     examplesCheck,
+    releaseFilesCheck,
     evalCoverageCheck,
     { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
   ];
   let passed = providerProfileCheck.passed === true
     && bindingsCheck.passed === true
     && examplesCheck.passed === true
+    && releaseFilesCheck.passed === true
     && evalCoverageCheck.passed === true;
   const baselinePath = optionValue(args, "--baseline");
   if (baselinePath) {
@@ -324,6 +336,21 @@ function packageExamplesCheck(manifest: FormaPackageManifest): Record<string, un
   };
 }
 
+function packageReleaseFilesCheck(manifest: FormaPackageManifest): Record<string, unknown> {
+  const files = manifest.releaseFiles ?? [];
+  const paths = Array.from(
+    new Set(files.flatMap((file) => typeof file.path === "string" ? [file.path] : [])),
+  );
+  const missingPaths = requiredPackageReleaseFiles.filter((path) => !paths.includes(path));
+  return {
+    name: "release-files",
+    passed: missingPaths.length === 0,
+    total: files.length,
+    paths,
+    ...(missingPaths.length > 0 ? { missingPaths } : {}),
+  };
+}
+
 function packageLockPath(manifestPath: string): string {
   return manifestPath.endsWith(".pkg.json")
     ? manifestPath.slice(0, -".pkg.json".length) + ".lock.json"
@@ -388,16 +415,15 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
       { runtime: "typescript", path: typeScriptExample },
       { runtime: "python", path: pythonExample },
     ],
+    releaseFiles: requiredPackageReleaseFiles.map((releasePath) => ({ path: releasePath })),
     compatibility: {
       breaking: ["input", "output", "schemas"],
-      review: ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
+      review: ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples", "releaseFiles"],
       environment: ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"],
     },
   };
   const manifestPath = resolve(path, manifestFile);
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-  await validatePackageManifest(manifest, path);
-  await writeFile(resolve(path, lockFile), `${JSON.stringify(await createPackageLock(manifestPath, manifest, path), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, readmeFile), scaffoldPackageReadme(packageName, taskName, manifestFile, lockFile, evalSuite), "utf8");
   await mkdir(resolve(path, workflowDir), { recursive: true });
   await writeFile(resolve(path, workflowDir, workflowFile), scaffoldPackageWorkflow(packageName, manifestFile, lockFile, evalSuite), "utf8");
@@ -420,6 +446,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
     }),
     "utf8",
   );
+  await validatePackageManifest(manifest, path);
+  await writeFile(resolve(path, lockFile), `${JSON.stringify(await createPackageLock(manifestPath, manifest, path), null, 2)}\n`, "utf8");
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
 
@@ -468,6 +496,10 @@ async function createPackageLock(path: string, manifest: FormaPackageManifest, m
       runtime: example.runtime,
       path: example.path,
       sha256: await hashFile(resolve(manifestDir, example.path ?? "")),
+    }))),
+    releaseFiles: await Promise.all((manifest.releaseFiles ?? []).map(async (file) => ({
+      path: file.path,
+      sha256: await hashFile(resolve(manifestDir, file.path ?? "")),
     }))),
   });
 }
@@ -826,6 +858,8 @@ function scaffoldPackagePublishWorkflow(options: {
     options.typeScriptExample,
     options.pythonExample,
     options.readmeFile,
+    ".github/workflows/forma-package.yml",
+    ".github/workflows/forma-publish.yml",
   ].join(" ");
   return `name: Publish Forma package
 
@@ -1199,6 +1233,15 @@ async function validatePackageManifest(manifest: FormaPackageManifest, manifestD
       }
       if (!example.path) throw new Error("example.path is required");
       await readFile(resolve(manifestDir, example.path));
+    }
+  }
+  if (manifest.releaseFiles !== undefined) {
+    if (!Array.isArray(manifest.releaseFiles)) {
+      throw new Error("releaseFiles must be an array");
+    }
+    for (const file of manifest.releaseFiles) {
+      if (!file.path) throw new Error("releaseFiles.path is required");
+      await readFile(resolve(manifestDir, file.path));
     }
   }
   if (manifest.providerProfile !== undefined) {

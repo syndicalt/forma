@@ -145,12 +145,15 @@ The current MVP provides:
   generated bindings and reports included and missing targets.
 - `forma package-review` fails package reviews that omit TypeScript or Python
   host examples and reports included and missing runtimes.
+- `forma package-review` fails package reviews that omit package README and CI
+  workflow release files.
 - `forma package-review` fails package reviews when the eval suite omits
   package manifest tasks or evaluates mismatched task source hashes.
 - `forma package-review --baseline` folds previous-release eval comparison into
   the package publishing checklist.
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,
-  generated binding, and host example hashes for publishable packages.
+  generated binding, host example, and release file hashes for publishable
+  packages.
 - Package scaffolding supports review-agent and tool-using coding-agent
   templates through `--kind review` and `--kind tool`.
 - Package scaffolding customizes generated provider profiles with provider,

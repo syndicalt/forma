@@ -1,0 +1,31 @@
+name: Forma package
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  forma-package:
+    name: examples/review-diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Forma CLI
+        run: npm install --global @forma-lang/cli
+      - name: Check package manifest
+        run: forma package-check review_diff.forma.pkg.json
+      - name: Check package lock
+        run: forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
+      - name: Run eval suite
+        run: forma eval-suite forma.eval.json --summary > candidate.json
+      - name: Review package
+        run: forma package-review review_diff.forma.pkg.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forma-candidate
+          path: candidate.json

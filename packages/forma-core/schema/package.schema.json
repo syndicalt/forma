@@ -59,6 +59,17 @@
         }
       }
     },
+    "releaseFiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" }
+        }
+      }
+    },
     "compatibility": {
       "type": "object",
       "required": ["breaking", "review", "environment"],
