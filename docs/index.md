@@ -25,6 +25,8 @@ Read `docs/guides/why-forma.md` for the concrete product problem and the
 `review_diff` coding-agent workflow.
 Read `docs/guides/product-proof.md` when you want to test whether the current
 package workflow is more useful than an inline prompt plus local schemas.
+Read `docs/guides/package-consumer-quickstart.md` when embedding a reviewed
+package lock from TypeScript or Python.
 Read `docs/guides/migrating-from-inline-prompts.md` when moving an existing
 model call into a reviewed `.forma` task package.
 Use `forma project-init` when you want a clean TypeScript and Python host
@@ -102,6 +104,8 @@ Package docs cover the host-facing surfaces:
 - `docs/packages/cli.md` for `@forma-lang/cli`.
 - `docs/packages/conformance.md` for shared fixtures and expected results.
 - `docs/packages/registry.md` for versioned task package manifests.
+- `docs/guides/package-consumer-quickstart.md` for consuming reviewed package
+  locks from TypeScript and Python applications.
 
 ## Contributing
 

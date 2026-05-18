@@ -76,6 +76,9 @@ matching version tags, it uploads those assets to the GitHub Release so
 consumers can depend on the exact reviewed artifact set.
 When a manifest includes a `tests` section, package review reports the test
 artifact count and requires those files in the publish bundle.
+Use `docs/guides/package-consumer-quickstart.md` when embedding a reviewed
+package lock in a TypeScript or Python application with `agentFromPackageLock`
+or `agent_from_package_lock`.
 
 ```json
 {

@@ -236,6 +236,9 @@ The current MVP provides:
 - Scaffolded package READMEs point to the release runtime flow so generated
   packages show where runtime embedding, provider profiles, eval summaries, and
   package locks connect.
+- Package consumer quickstart shows how TypeScript and Python applications
+  embed a reviewed package lock with `agentFromPackageLock(...)` and
+  `agent_from_package_lock(...)`.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -366,8 +369,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add a package-consumer quickstart that starts from a
-   reviewed lockfile and embeds the agent in TypeScript and Python.
+3. Coding workflow depth: add lockfile consumer smoke-test scaffolding for
+   generated TypeScript and Python package contract modules.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
