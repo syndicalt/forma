@@ -53,6 +53,10 @@ over an inline prompt plus local schemas, do not add package review yet.
 | Output parsing is trusted at the call site. | Runtime validators check model output before host code consumes it. |
 | Local smoke tests are custom to each language. | Both runtimes can use the same `StaticProvider` smoke path before real model calls. |
 
+Map that progression to the [minimal scaffold](#which-scaffold-should-i-use),
+[checked scaffold](#which-scaffold-should-i-use), and
+[package-lock scaffold](#which-scaffold-should-i-use) choices below.
+
 Move to the default `project-init` scaffold only when the contract should be
 checked in CI. Move to `project-init --package-lock` only after the task is a
 reviewed package that consumers should load through pinned artifacts.

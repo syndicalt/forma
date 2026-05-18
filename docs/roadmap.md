@@ -202,6 +202,9 @@ The current MVP provides:
   duplicated host schemas, output parsing, and smoke tests against Forma task
   contracts, generated TypeScript and Python bindings, validators, and
   `StaticProvider` checks.
+- The README before/after table now links readers to the minimal, checked, and
+  package-lock scaffold choices so the value comparison leads directly to the
+  right host-project shape.
 - `package-review` output now includes a top-level note that distinguishes
   minimal first-use success from reviewed release readiness for reusable
   packages.
@@ -739,12 +742,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add README links from the before/after table to the
-   minimal, checked, and package-lock scaffold sections.
-2. Product clarity: add generated package-lock project README guidance that
+1. Product clarity: add generated package-lock project README guidance that
    explains when reviewed package consumption is worth the extra scaffold.
-3. Product clarity: add package-consumer quickstart guidance that mirrors the
+2. Product clarity: add package-consumer quickstart guidance that mirrors the
    minimal, checked, and package-lock scaffold progression.
+3. Product clarity: add CLI docs examples that map each `project-init` scaffold
+   choice to the proof command that should be run before depending on it.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
