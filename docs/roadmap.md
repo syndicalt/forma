@@ -251,6 +251,8 @@ The current MVP provides:
   package-lock row errors when test artifact hashes drift.
 - Package consumer quickstart includes troubleshooting for stale lockfiles,
   provider profile credential configuration, and generated smoke-test drift.
+- Scaffolded package READMEs link to package consumer troubleshooting for
+  lockfile checks, provider profiles, and generated smoke-test failures.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -381,8 +383,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: link generated package READMEs to the package-consumer
-   troubleshooting section.
+3. Coding workflow depth: add package-review troubleshooting links to generated
+   CI workflows so failures point back to consumer guidance.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
