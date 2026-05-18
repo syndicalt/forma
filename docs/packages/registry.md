@@ -232,6 +232,18 @@ The importable package entrypoints `examples/review_diff_contract/index.ts` and
 TypeScript and Python module names so consumers can depend on the reviewed
 contract without copying loose example files into their application.
 
+### Release Notes For Artifact Group Changes
+
+When `changedArtifactGroups` contains added, removed, or changed paths, write a
+release note before publishing the package version. The note should name the
+affected group (`bindings`, `examples`, `tests`, `releaseFiles`, or package
+metadata), list the paths, and say whether consumers need to rerun generated
+bindings, update package-lock smoke tests, or review new release files. For
+example: "Release artifact change: added `releaseFiles/CHANGELOG.md`; consumers
+should refresh package locks and review the new release notes file before
+upgrading." Keep this note beside the regenerated lock so reviewers can match
+the human explanation to the machine-readable artifact group report.
+
 ## Consumer CI
 
 Consumer CI should treat the lockfile as the review boundary and then execute

@@ -175,6 +175,9 @@ The current MVP provides:
 - `forma package-lock --check --json` now prints a machine-readable
   `changedArtifactGroups` report for stale locks, including changed package
   metadata fields and added, removed, or changed artifact paths by group.
+- Registry docs now include release-notes guidance for package-lock artifact
+  group changes, so each regenerated lock can be matched to a human explanation
+  of changed bindings, examples, tests, release files, or package metadata.
 - Checked-in TypeScript and Python consumer examples depend on
   `examples/review_diff.forma.lock.json` by verifying pinned task source,
   generated binding, provider profile, host example, package test, and release
@@ -693,12 +696,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: add release notes guidance for package lock
-   artifact group changes.
-2. Product clarity: include one copied sample
+1. Product clarity: include one copied sample
    `installed-package-smoke-summary.jsonl` row in registry docs.
-3. Registry and versioning: add CI guidance for archiving stale package-lock
+2. Registry and versioning: add CI guidance for archiving stale package-lock
    JSON reports.
+3. Registry and versioning: make generated package READMEs mention artifact
+   group release notes.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
