@@ -267,6 +267,36 @@ For example, the `tests` row includes:
 }
 ```
 
+Scaffolded packages also include lockfile consumer smoke tests for the generated
+contract modules. The `tests` row for a default package shows those exact
+commands:
+
+```json
+{
+  "name": "tests",
+  "passed": true,
+  "total": 2,
+  "runtimes": ["typescript", "python"],
+  "commands": [
+    "npx vitest run review_diff_contract.test.ts",
+    "python review_diff_contract_test.py"
+  ]
+}
+```
+
+When the publish workflow omits a reviewed artifact, the `publish-bundle` row
+reports `missingPaths` so the release bundle can be fixed before a consumer
+downloads it:
+
+```json
+{
+  "name": "publish-bundle",
+  "passed": false,
+  "total": 17,
+  "missingPaths": ["review_diff_contract_test.py"]
+}
+```
+
 With `--baseline`, `package-review` adds a `compare` row. The default package
 gate fails on `breaking` and `environment` changes unless `--fail-on` is set.
 The row includes `failedOn`, summarized change keys, and the detailed
