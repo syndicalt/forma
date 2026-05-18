@@ -161,6 +161,9 @@ evidence.
 Fallback baselines should identify the model route under review. Include the
 provider, model, endpoint or route label, and fallback policy in baseline and
 candidate eval summaries so reviewers know which deployment path changed.
+Fallback route labels should appear in candidate summaries. The candidate
+artifact should repeat the stable route label used in logs and diagnostics so
+the baseline comparison shows which provider path produced the reviewed output.
 When README or CI package test commands drift, the failing `readme` or
 `ci-workflow` row reports `missingCommands` with the exact command text to
 restore.
