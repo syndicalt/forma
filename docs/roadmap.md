@@ -205,6 +205,9 @@ The current MVP provides:
 - `forma project-init` scaffolds TypeScript and Python `StaticProvider` smoke
   tests for clean host projects, and `forma project-check` fails if those
   generated smoke tests are missing.
+- `forma project-init` scaffolds `.github/workflows/forma-project.yml` for
+  clean host projects, and `forma project-check` fails if that workflow omits
+  project-check, TypeScript compile, Python compile, or smoke-test commands.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -501,9 +504,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add clean-project CI workflow scaffolding that runs
-   `project-check`, TypeScript compile, Python compile, and both generated
-   `StaticProvider` smoke tests.
+3. Product proof: add project workflow troubleshooting docs and a
+   `project-check` diagnostic for workflows that drift out of the generated
+   clean-project proof commands.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

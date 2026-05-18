@@ -694,6 +694,11 @@ pnpm run smoke:ts
 python test/review_diff_agent_smoke.py
 ```
 
+They also include `.github/workflows/forma-project.yml`. That workflow runs
+`forma project-check .`, `pnpm run check`, Python bytecode compilation, and the
+two generated smoke tests so the clean-project embedding proof stays enforced
+after the initial scaffold.
+
 `forma project-check` validates a generated host project. It reads
 `forma.project.json`, confirms the named agent task exists, validates the
 provider profile without accepting stored `apiKey` secrets, checks that
@@ -701,7 +706,9 @@ TypeScript and Python generated bindings are current, and confirms both runtime
 entrypoints keep the expected embedding wiring: `agent(...)`, the shared
 provider profile loader, provider construction, `.forma` source path, and
 generated output validator. It also confirms the generated TypeScript and
-Python StaticProvider smoke tests are present:
+Python StaticProvider smoke tests are present and that
+`.github/workflows/forma-project.yml` runs the project-check, compile, and
+smoke commands:
 
 ```bash
 forma project-check ./review-diff-agent

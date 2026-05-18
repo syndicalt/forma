@@ -179,6 +179,7 @@ interface FormaProjectManifest {
     path?: string;
     command?: string;
   }>;
+  ciWorkflow?: string;
 }
 
 const requiredPackageReleaseFiles = [
@@ -814,6 +815,7 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   await mkdir(path, { recursive: true });
   await mkdir(resolve(path, "src"), { recursive: true });
   await mkdir(resolve(path, "test"), { recursive: true });
+  await mkdir(resolve(path, ".github", "workflows"), { recursive: true });
 
   const schema = scaffoldSchema(args);
   const source = scaffoldSource(taskName, kind, schema);
@@ -823,6 +825,7 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   const pythonAgent = `src/${taskName}_agent.py`;
   const typeScriptSmoke = `test/${taskName}_agent_smoke.ts`;
   const pythonSmoke = `test/${taskName}_agent_smoke.py`;
+  const ciWorkflow = ".github/workflows/forma-project.yml";
   const taskFile = `${taskName}.forma`;
   const providerProfile = scaffoldProviderProfile(args);
   const projectManifest = {
@@ -843,6 +846,7 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
       { runtime: "typescript", path: typeScriptSmoke, command: "pnpm run smoke:ts" },
       { runtime: "python", path: pythonSmoke, command: `python test/${taskName}_agent_smoke.py` },
     ],
+    ciWorkflow,
   };
 
   await writeFile(resolve(path, taskFile), source, "utf8");
@@ -852,6 +856,7 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, pythonAgent), scaffoldProjectPythonAgent(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, typeScriptSmoke), scaffoldProjectTypeScriptSmokeTest(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonSmoke), scaffoldProjectPythonSmokeTest(taskName, kind, schema), "utf8");
+  await writeFile(resolve(path, ciWorkflow), scaffoldProjectWorkflow(taskName), "utf8");
   await writeFile(resolve(path, "forma.provider.json"), `${JSON.stringify(providerProfile, null, 2)}\n`, "utf8");
   await writeFile(resolve(path, "forma.project.json"), `${JSON.stringify(projectManifest, null, 2)}\n`, "utf8");
   await writeFile(resolve(path, "package.json"), scaffoldProjectPackageJson(projectName, taskName), "utf8");
@@ -954,6 +959,26 @@ async function validateProjectManifest(manifest: FormaProjectManifest, manifestD
       throw new Error(`project smoke test is missing: ${test.path}`);
     }
     validateProjectSmokeTest(test, smokeSource, manifest.task);
+  }
+
+  if (!manifest.ciWorkflow) {
+    throw new Error("project ciWorkflow is required");
+  }
+  let workflow: string;
+  try {
+    workflow = await readFile(resolve(manifestDir, manifest.ciWorkflow), "utf8");
+  } catch {
+    throw new Error(`project workflow is missing: ${manifest.ciWorkflow}`);
+  }
+  const requiredWorkflowCommands = [
+    "forma project-check .",
+    "pnpm run check",
+    `python -m py_compile src/${manifest.task}_forma.py src/${manifest.task}_agent.py test/${manifest.task}_agent_smoke.py`,
+    ...smokeTests.map((test) => test.command ?? ""),
+  ].filter(Boolean);
+  const missingWorkflowCommands = requiredWorkflowCommands.filter((command) => !workflow.includes(command));
+  if (missingWorkflowCommands.length > 0) {
+    throw new Error(`project workflow is missing commands: ${missingWorkflowCommands.join(", ")}`);
   }
 }
 
@@ -2193,6 +2218,37 @@ print(output)
 `;
 }
 
+function scaffoldProjectWorkflow(taskName: string): string {
+  return `name: Forma Project
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: corepack enable
+      - run: pnpm install
+      - run: python -m pip install -e .
+      - run: forma project-check .
+      - run: pnpm run check
+      - run: python -m py_compile src/${taskName}_forma.py src/${taskName}_agent.py test/${taskName}_agent_smoke.py
+      - run: pnpm run smoke:ts
+      - run: python test/${taskName}_agent_smoke.py
+`;
+}
+
 function scaffoldProjectPackageJson(projectName: string, taskName: string): string {
   return `${JSON.stringify({
     name: projectName,
@@ -2294,6 +2350,12 @@ Run \`python test/${taskName}_agent_smoke.py\` to execute it with
 \`\`\`bash
 forma run ${taskName}.forma --task ${taskName} --input '{"diff":"diff --git a/src/example.ts b/src/example.ts"}' --provider-profile forma.provider.json
 \`\`\`
+
+## CI
+
+\`.github/workflows/forma-project.yml\` runs \`forma project-check .\`, the
+TypeScript compiler, Python bytecode compilation, and both generated
+\`StaticProvider\` smoke tests.
 `;
 }
 

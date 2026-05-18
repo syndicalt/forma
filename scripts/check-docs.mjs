@@ -77,6 +77,7 @@ const requiredTerms = {
     "missingMigrationParityProofCommand",
     "embedding wiring",
     "StaticProvider smoke",
+    "forma-project.yml",
   ],
   "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair", "missingMigrationParityProofCommand"],
   "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],

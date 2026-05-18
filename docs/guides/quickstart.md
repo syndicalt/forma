@@ -117,3 +117,7 @@ cd review-diff-agent
 pnpm run smoke:ts
 python test/review_diff_agent_smoke.py
 ```
+
+The scaffold also writes `.github/workflows/forma-project.yml` with the same
+`project-check`, TypeScript compile, Python compile, and smoke-test commands for
+CI.

@@ -2206,6 +2206,12 @@ describe("forma cli", () => {
     const pythonSmoke = await readFile(join(dir, "test", "review_diff_agent_smoke.py"), "utf8");
     expect(pythonSmoke).toContain("StaticProvider");
     expect(pythonSmoke).toContain("run_review_diff");
+    const projectWorkflow = await readFile(join(dir, ".github", "workflows", "forma-project.yml"), "utf8");
+    expect(projectWorkflow).toContain("forma project-check .");
+    expect(projectWorkflow).toContain("pnpm run check");
+    expect(projectWorkflow).toContain("python -m py_compile src/review_diff_forma.py src/review_diff_agent.py test/review_diff_agent_smoke.py");
+    expect(projectWorkflow).toContain("pnpm run smoke:ts");
+    expect(projectWorkflow).toContain("python test/review_diff_agent_smoke.py");
     const packageJson = await readFile(join(dir, "package.json"), "utf8");
     expect(packageJson).toContain("\"@forma-lang/forma\"");
     expect(packageJson).toContain("\"smoke:ts\"");
@@ -2320,6 +2326,24 @@ describe("forma cli", () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain("project smoke test is missing: test/review_diff_agent_smoke.ts");
+  });
+
+  it("fails project checks when generated project CI workflow is missing", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-workflow-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    await rm(join(dir, ".github", "workflows", "forma-project.yml"));
+
+    const result = await runCli(["project-check", dir]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("project workflow is missing: .github/workflows/forma-project.yml");
   });
 
   it("evaluates a deterministic conformance fixture as JSON", async () => {
