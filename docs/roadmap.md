@@ -336,6 +336,8 @@ The current MVP provides:
   host overrides are deployment decisions.
 - README now frames reusable coding-agent packages as the product wedge, while
   `.forma` is the source format.
+- Why-Forma now says the reusable package is the adoption unit, not the prompt
+  file by itself.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -867,12 +869,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add why-forma wording that the reusable package is the
-   adoption unit, not the prompt file by itself.
-2. Product clarity: add docs index wording that Forma should be evaluated as a
+1. Product clarity: add docs index wording that Forma should be evaluated as a
    reusable agent package workflow before adopting package locks.
-3. Product clarity: add quickstart wording that package locks are evidence for
+2. Product clarity: add quickstart wording that package locks are evidence for
    reusable package adoption, not proof that every local task belongs in Forma.
+3. Product clarity: add package-consumer wording that application teams should
+   consume reviewed releases instead of copying package internals.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

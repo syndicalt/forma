@@ -179,6 +179,10 @@ The useful artifact is not only the `.forma` file. It is the set:
 A Forma package is a reviewable agent capability when those artifacts move
 together: source, bindings, provider profile, evals, smoke tests, lockfile, and
 release proof.
+The reusable package is the adoption unit, not the prompt file by itself. Adopt
+Forma when the package boundary gives consumers a reviewed contract, generated
+Python and TypeScript bindings, provider-profile defaults, package-lock drift
+checks, eval evidence, and smoke tests that move together.
 
 ## When Not To Use Forma
 
