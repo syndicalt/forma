@@ -484,6 +484,9 @@ The current MVP provides:
 - Generated package-lock project READMEs explain that they consume reviewed
   pinned package artifacts and distinguish that path from local first-use and
   checked host-project scaffolds.
+- First-use audit docs map README, docs index, quickstart, CLI docs, and
+  generated project READMEs to the same minimal, checked, and package-lock
+  scaffold choices.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -614,9 +617,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add a repository-level first-use audit note that maps the
-   README, docs index, quickstart, CLI docs, and generated project READMEs to
-   the same minimal, checked, and package-lock scaffold choices.
+3. Product clarity: add a docs gate that keeps the docs index linked to the
+   first-use audit and its minimal, checked, and package-lock scaffold choices.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
