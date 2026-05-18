@@ -1737,6 +1737,12 @@ surface, and \`changes[].details\` names the exact contract fields or
 environment setting values that changed. See the Forma package-review output
 docs for JSON examples.
 
+If \`forma package-lock --check --json\` reports \`changedArtifactGroups\`, write
+artifact group release notes before regenerating the lock. Name the changed
+group, list the added, removed, or changed paths, and say whether consumers need
+to refresh generated bindings, package-lock smoke tests, release files, or
+package metadata.
+
 Commit the package manifest, lockfile, \`.forma\` source, eval suite, provider
 profile, generated bindings, and host examples together so TypeScript and Python
 consumers review the same contract. See the Forma CLI docs Release Runtime Flow

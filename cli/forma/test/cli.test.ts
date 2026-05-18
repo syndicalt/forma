@@ -2015,6 +2015,8 @@ describe("forma cli", () => {
     expect(readme).toContain("package-review --proof-command");
     expect(readme).toContain("docs/guides/package-consumer-quickstart.md#missingmigrationparitytests");
     expect(readme).toContain("regenerate the package lock");
+    expect(readme).toContain("artifact group release notes");
+    expect(readme).toContain("changedArtifactGroups");
     expect(readme).not.toContain('"kind": "setting"');
     expect(readme).not.toContain('"kind": "contract"');
     const packageWorkflow = await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8");
