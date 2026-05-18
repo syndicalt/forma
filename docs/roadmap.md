@@ -363,6 +363,8 @@ The current MVP provides:
   packages.
 - CLI docs now explain that package-review `notes` are informational while
   `checks` are blocking pass/fail rows that decide the command exit status.
+- CLI docs now say package-review gates should reference a downstream consumer,
+  not a hypothetical package audience.
 - Registry docs now include CI guidance for archiving stale
   `package-lock --check --json` reports as `stale-package-lock-report.json`
   with `actions/upload-artifact`, so reviewers can inspect
@@ -889,12 +891,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add CLI package-review wording that review gates should
-   reference a downstream consumer, not a hypothetical package audience.
-2. Product clarity: add README wording that package proof is not the product
+1. Product clarity: add README wording that package proof is not the product
    wedge; reusable agent contracts are.
-3. Product clarity: add package-consumer wording that package locks protect
+2. Product clarity: add package-consumer wording that package locks protect
    real handoffs, not internal file organization.
+3. Product clarity: add why-forma wording that the package is useful only when
+   the contract is consumed outside its authoring context.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

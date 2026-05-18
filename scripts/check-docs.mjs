@@ -133,6 +133,7 @@ const requiredTerms = {
     "Generated package scaffolds are release candidates, not first-use proofs",
     "package-init is for reusable task packages, not local prompt extraction",
     "Do not publish a release candidate until a downstream consumer exists",
+    "Review gates should reference a downstream consumer, not a hypothetical package audience",
     "package-review is a release gate, not a usefulness test",
     "project-check --json is for application CI dashboards",
   ],

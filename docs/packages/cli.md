@@ -254,6 +254,10 @@ review output.
 short, package-review is a release gate, not a usefulness test. Use minimal
 and checked host projects to decide whether the task should exist; use
 `package-review` after that decision to protect reusable package consumers.
+Review gates should reference a downstream consumer, not a hypothetical package audience.
+If no application or repository needs the reviewed lock, generated
+contract helper, package tests, and release bundle, keep the task in a checked
+host project instead of promoting package review.
 The checklist covers manifest validation, adjacent lockfile verification,
 TypeScript and Python
 binding presence, TypeScript and Python host example presence, checked test
