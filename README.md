@@ -39,6 +39,7 @@ node cli/forma/dist/index.js generate examples/review_diff.forma --target typesc
 node cli/forma/dist/index.js generate examples/review_diff.forma --target python --output examples/review_diff_forma.py --check
 corepack pnpm examples:check
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
