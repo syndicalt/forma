@@ -75,7 +75,7 @@ const requiredTerms = {
     "--proof-command",
     "missingMigrationParityProofCommand",
   ],
-  "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair"],
+  "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair", "missingMigrationParityProofCommand"],
   "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run"],
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],

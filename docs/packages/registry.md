@@ -245,6 +245,9 @@ If those fixture paths drift out of package README commands, package CI
 commands, or the publish workflow bundle command, the failing row reports
 `missingMigrationParityTests` next to the generic `missingCommands` or
 `missingPaths` entry.
+If the migration parity tests are still present but README or CI no longer runs
+them through `package-review --proof-command`, the failing row reports
+`missingMigrationParityProofCommand` with the exact command to restore.
 The same review keeps generated workflow failure handling reviewable: if the
 package or publish workflow omits the troubleshooting link, the `ci-workflow`
 or `publish-bundle` row reports `missingGuidance`.
@@ -281,8 +284,8 @@ review includes rows like:
         "review_diff_migration_test.py"
       ]
     },
-    { "name": "readme", "passed": true, "total": 11 },
-    { "name": "ci-workflow", "passed": true, "total": 9 },
+    { "name": "readme", "passed": true, "total": 12 },
+    { "name": "ci-workflow", "passed": true, "total": 10 },
     { "name": "publish-bundle", "passed": true, "total": 35 },
     { "name": "eval-coverage", "passed": true, "tasks": ["greet_user", "greet_user_warmly", "review_diff"] },
     { "name": "eval-suite", "passed": true, "total": 3, "failed": 0 }
@@ -331,6 +334,34 @@ workflow hash is reviewed with the manifest.
     "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts"
   ],
   "missingMigrationParityTests": ["review_diff_migration.test.ts"]
+}
+```
+
+When the migration parity files and direct test commands are present but the
+blocking proof gate is missing, restore the exact
+`missingMigrationParityProofCommand` value to README or CI:
+
+```json
+{
+  "name": "readme",
+  "passed": false,
+  "total": 12,
+  "missingCommands": [
+    "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\""
+  ],
+  "missingMigrationParityProofCommand": "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\""
+}
+```
+
+```json
+{
+  "name": "ci-workflow",
+  "passed": false,
+  "total": 10,
+  "missingCommands": [
+    "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\""
+  ],
+  "missingMigrationParityProofCommand": "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\""
 }
 ```
 
