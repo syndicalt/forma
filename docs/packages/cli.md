@@ -690,14 +690,17 @@ validate model output through generated binding helpers.
 `forma.project.json`, confirms the named agent task exists, validates the
 provider profile without accepting stored `apiKey` secrets, checks that
 TypeScript and Python generated bindings are current, and confirms both runtime
-entrypoints exist:
+entrypoints keep the expected embedding wiring: `agent(...)`, the shared
+provider profile loader, provider construction, `.forma` source path, and
+generated output validator:
 
 ```bash
 forma project-check ./review-diff-agent
 ```
 
 Use it in CI before running host-language compilers or live provider smoke
-tests.
+tests so a generated project cannot silently drift back into ad hoc provider
+calls or unvalidated model output.
 
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
 runs the named task, compares `ok`, `output`, `trace`, `verification`, and

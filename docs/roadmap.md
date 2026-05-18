@@ -199,6 +199,9 @@ The current MVP provides:
 - `forma project-check` verifies scaffolded host projects by checking the
   project manifest, agent task, provider profile, generated TypeScript/Python
   bindings, and runtime entrypoints.
+- `forma project-check` fails generated project entrypoints that lose the
+  TypeScript or Python `agent(...)`, provider profile, `.forma` source, or
+  generated output-validator embedding wiring.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -495,9 +498,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: make the clean-project onboarding path prove the same
-   TypeScript/Python embedding shape from a generated project, not only the
-   checked example package.
+3. Product proof: add clean-project docs and tests for running generated
+   TypeScript/Python host projects with a fake provider, so onboarding proves
+   execution without real model credentials.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

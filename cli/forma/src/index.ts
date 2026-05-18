@@ -920,8 +920,36 @@ async function validateProjectManifest(manifest: FormaProjectManifest, manifestD
     if (!entrypoint.path) {
       throw new Error("project entrypoint path is required");
     }
-    await readFile(resolve(manifestDir, entrypoint.path), "utf8");
+    const entrypointSource = await readFile(resolve(manifestDir, entrypoint.path), "utf8");
+    validateProjectEntrypoint(entrypoint, entrypointSource, manifest.task);
   }
+}
+
+function validateProjectEntrypoint(
+  entrypoint: NonNullable<FormaProjectManifest["entrypoints"]>[number],
+  source: string,
+  taskName: string | undefined,
+): void {
+  if (!taskName || !entrypoint.path) {
+    throw new Error("project entrypoint path is required");
+  }
+  if (entrypoint.runtime === "typescript") {
+    const validator = `assert${toPascalCase(taskName)}Output`;
+    const required = ["agent({", "providerProfileFromFile", "providerFromProfile", validator, `${taskName}.forma`];
+    if (required.some((term) => !source.includes(term))) {
+      throw new Error(`project TypeScript entrypoint must use agent(...), providerProfileFromFile, providerFromProfile, and ${validator}: ${entrypoint.path}`);
+    }
+    return;
+  }
+  if (entrypoint.runtime === "python") {
+    const validator = `assert_${taskName}_output`;
+    const required = ["agent(", "provider_profile_from_file", "provider_from_profile", validator, `${taskName}.forma`];
+    if (required.some((term) => !source.includes(term))) {
+      throw new Error(`project Python entrypoint must use agent(...), provider_profile_from_file, provider_from_profile, and ${validator}: ${entrypoint.path}`);
+    }
+    return;
+  }
+  throw new Error(`unsupported project entrypoint runtime: ${entrypoint.runtime}`);
 }
 
 async function createPackageLock(path: string, manifest: FormaPackageManifest, manifestDir: string) {

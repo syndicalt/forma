@@ -2229,6 +2229,42 @@ describe("forma cli", () => {
     expect(result.stderr).toContain("project binding is out of date: src/review_diff.forma.ts");
   });
 
+  it("fails project checks when TypeScript entrypoints lose embedding wiring", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-entrypoint-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    await writeFile(join(dir, "src", "review_diff_agent.ts"), "export async function runReviewDiff() { return {}; }\n");
+
+    const result = await runCli(["project-check", dir]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("project TypeScript entrypoint must use agent(...), providerProfileFromFile, providerFromProfile, and assertReviewDiffOutput: src/review_diff_agent.ts");
+  });
+
+  it("fails project checks when Python entrypoints lose embedding wiring", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-python-entrypoint-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    await writeFile(join(dir, "src", "review_diff_agent.py"), "def run_review_diff():\n    return {}\n");
+
+    const result = await runCli(["project-check", dir]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("project Python entrypoint must use agent(...), provider_profile_from_file, provider_from_profile, and assert_review_diff_output: src/review_diff_agent.py");
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);
