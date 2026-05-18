@@ -354,6 +354,7 @@ The current MVP provides:
   not proof that every local task belongs in Forma.
 - Quickstart now says a package lock should follow a named consuming
   application, not generic adoption anxiety.
+- First-use audit now says no named consumer means no package lock yet.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -916,12 +917,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add first-use audit wording that no named consumer means no
-   package lock yet.
-2. Product clarity: add quickstart wording that retries and routing are host
+1. Product clarity: add quickstart wording that retries and routing are host
    workflow concerns after local contract proof.
-3. Product clarity: add package-consumer wording that fallback models belong in
+2. Product clarity: add package-consumer wording that fallback models belong in
    host adapters unless the reviewed package default changes.
+3. Product clarity: add runtime-result wording that model fallback should retry
+   from diagnostics, not bypass validation.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

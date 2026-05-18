@@ -27,6 +27,9 @@ Defer package review until one concrete consumer needs release artifacts. A
 package manifest, lockfile, release workflow, and package-review gate should
 protect a real downstream dependency, not substitute for the first-use proof
 that the host code became simpler.
+No named consumer means no package lock yet. Stay on the minimal or checked
+host-project path until a specific application, repository, or release process
+needs pinned package artifacts from a reviewed contract.
 
 ## Steps
 
