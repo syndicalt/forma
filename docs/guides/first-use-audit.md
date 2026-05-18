@@ -57,6 +57,10 @@ comparison proves Forma is worth adopting.
 Route-label cleanup should not create package-review prerequisites. Keep naming
 fixes in the host adapter during first use, and move to package review only
 after a named consumer needs shared release artifacts.
+Cleaned-up route labels should not obscure the first-use comparison. Keep the
+minimal before/after proof focused on host-code shape, and record any label
+cleanup as host configuration so reviewers can still compare the same local
+task path.
 
 ## Steps
 
