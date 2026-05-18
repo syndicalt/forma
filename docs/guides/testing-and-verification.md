@@ -181,6 +181,10 @@ Fallback eval artifacts should travel with release proof logs. When fallback
 policy changes model behavior, attach the baseline and candidate eval summaries
 beside `forma-release-proof-artifacts` so reviewers can compare task quality
 with the same evidence set as package readiness.
+Route-label changes should include eval artifacts. When a provider route name
+changes, keep the baseline summary, candidate summary, and release proof logs
+together so reviewers can tell whether the label changed independently from
+task behavior.
 Fallback route labels should match diagnostics and eval summaries. Use the same
 stable route label in the failed diagnostics, rerun smoke summary, baseline eval
 summary, and candidate eval summary so reviewers can trace which provider path

@@ -414,6 +414,7 @@ The current MVP provides:
   host-code simplification.
 - Testing guide now says fallback eval artifacts should travel with release
   proof logs.
+- Testing guide now says route-label changes should include eval artifacts.
 - Provider-adapter docs now say fallback route labels should be stable in logs
   and eval artifacts.
 - Product-proof docs now say fallback route labels should appear in candidate
@@ -1005,12 +1006,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add testing-guide wording that route-label changes should
-   include eval artifacts.
-2. Product clarity: add first-use audit wording that route-label cleanup should
+1. Product clarity: add first-use audit wording that route-label cleanup should
    not delay local smoke proof.
-3. Product clarity: add product-proof wording that route-label cleanup must keep
+2. Product clarity: add product-proof wording that route-label cleanup must keep
    baseline and candidate artifacts comparable.
+3. Product clarity: add provider-adapter wording that route-label cleanup should
+   not mutate reviewed provider profiles.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
