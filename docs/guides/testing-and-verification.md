@@ -118,6 +118,13 @@ name, and runs the reviewed TypeScript and Python lockfile smoke tests from the
 bundle. Use it when changes affect release bundle contents, package locks, or
 `agentFromPackageLock` / `agent_from_package_lock` consumers.
 
+Use this installed-package smoke CI step when a workflow needs focused
+release-bundle coverage without running the full release proof:
+
+```yaml
+- run: corepack pnpm packages:installed-smoke
+```
+
 Run CLI smoke tests after building:
 
 ```bash
