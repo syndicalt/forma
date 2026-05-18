@@ -59,6 +59,9 @@ Use `project-check --json` in CI when a contributor gate needs structured
 clean-project rows. The checked fixture lives at `examples/review-diff-agent`.
 Workflow drift failures include `missingCommands` with the exact generated
 proof command to restore.
+`projects:check` protects application-owned contracts before package review.
+Run it while one host project owns the workflow and before moving the task into
+release-candidate package review for downstream consumers.
 
 `projects:check` covers both local path-alias checks and package-install checks.
 The direct `project-check` commands and reviewed package-lock smoke tests
