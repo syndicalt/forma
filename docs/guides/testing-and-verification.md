@@ -167,6 +167,9 @@ Fallback reruns should compare against the saved failed artifact. Keep the
 failed `forma-release-proof-artifacts` bundle and review it beside the rerun so
 the fix can be traced to provider environment, fallback policy, or reviewed
 artifact repair instead of a blind retry.
+Fallback policy changes should stay outside package lock regeneration. Do not
+rewrite reviewed locks just to try a different deployment model, route, or
+retry budget; regenerate locks only when reviewed package artifacts change.
 
 ### Release Artifact Reading Guide
 
