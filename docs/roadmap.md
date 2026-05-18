@@ -238,6 +238,9 @@ The current MVP provides:
   distinguish direct project embedding from reviewed package-lock embedding.
 - `project-check --json` reports missing reviewed package-lock smoke files with
   `missingPaths` and restore guidance in the `package-lock-smoke-tests` row.
+- `project-check` requires declared reviewed package-lock smoke commands in the
+  checked clean-project CI workflow, and `examples/review-diff-agent` runs
+  those TypeScript and Python package-lock smoke tests in its workflow.
 - README and documentation index Product Proof commands include
   `projects:check`, so the checked clean-project fixture is part of the main
   proof path.
@@ -556,9 +559,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: require the checked clean-project CI workflow to run the
-   reviewed package-lock smoke tests so local `projects:check`, JSON reports,
-   and generated CI carry the same package-lock consumer proof.
+3. Product proof: add the reviewed package-lock smoke-test workflow commands
+   to generated project scaffolds when package-lock consumer proof is available
+   outside the checked fixture.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

@@ -1081,6 +1081,7 @@ async function validateProjectManifest(manifest: FormaProjectManifest, manifestD
     "pnpm run check",
     `python -m py_compile src/${manifest.task}_forma.py src/${manifest.task}_agent.py test/${manifest.task}_agent_smoke.py`,
     ...smokeTests.map((test) => test.command ?? ""),
+    ...packageLockSmokeTests.map((test) => test.command ?? ""),
   ].filter(Boolean);
   const missingWorkflowCommands = requiredWorkflowCommands.filter((command) => !workflow.includes(command));
   if (missingWorkflowCommands.length > 0) {

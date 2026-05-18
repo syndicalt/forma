@@ -2371,6 +2371,38 @@ describe("forma cli", () => {
     expect(result.stderr).toContain("restore the generated project workflow");
   });
 
+  it("fails project checks when CI workflow omits package-lock smoke commands", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-workflow-package-lock-command-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    const manifestPath = join(dir, "forma.project.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.packageLockSmokeTests = [
+      {
+        runtime: "typescript",
+        path: "test/review_diff_package_lock.test.ts",
+        command: "vitest run test/review_diff_package_lock.test.ts",
+      },
+    ];
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    await writeFile(
+      join(dir, "test", "review_diff_package_lock.test.ts"),
+      "import { agentFromPackageLock, StaticProvider } from '@forma-lang/forma';\nagentFromPackageLock({ lockFile: 'review_diff.forma.lock.json', task: 'review_diff', provider: new StaticProvider({}) });\n",
+    );
+
+    const result = await runCli(["project-check", dir]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("project workflow .github/workflows/forma-project.yml is missing proof commands: vitest run test/review_diff_package_lock.test.ts");
+    expect(result.stderr).toContain("restore the generated project workflow");
+  });
+
   it("prints structured project-check output as JSON", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-project-check-json-"));
     await runCli([
@@ -2434,6 +2466,12 @@ describe("forma cli", () => {
     await writeFile(
       join(dir, "test", "review_diff_package_lock_smoke.py"),
       "from forma import StaticProvider, agent_from_package_lock\nagent_from_package_lock(lock_file='review_diff.forma.lock.json', task='review_diff', provider=StaticProvider({}))\n",
+    );
+    const workflowPath = join(dir, ".github", "workflows", "forma-project.yml");
+    const workflow = await readFile(workflowPath, "utf8");
+    await writeFile(
+      workflowPath,
+      `${workflow}      - run: vitest run test/review_diff_package_lock.test.ts\n      - run: python test/review_diff_package_lock_smoke.py\n`,
     );
 
     const result = await runCli(["project-check", dir, "--json"]);

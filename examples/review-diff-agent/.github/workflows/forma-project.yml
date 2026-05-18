@@ -25,3 +25,5 @@ jobs:
       - run: python -m py_compile src/review_diff_forma.py src/review_diff_agent.py test/review_diff_agent_smoke.py
       - run: pnpm run smoke:ts
       - run: python test/review_diff_agent_smoke.py
+      - run: vitest run --config examples/vitest.config.ts examples/review-diff-agent/test/review_diff_package_lock.test.ts
+      - run: PYTHONPATH=packages/forma-python/src python examples/review-diff-agent/test/review_diff_package_lock_smoke.py

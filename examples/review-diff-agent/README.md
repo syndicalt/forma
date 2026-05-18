@@ -61,8 +61,8 @@ forma run review_diff.forma --task review_diff --input '{"diff":"diff --git a/sr
 ## CI
 
 `.github/workflows/forma-project.yml` runs `forma project-check .`, the
-TypeScript compiler, Python bytecode compilation, and both generated
-`StaticProvider` smoke tests.
+TypeScript compiler, Python bytecode compilation, both generated
+`StaticProvider` smoke tests, and the reviewed package-lock smoke tests.
 
 Use the JSON output in CI when you need machine-readable check rows:
 
