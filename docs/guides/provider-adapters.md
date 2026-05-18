@@ -15,6 +15,9 @@ Use local smoke providers to prove embedding shape; use production adapters to c
 `agent(...)` entrypoints, permissions, and validation without a model key.
 HTTP JSON and OpenAI providers should be introduced only when the host is ready
 to exercise real routing, credentials, timeouts, and model behavior.
+Production adapters prove deployment routing, not Forma usefulness. If the
+local smoke path does not make the host code clearer than inline prompts and
+local schemas, a real model adapter will only add deployment complexity.
 Operational keys, model choice, routing, and retries live in host code so the
 application can keep deployment policy separate from the reviewed task
 contract.

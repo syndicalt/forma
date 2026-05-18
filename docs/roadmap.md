@@ -300,6 +300,8 @@ The current MVP provides:
   logic changes.
 - Runtime-result docs now show TypeScript and Python hosts branching on `ok`
   before reading `output`.
+- Provider-adapter docs now say production adapters prove deployment routing,
+  not Forma usefulness, and should follow a useful local smoke path.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -831,12 +833,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-adapter docs wording that production adapters
-   prove deployment routing, not Forma usefulness.
-2. Product clarity: add package-consumer quickstart wording that real consumers
+1. Product clarity: add package-consumer quickstart wording that real consumers
    should pin reviewed locks before adding app-specific retries or logging.
-3. Product clarity: add runtime-semantics wording that provider output
+2. Product clarity: add runtime-semantics wording that provider output
    validation is part of the host trust boundary.
+3. Product clarity: add package-init README wording that release candidates
+   should not be published until a downstream consumer exists.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
