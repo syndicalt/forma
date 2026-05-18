@@ -150,6 +150,10 @@ references every reviewed artifact path before building the release bundle.
 Provider profile review fails if the profile embeds an `apiKey`; agent task
 packages should include a provider profile that uses `apiKeyEnv`, and OpenAI
 profiles fail review when that key environment variable is missing.
+Fallback smoke evidence is not a substitute for eval coverage. Smoke output can
+show that a fallback route, provider override, or package-lock helper executed,
+but the `eval-suite` row is still the task-quality proof for reviewed model
+behavior.
 When README or CI package test commands drift, the failing `readme` or
 `ci-workflow` row reports `missingCommands` with the exact command text to
 restore.

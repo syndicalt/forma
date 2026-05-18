@@ -392,6 +392,8 @@ The current MVP provides:
   used to test fallback policy.
 - Provider-adapter docs now say fallback comparisons should happen after
   validation, not before.
+- Product-proof docs now say fallback smoke evidence is not a substitute for
+  eval coverage.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -954,12 +956,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add product-proof wording that fallback smoke evidence is
-   not a substitute for eval coverage.
-2. Product clarity: add runtime-semantics wording that fallback diagnostics are
+1. Product clarity: add runtime-semantics wording that fallback diagnostics are
    host evidence, not prompt repair instructions.
-3. Product clarity: add testing-guide wording that fallback traces belong in
+2. Product clarity: add testing-guide wording that fallback traces belong in
    artifacts, not lockfiles.
+3. Product clarity: add package-consumer wording that fallback policy belongs
+   with host adapters, not copied package helpers.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
