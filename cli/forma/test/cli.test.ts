@@ -712,6 +712,44 @@ describe("forma cli", () => {
     });
   });
 
+  it("runs an optional package review proof command", async () => {
+    const result = await runCli([
+      "package-review",
+      "../../examples/review_diff.forma.pkg.json",
+      "--proof-command",
+      "node -e \"process.stdout.write('proof ok')\"",
+    ]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result.exitCode).toBe(0);
+    expect(review.checks).toContainEqual({
+      name: "proof-command",
+      passed: true,
+      command: "node -e \"process.stdout.write('proof ok')\"",
+      stdout: "proof ok",
+    });
+  });
+
+  it("fails package review when an optional proof command fails", async () => {
+    const result = await runCli([
+      "package-review",
+      "../../examples/review_diff.forma.pkg.json",
+      "--proof-command",
+      "node -e \"process.stderr.write('proof failed'); process.exit(7)\"",
+    ]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result.exitCode).toBe(1);
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "proof-command",
+      passed: false,
+      command: "node -e \"process.stderr.write('proof failed'); process.exit(7)\"",
+      exitCode: 7,
+      stderr: "proof failed",
+    });
+  });
+
   it("fails package checks when a task source hash is stale", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-check-"));
     const manifest = join(dir, "review-diff.pkg.json");

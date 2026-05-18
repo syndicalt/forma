@@ -237,6 +237,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
   const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
   const testsCheck = packageTestsCheck(manifest);
+  const proofCommandCheck = await packageProofCommandCheck(args);
   const releaseFilesCheck = packageReleaseFilesCheck(manifest);
   const readmeCheck = await packageReadmeCheck(path, manifest, manifestDir);
   const ciWorkflowCheck = await packageCiWorkflowCheck(path, manifest, manifestDir);
@@ -250,6 +251,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     bindingsCheck,
     examplesCheck,
     testsCheck,
+    ...(proofCommandCheck ? [proofCommandCheck] : []),
     releaseFilesCheck,
     readmeCheck,
     ciWorkflowCheck,
@@ -262,6 +264,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     && bindingsCheck.passed === true
     && examplesCheck.passed === true
     && testsCheck.passed === true
+    && (proofCommandCheck?.passed ?? true) === true
     && releaseFilesCheck.passed === true
     && readmeCheck.passed === true
     && ciWorkflowCheck.passed === true
@@ -300,6 +303,33 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     }, null, 2)}\n`,
     stderr: "",
   };
+}
+
+async function packageProofCommandCheck(args: string[]): Promise<Record<string, unknown> | undefined> {
+  const command = optionValue(args, "--proof-command");
+  if (!command) {
+    return undefined;
+  }
+  try {
+    const result = await execAsync(command);
+    return {
+      name: "proof-command",
+      passed: true,
+      command,
+      ...(result.stdout ? { stdout: result.stdout } : {}),
+      ...(result.stderr ? { stderr: result.stderr } : {}),
+    };
+  } catch (error) {
+    const failed = error as { code?: unknown; stdout?: unknown; stderr?: unknown };
+    return {
+      name: "proof-command",
+      passed: false,
+      command,
+      ...(typeof failed.code === "number" ? { exitCode: failed.code } : {}),
+      ...(typeof failed.stdout === "string" && failed.stdout ? { stdout: failed.stdout } : {}),
+      ...(typeof failed.stderr === "string" && failed.stderr ? { stderr: failed.stderr } : {}),
+    };
+  }
 }
 
 function packageCompatibilityPolicyCheck(manifest: FormaPackageManifest): Record<string, unknown> {

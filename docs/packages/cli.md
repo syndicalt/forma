@@ -242,7 +242,14 @@ severity list:
 ```bash
 forma package-review examples/review_diff.forma.pkg.json
 forma package-review examples/review_diff.forma.pkg.json --baseline baseline.json
+forma package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
 ```
+
+Use `--proof-command` when a package has an external proof command that should
+run before the release artifact rows are trusted. The command is optional and
+host-owned: `package-review` executes it from the current working directory,
+adds a `proof-command` row to the JSON output, and fails the review if the
+command exits nonzero.
 
 ## Package Review Output
 
@@ -340,6 +347,27 @@ machine-readable `changes` array:
   ]
 }
 ```
+
+With `--proof-command`, `package-review` adds a `proof-command` row before the
+release artifact rows. For the Forma repo, the migration parity proof can be
+folded into review like this:
+
+```bash
+forma package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
+```
+
+A passing proof row includes the exact command and any captured output:
+
+```json
+{
+  "name": "proof-command",
+  "passed": true,
+  "command": "corepack pnpm proof:migration"
+}
+```
+
+If the command fails, the row reports `passed: false`, the exit code when
+available, and captured stdout or stderr, and the overall review fails.
 
 Environment changes use the same `changes` array but are marked as
 `kind: "setting"` with before and after values from the eval-suite summary:

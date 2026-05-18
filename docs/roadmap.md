@@ -322,6 +322,9 @@ The current MVP provides:
   section and the checked `review_diff_inline` before/after fixtures.
 - The root `proof:migration` script runs the TypeScript and Python
   before/after migration parity tests as one top-level proof command.
+- `forma package-review --proof-command` runs an optional host-owned proof
+  command, reports a blocking `proof-command` row, and lets release review
+  include the root `proof:migration` check.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -452,9 +455,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: make `package-review` optionally run the root
-   `proof:migration` command before reviewing release artifacts, so the
-   before/after proof is part of the publishing gate.
+3. Product proof: add package scaffold support for an optional proof command so
+   generated package READMEs and CI workflows can include package-specific
+   before/after proof gates when templates provide them.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

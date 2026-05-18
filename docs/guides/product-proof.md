@@ -62,6 +62,7 @@ artifacts, and host example artifacts:
 
 ```bash
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
 ```
 
 Run the eval suite directly when you want the lower-level artifact:
@@ -96,7 +97,10 @@ The reviewed package pins those tests in the manifest and lockfile. The
 `package-review` `tests` row reports `migrationParityTests` when the package
 contains them, and `readme`, `ci-workflow`, or `publish-bundle` rows report
 `missingMigrationParityTests` if the parity files drift out of README commands,
-CI commands, or release bundle paths. The restore sequence lives in
+CI commands, or release bundle paths. Add
+`--proof-command "corepack pnpm proof:migration"` when you want package review
+to run the before/after proof before trusting the release artifact rows. The
+restore sequence lives in
 `docs/guides/package-consumer-quickstart.md#missingmigrationparitytests`.
 
 For a live model run, keep credentials and model selection in host-controlled
@@ -116,6 +120,7 @@ A useful local proof run should include:
 corepack pnpm build
 corepack pnpm examples:check
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
@@ -147,4 +152,6 @@ restore.
 credentials stay in host configuration instead of the `.forma` contract.
 Migration parity should be visible in both layers: `examples:check` runs the
 TypeScript and Python parity tests, and `package-review` reports the
-`migrationParityTests` paths as reviewed release artifacts.
+`migrationParityTests` paths as reviewed release artifacts. When release review
+needs the proof executed inline, pass `--proof-command` with
+`corepack pnpm proof:migration` to add a blocking `proof-command` row.

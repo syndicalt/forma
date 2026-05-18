@@ -72,6 +72,7 @@ const requiredTerms = {
     "review_diff_contract_test.py",
     "missingPaths",
     "package test does not match reviewed package lock",
+    "--proof-command",
   ],
   "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair"],
   "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run"],
