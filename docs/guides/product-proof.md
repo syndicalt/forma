@@ -99,8 +99,12 @@ contains them, and `readme`, `ci-workflow`, or `publish-bundle` rows report
 `missingMigrationParityTests` if the parity files drift out of README commands,
 CI commands, or release bundle paths. Add
 `--proof-command "corepack pnpm proof:migration"` when you want package review
-to run the before/after proof before trusting the release artifact rows. The
-restore sequence lives in
+to run the before/after proof before trusting the release artifact rows. If the
+parity files still exist but README or CI no longer runs that blocking review
+command, the `readme` or `ci-workflow` row reports
+`missingMigrationParityProofCommand` with the exact
+`package-review --proof-command` command to restore. The restore sequence lives
+in
 `docs/guides/package-consumer-quickstart.md#missingmigrationparitytests`.
 
 For a live model run, keep credentials and model selection in host-controlled
@@ -155,3 +159,7 @@ TypeScript and Python parity tests, and `package-review` reports the
 `migrationParityTests` paths as reviewed release artifacts. When release review
 needs the proof executed inline, pass `--proof-command` with
 `corepack pnpm proof:migration` to add a blocking `proof-command` row.
+`missingMigrationParityTests` means a parity file or direct test command
+drifted out of review; `missingMigrationParityProofCommand` means the files and
+direct test commands are present, but release review no longer runs them through
+the blocking proof row.

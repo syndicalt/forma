@@ -338,6 +338,9 @@ The current MVP provides:
   `package-review --proof-command` command back to README and CI.
 - Registry docs explain `missingMigrationParityProofCommand` separately from
   `missingMigrationParityTests`, including README and CI JSON examples.
+- Product proof guide explains both migration parity failure modes:
+  `missingMigrationParityTests` for missing files or direct test commands and
+  `missingMigrationParityProofCommand` for missing proof-gate wiring.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -468,9 +471,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add product-proof guide references to
-   `missingMigrationParityProofCommand` so the before/after proof page explains
-   both missing parity files and missing proof-gate wiring.
+3. Product proof: add a top-level README pointer to the
+   `missingMigrationParityProofCommand` troubleshooting path so readers can
+   recover the proof gate from the first-visit docs.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
