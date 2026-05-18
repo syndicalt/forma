@@ -22,6 +22,9 @@ when application code depends on generated TypeScript and Python
 bindings, `StaticProvider` smoke tests, and CI `project-check` rows. Use a
 reviewed package-lock project only after the task is a reviewed package that
 multiple applications or repositories should consume through pinned artifacts.
+Treat package-lock consumption as a dependency decision, not a starter path.
+Use it when the lock protects real downstream consumers from reviewed artifact
+drift.
 
 That progression mirrors the scaffold choices in
 `docs/guides/quickstart.md#five-minute-usefulness-path` and
