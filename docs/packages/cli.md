@@ -686,13 +686,22 @@ the matching `agent(...)`, `provider_profile_from_file`, and
 `provider_from_profile` APIs. Both runtimes read the same `.forma` task and
 validate model output through generated binding helpers.
 
+Generated projects also include StaticProvider smoke tests so onboarding can
+prove the TypeScript and Python embedding paths without model credentials:
+
+```bash
+pnpm run smoke:ts
+python test/review_diff_agent_smoke.py
+```
+
 `forma project-check` validates a generated host project. It reads
 `forma.project.json`, confirms the named agent task exists, validates the
 provider profile without accepting stored `apiKey` secrets, checks that
 TypeScript and Python generated bindings are current, and confirms both runtime
 entrypoints keep the expected embedding wiring: `agent(...)`, the shared
 provider profile loader, provider construction, `.forma` source path, and
-generated output validator:
+generated output validator. It also confirms the generated TypeScript and
+Python StaticProvider smoke tests are present:
 
 ```bash
 forma project-check ./review-diff-agent

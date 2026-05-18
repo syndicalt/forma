@@ -202,6 +202,9 @@ The current MVP provides:
 - `forma project-check` fails generated project entrypoints that lose the
   TypeScript or Python `agent(...)`, provider profile, `.forma` source, or
   generated output-validator embedding wiring.
+- `forma project-init` scaffolds TypeScript and Python `StaticProvider` smoke
+  tests for clean host projects, and `forma project-check` fails if those
+  generated smoke tests are missing.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -498,9 +501,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add clean-project docs and tests for running generated
-   TypeScript/Python host projects with a fake provider, so onboarding proves
-   execution without real model credentials.
+3. Product proof: add clean-project CI workflow scaffolding that runs
+   `project-check`, TypeScript compile, Python compile, and both generated
+   `StaticProvider` smoke tests.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

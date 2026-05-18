@@ -107,3 +107,13 @@ entrypoints that lost the generated `agent(...)` embedding shape fail early:
 ```bash
 node cli/forma/dist/index.js project-check ./review-diff-agent
 ```
+
+Then run the generated no-credential smoke tests. They pass `StaticProvider`
+into the TypeScript and Python entrypoints, so the embedding path executes
+without `OPENAI_API_KEY`:
+
+```bash
+cd review-diff-agent
+pnpm run smoke:ts
+python test/review_diff_agent_smoke.py
+```

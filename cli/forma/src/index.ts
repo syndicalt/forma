@@ -174,6 +174,11 @@ interface FormaProjectManifest {
     runtime?: string;
     path?: string;
   }>;
+  smokeTests?: Array<{
+    runtime?: string;
+    path?: string;
+    command?: string;
+  }>;
 }
 
 const requiredPackageReleaseFiles = [
@@ -808,6 +813,7 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
 
   await mkdir(path, { recursive: true });
   await mkdir(resolve(path, "src"), { recursive: true });
+  await mkdir(resolve(path, "test"), { recursive: true });
 
   const schema = scaffoldSchema(args);
   const source = scaffoldSource(taskName, kind, schema);
@@ -815,6 +821,8 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   const pythonBindings = `src/${taskName}_forma.py`;
   const typeScriptAgent = `src/${taskName}_agent.ts`;
   const pythonAgent = `src/${taskName}_agent.py`;
+  const typeScriptSmoke = `test/${taskName}_agent_smoke.ts`;
+  const pythonSmoke = `test/${taskName}_agent_smoke.py`;
   const taskFile = `${taskName}.forma`;
   const providerProfile = scaffoldProviderProfile(args);
   const projectManifest = {
@@ -831,6 +839,10 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
       { runtime: "typescript", path: typeScriptAgent },
       { runtime: "python", path: pythonAgent },
     ],
+    smokeTests: [
+      { runtime: "typescript", path: typeScriptSmoke, command: "pnpm run smoke:ts" },
+      { runtime: "python", path: pythonSmoke, command: `python test/${taskName}_agent_smoke.py` },
+    ],
   };
 
   await writeFile(resolve(path, taskFile), source, "utf8");
@@ -838,6 +850,8 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
   await writeFile(resolve(path, typeScriptAgent), scaffoldProjectTypeScriptAgent(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonAgent), scaffoldProjectPythonAgent(taskName, kind, schema), "utf8");
+  await writeFile(resolve(path, typeScriptSmoke), scaffoldProjectTypeScriptSmokeTest(taskName, kind, schema), "utf8");
+  await writeFile(resolve(path, pythonSmoke), scaffoldProjectPythonSmokeTest(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, "forma.provider.json"), `${JSON.stringify(providerProfile, null, 2)}\n`, "utf8");
   await writeFile(resolve(path, "forma.project.json"), `${JSON.stringify(projectManifest, null, 2)}\n`, "utf8");
   await writeFile(resolve(path, "package.json"), scaffoldProjectPackageJson(projectName, taskName), "utf8");
@@ -923,6 +937,24 @@ async function validateProjectManifest(manifest: FormaProjectManifest, manifestD
     const entrypointSource = await readFile(resolve(manifestDir, entrypoint.path), "utf8");
     validateProjectEntrypoint(entrypoint, entrypointSource, manifest.task);
   }
+
+  const smokeTests = manifest.smokeTests ?? [];
+  const smokeRuntimes = new Set(smokeTests.map((test) => test.runtime));
+  if (!smokeRuntimes.has("typescript") || !smokeRuntimes.has("python")) {
+    throw new Error("project must include TypeScript and Python smoke tests");
+  }
+  for (const test of smokeTests) {
+    if (!test.path || !test.command) {
+      throw new Error("project smoke test path and command are required");
+    }
+    let smokeSource: string;
+    try {
+      smokeSource = await readFile(resolve(manifestDir, test.path), "utf8");
+    } catch {
+      throw new Error(`project smoke test is missing: ${test.path}`);
+    }
+    validateProjectSmokeTest(test, smokeSource, manifest.task);
+  }
 }
 
 function validateProjectEntrypoint(
@@ -950,6 +982,31 @@ function validateProjectEntrypoint(
     return;
   }
   throw new Error(`unsupported project entrypoint runtime: ${entrypoint.runtime}`);
+}
+
+function validateProjectSmokeTest(
+  test: NonNullable<FormaProjectManifest["smokeTests"]>[number],
+  source: string,
+  taskName: string | undefined,
+): void {
+  if (!taskName || !test.path) {
+    throw new Error("project smoke test path and command are required");
+  }
+  if (test.runtime === "typescript") {
+    const required = ["StaticProvider", `run${toPascalCase(taskName)}`];
+    if (required.some((term) => !source.includes(term))) {
+      throw new Error(`project TypeScript smoke test must use StaticProvider and run${toPascalCase(taskName)}: ${test.path}`);
+    }
+    return;
+  }
+  if (test.runtime === "python") {
+    const required = ["StaticProvider", `run_${taskName}`];
+    if (required.some((term) => !source.includes(term))) {
+      throw new Error(`project Python smoke test must use StaticProvider and run_${taskName}: ${test.path}`);
+    }
+    return;
+  }
+  throw new Error(`unsupported project smoke test runtime: ${test.runtime}`);
 }
 
 async function createPackageLock(path: string, manifest: FormaPackageManifest, manifestDir: string) {
@@ -2012,21 +2069,22 @@ function scaffoldProjectTypeScriptAgent(taskName: string, kind: ScaffoldKind, sc
     scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
   ])), "");
   return `import { fileURLToPath } from "node:url";
-import { agent, providerFromProfile, providerProfileFromFile } from "@forma-lang/forma";
+import { agent, providerFromProfile, providerProfileFromFile, type ModelProvider } from "@forma-lang/forma";
 import { assert${pascalName}Output, type ${inputType}, type ${pascalName}Output } from "./${taskName}.forma.js";
-
-const providerProfile = providerProfileFromFile(fileURLToPath(new URL("../forma.provider.json", import.meta.url)));
-
-const ${camelName} = agent({
-  file: fileURLToPath(new URL("../${taskName}.forma", import.meta.url)),
-  task: "${taskName}",
-  provider: providerFromProfile(providerProfile),
-});
 
 const exampleInput: ${inputType} = ${exampleInput};
 
-export async function run${pascalName}(input: ${inputType} = exampleInput): Promise<${pascalName}Output> {
-  const result = await ${camelName}.run({ ...input });
+export function ${camelName}Agent(provider?: ModelProvider) {
+  const defaultProvider = provider ?? providerFromProfile(providerProfileFromFile(fileURLToPath(new URL("../forma.provider.json", import.meta.url))));
+  return agent({
+    file: fileURLToPath(new URL("../${taskName}.forma", import.meta.url)),
+    task: "${taskName}",
+    provider: defaultProvider,
+  });
+}
+
+export async function run${pascalName}(input: ${inputType} = exampleInput, provider?: ModelProvider): Promise<${pascalName}Output> {
+  const result = await ${camelName}Agent(provider).run({ ...input });
   if (!result.ok) {
     throw new Error(result.error ?? "Forma ${taskName} failed");
   }
@@ -2072,25 +2130,26 @@ function scaffoldProjectPythonAgent(taskName: string, kind: ScaffoldKind, schema
   return `from dataclasses import asdict
 from pathlib import Path
 
-from forma import agent, provider_from_profile, provider_profile_from_file
+from forma import ModelProvider, agent, provider_from_profile, provider_profile_from_file
 from ${taskName}_forma import ${inputType}, ${pascalName}Output, assert_${taskName}_output
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-provider_profile = provider_profile_from_file(PROJECT_ROOT / "forma.provider.json")
-
-${taskName} = agent(
-    file=PROJECT_ROOT / "${taskName}.forma",
-    task="${taskName}",
-    provider=provider_from_profile(provider_profile),
-)
-
 
 example_input = ${inputType}.from_dict(${exampleInput})
 
 
-def run_${taskName}(input: ${inputType} = example_input) -> ${pascalName}Output:
-    result = ${taskName}.run(asdict(input))
+def ${taskName}_agent(provider: ModelProvider | None = None):
+    default_provider = provider or provider_from_profile(provider_profile_from_file(PROJECT_ROOT / "forma.provider.json"))
+    return agent(
+        file=PROJECT_ROOT / "${taskName}.forma",
+        task="${taskName}",
+        provider=default_provider,
+    )
+
+
+def run_${taskName}(input: ${inputType} = example_input, provider: ModelProvider | None = None) -> ${pascalName}Output:
+    result = ${taskName}_agent(provider=provider).run(asdict(input))
     if not result.ok:
         raise RuntimeError(result.error or "Forma ${taskName} failed")
     return assert_${taskName}_output(result.output)
@@ -2098,6 +2157,39 @@ def run_${taskName}(input: ${inputType} = example_input) -> ${pascalName}Output:
 
 if __name__ == "__main__":
     print(run_${taskName}())
+`;
+}
+
+function scaffoldProjectTypeScriptSmokeTest(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
+  const pascalName = toPascalCase(taskName);
+  const providerOutput = renderTypeScriptObject(Object.fromEntries(effectiveOutputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "");
+  return `import { strict as assert } from "node:assert";
+import { StaticProvider } from "@forma-lang/forma";
+import { run${pascalName} } from "../src/${taskName}_agent.js";
+
+const output = await run${pascalName}(undefined, new StaticProvider(${providerOutput}));
+
+assert.ok(output);
+console.log(JSON.stringify(output, null, 2));
+`;
+}
+
+function scaffoldProjectPythonSmokeTest(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
+  const providerOutput = renderPythonObject(Object.fromEntries(effectiveOutputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "");
+  return `from forma import StaticProvider
+from ${taskName}_agent import run_${taskName}
+
+
+output = run_${taskName}(provider=StaticProvider(${providerOutput}))
+
+assert output is not None
+print(output)
 `;
 }
 
@@ -2110,6 +2202,7 @@ function scaffoldProjectPackageJson(projectName: string, taskName: string): stri
       generate: `forma generate ${taskName}.forma --target typescript --output src/${taskName}.forma.ts`,
       check: "tsc --noEmit",
       "run:ts": `tsx src/${taskName}_agent.ts`,
+      "smoke:ts": `tsx test/${taskName}_agent_smoke.ts`,
     },
     dependencies: {
       "@forma-lang/forma": "latest",
@@ -2179,6 +2272,8 @@ pnpm run run:ts
 \`\`\`
 
 The TypeScript embedding entrypoint is \`src/${taskName}_agent.ts\`.
+Run \`pnpm run smoke:ts\` to execute it with \`StaticProvider\` and no model
+credentials.
 
 ## Python
 
@@ -2191,6 +2286,8 @@ python src/${taskName}_agent.py
 \`\`\`
 
 The Python embedding entrypoint is \`src/${taskName}_agent.py\`.
+Run \`python test/${taskName}_agent_smoke.py\` to execute it with
+\`StaticProvider\` and no model credentials.
 
 ## CLI
 

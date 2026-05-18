@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { runCli } from "../src/index.js";
-import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { execFile } from "node:child_process";
@@ -26,7 +26,7 @@ async function compileGeneratedProject(dir: string): Promise<void> {
       types: ["node"],
       skipLibCheck: true,
     },
-    include: [join(dir, "src", "*.ts")],
+    include: [join(dir, "src", "*.ts"), join(dir, "test", "*.ts")],
   }, null, 2));
   await execFileAsync(resolve(repoRoot, "node_modules/.bin/tsc"), ["-p", tsconfig], { cwd: repoRoot });
   await execFileAsync("python", [
@@ -34,6 +34,7 @@ async function compileGeneratedProject(dir: string): Promise<void> {
     "py_compile",
     join(dir, "src", "review_diff_forma.py"),
     join(dir, "src", "review_diff_agent.py"),
+    join(dir, "test", "review_diff_agent_smoke.py"),
   ]);
 }
 
@@ -2194,14 +2195,26 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "src", "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
     expect(await readFile(join(dir, "src", "review_diff_forma.py"), "utf8")).toContain("assert_review_diff_output");
     expect(await readFile(join(dir, "src", "review_diff_agent.ts"), "utf8")).toContain("providerProfileFromFile");
-    expect(await readFile(join(dir, "src", "review_diff_agent.ts"), "utf8")).toContain("providerFromProfile(providerProfile)");
+    expect(await readFile(join(dir, "src", "review_diff_agent.ts"), "utf8")).toContain("providerFromProfile(providerProfileFromFile");
+    expect(await readFile(join(dir, "src", "review_diff_agent.ts"), "utf8")).toContain("provider?: ModelProvider");
     expect(await readFile(join(dir, "src", "review_diff_agent.py"), "utf8")).toContain("provider_profile_from_file");
-    expect(await readFile(join(dir, "src", "review_diff_agent.py"), "utf8")).toContain("provider_from_profile(provider_profile)");
-    expect(await readFile(join(dir, "package.json"), "utf8")).toContain("\"@forma-lang/forma\"");
+    expect(await readFile(join(dir, "src", "review_diff_agent.py"), "utf8")).toContain("provider_from_profile(provider_profile_from_file");
+    expect(await readFile(join(dir, "src", "review_diff_agent.py"), "utf8")).toContain("provider: ModelProvider | None = None");
+    const typeScriptSmoke = await readFile(join(dir, "test", "review_diff_agent_smoke.ts"), "utf8");
+    expect(typeScriptSmoke).toContain("StaticProvider");
+    expect(typeScriptSmoke).toContain("runReviewDiff");
+    const pythonSmoke = await readFile(join(dir, "test", "review_diff_agent_smoke.py"), "utf8");
+    expect(pythonSmoke).toContain("StaticProvider");
+    expect(pythonSmoke).toContain("run_review_diff");
+    const packageJson = await readFile(join(dir, "package.json"), "utf8");
+    expect(packageJson).toContain("\"@forma-lang/forma\"");
+    expect(packageJson).toContain("\"smoke:ts\"");
     expect(await readFile(join(dir, "pyproject.toml"), "utf8")).toContain("forma-lang");
     const readme = await readFile(join(dir, "README.md"), "utf8");
     expect(readme).toContain("export REVIEW_MODEL_KEY=");
     expect(readme).toContain("forma project-check .");
+    expect(readme).toContain("pnpm run smoke:ts");
+    expect(readme).toContain("python test/review_diff_agent_smoke.py");
     expect(readme).toContain("forma run review_diff.forma --task review_diff");
     expect(readme).toContain("src/review_diff_agent.ts");
     expect(readme).toContain("src/review_diff_agent.py");
@@ -2209,6 +2222,32 @@ describe("forma cli", () => {
     const projectCheck = await runCli(["project-check", dir]);
     expect(projectCheck).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
     await compileGeneratedProject(dir);
+    await mkdir(join(dir, "node_modules", "@forma-lang"), { recursive: true });
+    await symlink(resolve(repoRoot, "packages/forma-typescript"), join(dir, "node_modules", "@forma-lang", "forma"), "dir");
+    const runtimeTsconfig = join(dir, "tsconfig.runtime.json");
+    await writeFile(runtimeTsconfig, JSON.stringify({
+      compilerOptions: {
+        target: "ES2022",
+        module: "NodeNext",
+        moduleResolution: "NodeNext",
+        strict: true,
+        outDir: "dist",
+        typeRoots: [resolve(repoRoot, "packages/forma-typescript/node_modules/@types")],
+        types: ["node"],
+        skipLibCheck: true,
+      },
+      include: ["src/**/*.ts", "test/**/*.ts"],
+    }, null, 2));
+    await execFileAsync(resolve(repoRoot, "node_modules/.bin/tsc"), ["-p", runtimeTsconfig], { cwd: dir });
+    await cp(join(dir, "review_diff.forma"), join(dir, "dist", "review_diff.forma"));
+    await cp(join(dir, "forma.provider.json"), join(dir, "dist", "forma.provider.json"));
+    await execFileAsync("node", [join(dir, "dist", "test", "review_diff_agent_smoke.js")], { cwd: dir });
+    await execFileAsync("python", [join(dir, "test", "review_diff_agent_smoke.py")], {
+      env: {
+        ...process.env,
+        PYTHONPATH: `${join(dir, "src")}:${resolve(repoRoot, "packages/forma-python/src")}`,
+      },
+    });
   });
 
   it("fails project checks when generated host bindings are stale", async () => {
@@ -2263,6 +2302,24 @@ describe("forma cli", () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain("project Python entrypoint must use agent(...), provider_profile_from_file, provider_from_profile, and assert_review_diff_output: src/review_diff_agent.py");
+  });
+
+  it("fails project checks when generated smoke tests are missing", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-smoke-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    await rm(join(dir, "test", "review_diff_agent_smoke.ts"));
+
+    const result = await runCli(["project-check", dir]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("project smoke test is missing: test/review_diff_agent_smoke.ts");
   });
 
   it("evaluates a deterministic conformance fixture as JSON", async () => {
