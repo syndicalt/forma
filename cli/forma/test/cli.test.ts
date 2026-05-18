@@ -467,6 +467,28 @@ describe("forma cli", () => {
     });
   });
 
+  it("previews task outline and generated host types for a Forma file", async () => {
+    const result = await runCli(["preview", "../../examples/review_diff.forma"]);
+    const preview = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 0, stdout: expect.any(String), stderr: "" });
+    expect(preview.tasks[0]).toMatchObject({
+      name: "review_diff",
+      mode: "agent",
+      input: {
+        diff: { type: "Text", array: false, optional: false },
+      },
+      output: {
+        findings: { type: "Finding", array: true, optional: false },
+      },
+    });
+    expect(preview.types.typescript).toContain("export interface ReviewDiffInput");
+    expect(preview.types.typescript).toContain("export function assertReviewDiffOutput");
+    expect(preview.types.python).toContain("@dataclass");
+    expect(preview.types.python).toContain("def assert_review_diff_output");
+    expect(preview.types.pythonPydantic).toContain("class ReviewDiffInput(BaseModel)");
+  });
+
   it("generates Python bindings from a Forma file", async () => {
     const result = await runCli(["generate", "../../examples/review_diff.forma", "--target", "python"]);
 

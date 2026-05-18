@@ -28,7 +28,7 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "outline" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock" && command !== "package-review" && command !== "project-check" && command !== "project-init")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "outline" && command !== "preview" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock" && command !== "package-review" && command !== "project-check" && command !== "project-init")) {
     return usage();
   }
 
@@ -79,6 +79,10 @@ export async function runCli(args: string[]): Promise<CliResult> {
       return outlineSource(source);
     }
 
+    if (command === "preview") {
+      return previewSource(source);
+    }
+
     if (command === "check") {
       const runtime = new FormaRuntime();
       const result = await runtime.runSource(source, { input: {}, sourceName: path });
@@ -121,7 +125,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|outline|preview|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]\n" };
 }
 
 interface FormaPackageManifest {
@@ -1987,23 +1991,42 @@ async function generateBindings(source: string, args: string[]): Promise<CliResu
 }
 
 function outlineSource(source: string): CliResult {
-  const program = parseForma(source);
+  return {
+    exitCode: 0,
+    stdout: `${JSON.stringify(outlinePayload(source), null, 2)}\n`,
+    stderr: "",
+  };
+}
+
+function previewSource(source: string): CliResult {
   return {
     exitCode: 0,
     stdout: `${JSON.stringify({
-      tasks: program.tasks.map((task) => ({
-        name: task.name,
-        intent: task.intent,
-        mode: task.agentInstruction ? "agent" : "compute",
-        input: task.input,
-        output: task.output,
-        schemas: task.schemas,
-        permissions: task.permissions,
-        verify: task.verify,
-        sourceSpan: task.sourceSpan,
-      })),
+      ...outlinePayload(source),
+      types: {
+        typescript: generateTypeScriptBindings(source),
+        python: generatePythonBindings(source),
+        pythonPydantic: generatePydanticBindings(source),
+      },
     }, null, 2)}\n`,
     stderr: "",
+  };
+}
+
+function outlinePayload(source: string) {
+  const program = parseForma(source);
+  return {
+    tasks: program.tasks.map((task) => ({
+      name: task.name,
+      intent: task.intent,
+      mode: task.agentInstruction ? "agent" : "compute",
+      input: task.input,
+      output: task.output,
+      schemas: task.schemas,
+      permissions: task.permissions,
+      verify: task.verify,
+      sourceSpan: task.sourceSpan,
+    })),
   };
 }
 

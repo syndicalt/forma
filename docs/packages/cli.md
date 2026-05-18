@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]
+forma <check|run|outline|preview|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -22,6 +22,7 @@ because agent execution still requires a host-supplied provider at run time.
 corepack pnpm --filter @forma-lang/cli test
 forma check examples/greet_user.forma
 forma outline examples/review_diff.forma
+forma preview examples/review_diff.forma
 forma run examples/greet_user.forma --input '{"user_name":"Sam"}'
 ```
 
@@ -63,7 +64,7 @@ diagnostics, verification, and runtime trace entries such as `tool` and
 `tool_failed`, instead of only printing the task output object.
 
 Invalid usage exits with code 2 and prints `usage: forma
-<check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]`.
+<check|run|outline|preview|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]`.
 These behaviors are covered by `cli/forma/test/cli.test.ts`.
 
 `forma outline` reads a `.forma` file and prints machine-readable task metadata
@@ -76,6 +77,16 @@ forma outline examples/review_diff.forma
 The output includes each task name, intent, execution mode, input and output
 fields, named schemas, declared permissions, verify rules, and task source
 span.
+
+`forma preview` reads the same `.forma` file and prints a JSON object that
+combines the task outline with generated TypeScript, Python dataclass, and
+Python Pydantic type previews. Use it for editor integrations, review comments,
+and quick inspection when you want to see the runtime contract and host-facing
+types without writing generated files:
+
+```bash
+forma preview examples/review_diff.forma
+```
 
 `forma generate` reads a `.forma` file and prints host-language bindings:
 

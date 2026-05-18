@@ -60,6 +60,8 @@ The current MVP provides:
 - CLI binding generation for TypeScript and Python.
 - CLI task outline output for inspecting task names, modes, fields, schemas,
   permissions, and verify rules.
+- CLI preview output for inspecting task outlines with generated TypeScript,
+  Python dataclass, and Python Pydantic type previews.
 - TypeScript and Python parsers record task source spans for editor-facing
   outline output and validation diagnostics.
 - CLI evaluation reports for shared conformance fixtures, including output,
@@ -302,13 +304,13 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Coding-agent ergonomics: add a richer "modify a function and run focused
-   tests" package template with fixture coverage.
-2. Developer experience: add task outline and generated type preview surfaces
-   suitable for an editor or language-server client.
-3. Clean-project onboarding: add installed-project smoke tests for the
+1. Developer experience: add a file-watch preview mode for iterative task
+   authoring.
+2. Clean-project onboarding: add installed-project smoke tests for the
    published TypeScript and Python package names once release packaging is
    available.
+3. Coding-agent ergonomics: add a checked example package for the
+   function-repair template.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
