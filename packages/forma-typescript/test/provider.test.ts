@@ -123,6 +123,45 @@ describe("HttpJsonProvider", () => {
       { id: "read-1", ok: true, result: "contents:README.md" },
     ]);
   });
+
+  it("includes optional adapter settings in HTTP JSON requests", async () => {
+    const requests: Array<{ body: Record<string, unknown>; signal: AbortSignal | undefined }> = [];
+    const provider = new HttpJsonProvider({
+      endpoint: "https://model.example/v1/agent",
+      model: "example-model",
+      temperature: 0.2,
+      timeoutMs: 1000,
+      fetch: async (_url, init) => {
+        requests.push({
+          body: JSON.parse(init.body) as Record<string, unknown>,
+          signal: init.signal,
+        });
+        return {
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ output: { message: "Hello." } }),
+        } as Response;
+      },
+    });
+
+    await provider.runAgent({
+      instruction: "Write a greeting.",
+      values: {},
+      permissions: [],
+      output: { message: { type: "Text", array: false, optional: false } },
+      schemas: {},
+      tools: {
+        require() {},
+        readText: async () => "",
+        searchText: async () => [],
+        runTest: async () => ({ ok: true, output: "" }),
+        writeText: async () => ({ ok: true, output: "" }),
+      },
+    });
+
+    expect(requests[0]?.body.temperature).toBe(0.2);
+    expect(requests[0]?.signal).toBeInstanceOf(AbortSignal);
+  });
 });
 
 describe("OpenAIResponsesProvider", () => {
@@ -237,6 +276,45 @@ describe("OpenAIResponsesProvider", () => {
       },
     ]);
   });
+
+  it("includes optional adapter settings in OpenAI Responses requests", async () => {
+    const requests: Array<{ body: Record<string, unknown>; signal: AbortSignal | undefined }> = [];
+    const provider = new OpenAIResponsesProvider({
+      apiKey: "secret",
+      model: "gpt-example",
+      temperature: 0.1,
+      timeoutMs: 1000,
+      fetch: async (_url, init) => {
+        requests.push({
+          body: JSON.parse(init.body) as Record<string, unknown>,
+          signal: init.signal,
+        });
+        return {
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ output_text: JSON.stringify({ message: "Hello." }) }),
+        } as Response;
+      },
+    });
+
+    await provider.runAgent({
+      instruction: "Write a greeting.",
+      values: {},
+      permissions: [],
+      output: { message: { type: "Text", array: false, optional: false } },
+      schemas: {},
+      tools: {
+        require() {},
+        readText: async () => "",
+        searchText: async () => [],
+        runTest: async () => ({ ok: true, output: "" }),
+        writeText: async () => ({ ok: true, output: "" }),
+      },
+    });
+
+    expect(requests[0]?.body.temperature).toBe(0.1);
+    expect(requests[0]?.signal).toBeInstanceOf(AbortSignal);
+  });
 });
 
 describe("provider profiles", () => {
@@ -282,5 +360,48 @@ describe("provider profiles", () => {
     expect(requests[0]?.init.headers).toMatchObject({
       authorization: "Bearer profile-secret",
     });
+  });
+
+  it("passes optional adapter settings from provider profiles", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-provider-profile-settings-"));
+    const profilePath = join(dir, "forma.provider.json");
+    await writeFile(profilePath, JSON.stringify({
+      provider: "openai-responses",
+      model: "gpt-profile",
+      apiKeyEnv: "FORMA_TEST_API_KEY",
+      temperature: 0.3,
+      timeoutMs: 2000,
+    }));
+    const requests: Array<{ init: RequestInit }> = [];
+    const profile = providerProfileFromFile(profilePath);
+    const provider = providerFromProfile(profile, {
+      env: { FORMA_TEST_API_KEY: "profile-secret" },
+      fetch: async (_url, init) => {
+        requests.push({ init: init ?? {} });
+        return {
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ output_text: JSON.stringify({ message: "Hello from profile." }) }),
+        } as Response;
+      },
+    });
+
+    await provider.runAgent({
+      instruction: "Write a greeting.",
+      values: { user_name: "Sam" },
+      permissions: [],
+      output: { message: { type: "Text", array: false, optional: false } },
+      schemas: {},
+      tools: {
+        require() {},
+        readText: async () => "",
+        searchText: async () => [],
+        runTest: async () => ({ ok: true, output: "" }),
+        writeText: async () => ({ ok: true, output: "" }),
+      },
+    });
+
+    expect(JSON.parse(String(requests[0]?.init.body)).temperature).toBe(0.3);
+    expect(requests[0]?.init.signal).toBeInstanceOf(AbortSignal);
   });
 });

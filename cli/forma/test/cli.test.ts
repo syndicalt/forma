@@ -416,7 +416,7 @@ describe("forma cli", () => {
       compatibility: {
         breaking: ["input", "output", "schemas"],
         review: ["intent", "permissions", "verify", "sourceSha256"],
-        environment: ["provider", "endpoint", "model"],
+        environment: ["provider", "endpoint", "model", "temperature", "timeoutMs"],
       },
     }));
 
@@ -463,7 +463,7 @@ describe("forma cli", () => {
       compatibility: {
         breaking: ["input", "output", "schemas"],
         review: ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
-        environment: ["provider", "endpoint", "model"],
+        environment: ["provider", "endpoint", "model", "temperature", "timeoutMs"],
       },
     }));
 
@@ -501,6 +501,8 @@ describe("forma cli", () => {
       provider: "openai-responses",
       model: "gpt-5",
       apiKeyEnv: "OPENAI_API_KEY",
+      temperature: 0.2,
+      timeoutMs: 30000,
     });
     expect(await readFile(join(dir, "review_diff.forma"), "utf8")).toContain("task review_diff");
     expect(await readFile(join(dir, "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
@@ -720,6 +722,10 @@ describe("forma cli", () => {
         "https://model.example/v1/agent",
         "--model",
         "example-model",
+        "--temperature",
+        "0.2",
+        "--timeout-ms",
+        "2000",
         "--api-key",
         "secret",
       ]);
@@ -730,6 +736,8 @@ describe("forma cli", () => {
         provider: "http-json",
         endpoint: "https://model.example/v1/agent",
         model: "example-model",
+        temperature: 0.2,
+        timeoutMs: 2000,
       });
       expect(JSON.stringify(artifact.summary.settings)).not.toContain("secret");
     } finally {
@@ -813,6 +821,8 @@ describe("forma cli", () => {
       endpoint: "https://profile.example/v1/agent",
       model: "profile-model",
       apiKeyEnv: "FORMA_TEST_MODEL_KEY",
+      temperature: 0.3,
+      timeoutMs: 2000,
     }));
     globalThis.fetch = (async (url, init) => {
       requests.push({ url: String(url), init: init ?? {} });
@@ -852,6 +862,8 @@ describe("forma cli", () => {
         authorization: "Bearer profile-secret",
       });
       expect(body.model).toBe("profile-model");
+      expect(body.temperature).toBe(0.3);
+      expect(requests[0]?.init.signal).toBeInstanceOf(AbortSignal);
     } finally {
       globalThis.fetch = originalFetch;
       if (originalApiKey === undefined) {
@@ -1556,7 +1568,13 @@ describe("forma cli", () => {
         passed: 1,
         failed: 0,
         durationMs: 5,
-        settings: { provider: "http-json", endpoint: "https://model.example/v1/agent", model: "baseline-model" },
+        settings: {
+          provider: "http-json",
+          endpoint: "https://model.example/v1/agent",
+          model: "baseline-model",
+          temperature: 0.2,
+          timeoutMs: 30000,
+        },
       },
       reports: [report],
     }));
@@ -1567,7 +1585,13 @@ describe("forma cli", () => {
         passed: 1,
         failed: 0,
         durationMs: 6,
-        settings: { provider: "http-json", endpoint: "https://model.example/v1/agent", model: "candidate-model" },
+        settings: {
+          provider: "http-json",
+          endpoint: "https://model.example/v1/agent",
+          model: "candidate-model",
+          temperature: 0.3,
+          timeoutMs: 30000,
+        },
       },
       reports: [report],
     }));
@@ -1578,9 +1602,10 @@ describe("forma cli", () => {
       passed: true,
       regressions: [],
       improvements: [],
-      settingChanges: ["model"],
+      settingChanges: ["model", "temperature"],
       changes: [
         { kind: "setting", field: "model", severity: "environment" },
+        { kind: "setting", field: "temperature", severity: "environment" },
       ],
       reports: [
         {

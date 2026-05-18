@@ -99,8 +99,10 @@ const result = await reviewDiff.run({ diff, max_findings: 5 });
 
 `providerProfileFromFile` validates the profile shape. `providerFromProfile`
 constructs either `HttpJsonProvider` or `OpenAIResponsesProvider`, reading the
-secret from `apiKeyEnv` when the profile names one. `forma package-init` writes
-the same profile shape to `forma.provider.json`.
+secret from `apiKeyEnv` when the profile names one. Profiles can also carry
+`temperature` and `timeoutMs` so model-generation settings are reviewable
+without committing secrets. `forma package-init` writes the same profile shape
+to `forma.provider.json`.
 
 `HttpJsonProvider` can be used when a host has an HTTP endpoint that accepts the
 Forma instruction, input values, permissions, and model name as JSON:
@@ -111,6 +113,8 @@ const runtime = new FormaRuntime({
     endpoint: process.env.MODEL_ENDPOINT ?? "",
     apiKey: process.env.MODEL_API_KEY,
     model: process.env.MODEL_NAME ?? "example-model",
+    temperature: 0.2,
+    timeoutMs: 30000,
   }),
 });
 ```
@@ -125,6 +129,8 @@ const runtime = new FormaRuntime({
   modelProvider: new OpenAIResponsesProvider({
     apiKey: process.env.OPENAI_API_KEY ?? "",
     model: process.env.OPENAI_MODEL ?? "gpt-5",
+    temperature: 0.2,
+    timeoutMs: 30000,
   }),
 });
 ```

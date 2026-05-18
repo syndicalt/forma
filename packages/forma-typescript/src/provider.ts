@@ -34,6 +34,7 @@ type FetchLike = (
     method: "POST";
     headers: Record<string, string>;
     body: string;
+    signal?: AbortSignal;
   },
 ) => Promise<{ ok: boolean; status: number; text(): Promise<string> }>;
 
@@ -41,6 +42,8 @@ export interface HttpJsonProviderOptions {
   endpoint: string;
   model: string;
   apiKey?: string;
+  temperature?: number;
+  timeoutMs?: number;
   fetch?: FetchLike;
 }
 
@@ -71,11 +74,13 @@ export class HttpJsonProvider implements ModelProvider {
       const response = await this.fetchImpl(this.options.endpoint, {
         method: "POST",
         headers,
+        ...timeoutSignal(this.options.timeoutMs),
         body: JSON.stringify({
           model: this.options.model,
           instruction: input.instruction,
           input: input.values,
           permissions: input.permissions,
+          ...(this.options.temperature !== undefined ? { temperature: this.options.temperature } : {}),
           ...(toolResults.length > 0 ? { toolResults } : {}),
         }),
       });
@@ -168,6 +173,8 @@ export interface OpenAIResponsesProviderOptions {
   apiKey: string;
   model: string;
   endpoint?: string;
+  temperature?: number;
+  timeoutMs?: number;
   fetch?: FetchLike;
 }
 
@@ -194,6 +201,7 @@ export class OpenAIResponsesProvider implements ModelProvider {
         "content-type": "application/json",
         authorization: `Bearer ${this.options.apiKey}`,
       },
+      ...timeoutSignal(this.options.timeoutMs),
       body: JSON.stringify({
         model: this.options.model,
         instructions: input.instruction,
@@ -201,6 +209,7 @@ export class OpenAIResponsesProvider implements ModelProvider {
           input: input.values,
           permissions: input.permissions,
         }),
+        ...(this.options.temperature !== undefined ? { temperature: this.options.temperature } : {}),
         text: {
           format: {
             type: "json_schema",
@@ -231,6 +240,8 @@ export interface ProviderProfile {
   model: string;
   apiKey?: string;
   apiKeyEnv?: string;
+  temperature?: number;
+  timeoutMs?: number;
 }
 
 export interface ProviderProfileOptions {
@@ -253,6 +264,8 @@ export function providerFromProfile(profile: ProviderProfile, options: ProviderP
       endpoint: profile.endpoint,
       model: profile.model,
       ...(apiKey ? { apiKey } : {}),
+      ...(profile.temperature !== undefined ? { temperature: profile.temperature } : {}),
+      ...(profile.timeoutMs !== undefined ? { timeoutMs: profile.timeoutMs } : {}),
       ...(options.fetch ? { fetch: options.fetch } : {}),
     });
   }
@@ -263,6 +276,8 @@ export function providerFromProfile(profile: ProviderProfile, options: ProviderP
     apiKey,
     model: profile.model,
     ...(profile.endpoint ? { endpoint: profile.endpoint } : {}),
+    ...(profile.temperature !== undefined ? { temperature: profile.temperature } : {}),
+    ...(profile.timeoutMs !== undefined ? { timeoutMs: profile.timeoutMs } : {}),
     ...(options.fetch ? { fetch: options.fetch } : {}),
   });
 }
@@ -287,7 +302,18 @@ function validateProviderProfile(value: unknown): ProviderProfile {
   if (profile.apiKeyEnv !== undefined && typeof profile.apiKeyEnv !== "string") {
     throw new Error("provider profile apiKeyEnv must be a string");
   }
+  if (profile.temperature !== undefined && (typeof profile.temperature !== "number" || !Number.isFinite(profile.temperature))) {
+    throw new Error("provider profile temperature must be a number");
+  }
+  if (profile.timeoutMs !== undefined && (typeof profile.timeoutMs !== "number" || !Number.isFinite(profile.timeoutMs) || profile.timeoutMs <= 0)) {
+    throw new Error("provider profile timeoutMs must be a positive number");
+  }
   return profile as ProviderProfile;
+}
+
+function timeoutSignal(timeoutMs: number | undefined): { signal?: AbortSignal } {
+  if (timeoutMs === undefined) return {};
+  return { signal: AbortSignal.timeout(timeoutMs) };
 }
 
 function objectSchema(fields: Record<string, FormaField>, schemas: Record<string, Record<string, FormaField>>): Record<string, unknown> {

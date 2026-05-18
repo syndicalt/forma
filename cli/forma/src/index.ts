@@ -180,7 +180,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
     compatibility: {
       breaking: ["input", "output", "schemas"],
       review: ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
-      environment: ["provider", "endpoint", "model"],
+      environment: ["provider", "endpoint", "model", "temperature", "timeoutMs"],
     },
   };
   await writeFile(resolve(path, manifestFile), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
@@ -207,6 +207,8 @@ function scaffoldProviderProfile() {
     provider: "openai-responses",
     model: "gpt-5",
     apiKeyEnv: "OPENAI_API_KEY",
+    temperature: 0.2,
+    timeoutMs: 30000,
   };
 }
 
@@ -590,6 +592,12 @@ function validateProviderProfile(profile: ProviderProfile): void {
   if (profile.apiKeyEnv !== undefined && typeof profile.apiKeyEnv !== "string") {
     throw new Error("provider profile apiKeyEnv must be a string");
   }
+  if (profile.temperature !== undefined && (typeof profile.temperature !== "number" || !Number.isFinite(profile.temperature))) {
+    throw new Error("provider profile temperature must be a number");
+  }
+  if (profile.timeoutMs !== undefined && (typeof profile.timeoutMs !== "number" || !Number.isFinite(profile.timeoutMs) || profile.timeoutMs <= 0)) {
+    throw new Error("provider profile timeoutMs must be a positive number");
+  }
 }
 
 async function generateBindings(source: string, args: string[]): Promise<CliResult> {
@@ -758,7 +766,7 @@ function summarySettings(report: EvalReport | EvalReport[] | EvalSuiteArtifact):
 
 function compareSettings(baseline: EvalSettings | undefined, candidate: EvalSettings | undefined): string[] {
   if (!baseline || !candidate) return [];
-  const fields: Array<keyof EvalSettings> = ["provider", "endpoint", "model"];
+  const fields: Array<keyof EvalSettings> = ["provider", "endpoint", "model", "temperature", "timeoutMs"];
   return fields.filter((field) => baseline[field] !== candidate[field]);
 }
 
@@ -913,6 +921,8 @@ interface EvalOptions {
   endpoint?: string;
   model?: string;
   apiKey?: string;
+  temperature?: number;
+  timeoutMs?: number;
 }
 
 interface ProviderProfile {
@@ -921,12 +931,16 @@ interface ProviderProfile {
   model?: string;
   apiKey?: string;
   apiKeyEnv?: string;
+  temperature?: number;
+  timeoutMs?: number;
 }
 
 interface EvalSettings {
   provider: EvalOptions["provider"];
   endpoint?: string;
   model?: string;
+  temperature?: number;
+  timeoutMs?: number;
 }
 
 async function evaluateFixture(path: string, args: string[]): Promise<CliResult> {
@@ -979,6 +993,8 @@ function evalSettings(options: EvalOptions): EvalSettings {
     provider: options.provider,
     ...(options.endpoint ? { endpoint: options.endpoint } : {}),
     ...(options.model ? { model: options.model } : {}),
+    ...(options.temperature !== undefined ? { temperature: options.temperature } : {}),
+    ...(options.timeoutMs !== undefined ? { timeoutMs: options.timeoutMs } : {}),
   };
 }
 
@@ -1054,11 +1070,15 @@ async function parseEvalOptions(args: string[]): Promise<EvalOptions> {
   if (provider === "http-json" && !endpoint) {
     throw new Error("--endpoint is required for --provider http-json");
   }
+  const temperature = numericOption(args, "--temperature") ?? profile.temperature;
+  const timeoutMs = numericOption(args, "--timeout-ms") ?? profile.timeoutMs;
   return {
     provider,
     ...(endpoint ? { endpoint } : {}),
     model,
     ...(apiKey ? { apiKey } : {}),
+    ...(temperature !== undefined ? { temperature } : {}),
+    ...(timeoutMs !== undefined ? { timeoutMs } : {}),
   };
 }
 
@@ -1085,6 +1105,8 @@ function createConfiguredProvider(options: EvalOptions): ModelProvider {
       endpoint: options.endpoint ?? "",
       model: options.model ?? "",
       ...(options.apiKey ? { apiKey: options.apiKey } : {}),
+      ...(options.temperature !== undefined ? { temperature: options.temperature } : {}),
+      ...(options.timeoutMs !== undefined ? { timeoutMs: options.timeoutMs } : {}),
     });
   }
   if (options.provider === "openai-responses") {
@@ -1092,6 +1114,8 @@ function createConfiguredProvider(options: EvalOptions): ModelProvider {
       model: options.model ?? "",
       apiKey: options.apiKey ?? "",
       ...(options.endpoint ? { endpoint: options.endpoint } : {}),
+      ...(options.temperature !== undefined ? { temperature: options.temperature } : {}),
+      ...(options.timeoutMs !== undefined ? { timeoutMs: options.timeoutMs } : {}),
     });
   }
   throw new Error(`unsupported eval provider '${options.provider}'`);
@@ -1184,6 +1208,19 @@ function optionValues(args: string[], name: string): string[] {
     }
   }
   return values;
+}
+
+function numericOption(args: string[], name: string): number | undefined {
+  const value = optionValue(args, name);
+  if (value === undefined) return undefined;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`${name} must be a number`);
+  }
+  if (name === "--timeout-ms" && parsed <= 0) {
+    throw new Error("--timeout-ms must be positive");
+  }
+  return parsed;
 }
 
 function deepEqual(left: unknown, right: unknown): boolean {

@@ -62,11 +62,15 @@ class HttpJsonProvider:
         endpoint: str,
         model: str,
         api_key: str | None = None,
+        temperature: float | None = None,
+        timeout_ms: int | None = None,
         transport: Transport | None = None,
     ) -> None:
         self.endpoint = endpoint
         self.model = model
         self.api_key = api_key
+        self.temperature = temperature
+        self.timeout_ms = timeout_ms
         self.transport = transport or self._default_transport
 
     def run_agent(
@@ -90,6 +94,8 @@ class HttpJsonProvider:
                 "input": values,
                 "permissions": permissions,
             }
+            if self.temperature is not None:
+                body["temperature"] = self.temperature
             if tool_results:
                 body["toolResults"] = tool_results
             response = self.transport(self.endpoint, body, headers)
@@ -104,15 +110,18 @@ class HttpJsonProvider:
             tool_results = [_run_tool_call(call, tools) for call in calls]
         raise ValueError("F5002: provider exceeded tool call limit")
 
-    @staticmethod
-    def _default_transport(url: str, body: dict[str, object], headers: dict[str, str]) -> dict[str, object]:
+    def _default_transport(self, url: str, body: dict[str, object], headers: dict[str, str]) -> dict[str, object]:
         request = urllib.request.Request(
             url,
             data=json.dumps(body).encode("utf8"),
             headers=headers,
             method="POST",
         )
-        with urllib.request.urlopen(request) as response:
+        if self.timeout_ms is None:
+            response_context = urllib.request.urlopen(request)
+        else:
+            response_context = urllib.request.urlopen(request, timeout=self.timeout_ms / 1000)
+        with response_context as response:
             return json.loads(response.read().decode("utf8"))
 
 
@@ -122,11 +131,15 @@ class OpenAIResponsesProvider:
         api_key: str,
         model: str,
         endpoint: str = "https://api.openai.com/v1/responses",
+        temperature: float | None = None,
+        timeout_ms: int | None = None,
         transport: Transport | None = None,
     ) -> None:
         self.api_key = api_key
         self.model = model
         self.endpoint = endpoint
+        self.temperature = temperature
+        self.timeout_ms = timeout_ms
         self.transport = transport or self._default_transport
 
     def run_agent(
@@ -138,21 +151,24 @@ class OpenAIResponsesProvider:
         output: dict[str, dict[str, object]] | None = None,
         schemas: dict[str, dict[str, dict[str, object]]] | None = None,
     ) -> dict[str, FormaValue]:
+        body: dict[str, object] = {
+            "model": self.model,
+            "instructions": instruction,
+            "input": json.dumps({"input": values, "permissions": permissions}),
+            "text": {
+                "format": {
+                    "type": "json_schema",
+                    "name": "forma_output",
+                    "strict": True,
+                    "schema": _object_schema(output or {}, schemas or {}),
+                }
+            },
+        }
+        if self.temperature is not None:
+            body["temperature"] = self.temperature
         response = self.transport(
             self.endpoint,
-            {
-                "model": self.model,
-                "instructions": instruction,
-                "input": json.dumps({"input": values, "permissions": permissions}),
-                "text": {
-                    "format": {
-                        "type": "json_schema",
-                        "name": "forma_output",
-                        "strict": True,
-                        "schema": _object_schema(output or {}, schemas or {}),
-                    }
-                },
-            },
+            body,
             {
                 "content-type": "application/json",
                 "authorization": f"Bearer {self.api_key}",
@@ -163,19 +179,22 @@ class OpenAIResponsesProvider:
             raise ValueError("F5001: provider response requires object output")
         return parsed_output
 
-    @staticmethod
-    def _default_transport(url: str, body: dict[str, object], headers: dict[str, str]) -> dict[str, object]:
+    def _default_transport(self, url: str, body: dict[str, object], headers: dict[str, str]) -> dict[str, object]:
         request = urllib.request.Request(
             url,
             data=json.dumps(body).encode("utf8"),
             headers=headers,
             method="POST",
         )
-        with urllib.request.urlopen(request) as response:
+        if self.timeout_ms is None:
+            response_context = urllib.request.urlopen(request)
+        else:
+            response_context = urllib.request.urlopen(request, timeout=self.timeout_ms / 1000)
+        with response_context as response:
             return json.loads(response.read().decode("utf8"))
 
 
-ProviderProfile = dict[str, str]
+ProviderProfile = dict[str, object]
 
 
 def provider_profile_from_file(path: str | Path) -> ProviderProfile:
@@ -200,6 +219,8 @@ def provider_from_profile(
             endpoint=endpoint,
             model=profile["model"],
             api_key=api_key,
+            temperature=_optional_float(profile, "temperature"),
+            timeout_ms=_optional_int(profile, "timeoutMs"),
             transport=transport,
         )
     if api_key is None:
@@ -208,6 +229,8 @@ def provider_from_profile(
         api_key=api_key,
         model=profile["model"],
         endpoint=profile.get("endpoint", "https://api.openai.com/v1/responses"),
+        temperature=_optional_float(profile, "temperature"),
+        timeout_ms=_optional_int(profile, "timeoutMs"),
         transport=transport,
     )
 
@@ -223,7 +246,21 @@ def _validate_provider_profile(value: object) -> ProviderProfile:
     for field in ["endpoint", "apiKey", "apiKeyEnv"]:
         if field in value and not isinstance(value[field], str):
             raise ValueError(f"provider profile {field} must be a string")
+    if "temperature" in value and not isinstance(value["temperature"], (int, float)):
+        raise ValueError("provider profile temperature must be a number")
+    if "timeoutMs" in value and (not isinstance(value["timeoutMs"], int) or value["timeoutMs"] <= 0):
+        raise ValueError("provider profile timeoutMs must be a positive integer")
     return value
+
+
+def _optional_float(profile: ProviderProfile, field: str) -> float | None:
+    value = profile.get(field)
+    return float(value) if isinstance(value, (int, float)) else None
+
+
+def _optional_int(profile: ProviderProfile, field: str) -> int | None:
+    value = profile.get(field)
+    return value if isinstance(value, int) else None
 
 
 def _object_schema(fields: dict[str, dict[str, object]], schemas: dict[str, dict[str, dict[str, object]]]) -> dict[str, object]:

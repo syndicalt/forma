@@ -66,7 +66,9 @@ the API-key environment variable in `forma.provider.json`:
 {
   "provider": "openai-responses",
   "model": "gpt-5",
-  "apiKeyEnv": "OPENAI_API_KEY"
+  "apiKeyEnv": "OPENAI_API_KEY",
+  "temperature": 0.2,
+  "timeoutMs": 30000
 }
 ```
 
