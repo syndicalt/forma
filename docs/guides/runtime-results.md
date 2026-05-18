@@ -60,6 +60,10 @@ or adapter response.
 Log `error` with diagnostics before retrying the model. A retry that drops
 `diagnostics`, `verification.failures`, or trace entries loses the evidence
 needed to distinguish provider behavior from host integration drift.
+Model fallback should retry from diagnostics, not bypass validation. When a
+host switches models after a failed response, pass the same Forma contract
+through the next provider attempt and preserve the original diagnostics so the
+fallback cannot turn invalid model output into trusted application data.
 
 ## Verification
 

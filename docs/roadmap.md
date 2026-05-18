@@ -359,6 +359,8 @@ The current MVP provides:
   local contract proof.
 - Package-consumer quickstart now says fallback models belong in host adapters
   unless the reviewed package default changes.
+- Runtime-result docs now say model fallback should retry from diagnostics, not
+  bypass validation.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -921,12 +923,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add runtime-result wording that model fallback should retry
-   from diagnostics, not bypass validation.
-2. Product clarity: add provider-adapter wording that fallback models are
+1. Product clarity: add provider-adapter wording that fallback models are
    deployment policy unless every consumer should inherit them.
-3. Product clarity: add first-use audit wording that fallback models are not
+2. Product clarity: add first-use audit wording that fallback models are not
    part of the usefulness proof.
+3. Product clarity: add testing-guide wording that fallback retries must keep
+   validation evidence in release artifacts.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
