@@ -181,6 +181,7 @@ const requiredPackageReleaseFiles = [
   ".github/workflows/forma-package.yml",
   ".github/workflows/forma-publish.yml",
 ];
+const packageTroubleshootingGuidance = "docs/guides/package-consumer-quickstart.md#troubleshooting";
 
 async function checkPackageManifest(path: string): Promise<CliResult> {
   const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
@@ -466,12 +467,14 @@ async function packageCiWorkflowCheck(manifestPath: string, manifest: FormaPacka
   const workflow = await readFile(resolve(manifestDir, workflowPath), "utf8").catch(() => "");
   const commands = packageCiWorkflowCommands(manifestPath, manifest, manifestDir);
   const missingCommands = commands.filter((command) => !workflow.includes(command));
+  const missingGuidance = workflow.includes(packageTroubleshootingGuidance) ? [] : [packageTroubleshootingGuidance];
   return {
     name: "ci-workflow",
-    passed: workflow.length > 0 && missingCommands.length === 0,
+    passed: workflow.length > 0 && missingCommands.length === 0 && missingGuidance.length === 0,
     total: commands.length,
     ...(workflow.length === 0 ? { missingWorkflow: workflowPath } : {}),
     ...(missingCommands.length > 0 ? { missingCommands } : {}),
+    ...(missingGuidance.length > 0 ? { missingGuidance } : {}),
   };
 }
 
@@ -505,12 +508,14 @@ async function packagePublishBundleCheck(manifestPath: string, manifest: FormaPa
   const workflow = await readFile(resolve(manifestDir, workflowPath), "utf8").catch(() => "");
   const paths = await packageBundlePaths(manifestPath, manifest, manifestDir);
   const missingPaths = paths.filter((path) => !workflow.includes(path));
+  const missingGuidance = workflow.includes(packageTroubleshootingGuidance) ? [] : [packageTroubleshootingGuidance];
   return {
     name: "publish-bundle",
-    passed: workflow.length > 0 && missingPaths.length === 0,
+    passed: workflow.length > 0 && missingPaths.length === 0 && missingGuidance.length === 0,
     total: paths.length,
     ...(workflow.length === 0 ? { missingWorkflow: workflowPath } : {}),
     ...(missingPaths.length > 0 ? { missingPaths } : {}),
+    ...(missingGuidance.length > 0 ? { missingGuidance } : {}),
   };
 }
 
@@ -1241,7 +1246,6 @@ function scaffoldPackageWorkflow(
   tests?: Array<{ runtime: "typescript" | "python"; path: string }>,
 ): string {
   const testSteps = packageTestWorkflowSteps(packageTestCommands(tests));
-  const troubleshootingPath = "docs/guides/package-consumer-quickstart.md#troubleshooting";
   return `name: Forma package
 
 on:
@@ -1272,7 +1276,7 @@ ${testSteps}\
         run: forma package-review ${manifestFile}
       - name: Troubleshoot package failures
         if: failure()
-        run: echo "See ${troubleshootingPath}"
+        run: echo "See ${packageTroubleshootingGuidance}"
       - uses: actions/upload-artifact@v4
         with:
           name: forma-candidate
@@ -1306,7 +1310,6 @@ function scaffoldPackagePublishWorkflow(options: {
   readmeFile: string;
 }): string {
   const bundleFile = `dist/${options.taskName}.forma-package.tgz`;
-  const troubleshootingPath = "docs/guides/package-consumer-quickstart.md#troubleshooting";
   const bundleInputs = [
     options.manifestFile,
     options.lockFile,
@@ -1372,7 +1375,7 @@ jobs:
           gh release upload "$GITHUB_REF_NAME" ${bundleFile} candidate.json --clobber
       - name: Troubleshoot package failures
         if: failure()
-        run: echo "See ${troubleshootingPath}"
+        run: echo "See ${packageTroubleshootingGuidance}"
 `;
 }
 

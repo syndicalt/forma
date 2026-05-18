@@ -1299,6 +1299,29 @@ describe("forma cli", () => {
     });
   });
 
+  it("reports missing CI troubleshooting guidance", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-ci-guidance-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    const workflowPath = join(dir, ".github", "workflows", "forma-package.yml");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const workflow = await readFile(workflowPath, "utf8");
+    await writeFile(workflowPath, workflow.replace("docs/guides/package-consumer-quickstart.md#troubleshooting", "docs/guides/package-consumer-quickstart.md"));
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "ci-workflow",
+      passed: false,
+      total: 6,
+      missingGuidance: ["docs/guides/package-consumer-quickstart.md#troubleshooting"],
+    });
+  });
+
   it("fails package review when the publish workflow omits reviewed artifacts", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-publish-bundle-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");
@@ -1319,6 +1342,29 @@ describe("forma cli", () => {
       passed: false,
       total: 17,
       missingPaths: ["review_diff_forma.py"],
+    });
+  });
+
+  it("reports missing publish workflow troubleshooting guidance", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-publish-guidance-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    const workflowPath = join(dir, ".github", "workflows", "forma-publish.yml");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const workflow = await readFile(workflowPath, "utf8");
+    await writeFile(workflowPath, workflow.replace("docs/guides/package-consumer-quickstart.md#troubleshooting", "docs/guides/package-consumer-quickstart.md"));
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "publish-bundle",
+      passed: false,
+      total: 17,
+      missingGuidance: ["docs/guides/package-consumer-quickstart.md#troubleshooting"],
     });
   });
 

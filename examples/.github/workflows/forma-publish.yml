@@ -42,3 +42,6 @@ jobs:
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
             gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Forma package examples/review-diff"
           gh release upload "$GITHUB_REF_NAME" dist/review_diff.forma-package.tgz candidate.json --clobber
+      - name: Troubleshoot package failures
+        if: failure()
+        run: echo "See docs/guides/package-consumer-quickstart.md#troubleshooting"

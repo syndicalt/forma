@@ -367,6 +367,29 @@ to add back:
 }
 ```
 
+Generated workflows must also keep their failure guidance link. If the package
+workflow omits it, the `ci-workflow` row reports `missingGuidance`:
+
+```json
+{
+  "name": "ci-workflow",
+  "passed": false,
+  "total": 6,
+  "missingGuidance": ["docs/guides/package-consumer-quickstart.md#troubleshooting"]
+}
+```
+
+The publish workflow uses the same guidance check in the `publish-bundle` row:
+
+```json
+{
+  "name": "publish-bundle",
+  "passed": false,
+  "total": 17,
+  "missingGuidance": ["docs/guides/package-consumer-quickstart.md#troubleshooting"]
+}
+```
+
 `forma package-init` scaffolds a starter package directory with a `.forma` task,
 eval fixture, eval suite, package manifest, package lockfile, generated
 TypeScript/Python bindings, host examples, importable contract modules, and a

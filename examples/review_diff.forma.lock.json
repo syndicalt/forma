@@ -132,11 +132,11 @@
     },
     {
       "path": ".github/workflows/forma-package.yml",
-      "sha256": "bf625b56987a345f669151ec9ed150f8da42df180888642e1d9d15d37de0805e"
+      "sha256": "f33ad1dd836643bd9e1f6c3f44bc76ccf9ac419b08a2937df1df60ad53f353ad"
     },
     {
       "path": ".github/workflows/forma-publish.yml",
-      "sha256": "0f85bb82f1a9977d19f4180346ce0ffa27bf88ef0efaa10cafd90d0492cc725d"
+      "sha256": "efd28d54336b418e90641fdcf1557745618e2afc70c244f9ec5f76832515cfdf"
     }
   ]
 }
