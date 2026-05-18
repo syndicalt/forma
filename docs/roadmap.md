@@ -304,6 +304,9 @@ The current MVP provides:
   not Forma usefulness, and should follow a useful local smoke path.
 - Package-consumer quickstart now tells real consumers to pin reviewed locks
   before adding app-specific retries, logging, routing, or workflow handling.
+- Runtime-semantics docs now state that provider output validation is part of
+  the host trust boundary and should prevent coercing failed model output into
+  typed application data.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -835,12 +838,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add runtime-semantics wording that provider output
-   validation is part of the host trust boundary.
-2. Product clarity: add package-init README wording that release candidates
+1. Product clarity: add package-init README wording that release candidates
    should not be published until a downstream consumer exists.
-3. Product clarity: add testing guide wording that release proof answers
+2. Product clarity: add testing guide wording that release proof answers
    consumer readiness, not first-use usefulness.
+3. Product clarity: add CLI docs wording that package-lock drift is a release
+   artifact problem before it is a host application problem.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

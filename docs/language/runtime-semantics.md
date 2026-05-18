@@ -143,6 +143,11 @@ Provider and compute output is validated against the task `output` block before
 be strings, `Number` fields must be numbers, and `Boolean` fields must be
 booleans. Array fields such as `Finding[]` must be arrays. Named output object
 schemas validate each object item recursively.
+Provider output validation is part of the host trust boundary. Host code should
+treat provider output as untrusted until the runtime has returned an `ok`
+`FormaResult`; validation failure means the application should inspect
+diagnostics and preserve the failed result instead of coercing model output into
+typed application data.
 
 ```forma
 output {
