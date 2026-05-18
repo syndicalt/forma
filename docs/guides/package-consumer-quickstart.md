@@ -25,6 +25,9 @@ multiple applications or repositories should consume through pinned artifacts.
 Treat package-lock consumption as a dependency decision, not a starter path.
 Use it when the lock protects real downstream consumers from reviewed artifact
 drift.
+Lockfile consumption is for shared ownership, not local cleanup. If the same
+team and repository own the only workflow, stay with the checked host project
+until another consumer needs the reviewed package boundary.
 Not every reviewed local task should become a reusable package. Keep a task in
 the checked host project when one application owns the workflow and no other
 repository needs to consume a pinned contract.

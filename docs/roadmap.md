@@ -314,6 +314,8 @@ The current MVP provides:
   migration proof paths.
 - CLI package-lock docs now say lock drift is a release artifact problem before
   it is a host application problem.
+- Package-consumer quickstart now says lockfile consumption is for shared
+  ownership, not local cleanup.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -845,12 +847,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer quickstart wording that lockfile
-   consumption is for shared ownership, not local cleanup.
-2. Product clarity: add runtime-result docs wording that `error` should be
+1. Product clarity: add runtime-result docs wording that `error` should be
    logged with diagnostics before retrying the model.
-3. Product clarity: add provider-adapter docs wording that host retries should
+2. Product clarity: add provider-adapter docs wording that host retries should
    wrap `agent.run(...)`, not the `.forma` contract.
+3. Product clarity: add testing guide wording that `projects:check` protects
+   application-owned contracts before package review.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

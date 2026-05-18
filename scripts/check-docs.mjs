@@ -170,6 +170,7 @@ const requiredTerms = {
     "Not every reviewed local task should become a reusable package",
     "Do not start with package consumption",
     "Treat package-lock consumption as a dependency decision, not a starter path",
+    "Lockfile consumption is for shared ownership, not local cleanup",
     "Package-lock smoke failures usually mean a stale reviewed artifact set",
     "Pin reviewed locks before adding app-specific retries or logging",
   ],
