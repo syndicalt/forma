@@ -60,6 +60,10 @@ Cleaned-up route labels should remain overrideable per deployment. Even after a
 reviewed profile adopts a safer label, allow host adapters to pass their own
 deployment route label when regional, canary, or incident workflows need local
 evidence separation.
+Cleaned-up route labels should stay decoupled from model selection. Renaming or
+redacting a route label should not imply a model, endpoint, or fallback policy
+change; record model selection separately in host adapter configuration and eval
+evidence.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the
