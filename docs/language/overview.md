@@ -3,6 +3,9 @@
 Forma describes typed tasks that a host runtime can validate and execute. It is
 meant for the point where application code would otherwise hide a prompt string,
 expected JSON shape, and result checks inside ordinary Python or TypeScript.
+A .forma file is one artifact in the contract toolchain, not the whole product:
+generated bindings, runtime validation, provider adapters, package locks,
+evals, and CI checks make that source file useful inside real host applications.
 
 A task combines a human-readable intent, typed inputs and outputs,
 deterministic or provider-backed behavior, and verification checks. The language

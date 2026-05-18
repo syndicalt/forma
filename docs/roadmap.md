@@ -251,6 +251,9 @@ The current MVP provides:
 - Package-consumer quickstart now treats package-lock consumption as a
   dependency decision, not a starter path, and ties it to real downstream
   consumers.
+- Language overview now describes a `.forma` file as one artifact in the
+  contract toolchain, not the whole product, tying the language to generated
+  bindings, validation, providers, locks, evals, and CI checks.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -782,12 +785,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add language overview wording that describes `.forma` as
-   one artifact in a contract toolchain, not the whole product.
-2. Product clarity: add package README wording that tells package authors to
+1. Product clarity: add package README wording that tells package authors to
    publish only after the package review protects real consumers.
-3. Product clarity: add package-review output wording that tells users to fix
+2. Product clarity: add package-review output wording that tells users to fix
    failing checks before interpreting informational notes.
+3. Product clarity: add runtime README wording that separates model-call
+   execution from contract validation in both host languages.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

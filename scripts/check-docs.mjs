@@ -71,6 +71,10 @@ const requiredTerms = {
     "provider adapter",
     "host application owns provider keys and model selection",
   ],
+  "docs/language/overview.md": [
+    ".forma file is one artifact in the contract toolchain",
+    "not the whole product",
+  ],
   "docs/packages/python.md": ["FormaRuntime", "StaticProvider"],
   "docs/packages/typescript.md": ["FormaRuntime", "StaticProvider"],
   "docs/packages/cli.md": [
