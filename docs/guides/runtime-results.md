@@ -78,6 +78,9 @@ can be compared without losing which provider path produced the failure.
 Route-label cleanup should preserve failed-result diagnostics. If a host
 renames or redacts a route label after failure, keep the original failed result
 and cleaned-up label in the same retry record so diagnostics remain comparable.
+Cleaned-up route labels should preserve failed-result lookup keys. Store the
+failed `FormaResult` under the original route label and attach the cleaned-up
+label as metadata so support tools can still find the exact failed attempt.
 Cleaned-up route labels should preserve original failure context. Store the
 pre-cleanup label, cleaned-up label, failed provider response, and retry result
 together so later readers can reconstruct the failure path without exposing
