@@ -1725,6 +1725,10 @@ This Forma package defines the \`${taskName}\` agent task contract, generated
 TypeScript and Python bindings, host embedding examples, eval fixtures, and a
 locked artifact set.
 
+Generated package scaffolds are release candidates, not first-use proofs. Use
+them after a minimal or checked host project has already shown that the
+\`.forma\` contract is clearer than an inline prompt plus local schemas.
+
 ## CI
 
 Run these checks before publishing or consuming a changed package:

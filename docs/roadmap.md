@@ -287,6 +287,9 @@ The current MVP provides:
 - Package-consumer quickstart now says not every reviewed local task should
   become a reusable package; checked host projects remain valid when one
   application owns the workflow.
+- Package-init docs and generated package READMEs now call package scaffolds
+  release candidates, not first-use proofs, and route first-use decisions back
+  to minimal or checked host projects.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -818,12 +821,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-init README wording that says generated package
-   scaffolds are release candidates, not first-use proofs.
-2. Product clarity: add runtime-result docs wording that describes failed
+1. Product clarity: add runtime-result docs wording that describes failed
    validation as a host integration bug until proven to be model behavior.
-3. Product clarity: add CLI docs wording that package-review is a release gate,
+2. Product clarity: add CLI docs wording that package-review is a release gate,
    not a usefulness test.
+3. Product clarity: add package-consumer troubleshooting wording that says
+   package-lock smoke failures usually mean a stale reviewed artifact set.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

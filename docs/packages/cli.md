@@ -623,7 +623,10 @@ The publish workflow uses the same guidance check in the `publish-bundle` row:
 `forma package-init` scaffolds a starter package directory with a `.forma` task,
 eval fixture, eval suite, package manifest, package lockfile, generated
 TypeScript/Python bindings, host examples, importable contract modules, and a
-package `README.md` with CI commands. The generated contract modules wrap
+package `README.md` with CI commands. Generated package scaffolds are release candidates, not first-use proofs.
+Use them after a minimal or checked host project has already shown that the
+`.forma` contract is clearer than an inline prompt plus local schemas. The
+generated contract modules wrap
 `agentFromPackageLock(...)` and `agent_from_package_lock(...)` so package
 consumers can import a stable module instead of copying example files. The
 scaffold also writes TypeScript and Python smoke tests for those contract
