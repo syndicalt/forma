@@ -236,6 +236,81 @@ describe("forma cli", () => {
     }
   });
 
+  it("denies provider-requested test commands outside the allowlist", async () => {
+    const originalFetch = globalThis.fetch;
+    const originalApiKey = process.env.FORMA_TEST_TOOL_KEY;
+    const dir = await mkdtemp(join(tmpdir(), "forma-run-test-allowlist-"));
+    const profile = join(dir, "provider.json");
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    process.env.FORMA_TEST_TOOL_KEY = "tool-secret";
+    await writeFile(profile, JSON.stringify({
+      provider: "http-json",
+      endpoint: "https://tool.example/v1/agent",
+      model: "tool-model",
+      apiKeyEnv: "FORMA_TEST_TOOL_KEY",
+    }));
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      if (requests.length === 1) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({
+            toolCalls: [
+              { id: "test-1", name: "runTest", args: { command: "npm publish" } },
+            ],
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          output: {
+            summary: "Denied unapproved test command.",
+            findings: [],
+            clean: true,
+          },
+        }),
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "run",
+        "../../examples/review_diff.forma",
+        "--task",
+        "review_diff",
+        "--input",
+        "{\"diff\":\"diff --git a/src/example.ts b/src/example.ts\"}",
+        "--provider-profile",
+        profile,
+        "--workspace",
+        dir,
+        "--allow-test",
+        "--allow-test-command",
+        "pnpm test",
+      ]);
+      const secondBody = JSON.parse(String(requests[1]?.init.body));
+
+      expect(result.exitCode).toBe(0);
+      expect(secondBody.toolResults).toEqual([
+        {
+          id: "test-1",
+          ok: false,
+          error: "test command is not allowed: npm publish",
+        },
+      ]);
+    } finally {
+      globalThis.fetch = originalFetch;
+      if (originalApiKey === undefined) {
+        delete process.env.FORMA_TEST_TOOL_KEY;
+      } else {
+        process.env.FORMA_TEST_TOOL_KEY = originalApiKey;
+      }
+    }
+  });
+
   it("generates TypeScript bindings from a Forma file", async () => {
     const result = await runCli(["generate", "../../examples/review_diff.forma", "--target", "typescript"]);
 

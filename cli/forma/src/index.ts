@@ -1094,6 +1094,7 @@ function createConfiguredProvider(options: EvalOptions): ModelProvider {
 
 function createCliTools(args: string[]): ToolHost | undefined {
   const workspaceRoot = resolve(optionValue(args, "--workspace") ?? process.cwd());
+  const allowedTestCommands = optionValues(args, "--allow-test-command");
   const tools: ToolHost = {};
   if (args.includes("--allow-read")) {
     tools.readText = async (path) => readFile(resolveWorkspacePath(workspaceRoot, path), "utf8");
@@ -1103,6 +1104,9 @@ function createCliTools(args: string[]): ToolHost | undefined {
   }
   if (args.includes("--allow-test")) {
     tools.runTest = async (command) => {
+      if (allowedTestCommands.length > 0 && !allowedTestCommands.includes(command)) {
+        throw new Error(`test command is not allowed: ${command}`);
+      }
       try {
         const result = await execAsync(command, { cwd: workspaceRoot });
         return { ok: true, output: `${result.stdout}${result.stderr}` };
@@ -1164,6 +1168,17 @@ function providerName(fixture: EvalFixture, options: EvalOptions): string {
 function optionValue(args: string[], name: string): string | undefined {
   const index = args.indexOf(name);
   return index === -1 ? undefined : args[index + 1];
+}
+
+function optionValues(args: string[], name: string): string[] {
+  const values: string[] = [];
+  for (let index = 0; index < args.length; index += 1) {
+    const value = args[index + 1];
+    if (args[index] === name && value) {
+      values.push(value);
+    }
+  }
+  return values;
 }
 
 function deepEqual(left: unknown, right: unknown): boolean {

@@ -40,7 +40,8 @@ forma run examples/review_diff.forma \
   --workspace . \
   --allow-read \
   --allow-search \
-  --allow-test
+  --allow-test \
+  --allow-test-command 'pnpm test'
 ```
 
 Use `--allow-read`, `--allow-search`, `--allow-test`, and `--allow-edit` to
@@ -49,7 +50,8 @@ tools; the task still has to declare the matching permission in its `.forma`
 file before the runtime will execute the tool call. File reads, searches, and
 edits are scoped to `--workspace`, which defaults to the current working
 directory. Provider-requested paths outside that workspace return failed tool
-results.
+results. Use `--allow-test-command` one or more times to restrict provider
+requested test commands to exact approved command strings.
 
 Invalid usage exits with code 2 and prints `usage: forma
 <check|run|eval|eval-suite|compare|generate|package-check|package-init> <path> [--input JSON]`.

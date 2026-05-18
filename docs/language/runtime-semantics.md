@@ -133,7 +133,8 @@ with a two-step JSON protocol. A provider response may include `toolCalls`; the
 adapter runs those calls through the host tools and sends `toolResults` on the
 next request before accepting final structured `output`. The CLI tool host also
 scopes file reads, searches, and edits to `--workspace`, defaulting to the
-current working directory.
+current working directory, and can restrict test execution to exact
+`--allow-test-command` strings.
 
 ## Output Contract
 
