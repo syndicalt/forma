@@ -919,11 +919,20 @@ describe("forma cli", () => {
         { name: "provider-profile", passed: true, provider: "openai-responses", model: "gpt-5", required: true, apiKeyEnv: "OPENAI_API_KEY" },
         { name: "bindings", passed: true, total: 2, targets: ["typescript", "python"] },
         { name: "examples", passed: true, total: 4, runtimes: ["typescript", "python"] },
-        { name: "tests", passed: true, total: 0, runtimes: [] },
+        {
+          name: "tests",
+          passed: true,
+          total: 2,
+          runtimes: ["typescript", "python"],
+          commands: [
+            "npx vitest run review_diff_contract.test.ts",
+            "python review_diff_contract_test.py",
+          ],
+        },
         { name: "release-files", passed: true, total: 3, paths: ["README.md", ".github/workflows/forma-package.yml", ".github/workflows/forma-publish.yml"] },
-        { name: "readme", passed: true, total: 6 },
-        { name: "ci-workflow", passed: true, total: 4 },
-        { name: "publish-bundle", passed: true, total: 15 },
+        { name: "readme", passed: true, total: 8 },
+        { name: "ci-workflow", passed: true, total: 6 },
+        { name: "publish-bundle", passed: true, total: 17 },
         { name: "eval-coverage", passed: true, tasks: ["review_diff"] },
         { name: "eval-suite", passed: true, total: 1, failed: 0 },
       ],
@@ -1216,7 +1225,7 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "readme",
       passed: false,
-      total: 6,
+      total: 8,
       missingCommands: ["forma compare baseline.json candidate.json --fail-on breaking,environment"],
     });
   });
@@ -1239,7 +1248,7 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "readme",
       passed: false,
-      total: 8,
+      total: 9,
       missingCommands: ["python tool_assisted_repair_plan_test.py"],
     });
   });
@@ -1262,7 +1271,7 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "ci-workflow",
       passed: false,
-      total: 4,
+      total: 6,
       missingCommands: ["forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check"],
     });
   });
@@ -1274,7 +1283,7 @@ describe("forma cli", () => {
     const workflowPath = join(dir, ".github", "workflows", "forma-package.yml");
     await runCli(["package-init", dir, "--name", "acme/tool-repair", "--task", "tool_assisted_repair", "--kind", "tool"]);
     const workflow = await readFile(workflowPath, "utf8");
-    await writeFile(workflowPath, workflow.replace("npx vitest run tool_assisted_repair_plan.test.ts", "echo run ts package tests later"));
+    await writeFile(workflowPath, workflow.replace("npx vitest run tool_assisted_repair_contract.test.ts tool_assisted_repair_plan.test.ts", "echo run ts package tests later"));
     await runCli(["package-lock", manifestPath, "--output", lockPath]);
 
     const result = await runCli(["package-review", manifestPath]);
@@ -1285,8 +1294,8 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "ci-workflow",
       passed: false,
-      total: 6,
-      missingCommands: ["npx vitest run tool_assisted_repair_plan.test.ts"],
+      total: 7,
+      missingCommands: ["npx vitest run tool_assisted_repair_contract.test.ts tool_assisted_repair_plan.test.ts"],
     });
   });
 
@@ -1308,7 +1317,7 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "publish-bundle",
       passed: false,
-      total: 15,
+      total: 17,
       missingPaths: ["review_diff_forma.py"],
     });
   });
@@ -1453,10 +1462,20 @@ describe("forma cli", () => {
       { runtime: "typescript", path: "review_diff_contract/index.ts" },
       { runtime: "python", path: "review_diff_contract/__init__.py" },
     ]));
+    expect(manifest.tests).toEqual(expect.arrayContaining([
+      { runtime: "typescript", path: "review_diff_contract.test.ts" },
+      { runtime: "python", path: "review_diff_contract_test.py" },
+    ]));
+    expect(await readFile(join(dir, "review_diff_contract.test.ts"), "utf8")).toContain("reviewDiffAgent");
+    expect(await readFile(join(dir, "review_diff_contract.test.ts"), "utf8")).toContain("review_diff_contract/index.js");
+    expect(await readFile(join(dir, "review_diff_contract_test.py"), "utf8")).toContain("review_diff_agent");
+    expect(await readFile(join(dir, "review_diff_contract_test.py"), "utf8")).toContain("review_diff_contract");
     const readme = await readFile(join(dir, "README.md"), "utf8");
     expect(readme).toContain("forma package-review review_diff.forma.pkg.json");
     expect(readme).toContain("forma package-check review_diff.forma.pkg.json");
     expect(readme).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
+    expect(readme).toContain("npx vitest run review_diff_contract.test.ts");
+    expect(readme).toContain("python review_diff_contract_test.py");
     expect(readme).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
     expect(readme).toContain("forma package-review review_diff.forma.pkg.json --baseline baseline.json");
     expect(readme).toContain("forma compare baseline.json candidate.json --fail-on breaking,environment");
@@ -1471,6 +1490,8 @@ describe("forma cli", () => {
     expect(readme).not.toContain('"kind": "contract"');
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
+    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("npx vitest run review_diff_contract.test.ts");
+    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("python review_diff_contract_test.py");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
     const publishWorkflow = await readFile(join(dir, ".github", "workflows", "forma-publish.yml"), "utf8");
@@ -1479,6 +1500,8 @@ describe("forma cli", () => {
     expect(publishWorkflow).toContain("tar -czf dist/review_diff.forma-package.tgz");
     expect(publishWorkflow).toContain("review_diff_contract/index.ts");
     expect(publishWorkflow).toContain("review_diff_contract/__init__.py");
+    expect(publishWorkflow).toContain("review_diff_contract.test.ts");
+    expect(publishWorkflow).toContain("review_diff_contract_test.py");
     expect(publishWorkflow).toContain("gh release create \"$GITHUB_REF_NAME\"");
     expect(publishWorkflow).toContain("gh release upload \"$GITHUB_REF_NAME\" dist/review_diff.forma-package.tgz candidate.json");
     expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({
@@ -1506,7 +1529,8 @@ describe("forma cli", () => {
     const review = await runCli(["package-review", manifestPath]);
     expect(JSON.parse(review.stdout).checks).toEqual(expect.arrayContaining([
       expect.objectContaining({ name: "examples", passed: true, total: 4, runtimes: ["typescript", "python"] }),
-      expect.objectContaining({ name: "publish-bundle", passed: true, total: 15 }),
+      expect.objectContaining({ name: "tests", passed: true, total: 2, runtimes: ["typescript", "python"] }),
+      expect.objectContaining({ name: "publish-bundle", passed: true, total: 17 }),
     ]));
   });
 
@@ -1631,7 +1655,8 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "tool_assisted_repair_plan.test.ts"), "utf8")).toContain("commit_repair");
     expect(await readFile(join(dir, "tool_assisted_repair_plan_test.py"), "utf8")).toContain("commit_repair");
     const readme = await readFile(join(dir, "README.md"), "utf8");
-    expect(readme).toContain("npx vitest run tool_assisted_repair_plan.test.ts");
+    expect(readme).toContain("npx vitest run tool_assisted_repair_contract.test.ts tool_assisted_repair_plan.test.ts");
+    expect(readme).toContain("python tool_assisted_repair_contract_test.py");
     expect(readme).toContain("python tool_assisted_repair_plan_test.py");
     const manifest = JSON.parse(await readFile(join(dir, "tool_assisted_repair.forma.pkg.json"), "utf8"));
     expect(manifest.examples).toEqual(
@@ -1641,13 +1666,16 @@ describe("forma cli", () => {
       ]),
     );
     expect(manifest.tests).toEqual([
+      { runtime: "typescript", path: "tool_assisted_repair_contract.test.ts" },
+      { runtime: "python", path: "tool_assisted_repair_contract_test.py" },
       { runtime: "typescript", path: "tool_assisted_repair_plan.test.ts" },
       { runtime: "python", path: "tool_assisted_repair_plan_test.py" },
     ]);
     const workflow = await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8");
-    expect(workflow).toContain("npx vitest run tool_assisted_repair_plan.test.ts");
+    expect(workflow).toContain("npx vitest run tool_assisted_repair_contract.test.ts tool_assisted_repair_plan.test.ts");
+    expect(workflow).toContain("python tool_assisted_repair_contract_test.py");
     expect(workflow).toContain("python tool_assisted_repair_plan_test.py");
-    expect(await readFile(join(dir, ".github", "workflows", "forma-publish.yml"), "utf8")).toContain("tool_assisted_repair_plan.ts tool_assisted_repair_plan.py tool_assisted_repair_plan.test.ts tool_assisted_repair_plan_test.py");
+    expect(await readFile(join(dir, ".github", "workflows", "forma-publish.yml"), "utf8")).toContain("tool_assisted_repair_plan.ts tool_assisted_repair_plan.py tool_assisted_repair_contract.test.ts tool_assisted_repair_contract_test.py tool_assisted_repair_plan.test.ts tool_assisted_repair_plan_test.py");
 
     const check = await runCli(["package-check", join(dir, "tool_assisted_repair.forma.pkg.json")]);
     expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
@@ -1657,15 +1685,16 @@ describe("forma cli", () => {
         expect.objectContaining({
           name: "tests",
           passed: true,
-          total: 2,
+          total: 4,
           runtimes: ["typescript", "python"],
           commands: [
-            "npx vitest run tool_assisted_repair_plan.test.ts",
+            "npx vitest run tool_assisted_repair_contract.test.ts tool_assisted_repair_plan.test.ts",
+            "python tool_assisted_repair_contract_test.py",
             "python tool_assisted_repair_plan_test.py",
           ],
         }),
-        expect.objectContaining({ name: "readme", passed: true, total: 8 }),
-        expect.objectContaining({ name: "ci-workflow", passed: true, total: 6 }),
+        expect.objectContaining({ name: "readme", passed: true, total: 9 }),
+        expect.objectContaining({ name: "ci-workflow", passed: true, total: 7 }),
       ]),
     );
   });

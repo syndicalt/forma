@@ -211,6 +211,9 @@ The current MVP provides:
 - Package manifests, package locks, and package review support checked
   TypeScript/Python test artifacts, and `package-init --kind tool` scaffolds
   follow-up helper tests for generated tool packages.
+- `package-init` scaffolds TypeScript and Python lockfile consumer smoke tests
+  for generated contract modules, and package review pins those tests with the
+  rest of the reviewed artifact set.
 - Scaffolded package READMEs and CI workflows run pinned package tests after
   lock verification, and package review fails when those test commands are
   omitted from a package that declares test artifacts.
@@ -369,8 +372,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add lockfile consumer smoke-test scaffolding for
-   generated TypeScript and Python package contract modules.
+3. Coding workflow depth: add reviewed package consumer smoke-test examples to
+   the package-consumer quickstart and release bundle docs.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

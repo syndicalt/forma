@@ -330,7 +330,10 @@ TypeScript/Python bindings, host examples, importable contract modules, and a
 package `README.md` with CI commands. The generated contract modules wrap
 `agentFromPackageLock(...)` and `agent_from_package_lock(...)` so package
 consumers can import a stable module instead of copying example files. The
-generated README also explains how to inspect the `compare` row from
+scaffold also writes TypeScript and Python smoke tests for those contract
+modules and records them in `tests`, so package lock review verifies that
+lockfile consumers can still load the reviewed agent entrypoints. The generated
+README also explains how to inspect the `compare` row from
 `package-review --baseline`: `failedOn` names the blocking severity,
 `contractChanges` and `settingChanges` summarize the changed surface, and
 `changes[].details` points at exact field paths or setting values. It links

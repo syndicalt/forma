@@ -18,8 +18,8 @@ package README and CI workflows that should ship with the reviewed artifact.
 Manifest paths are resolved relative to the package manifest file.
 
 Start a new package with the CLI when you want the task, evals, bindings,
-manifest, lockfile, host examples, importable contract modules, and package CI
-commands created together:
+manifest, lockfile, host examples, importable contract modules, contract-module
+smoke tests, and package CI commands created together:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff

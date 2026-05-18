@@ -569,6 +569,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const contractDir = `${taskName}_contract`;
   const typeScriptContract = `${contractDir}/index.ts`;
   const pythonContract = `${contractDir}/__init__.py`;
+  const typeScriptContractTest = `${taskName}_contract.test.ts`;
+  const pythonContractTest = `${taskName}_contract_test.py`;
   const evalFixture = `${taskName}.eval.json`;
   const evalSuite = "forma.eval.json";
   const manifestFile = `${taskName}.forma.pkg.json`;
@@ -594,15 +596,22 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await mkdir(resolve(path, contractDir), { recursive: true });
   await writeFile(resolve(path, typeScriptContract), scaffoldTypeScriptContractModule(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonContract), scaffoldPythonContractModule(taskName, kind, schema), "utf8");
-  await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(scaffoldProviderProfile(args), null, 2)}\n`, "utf8");
+  const providerProfile = scaffoldProviderProfile(args);
+  await writeFile(resolve(path, typeScriptContractTest), scaffoldTypeScriptContractTest(taskName, providerProfile.apiKeyEnv), "utf8");
+  await writeFile(resolve(path, pythonContractTest), scaffoldPythonContractTest(taskName, providerProfile.apiKeyEnv), "utf8");
+  await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(providerProfile, null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind, schema), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
-  const packageTests: Array<{ runtime: "typescript" | "python"; path: string }> | undefined = kind === "tool"
-    ? [
-        { runtime: "typescript", path: typeScriptPlanTest },
-        { runtime: "python", path: pythonPlanTest },
-      ]
-    : undefined;
+  const packageTests: Array<{ runtime: "typescript" | "python"; path: string }> = [
+    { runtime: "typescript", path: typeScriptContractTest },
+    { runtime: "python", path: pythonContractTest },
+    ...(kind === "tool"
+      ? [
+          { runtime: "typescript" as const, path: typeScriptPlanTest },
+          { runtime: "python" as const, path: pythonPlanTest },
+        ]
+      : []),
+  ];
   const manifest = omitUndefined({
     formaPackage: 1,
     name: packageName,
@@ -662,7 +671,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
       typeScriptExample,
       pythonExample,
       extraExamples: kind === "tool" ? [typeScriptPlan, pythonPlan] : [],
-      extraTests: kind === "tool" ? [typeScriptPlanTest, pythonPlanTest] : [],
+      extraTests: packageTests.map((test) => test.path),
       typeScriptContract,
       pythonContract,
       readmeFile,
@@ -1504,6 +1513,28 @@ export { assert${pascalName}Output } from "../${taskName}.forma.js";
 `;
 }
 
+function scaffoldTypeScriptContractTest(taskName: string, apiKeyEnv?: string): string {
+  const camelName = toCamelCase(taskName);
+  const envName = apiKeyEnv ?? "OPENAI_API_KEY";
+  return `import { expect, it } from "vitest";
+import { ${camelName}Agent } from "./${taskName}_contract/index.js";
+
+it("loads the reviewed package lock agent", () => {
+  const previousKey = process.env["${envName}"];
+  process.env["${envName}"] = previousKey ?? "test-key";
+  try {
+    expect(${camelName}Agent()).toHaveProperty("run");
+  } finally {
+    if (previousKey === undefined) {
+      delete process.env["${envName}"];
+    } else {
+      process.env["${envName}"] = previousKey;
+    }
+  }
+});
+`;
+}
+
 function scaffoldToolTypeScriptExample(taskName: string): string {
   const pascalName = toPascalCase(taskName);
   const camelName = toCamelCase(taskName);
@@ -1738,6 +1769,30 @@ __all__ = [
     "run_${taskName}",
     "${taskName}_agent",
 ]
+`;
+}
+
+function scaffoldPythonContractTest(taskName: string, apiKeyEnv?: string): string {
+  const envName = apiKeyEnv ?? "OPENAI_API_KEY";
+  return `import os
+
+from ${taskName}_contract import ${taskName}_agent
+
+
+def test_loads_reviewed_package_lock_agent():
+    previous_key = os.environ.get("${envName}")
+    os.environ["${envName}"] = previous_key or "test-key"
+    try:
+        assert hasattr(${taskName}_agent(), "run")
+    finally:
+        if previous_key is None:
+            os.environ.pop("${envName}", None)
+        else:
+            os.environ["${envName}"] = previous_key
+
+
+if __name__ == "__main__":
+    test_loads_reviewed_package_lock_agent()
 `;
 }
 
