@@ -562,6 +562,9 @@ The current MVP provides:
   `installedPackageSmokeFailureSummary` lines into
   `installed-package-smoke-summary.jsonl`, and uploads the JSONL plus raw log as
   `forma-release-proof-artifacts`.
+- Verification docs now include a release artifact reading guide for
+  `forma-release-proof-artifacts`, including the success and failure JSONL rows
+  and how to use `expectedArtifactFiles` during triage.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -687,12 +690,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add a short release-artifact reading guide for
-   `forma-release-proof-artifacts`.
-2. Registry and versioning: add a package-lock compare command or report that
+1. Registry and versioning: add a package-lock compare command or report that
    summarizes changed artifact groups directly.
-3. Registry and versioning: add release notes guidance for package lock
+2. Registry and versioning: add release notes guidance for package lock
    artifact group changes.
+3. Product clarity: include one copied sample
+   `installed-package-smoke-summary.jsonl` row in registry docs.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

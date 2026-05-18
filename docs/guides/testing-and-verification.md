@@ -147,6 +147,22 @@ The repository release workflow also captures the raw
 `installed-package-smoke-summary.jsonl` and uploads it with the installed smoke
 log as `forma-release-proof-artifacts`.
 
+### Release Artifact Reading Guide
+
+When a release workflow uploads `forma-release-proof-artifacts`, start with
+`installed-package-smoke-summary.jsonl`. A passing artifact has one
+`installedPackageSmokeSummary` row with `total`, `packages`, `packageKind`,
+`expectedArtifacts`, `expectedArtifactFiles`, `typeScriptCommand`, and
+`pythonCommand`. Confirm every package row has `passed: true`, then use
+`expectedArtifactFiles` to review the concrete bundle groups that were
+installed and tested.
+
+If the artifact has `installedPackageSmokeFailureSummary`, read
+`failedPackage.packageKind`, `completed`, `error`, and the failed package
+`expectedArtifactFiles` before opening `installed-package-smoke.log`. Use the
+package kind with the triage table below, restore the listed package artifacts,
+then rerun `corepack pnpm packages:installed-smoke`.
+
 ### Installed-Package Smoke Triage
 
 Triage by the last `installed package smoke: ...` marker before the failure:
