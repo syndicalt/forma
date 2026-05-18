@@ -173,6 +173,10 @@ retry budget; regenerate locks only when reviewed package artifacts change.
 Fallback traces belong in artifacts, not lockfiles. Keep trace entries in
 uploaded proof logs, smoke summaries, or saved failure bundles so reviewers can
 inspect host workflow evidence without changing the reviewed package lock.
+Fallback route changes require preserved diagnostics. Before rerunning release
+proof with a new provider route, keep the failed diagnostics and smoke artifact
+beside the rerun so reviewers can tell whether routing changed behavior or only
+hid the original validation failure.
 
 ### Release Artifact Reading Guide
 
