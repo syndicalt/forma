@@ -13,6 +13,10 @@ Do not use Forma for a one-off prompt that has one call site, no shared runtime
 boundary, and no output contract worth reviewing. Use `inline prompt plus local schemas`
 instead until the task needs generated TypeScript and Python types, runtime
 output validation, evals, or CI checks.
+Stop after the audit when the team does not need a cross-language contract. A
+local-only task can stay as an inline prompt plus local schemas when there is no
+duplicated TypeScript/Python boundary to remove, no shared output contract to
+review, and no downstream application that needs a pinned package lock.
 
 Use the first-use path as a before/after audit. Before Forma, the useful
 baseline is an inline model call with a local Zod or Pydantic schema and a small

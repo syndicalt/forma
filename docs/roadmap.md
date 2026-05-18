@@ -271,6 +271,8 @@ The current MVP provides:
 - Migration guide now tells teams to keep inline prompts when they remain
   one-language, one-application details and only package when the boundary needs
   cross-runtime review, generated bindings, or downstream locks.
+- First-use audit now defines the stop condition for teams that do not need a
+  cross-language contract, shared output review, or downstream package lock.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -802,12 +804,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add first-use audit wording that defines the stop condition
-   for teams that do not need cross-language contracts.
-2. Product clarity: add why-forma wording that names the minimum useful
+1. Product clarity: add why-forma wording that names the minimum useful
    contract boundary before packaging.
-3. Product clarity: add README wording that names local-only tasks as a valid
+2. Product clarity: add README wording that names local-only tasks as a valid
    non-adoption outcome after the first-use path.
+3. Product clarity: add quickstart wording that tells users what evidence
+   justifies moving from minimal to checked scaffold.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
