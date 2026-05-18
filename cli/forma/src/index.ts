@@ -196,6 +196,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
   const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
   const releaseFilesCheck = packageReleaseFilesCheck(manifest);
+  const ciWorkflowCheck = await packageCiWorkflowCheck(path, manifest, manifestDir);
   const publishBundleCheck = await packagePublishBundleCheck(path, manifest, manifestDir);
   const evalCoverageCheck = packageEvalCoverageCheck(manifest, suite);
   const checks: Array<Record<string, unknown>> = [
@@ -205,6 +206,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     bindingsCheck,
     examplesCheck,
     releaseFilesCheck,
+    ciWorkflowCheck,
     publishBundleCheck,
     evalCoverageCheck,
     { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
@@ -213,6 +215,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     && bindingsCheck.passed === true
     && examplesCheck.passed === true
     && releaseFilesCheck.passed === true
+    && ciWorkflowCheck.passed === true
     && publishBundleCheck.passed === true
     && evalCoverageCheck.passed === true;
   const baselinePath = optionValue(args, "--baseline");
@@ -352,6 +355,31 @@ function packageReleaseFilesCheck(manifest: FormaPackageManifest): Record<string
     paths,
     ...(missingPaths.length > 0 ? { missingPaths } : {}),
   };
+}
+
+async function packageCiWorkflowCheck(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): Promise<Record<string, unknown>> {
+  const workflowPath = ".github/workflows/forma-package.yml";
+  const workflow = await readFile(resolve(manifestDir, workflowPath), "utf8").catch(() => "");
+  const commands = packageCiWorkflowCommands(manifestPath, manifest, manifestDir);
+  const missingCommands = commands.filter((command) => !workflow.includes(command));
+  return {
+    name: "ci-workflow",
+    passed: workflow.length > 0 && missingCommands.length === 0,
+    total: commands.length,
+    ...(workflow.length === 0 ? { missingWorkflow: workflowPath } : {}),
+    ...(missingCommands.length > 0 ? { missingCommands } : {}),
+  };
+}
+
+function packageCiWorkflowCommands(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): string[] {
+  const manifestFile = relative(manifestDir, resolve(manifestPath));
+  const lockFile = packageLockPath(manifestFile);
+  return [
+    `forma package-check ${manifestFile}`,
+    `forma package-lock ${manifestFile} --output ${lockFile} --check`,
+    `forma eval-suite ${manifest.evalSuite ?? ""} --summary`,
+    `forma package-review ${manifestFile}`,
+  ];
 }
 
 async function packagePublishBundleCheck(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): Promise<Record<string, unknown>> {
