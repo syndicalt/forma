@@ -84,6 +84,10 @@ configured provider and do not call an external model directly.
 The `.forma` file contains the `agent` instruction. The provider object contains
 credentials, model selection, retry behavior, logging, and service-specific
 request formatting.
+Model-call execution and contract validation are separate responsibilities.
+The provider performs the model call and returns candidate output; the Forma
+runtime parses the task contract, passes the declared shape to the provider,
+validates the returned output, evaluates `verify`, and reports `FormaResult`.
 
 `agent(...)` is the embedded convenience API. It binds a `.forma` source or
 file, named task, provider, and optional tools into a reusable object with

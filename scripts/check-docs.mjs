@@ -75,8 +75,8 @@ const requiredTerms = {
     ".forma file is one artifact in the contract toolchain",
     "not the whole product",
   ],
-  "docs/packages/python.md": ["FormaRuntime", "StaticProvider"],
-  "docs/packages/typescript.md": ["FormaRuntime", "StaticProvider"],
+  "docs/packages/python.md": ["FormaRuntime", "StaticProvider", "Model-call execution and contract validation are separate responsibilities"],
+  "docs/packages/typescript.md": ["FormaRuntime", "StaticProvider", "Model-call execution and contract validation are separate responsibilities"],
   "docs/packages/cli.md": [
     "forma check",
     "forma run",
