@@ -64,6 +64,11 @@ Run the proof directly with:
 corepack pnpm proof:migration
 ```
 
+If package review reports `missingMigrationParityProofCommand`, restore the
+reported `package-review --proof-command` command to README and CI so release
+review keeps running this before/after proof as a blocking row. See
+`docs/guides/package-consumer-quickstart.md#missingmigrationparityproofcommand`.
+
 For a minimal deterministic smoke test, run:
 
 ```bash

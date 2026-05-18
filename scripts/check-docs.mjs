@@ -4,6 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { generatePythonBindings, generateTypeScriptBindings } from "../packages/forma-typescript/dist/index.js";
 
 const required = [
+  "README.md",
   "docs/index.md",
   "docs/guides/quickstart.md",
   "docs/guides/task-authoring.md",
@@ -35,7 +36,7 @@ const required = [
 ];
 
 const requiredTerms = {
-  "README.md": ["Migration Parity", "review_diff_inline", "proof:migration"],
+  "README.md": ["Migration Parity", "review_diff_inline", "proof:migration", "missingMigrationParityProofCommand"],
   "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration"],
   "docs/language/diagnostics.md": [
     "F0001",
@@ -145,18 +146,17 @@ for (const path of required) {
     console.error(`too short ${path}`);
     process.exit(1);
   }
-  if (!path.endsWith(".md")) {
-    continue;
-  }
-  for (const heading of requiredHeadings(path)) {
-    if (!text.includes(heading)) {
-      console.error(`missing heading ${path}: ${heading}`);
+  if (path.endsWith(".md")) {
+    for (const heading of requiredHeadings(path)) {
+      if (!text.includes(heading)) {
+        console.error(`missing heading ${path}: ${heading}`);
+        process.exit(1);
+      }
+    }
+    if (!hasExample(text)) {
+      console.error(`missing example ${path}`);
       process.exit(1);
     }
-  }
-  if (!hasExample(text)) {
-    console.error(`missing example ${path}`);
-    process.exit(1);
   }
   for (const term of requiredTerms[path] ?? []) {
     if (!text.includes(term)) {
