@@ -197,6 +197,9 @@ Cleaned-up route labels should remain linked to release proof artifacts. Keep
 the old label, cleaned-up label, proof notes, eval summaries, and
 `forma-release-proof-artifacts` bundle together so release review can trace the
 same provider path across the rename.
+Cleaned-up route labels should preserve release proof lookup keys. Keep the
+release proof bundle, proof notes, and saved summaries searchable by the
+original route key, then add the cleaned-up label as review metadata.
 Route-label cleanup should leave installed smoke labels traceable. When cleanup
 changes the displayed route name, keep the prior label beside the cleaned-up
 label in installed smoke summaries so reviewers can follow the same deployment
