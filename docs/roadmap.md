@@ -227,6 +227,9 @@ The current MVP provides:
 - Architecture docs now distinguish the `.forma` contract, generated bindings,
   runtime agent facade, and provider adapter so users can see where Forma ends
   and host application ownership begins.
+- README now calls the minimal scaffold a product test, not an adoption
+  commitment, so first-use readers evaluate usefulness before accepting package
+  review or lockfile overhead.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -758,12 +761,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add README wording that explicitly calls the minimal
-   scaffold a product test, not an adoption commitment.
-2. Product clarity: add quickstart wording that tells users to stop after the
+1. Product clarity: add quickstart wording that tells users to stop after the
    minimal scaffold if the before/after host code is not simpler.
-3. Product clarity: add provider-adapter docs wording that repeats where keys,
+2. Product clarity: add provider-adapter docs wording that repeats where keys,
    model choice, routing, and retries live in host code.
+3. Product clarity: add generated minimal-project README wording that names the
+   same product-test decision before adopting checked scaffolds.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

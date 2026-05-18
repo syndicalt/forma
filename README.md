@@ -30,6 +30,7 @@ Start before package-review or package locks by testing Forma against the
 smallest useful question: does a `.forma` task remove enough duplicated prompt
 and schema code to beat an inline prompt plus local schemas?
 
+Treat the minimal scaffold as a product test, not an adoption commitment.
 Start with the minimal host scaffold:
 
 ```bash
