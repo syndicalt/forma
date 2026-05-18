@@ -23,6 +23,10 @@ baseline is an inline model call with a local Zod or Pydantic schema and a small
 smoke test. After Forma, the `.forma` task should remove duplicated input and
 output shape code, generate the host bindings, and catch stale contracts with
 `project-check` before package locks or package review enter the workflow.
+Defer package review until one concrete consumer needs release artifacts. A
+package manifest, lockfile, release workflow, and package-review gate should
+protect a real downstream dependency, not substitute for the first-use proof
+that the host code became simpler.
 
 ## Steps
 

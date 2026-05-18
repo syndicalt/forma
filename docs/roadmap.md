@@ -350,6 +350,8 @@ The current MVP provides:
   failed adoption.
 - Why-Forma now says copying `.forma` files without bindings, evals, and locks
   is prompt sharing.
+- First-use audit now says to defer package review until one concrete consumer
+  needs release artifacts.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -881,12 +883,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add first-use audit wording that package review should be
-   deferred until one concrete consumer needs release artifacts.
-2. Product clarity: add testing guide wording that release proof validates
+1. Product clarity: add testing guide wording that release proof validates
    reusable package readiness, not local adoption.
-3. Product clarity: add package-consumer wording that copied internals lose
+2. Product clarity: add package-consumer wording that copied internals lose
    package-review and lock drift protection.
+3. Product clarity: add CLI package-review wording that review gates should
+   reference a downstream consumer, not a hypothetical package audience.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
