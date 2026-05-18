@@ -120,7 +120,9 @@ package-lock consumers still load, and the function-repair path proves a
 tool-using coding-agent package can call declared read, search, edit, and test
 tools through installed runtimes. Use it when changes affect release bundle
 contents, package locks, tool permissions, or `agentFromPackageLock` /
-`agent_from_package_lock` consumers.
+`agent_from_package_lock` consumers. The script keeps package kinds in an
+`installedPackageSmokes` matrix so new release-bundle shapes share the same
+install, venv, and smoke runner.
 
 Use this installed-package smoke CI step when a workflow needs focused
 release-bundle coverage without running the full release proof:

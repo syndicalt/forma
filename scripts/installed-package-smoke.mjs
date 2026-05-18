@@ -69,14 +69,11 @@ async function installPythonConsumer(packageDir) {
   return venvPython;
 }
 
-async function smokeReviewDiffPackage({ workDir, runtimeTarball }) {
-  const packageDir = join(workDir, "review-diff-package");
-  const bundlePath = join(workDir, "review_diff.forma-package.tgz");
-  await mkdir(packageDir, { recursive: true });
-
-  await createBundle({
+const installedPackageSmokes = [
+  {
+    packageDir: "review-diff-package",
+    bundleName: "review_diff.forma-package.tgz",
     sourceDir: "examples",
-    bundlePath,
     files: [
       "review_diff.forma.pkg.json",
       "review_diff.forma.lock.json",
@@ -110,30 +107,13 @@ async function smokeReviewDiffPackage({ workDir, runtimeTarball }) {
       ".github/workflows/forma-package.yml",
       ".github/workflows/forma-publish.yml",
     ],
-  });
-  await run("tar", ["-xzf", bundlePath, "-C", packageDir]);
-
-  await installTypeScriptConsumer(packageDir, runtimeTarball);
-  await run("corepack", ["pnpm", "exec", "vitest", "run", "review_diff_contract.test.ts"], { cwd: packageDir });
-
-  const venvPython = await installPythonConsumer(packageDir);
-  await run(venvPython, ["review_diff_contract_test.py"], {
-    cwd: packageDir,
-    env: {
-      ...process.env,
-      PYTHONPATH: packageDir,
-    },
-  });
-}
-
-async function smokeFunctionRepairPackage({ workDir, runtimeTarball }) {
-  const packageDir = join(workDir, "function-repair-package");
-  const bundlePath = join(workDir, "repair_function.forma-package.tgz");
-  await mkdir(packageDir, { recursive: true });
-
-  await createBundle({
+    typeScriptCommand: ["corepack", ["pnpm", "exec", "vitest", "run", "review_diff_contract.test.ts"]],
+    pythonCommand: ["review_diff_contract_test.py"],
+  },
+  {
+    packageDir: "function-repair-package",
+    bundleName: "repair_function.forma-package.tgz",
     sourceDir: "examples/function_repair",
-    bundlePath,
     files: [
       "repair_function.forma.pkg.json",
       "repair_function.forma.lock.json",
@@ -149,9 +129,13 @@ async function smokeFunctionRepairPackage({ workDir, runtimeTarball }) {
       ".github/workflows/forma-package.yml",
       ".github/workflows/forma-publish.yml",
     ],
-  });
-  await run("tar", ["-xzf", bundlePath, "-C", packageDir]);
+    prepare: prepareFunctionRepairSmoke,
+    typeScriptCommand: ["corepack", ["pnpm", "exec", "vitest", "run", "repair_function_installed.test.ts"]],
+    pythonCommand: ["repair_function_installed_smoke.py"],
+  },
+];
 
+async function prepareFunctionRepairSmoke(packageDir) {
   await writeFile(join(packageDir, "repair_function_installed.test.ts"), `import { expect, it } from "vitest";
 import { agentFromPackageLock, type FormaValue, type ModelProvider, type PermissionTools } from "@forma-lang/forma";
 
@@ -212,9 +196,6 @@ it("runs the installed function repair package through the reviewed lock", async
 });
 `, "utf8");
 
-  await installTypeScriptConsumer(packageDir, runtimeTarball);
-  await run("corepack", ["pnpm", "exec", "vitest", "run", "repair_function_installed.test.ts"], { cwd: packageDir });
-
   await writeFile(join(packageDir, "repair_function_installed_smoke.py"), `from forma import agent_from_package_lock
 
 
@@ -264,9 +245,29 @@ assert result.output["test_passed"] is True
 assert result.output["edited"] is True
 assert "return total - discount" in files["src/billing.py"]
 `, "utf8");
+}
+
+async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
+  const packageDir = join(workDir, smoke.packageDir);
+  const bundlePath = join(workDir, smoke.bundleName);
+  await mkdir(packageDir, { recursive: true });
+  await createBundle({
+    sourceDir: smoke.sourceDir,
+    bundlePath,
+    files: smoke.files,
+  });
+  await run("tar", ["-xzf", bundlePath, "-C", packageDir]);
+
+  if (smoke.prepare) {
+    await smoke.prepare(packageDir);
+  }
+
+  const [typeScriptCommand, typeScriptArgs] = smoke.typeScriptCommand;
+  await installTypeScriptConsumer(packageDir, runtimeTarball);
+  await run(typeScriptCommand, typeScriptArgs, { cwd: packageDir });
 
   const venvPython = await installPythonConsumer(packageDir);
-  await run(venvPython, ["repair_function_installed_smoke.py"], {
+  await run(venvPython, smoke.pythonCommand, {
     cwd: packageDir,
     env: {
       ...process.env,
@@ -284,8 +285,9 @@ async function main() {
     await run("corepack", ["pnpm", "--filter", "@forma-lang/forma", "build"]);
     const runtimeTarball = await npmPackTypeScriptRuntime(tarballDir);
 
-    await smokeReviewDiffPackage({ workDir, runtimeTarball });
-    await smokeFunctionRepairPackage({ workDir, runtimeTarball });
+    for (const smoke of installedPackageSmokes) {
+      await smokeInstalledPackage({ smoke, workDir, runtimeTarball });
+    }
 
     process.stdout.write("installed package smoke ok\n");
   } finally {

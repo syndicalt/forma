@@ -317,6 +317,7 @@ function validateRootPackageScripts() {
 function validateInstalledPackageSmokeScript() {
   const script = readFileSync("scripts/installed-package-smoke.mjs", "utf8");
   for (const requiredTerm of [
+    "installedPackageSmokes",
     "examples/function_repair",
     "repair_function.forma.pkg.json",
     "repair_function.forma.lock.json",

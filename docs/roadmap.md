@@ -510,6 +510,9 @@ The current MVP provides:
 - The function-repair installed package smoke proves a tool-using coding-agent
   package can call declared read, search, edit, and test tools through installed
   TypeScript and Python runtimes.
+- The installed-package smoke script now uses an `installedPackageSmokes` matrix
+  so additional package kinds share bundle extraction, package install, Python
+  venv setup, and smoke execution.
 - `proof:release` now runs `packages:installed-smoke` after migration and
   project checks, so release proof covers installed package-lock consumers.
 - Verification and registry docs explain `packages:installed-smoke` as the
@@ -648,12 +651,13 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add docs-check coverage that keeps the optional
-   installed-package smoke CI step visible in the verification guide.
-2. Registry and versioning: extract the installed-package smoke package matrix
-   so new package kinds can be added without duplicating install and venv setup.
-3. Product clarity: add docs-check coverage for installed-package smoke
+1. Registry and versioning: make the installed-package smoke matrix report the
+   package kind currently running so release-proof failures point to the exact
+   bundle.
+2. Product clarity: add docs-check coverage for installed-package smoke
    recovery guidance in package-review proof output.
+3. Registry and versioning: add a third installed package kind that exercises a
+   generated project consuming a reviewed package lock.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
