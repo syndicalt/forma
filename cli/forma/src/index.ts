@@ -27,7 +27,7 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock")) {
     return usage();
   }
 
@@ -38,6 +38,10 @@ export async function runCli(args: string[]): Promise<CliResult> {
 
     if (command === "package-check") {
       return await checkPackageManifest(path);
+    }
+
+    if (command === "package-lock") {
+      return await lockPackageManifest(path, rest);
     }
 
     if (command === "compare") {
@@ -100,7 +104,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate|package-check|package-init> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock> <path> [--input JSON]\n" };
 }
 
 interface FormaPackageManifest {
@@ -130,6 +134,29 @@ async function checkPackageManifest(path: string): Promise<CliResult> {
   const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
   await validatePackageManifest(manifest, dirname(path));
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
+}
+
+async function lockPackageManifest(path: string, args: string[]): Promise<CliResult> {
+  const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
+  const manifestDir = dirname(path);
+  await validatePackageManifest(manifest, manifestDir);
+  const lock = await createPackageLock(path, manifest, manifestDir);
+  const serialized = `${JSON.stringify(lock, null, 2)}\n`;
+  const outputPath = optionValue(args, "--output");
+  if (args.includes("--check")) {
+    if (!outputPath) {
+      throw new Error("--output is required for --check");
+    }
+    const current = await readFile(outputPath, "utf8").catch(() => "");
+    return current === serialized
+      ? { exitCode: 0, stdout: "ok\n", stderr: "" }
+      : { exitCode: 1, stdout: "", stderr: `package lock is out of date: ${outputPath}\n` };
+  }
+  if (outputPath) {
+    await writeFile(outputPath, serialized, "utf8");
+    return { exitCode: 0, stdout: "ok\n", stderr: "" };
+  }
+  return { exitCode: 0, stdout: serialized, stderr: "" };
 }
 
 async function initializePackage(path: string, args: string[]): Promise<CliResult> {
@@ -193,6 +220,73 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, manifestFile), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   await validatePackageManifest(manifest, path);
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
+}
+
+async function createPackageLock(path: string, manifest: FormaPackageManifest, manifestDir: string) {
+  const profile = manifest.providerProfile
+    ? JSON.parse(await readFile(resolve(manifestDir, manifest.providerProfile), "utf8")) as ProviderProfile
+    : undefined;
+  const providerProfile = profile && manifest.providerProfile
+    ? {
+        path: manifest.providerProfile,
+        sha256: await hashFile(resolve(manifestDir, manifest.providerProfile)),
+        provider: profile.provider,
+        endpoint: profile.endpoint,
+        model: profile.model,
+        apiKeyEnv: profile.apiKeyEnv,
+        responseFormat: profile.responseFormat,
+        temperature: profile.temperature,
+        timeoutMs: profile.timeoutMs,
+      }
+    : undefined;
+  return omitUndefined({
+    formaPackageLock: 1,
+    package: {
+      name: manifest.name,
+      version: manifest.version,
+      manifest: relative(manifestDir, resolve(path)),
+      manifestSha256: await hashFile(path),
+    },
+    tasks: await Promise.all((manifest.tasks ?? []).map(async (task) => ({
+      name: task.name,
+      source: task.source,
+      sourceSha256: await hashFile(resolve(manifestDir, task.source ?? "")),
+    }))),
+    evalSuite: {
+      path: manifest.evalSuite,
+      sha256: await hashFile(resolve(manifestDir, manifest.evalSuite ?? "")),
+    },
+    providerProfile,
+    bindings: await Promise.all((manifest.bindings ?? []).map(async (binding) => ({
+      target: binding.target,
+      source: binding.source,
+      output: binding.output,
+      sha256: await hashFile(resolve(manifestDir, binding.output ?? "")),
+    }))),
+    examples: await Promise.all((manifest.examples ?? []).map(async (example) => ({
+      runtime: example.runtime,
+      path: example.path,
+      sha256: await hashFile(resolve(manifestDir, example.path ?? "")),
+    }))),
+  });
+}
+
+async function hashFile(path: string): Promise<string> {
+  return createHash("sha256").update(await readFile(path)).digest("hex");
+}
+
+function omitUndefined<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => omitUndefined(item)) as T;
+  }
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([, entry]) => entry !== undefined)
+      .map(([key, entry]) => [key, omitUndefined(entry)]),
+  ) as T;
 }
 
 type ScaffoldKind = "review" | "tool";

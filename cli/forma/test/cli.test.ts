@@ -552,6 +552,108 @@ describe("forma cli", () => {
     });
   });
 
+  it("generates a package lock with pinned package artifacts", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-lock-"));
+    await runCli([
+      "package-init",
+      dir,
+      "--name",
+      "acme/review-diff",
+      "--task",
+      "review_diff",
+      "--provider",
+      "http-json",
+      "--endpoint",
+      "https://model.example/v1/agent",
+      "--model",
+      "acme-review-model",
+      "--api-key-env",
+      "ACME_MODEL_KEY",
+    ]);
+
+    const result = await runCli(["package-lock", join(dir, "review_diff.forma.pkg.json")]);
+    const lock = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 0, stdout: expect.any(String), stderr: "" });
+    expect(lock).toMatchObject({
+      formaPackageLock: 1,
+      package: {
+        name: "acme/review-diff",
+        version: "0.1.0",
+        manifest: "review_diff.forma.pkg.json",
+        manifestSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      },
+      tasks: [
+        {
+          name: "review_diff",
+          source: "review_diff.forma",
+          sourceSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        },
+      ],
+      evalSuite: {
+        path: "forma.eval.json",
+        sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      },
+      providerProfile: {
+        path: "forma.provider.json",
+        sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        provider: "http-json",
+        endpoint: "https://model.example/v1/agent",
+        model: "acme-review-model",
+        apiKeyEnv: "ACME_MODEL_KEY",
+        responseFormat: "json_schema",
+        temperature: 0.2,
+        timeoutMs: 30000,
+      },
+      bindings: [
+        {
+          target: "typescript",
+          source: "review_diff.forma",
+          output: "review_diff.forma.ts",
+          sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        },
+        {
+          target: "python",
+          source: "review_diff.forma",
+          output: "review_diff_forma.py",
+          sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        },
+      ],
+      examples: [
+        {
+          runtime: "typescript",
+          path: "review_diff_package.ts",
+          sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        },
+        {
+          runtime: "python",
+          path: "review_diff_package.py",
+          sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        },
+      ],
+    });
+    expect(lock.providerProfile).not.toHaveProperty("apiKey");
+  });
+
+  it("fails package-lock check when package artifacts drift", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-lock-check-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "forma.lock.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const writeResult = await runCli(["package-lock", manifestPath, "--output", lockPath]);
+    expect(writeResult).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+
+    await writeFile(join(dir, "review_diff_package.ts"), "drifted\n");
+
+    const result = await runCli(["package-lock", manifestPath, "--output", lockPath, "--check"]);
+
+    expect(result).toEqual({
+      exitCode: 1,
+      stdout: "",
+      stderr: expect.stringContaining("package lock is out of date"),
+    });
+  });
+
   it("scaffolds a package with task source, evals, bindings, and examples", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-init-"));
     const result = await runCli([

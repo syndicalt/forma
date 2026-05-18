@@ -1,0 +1,66 @@
+{
+  "formaPackageLock": 1,
+  "package": {
+    "name": "examples/review-diff",
+    "version": "0.1.0",
+    "manifest": "review_diff.forma.pkg.json",
+    "manifestSha256": "3eb563a7150185a8ab94073a71fc3fd9ee2b4c2a61efc4e32d09b3248baabb3e"
+  },
+  "tasks": [
+    {
+      "name": "review_diff",
+      "source": "review_diff.forma",
+      "sourceSha256": "9ccf780f57f35f54f4da21291075f7728dcb530442efebc603c50073e580e9ec"
+    }
+  ],
+  "evalSuite": {
+    "path": "forma.eval.json",
+    "sha256": "9b2425a238730f405ddff76e10b482c9707e960f3110d600ccf0183ce54eddb0"
+  },
+  "providerProfile": {
+    "path": "forma.provider.json",
+    "sha256": "2e4f43f0e18fa0712256033b4584c5b8956a2396adc322faf66af66f63f28fa7",
+    "provider": "openai-responses",
+    "model": "gpt-5",
+    "apiKeyEnv": "OPENAI_API_KEY",
+    "responseFormat": "json_schema",
+    "temperature": 0.2,
+    "timeoutMs": 30000
+  },
+  "bindings": [
+    {
+      "target": "typescript",
+      "source": "review_diff.forma",
+      "output": "review_diff.forma.ts",
+      "sha256": "dbd6d95ba3a2e27dd0b43671d4a2451b7ef9f923a5fcaab2c52add77631a45d5"
+    },
+    {
+      "target": "python",
+      "source": "review_diff.forma",
+      "output": "review_diff_forma.py",
+      "sha256": "8fac4b580c38a421e9feb829848e32370d01c851d6ed164c6d90362cbd108cc5"
+    }
+  ],
+  "examples": [
+    {
+      "runtime": "typescript",
+      "path": "review_diff_package.ts",
+      "sha256": "7f33471365b9e1a726dc00f4c7c4b079bcf584dd3a62dde67a59a8cb83ac9c24"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_package.py",
+      "sha256": "3c9c5ac2bc194412cc1a5c4af31903360c6fa531da547069b510c9d6a6a671d5"
+    },
+    {
+      "runtime": "typescript",
+      "path": "tool_permission_workflow.ts",
+      "sha256": "822aa2795f81ac6adaf3379b3d33f8fcb5c2c54a1d3c10fc37554fd1f72c1ed4"
+    },
+    {
+      "runtime": "python",
+      "path": "tool_permission_workflow.py",
+      "sha256": "3c9c103d6acfefe202192b5d1a15636acd8d92689f23ef46f8ca9fe37d82ee60"
+    }
+  ]
+}

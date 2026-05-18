@@ -107,6 +107,8 @@ The current MVP provides:
   runtime output dictionaries and nested schema arrays.
 - A first task package manifest schema, example package manifest, and
   compatibility policy for versioned task contracts.
+- A first task package lockfile schema and checked-in example lockfile for
+  pinned package artifacts.
 - Manifest checking verifies task source hashes, eval suite paths, generated
   bindings, and host package examples through `docs:check` and
   `forma package-check`.
@@ -114,6 +116,8 @@ The current MVP provides:
   edit hooks from TypeScript and Python.
 - `forma package-init` scaffolds a starter package with task source, eval
   fixture, eval suite, manifest, generated bindings, and host examples.
+- `forma package-lock` pins manifest, task source, eval suite, provider profile,
+  generated binding, and host example hashes for publishable packages.
 - Package scaffolding supports review-agent and tool-using coding-agent
   templates through `--kind review` and `--kind tool`.
 - Package scaffolding customizes generated provider profiles with provider,
@@ -243,7 +247,7 @@ Exit criteria:
 The next three implementation slices should be:
 
 1. Provider adapter kit: add optional production provider packages.
-2. Registry and versioning: add lockfile and publishing guidance.
+2. Registry and versioning: add registry publishing workflow automation.
 3. Coding-agent ergonomics: add package scaffold customization for
    task-specific schemas.
 

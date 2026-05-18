@@ -98,6 +98,28 @@ Semver policy:
 - Major releases are required for removed tasks, changed required input/output
   fields, schema changes that alter existing fields, or renamed tasks.
 
+## Lockfile
+
+Use `forma package-lock` to produce a reviewed artifact lock for a package
+manifest. The lockfile schema lives at
+`packages/forma-core/schema/package-lock.schema.json`. A lock pins the package
+manifest hash, task source hashes, eval suite hash, provider profile hash,
+generated binding hashes, and host example hashes. Provider secrets stay out of
+the lock; the provider section records reviewable settings such as provider,
+endpoint, model, `apiKeyEnv`, response format, temperature, and timeout.
+
+```bash
+node cli/forma/dist/index.js package-lock examples/review_diff.forma.pkg.json \
+  --output examples/review_diff.forma.lock.json
+node cli/forma/dist/index.js package-lock examples/review_diff.forma.pkg.json \
+  --output examples/review_diff.forma.lock.json \
+  --check
+```
+
+The checked-in example lockfile is `examples/review_diff.forma.lock.json`.
+Consumers can review the manifest for intent and compatibility policy, then use
+the lockfile to verify the exact artifacts that were evaluated and published.
+
 ## Review
 
 Before publishing a package version, run the eval suite and compare it with the
@@ -112,14 +134,29 @@ Archive the candidate artifact with the package manifest. Reviewers should look
 at `contractChanges`, `settingChanges`, and the machine-readable `changes`
 array before approving a version bump.
 
+Publishing checklist:
+
+- Run `forma package-check` against the manifest.
+- Run `forma package-lock --check` against the checked-in lockfile.
+- Run the package eval suite and archive the summary artifact.
+- Compare the candidate summary against the previous release with
+  `forma compare --fail-on breaking,environment`.
+- Publish the manifest, lockfile, `.forma` sources, eval suite, provider
+  profile, generated TypeScript/Python bindings, and host examples together.
+
 ## Verification
 
 The docs gate checks that `examples/review_diff.forma.pkg.json` has a package
 format marker, semver version, matching task source hash, eval suite path,
 current generated bindings, existing host examples, and compatibility policy.
+It also checks that `examples/review_diff.forma.lock.json` matches the locked
+manifest and artifact hashes.
 The CLI exposes the same check for package users:
 
 ```bash
 corepack pnpm docs:check
 node cli/forma/dist/index.js package-check examples/review_diff.forma.pkg.json
+node cli/forma/dist/index.js package-lock examples/review_diff.forma.pkg.json \
+  --output examples/review_diff.forma.lock.json \
+  --check
 ```

@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|eval|eval-suite|compare|generate|package-check|package-init> <path> [--input JSON]
+forma <check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -62,7 +62,7 @@ diagnostics, verification, and runtime trace entries such as `tool` and
 `tool_failed`, instead of only printing the task output object.
 
 Invalid usage exits with code 2 and prints `usage: forma
-<check|run|eval|eval-suite|compare|generate|package-check|package-init> <path> [--input JSON]`.
+<check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock> <path> [--input JSON]`.
 These behaviors are covered by `cli/forma/test/cli.test.ts`.
 
 `forma generate` reads a `.forma` file and prints host-language bindings:
@@ -87,6 +87,17 @@ bindings, host examples, and compatibility policy:
 
 ```bash
 forma package-check examples/review_diff.forma.pkg.json
+```
+
+`forma package-lock` records the reviewed package artifact set in a lockfile.
+It validates the manifest first, then pins the manifest, task sources, eval
+suite, provider profile, generated bindings, and host examples by SHA-256. Use
+`--output` to write the lockfile and `--check` in CI to fail when any locked
+artifact drifts:
+
+```bash
+forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json
+forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check
 ```
 
 `forma package-init` scaffolds a starter package directory with a `.forma` task,

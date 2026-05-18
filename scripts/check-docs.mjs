@@ -24,7 +24,9 @@ const required = [
   "docs/packages/contributing.md",
   "docs/packages/registry.md",
   "packages/forma-core/schema/package.schema.json",
+  "packages/forma-core/schema/package-lock.schema.json",
   "examples/review_diff.forma.pkg.json",
+  "examples/review_diff.forma.lock.json",
 ];
 
 const requiredTerms = {
@@ -139,6 +141,7 @@ for (const path of scanFiles(scanRoots)) {
 }
 
 validatePackageManifest("examples/review_diff.forma.pkg.json");
+validatePackageLock("examples/review_diff.forma.lock.json");
 
 console.log("docs ok");
 
@@ -312,4 +315,65 @@ function validatePackageManifest(path) {
     console.error(`${path}: compatibility policy is required`);
     process.exit(1);
   }
+}
+
+function validatePackageLock(path) {
+  const lock = JSON.parse(readFileSync(path, "utf8"));
+  const lockDir = dirname(path);
+  if (lock.formaPackageLock !== 1) {
+    console.error(`${path}: formaPackageLock must be 1`);
+    process.exit(1);
+  }
+  if (!lock.package || typeof lock.package !== "object") {
+    console.error(`${path}: package lock metadata is required`);
+    process.exit(1);
+  }
+  const manifestPath = resolve(lockDir, lock.package.manifest);
+  if (!existsSync(manifestPath)) {
+    console.error(`${path}: locked manifest does not exist: ${lock.package.manifest}`);
+    process.exit(1);
+  }
+  if (sha256(manifestPath) !== lock.package.manifestSha256) {
+    console.error(`${path}: manifest hash does not match: ${lock.package.manifest}`);
+    process.exit(1);
+  }
+  for (const task of lock.tasks ?? []) {
+    assertLockedHash(path, lockDir, task.source, task.sourceSha256, "task source");
+  }
+  if (lock.evalSuite) {
+    assertLockedHash(path, lockDir, lock.evalSuite.path, lock.evalSuite.sha256, "eval suite");
+  }
+  if (lock.providerProfile) {
+    assertLockedHash(path, lockDir, lock.providerProfile.path, lock.providerProfile.sha256, "provider profile");
+    if ("apiKey" in lock.providerProfile) {
+      console.error(`${path}: lockfile must not store provider apiKey`);
+      process.exit(1);
+    }
+  }
+  for (const binding of lock.bindings ?? []) {
+    assertLockedHash(path, lockDir, binding.output, binding.sha256, "binding");
+  }
+  for (const example of lock.examples ?? []) {
+    assertLockedHash(path, lockDir, example.path, example.sha256, "example");
+  }
+}
+
+function assertLockedHash(lockPath, lockDir, artifactPath, expectedHash, label) {
+  if (typeof artifactPath !== "string" || typeof expectedHash !== "string") {
+    console.error(`${lockPath}: ${label} path and hash are required`);
+    process.exit(1);
+  }
+  const resolved = resolve(lockDir, artifactPath);
+  if (!existsSync(resolved)) {
+    console.error(`${lockPath}: locked ${label} does not exist: ${artifactPath}`);
+    process.exit(1);
+  }
+  if (sha256(resolved) !== expectedHash) {
+    console.error(`${lockPath}: locked ${label} hash does not match: ${artifactPath}`);
+    process.exit(1);
+  }
+}
+
+function sha256(path) {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
 }

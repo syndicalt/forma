@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FormaPackageLock",
+  "type": "object",
+  "required": ["formaPackageLock", "package", "tasks", "evalSuite"],
+  "additionalProperties": false,
+  "properties": {
+    "formaPackageLock": { "const": 1 },
+    "package": {
+      "type": "object",
+      "required": ["name", "version", "manifest", "manifestSha256"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "manifest": { "type": "string" },
+        "manifestSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "source", "sourceSha256"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "source": { "type": "string" },
+          "sourceSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "evalSuite": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "providerProfile": {
+      "type": "object",
+      "required": ["path", "sha256", "provider", "model"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "provider": { "enum": ["http-json", "openai-responses"] },
+        "endpoint": { "type": "string" },
+        "model": { "type": "string" },
+        "apiKeyEnv": { "type": "string" },
+        "responseFormat": { "enum": ["json_schema", "json_object"] },
+        "temperature": { "type": "number" },
+        "timeoutMs": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "source", "output", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "target": { "enum": ["typescript", "python"] },
+          "source": { "type": "string" },
+          "output": { "type": "string" },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["runtime", "path", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "runtime": { "enum": ["typescript", "python"] },
+          "path": { "type": "string" },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    }
+  }
+}
