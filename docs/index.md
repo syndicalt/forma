@@ -44,6 +44,10 @@ Read `docs/guides/package-consumer-quickstart.md` when embedding a reviewed
 package lock from TypeScript or Python.
 Read `docs/guides/migrating-from-inline-prompts.md` when moving an existing
 model call into a reviewed `.forma` task package.
+Read `docs/guides/quickstart.md#five-minute-usefulness-path` for the
+five-minute usefulness path before package locks: start from an inline prompt
+plus local schemas, move the durable contract into `.forma`, generate
+TypeScript and Python bindings, and embed the task with `agent(...)`.
 Use `forma project-init` when you want a clean TypeScript and Python host
 project with provider profile, generated bindings, and `agent(...)` entrypoints.
 Use `forma project-check` to verify that scaffolded host projects still have

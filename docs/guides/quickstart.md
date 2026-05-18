@@ -45,6 +45,70 @@ ok
 {"message":"Hello, Sam!"}
 ```
 
+## Five-Minute Usefulness Path
+
+The useful first question is whether Forma improves an agent task that would
+otherwise be an inline prompt plus local schemas. Use the checked
+`review_diff` task before package locks so the contract boundary is visible
+without release machinery:
+
+```bash
+node cli/forma/dist/index.js outline examples/review_diff.forma
+node cli/forma/dist/index.js generate examples/review_diff.forma --target typescript --output examples/review_diff.forma.ts --check
+node cli/forma/dist/index.js generate examples/review_diff.forma --target python --output examples/review_diff_forma.py --check
+```
+
+The `.forma` file owns the durable task boundary: input fields, output fields,
+instructions, permissions, and verification rules. The host program still owns
+the provider key, model selection, retries, logging, and application workflow.
+That means TypeScript embedding is just a provider plus the named task:
+
+```ts
+import { OpenAIResponsesProvider, agent } from "@forma-lang/forma";
+import { assertReviewDiffOutput } from "./review_diff.forma.js";
+
+const reviewDiff = agent({
+  file: "examples/review_diff.forma",
+  task: "review_diff",
+  provider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    model: process.env.OPENAI_MODEL ?? "gpt-5",
+  }),
+});
+
+const result = await reviewDiff.run({ diff, max_findings: 5 });
+if (!result.ok) {
+  throw new Error(result.error ?? "review_diff failed");
+}
+const output = assertReviewDiffOutput(result.output);
+```
+
+Python hosts use the same shape and keep the same provider ownership:
+
+```python
+import os
+from forma import OpenAIResponsesProvider, agent
+from review_diff_forma import assert_review_diff_output
+
+review_diff = agent(
+    file="examples/review_diff.forma",
+    task="review_diff",
+    provider=OpenAIResponsesProvider(
+        api_key=os.environ["OPENAI_API_KEY"],
+        model=os.environ.get("OPENAI_MODEL", "gpt-5"),
+    ),
+)
+
+result = review_diff.run({"diff": diff, "max_findings": 5})
+if not result.ok:
+    raise RuntimeError(result.error or "review_diff failed")
+output = assert_review_diff_output(result.output)
+```
+
+Stop here when the task is local to one application. Add package manifests,
+package review, and package locks only when the task is shared, reviewed, or
+reused across repositories.
+
 ## Verification
 
 A clean local verification run should include these commands:

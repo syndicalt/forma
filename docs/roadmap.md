@@ -445,6 +445,10 @@ The current MVP provides:
 - Migration guide shows how inline-prompt migrations keep their before/after
   proof in release review with `package-review --proof-command` and explains
   `missingMigrationParityProofCommand`.
+- Quickstart includes a five-minute usefulness path that starts with the
+  inline prompt plus local schemas problem, shows direct TypeScript and Python
+  `agent(...)` embedding with generated output validators, and stops before
+  package locks unless the task is shared or reviewed.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -575,9 +579,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add a five-minute usefulness path that starts from the
-   inline prompt problem, shows the generated TypeScript/Python embedding code,
-   and stops before package locks unless the task is shared or reviewed.
+3. Product clarity: add `project-init --minimal` or equivalent scaffolding so
+   the generated first project follows the five-minute usefulness path before
+   package-review and lockfile surfaces.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

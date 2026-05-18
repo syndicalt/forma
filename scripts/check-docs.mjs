@@ -40,7 +40,7 @@ const required = [
 
 const requiredTerms = {
   "README.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "review_diff_package_lock", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
-  "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md"],
+  "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md", "five-minute usefulness path", "inline prompt plus local schemas"],
   "docs/language/diagnostics.md": [
     "F0001",
     "F1001",
@@ -93,7 +93,7 @@ const requiredTerms = {
     "\"missingCommands\": [\"pnpm run smoke:ts\"]",
   ],
   "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair", "missingMigrationParityProofCommand", "proof:release", "review_diff_migration.test.ts", "forma-project.yml"],
-  "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run", "proof:release", "projects:check", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "project-init ./review-diff-agent-lock", "--package-lock examples/review_diff.forma.lock.json", "smoke:lock:ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "docs/packages/cli.md", "docs/guides/product-proof.md#verification", "docs/packages/cli.md#package-review-output"],
+  "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run", "proof:release", "projects:check", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "project-init ./review-diff-agent-lock", "--package-lock examples/review_diff.forma.lock.json", "smoke:lock:ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "docs/packages/cli.md", "docs/guides/product-proof.md#verification", "docs/packages/cli.md#package-review-output", "Five-Minute Usefulness Path", "inline prompt plus local schemas", "assertReviewDiffOutput", "assert_review_diff_output", "before package locks"],
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
   "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],
