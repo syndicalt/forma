@@ -76,6 +76,10 @@ before you spend time on package review, package locks, or release checks.
 
 ## Product Proof
 
+Package proof is not the product wedge; reusable agent contracts are.
+`package-review`, package locks, and release proof exist to protect a contract
+that already earned reuse across a host application or another repository.
+
 The concrete proof is `examples/review_diff.forma`: one reviewed coding-agent
 contract that TypeScript and Python programs consume through generated
 bindings, provider profiles, package locks, evals, and runtime validation.

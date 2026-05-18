@@ -350,6 +350,8 @@ The current MVP provides:
   prompt extraction.
 - README now says minimal and checked projects are valid stopping points, not
   failed adoption.
+- README now says package proof is not the product wedge; reusable agent
+  contracts are.
 - Why-Forma now says copying `.forma` files without bindings, evals, and locks
   is prompt sharing.
 - First-use audit now says to defer package review until one concrete consumer
@@ -891,12 +893,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add README wording that package proof is not the product
-   wedge; reusable agent contracts are.
-2. Product clarity: add package-consumer wording that package locks protect
+1. Product clarity: add package-consumer wording that package locks protect
    real handoffs, not internal file organization.
-3. Product clarity: add why-forma wording that the package is useful only when
+2. Product clarity: add why-forma wording that the package is useful only when
    the contract is consumed outside its authoring context.
+3. Product clarity: add quickstart wording that a package lock should follow a
+   named consuming application, not generic adoption anxiety.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
