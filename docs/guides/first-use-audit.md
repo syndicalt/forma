@@ -54,6 +54,9 @@ until the minimal smoke comparison shows the `.forma` boundary is worth keeping.
 Route-label cleanup should not delay local smoke proof. Use a simple redacted
 host-owned label for the first run, then clean up naming once the minimal smoke
 comparison proves Forma is worth adopting.
+Route-label cleanup should not create package-review prerequisites. Keep naming
+fixes in the host adapter during first use, and move to package review only
+after a named consumer needs shared release artifacts.
 
 ## Steps
 
