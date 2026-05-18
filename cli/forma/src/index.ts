@@ -2615,9 +2615,18 @@ python src/${taskName}_agent.py
 python test/${taskName}_local_smoke.py
 \`\`\`
 
-Add \`forma project-check\`, smoke tests, CI workflow checks, package-review,
-and package locks after the task is shared, reviewed, or reused across
-repositories.
+## When to Grow This Project
+
+Stay on the minimal scaffold while you are deciding whether the \`.forma\`
+contract is useful for one application. Re-run default \`forma project-init\`
+when the task needs \`forma project-check\`, generated smoke tests, and CI
+workflow checks. Use \`forma project-init --package-lock\` after the task is
+reviewed as a reusable package and the host should consume pinned package
+artifacts.
+
+For the full first-use path, see
+\`docs/guides/quickstart.md#five-minute-usefulness-path\`. For the scaffold
+decision table, see \`docs/packages/cli.md#project-init\`.
 `;
   }
   const packageLockSection = packageLock

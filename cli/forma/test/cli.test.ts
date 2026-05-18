@@ -2332,6 +2332,11 @@ describe("forma cli", () => {
     expect(readme).toContain("src/review_diff_agent.py");
     expect(readme).toContain("pnpm run smoke:local:ts");
     expect(readme).toContain("python test/review_diff_local_smoke.py");
+    expect(readme).toContain("When to Grow This Project");
+    expect(readme).toContain("default `forma project-init`");
+    expect(readme).toContain("`forma project-init --package-lock`");
+    expect(readme).toContain("docs/guides/quickstart.md#five-minute-usefulness-path");
+    expect(readme).toContain("docs/packages/cli.md#project-init");
     const packageJson = await readFile(join(dir, "package.json"), "utf8");
     expect(packageJson).toContain("\"smoke:local:ts\"");
     const typeScriptSmoke = await readFile(join(dir, "test", "review_diff_local_smoke.ts"), "utf8");
