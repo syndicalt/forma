@@ -135,8 +135,8 @@ The current MVP provides:
   a reviewed `.tgz` package bundle and uploads release assets from version tags.
 - `forma package-review` runs a machine-readable package publishing checklist
   across manifest validation, lockfile verification, and eval-suite execution.
-- `forma package-review` fails package reviews that omit host examples
-  and reports included TypeScript/Python example runtimes.
+- `forma package-review` fails package reviews that omit TypeScript or Python
+  host examples and reports included and missing runtimes.
 - `forma package-review --baseline` folds previous-release eval comparison into
   the package publishing checklist.
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,

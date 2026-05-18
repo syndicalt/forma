@@ -227,11 +227,17 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
 
 function packageExamplesCheck(manifest: FormaPackageManifest): Record<string, unknown> {
   const examples = manifest.examples ?? [];
+  const requiredRuntimes = ["typescript", "python"];
+  const runtimes = Array.from(
+    new Set(examples.flatMap((example) => example.runtime === "typescript" || example.runtime === "python" ? [example.runtime] : [])),
+  );
+  const missingRuntimes = requiredRuntimes.filter((runtime) => !runtimes.includes(runtime));
   return {
     name: "examples",
-    passed: examples.length > 0,
+    passed: missingRuntimes.length === 0,
     total: examples.length,
-    runtimes: Array.from(new Set(examples.map((example) => example.runtime))).filter(Boolean),
+    runtimes,
+    ...(missingRuntimes.length > 0 ? { missingRuntimes } : {}),
   };
 }
 
