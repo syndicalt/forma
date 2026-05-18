@@ -80,6 +80,7 @@ const requiredTerms = {
     "forma-project.yml",
     "restore the generated project workflow",
     "project-check --json",
+    "\"missingCommands\": [\"pnpm run smoke:ts\"]",
   ],
   "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair", "missingMigrationParityProofCommand"],
   "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],

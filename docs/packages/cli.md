@@ -735,6 +735,48 @@ The JSON output includes `passed`, project metadata, and check rows such as
 include `missingCommands` and the `restore the generated project workflow`
 guidance string.
 
+A passing project report looks like:
+
+```json
+{
+  "passed": true,
+  "project": {
+    "name": "review-diff-agent",
+    "task": "review_diff",
+    "manifest": "forma.project.json"
+  },
+  "checks": [
+    { "name": "bindings", "passed": true, "targets": ["typescript", "python"] },
+    { "name": "entrypoints", "passed": true, "runtimes": ["typescript", "python"] },
+    { "name": "smoke-tests", "passed": true, "runtimes": ["typescript", "python"] },
+    { "name": "ci-workflow", "passed": true, "path": ".github/workflows/forma-project.yml" }
+  ]
+}
+```
+
+If the workflow drops a generated proof command, the failing row names the
+exact command to restore:
+
+```json
+{
+  "passed": false,
+  "project": {
+    "name": "review-diff-agent",
+    "task": "review_diff",
+    "manifest": "forma.project.json"
+  },
+  "checks": [
+    {
+      "name": "ci-workflow",
+      "passed": false,
+      "path": ".github/workflows/forma-project.yml",
+      "missingCommands": ["pnpm run smoke:ts"],
+      "guidance": "restore the generated project workflow"
+    }
+  ]
+}
+```
+
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
 runs the named task, compares `ok`, `output`, `trace`, `verification`, and
 `error`, and prints a JSON evaluation report:
