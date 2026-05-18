@@ -3,6 +3,39 @@ import { runCli } from "../src/index.js";
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
+const repoRoot = resolve("../..");
+
+async function compileGeneratedProject(dir: string): Promise<void> {
+  const tsconfig = join(dir, "tsconfig.consumer.json");
+  await writeFile(tsconfig, JSON.stringify({
+    compilerOptions: {
+      target: "ES2022",
+      module: "NodeNext",
+      moduleResolution: "NodeNext",
+      strict: true,
+      noEmit: true,
+      baseUrl: repoRoot,
+      paths: {
+        "@forma-lang/forma": ["packages/forma-typescript/src/index.ts"],
+      },
+      typeRoots: [resolve(repoRoot, "packages/forma-typescript/node_modules/@types")],
+      types: ["node"],
+      skipLibCheck: true,
+    },
+    include: [join(dir, "src", "*.ts")],
+  }, null, 2));
+  await execFileAsync(resolve(repoRoot, "node_modules/.bin/tsc"), ["-p", tsconfig], { cwd: repoRoot });
+  await execFileAsync("python", [
+    "-m",
+    "py_compile",
+    join(dir, "src", "review_diff_forma.py"),
+    join(dir, "src", "review_diff_agent.py"),
+  ]);
+}
 
 describe("forma cli", () => {
   it("checks a valid source file", async () => {
@@ -1319,6 +1352,13 @@ describe("forma cli", () => {
       timeoutMs: 30000,
     });
     expect(await readFile(join(dir, "review_diff.forma"), "utf8")).toContain("task review_diff");
+    expect(JSON.parse(await readFile(join(dir, "forma.project.json"), "utf8"))).toMatchObject({
+      formaProject: 1,
+      name: "review-diff-agent",
+      task: "review_diff",
+      source: "review_diff.forma",
+      providerProfile: "forma.provider.json",
+    });
     expect(await readFile(join(dir, "src", "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
     expect(await readFile(join(dir, "src", "review_diff_forma.py"), "utf8")).toContain("assert_review_diff_output");
     expect(await readFile(join(dir, "src", "review_diff_agent.ts"), "utf8")).toContain("providerProfileFromFile");
@@ -1329,9 +1369,32 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "pyproject.toml"), "utf8")).toContain("forma-lang");
     const readme = await readFile(join(dir, "README.md"), "utf8");
     expect(readme).toContain("export REVIEW_MODEL_KEY=");
+    expect(readme).toContain("forma project-check .");
     expect(readme).toContain("forma run review_diff.forma --task review_diff");
     expect(readme).toContain("src/review_diff_agent.ts");
     expect(readme).toContain("src/review_diff_agent.py");
+
+    const projectCheck = await runCli(["project-check", dir]);
+    expect(projectCheck).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    await compileGeneratedProject(dir);
+  });
+
+  it("fails project checks when generated host bindings are stale", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-stale-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    await writeFile(join(dir, "src", "review_diff.forma.ts"), "// stale\n");
+
+    const result = await runCli(["project-check", dir]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("project binding is out of date: src/review_diff.forma.ts");
   });
 
   it("evaluates a deterministic conformance fixture as JSON", async () => {

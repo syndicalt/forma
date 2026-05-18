@@ -28,13 +28,17 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "outline" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock" && command !== "package-review" && command !== "project-init")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "outline" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock" && command !== "package-review" && command !== "project-check" && command !== "project-init")) {
     return usage();
   }
 
   try {
     if (command === "project-init") {
       return await initializeProject(path, rest);
+    }
+
+    if (command === "project-check") {
+      return await checkProject(path);
     }
 
     if (command === "package-init") {
@@ -117,7 +121,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-init> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]\n" };
 }
 
 interface FormaPackageManifest {
@@ -144,6 +148,23 @@ interface FormaPackageManifest {
   }>;
   providerProfile?: string;
   compatibility?: unknown;
+}
+
+interface FormaProjectManifest {
+  formaProject?: number;
+  name?: string;
+  task?: string;
+  source?: string;
+  providerProfile?: string;
+  bindings?: Array<{
+    target?: string;
+    source?: string;
+    output?: string;
+  }>;
+  entrypoints?: Array<{
+    runtime?: string;
+    path?: string;
+  }>;
 }
 
 const requiredPackageReleaseFiles = [
@@ -597,6 +618,21 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   const pythonAgent = `src/${taskName}_agent.py`;
   const taskFile = `${taskName}.forma`;
   const providerProfile = scaffoldProviderProfile(args);
+  const projectManifest = {
+    formaProject: 1,
+    name: projectName,
+    task: taskName,
+    source: taskFile,
+    providerProfile: "forma.provider.json",
+    bindings: [
+      { target: "typescript", source: taskFile, output: typeScriptBindings },
+      { target: "python", source: taskFile, output: pythonBindings },
+    ],
+    entrypoints: [
+      { runtime: "typescript", path: typeScriptAgent },
+      { runtime: "python", path: pythonAgent },
+    ],
+  };
 
   await writeFile(resolve(path, taskFile), source, "utf8");
   await writeFile(resolve(path, typeScriptBindings), generateTypeScriptBindings(source), "utf8");
@@ -604,12 +640,89 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, typeScriptAgent), scaffoldProjectTypeScriptAgent(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonAgent), scaffoldProjectPythonAgent(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, "forma.provider.json"), `${JSON.stringify(providerProfile, null, 2)}\n`, "utf8");
+  await writeFile(resolve(path, "forma.project.json"), `${JSON.stringify(projectManifest, null, 2)}\n`, "utf8");
   await writeFile(resolve(path, "package.json"), scaffoldProjectPackageJson(projectName, taskName), "utf8");
   await writeFile(resolve(path, "tsconfig.json"), scaffoldProjectTsconfig(), "utf8");
   await writeFile(resolve(path, "pyproject.toml"), scaffoldProjectPyproject(projectName), "utf8");
   await writeFile(resolve(path, "README.md"), scaffoldProjectReadme(projectName, taskName, providerProfile), "utf8");
 
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
+}
+
+async function checkProject(path: string): Promise<CliResult> {
+  const manifestPath = path.endsWith(".json") ? path : resolve(path, "forma.project.json");
+  const manifestDir = dirname(manifestPath);
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as FormaProjectManifest;
+  await validateProjectManifest(manifest, manifestDir);
+  return { exitCode: 0, stdout: "ok\n", stderr: "" };
+}
+
+async function validateProjectManifest(manifest: FormaProjectManifest, manifestDir: string): Promise<void> {
+  if (manifest.formaProject !== 1) {
+    throw new Error("formaProject must be 1");
+  }
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(manifest.name ?? "")) {
+    throw new Error("invalid project name");
+  }
+  validateScaffoldIdentifier(manifest.task ?? "", "task");
+  if (!manifest.source || !manifest.source.endsWith(".forma")) {
+    throw new Error("source must point to a .forma file");
+  }
+  const sourcePath = resolve(manifestDir, manifest.source);
+  const source = await readFile(sourcePath, "utf8");
+  const task = parseForma(source).tasks.find((candidate) => candidate.name === manifest.task);
+  if (!task) {
+    throw new Error(`project task not found: ${manifest.task}`);
+  }
+  if (!task.agentInstruction) {
+    throw new Error("project task must be an agent task");
+  }
+  if (!manifest.providerProfile) {
+    throw new Error("providerProfile is required");
+  }
+  const profile = JSON.parse(await readFile(resolve(manifestDir, manifest.providerProfile), "utf8")) as ProviderProfile;
+  validateProviderProfile(profile);
+  if ("apiKey" in profile) {
+    throw new Error("provider profile must not store apiKey secrets");
+  }
+  if (profile.provider === "openai-responses" && !profile.apiKeyEnv) {
+    throw new Error("OpenAI provider profile must name apiKeyEnv");
+  }
+
+  const bindings = manifest.bindings ?? [];
+  const targets = new Set(bindings.map((binding) => binding.target));
+  if (!targets.has("typescript") || !targets.has("python")) {
+    throw new Error("project must include TypeScript and Python bindings");
+  }
+  for (const binding of bindings) {
+    if (binding.source !== manifest.source || !binding.output) {
+      throw new Error("project binding source and output are required");
+    }
+    const expected = binding.target === "typescript"
+      ? generateTypeScriptBindings(source)
+      : binding.target === "python"
+        ? generatePythonBindings(source)
+        : undefined;
+    if (!expected) {
+      throw new Error(`unsupported project binding target: ${binding.target}`);
+    }
+    const current = await readFile(resolve(manifestDir, binding.output), "utf8");
+    if (current !== expected) {
+      throw new Error(`project binding is out of date: ${binding.output}`);
+    }
+  }
+
+  const entrypoints = manifest.entrypoints ?? [];
+  const runtimes = new Set(entrypoints.map((entrypoint) => entrypoint.runtime));
+  if (!runtimes.has("typescript") || !runtimes.has("python")) {
+    throw new Error("project must include TypeScript and Python entrypoints");
+  }
+  for (const entrypoint of entrypoints) {
+    if (!entrypoint.path) {
+      throw new Error("project entrypoint path is required");
+    }
+    await readFile(resolve(manifestDir, entrypoint.path), "utf8");
+  }
 }
 
 async function createPackageLock(path: string, manifest: FormaPackageManifest, manifestDir: string) {
@@ -1151,7 +1264,7 @@ const ${camelName} = agent({
 const exampleInput: ${inputType} = ${exampleInput};
 
 export async function run${pascalName}(input: ${inputType} = exampleInput): Promise<${pascalName}Output> {
-  const result = await ${camelName}.run(input);
+  const result = await ${camelName}.run({ ...input });
   if (!result.ok) {
     throw new Error(result.error ?? "Forma ${taskName} failed");
   }
@@ -1272,7 +1385,7 @@ const ${camelName} = agent({
 const exampleInput: ${inputType} = ${exampleInput};
 
 export async function run${pascalName}(input: ${inputType} = exampleInput): Promise<${pascalName}Output> {
-  const result = await ${camelName}.run(input);
+  const result = await ${camelName}.run({ ...input });
   if (!result.ok) {
     throw new Error(result.error ?? "Forma ${taskName} failed");
   }
@@ -1408,6 +1521,7 @@ in the host application.
 
 \`\`\`bash
 pnpm install
+forma project-check .
 pnpm run check
 pnpm run run:ts
 \`\`\`
@@ -1420,6 +1534,7 @@ The TypeScript embedding entrypoint is \`src/${taskName}_agent.ts\`.
 python -m venv .venv
 . .venv/bin/activate
 python -m pip install -e .
+forma project-check .
 python src/${taskName}_agent.py
 \`\`\`
 

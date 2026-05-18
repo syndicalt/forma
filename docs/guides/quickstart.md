@@ -93,4 +93,10 @@ node cli/forma/dist/index.js project-init ./review-diff-agent \
 
 The generated project writes `forma.provider.json` for model and key-env
 selection, `src/review_diff_agent.ts` for TypeScript embedding, and
-`src/review_diff_agent.py` for Python embedding.
+`src/review_diff_agent.py` for Python embedding. Run `project-check` before
+using the generated project so stale bindings or provider-profile mistakes fail
+early:
+
+```bash
+node cli/forma/dist/index.js project-check ./review-diff-agent
+```

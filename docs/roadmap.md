@@ -173,6 +173,9 @@ The current MVP provides:
 - `forma project-init` scaffolds a clean TypeScript and Python host project
   with a `.forma` task, provider profile, generated bindings, host entrypoints,
   and runtime package manifests.
+- `forma project-check` verifies scaffolded host projects by checking the
+  project manifest, agent task, provider profile, generated TypeScript/Python
+  bindings, and runtime entrypoints.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -298,12 +301,13 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Clean-project onboarding: compile and smoke-test `project-init` output as
-   generated consumer code.
-2. Coding-agent ergonomics: add a richer "modify a function and run focused
+1. Coding-agent ergonomics: add a richer "modify a function and run focused
    tests" package template with fixture coverage.
-3. Developer experience: add task outline and generated type preview surfaces
+2. Developer experience: add task outline and generated type preview surfaces
    suitable for an editor or language-server client.
+3. Clean-project onboarding: add installed-project smoke tests for the
+   published TypeScript and Python package names once release packaging is
+   available.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
