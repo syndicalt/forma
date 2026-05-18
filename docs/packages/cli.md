@@ -728,6 +728,14 @@ Which project-init scaffold should I use?
 | checked in CI | `forma project-init ./review-diff-agent --name review-diff-agent --task review_diff` | The host project should run `project-check`, generated smoke tests, and a workflow gate |
 | consuming a reviewed package | `forma project-init ./review-diff-agent --name review-diff-agent --task review_diff --package-lock ../review_diff.forma.lock.json` | The app should prove it can load a reviewed package lock with `agentFromPackageLock(...)` and `agent_from_package_lock(...)` |
 
+Scaffold proof commands:
+
+| Scaffold | Proof command before depending on it |
+| --- | --- |
+| minimal proof command | `pnpm run smoke:local:ts && python test/review_diff_local_smoke.py` |
+| checked proof command | `forma project-check . && pnpm run smoke:ts && python test/review_diff_agent_smoke.py` |
+| package-lock proof command | `forma project-check . && pnpm run smoke:lock:ts && python test/review_diff_package_lock_smoke.py` |
+
 ```bash
 forma project-init ./review-diff-agent \
   --name review-diff-agent \

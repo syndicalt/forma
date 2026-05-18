@@ -218,6 +218,9 @@ The current MVP provides:
 - Package-consumer quickstart now starts with the same minimal, checked, and
   package-lock progression so readers do not jump to reviewed consumption
   before local usefulness and host-project CI checks are justified.
+- CLI docs now map each `project-init` scaffold choice to the proof command to
+  run before depending on that scaffold: local smoke tests, `project-check`
+  plus direct smoke tests, or `project-check` plus package-lock smoke tests.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -749,13 +752,13 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add CLI docs examples that map each `project-init` scaffold
-   choice to the proof command that should be run before depending on it.
-2. Product clarity: add docs index wording that names Forma as an agent
+1. Product clarity: add docs index wording that names Forma as an agent
    contract compiler rather than only a prompt file format.
-3. Product clarity: add a short architecture note that distinguishes the
+2. Product clarity: add a short architecture note that distinguishes the
    `.forma` contract, generated bindings, runtime agent facade, and provider
    adapter responsibilities.
+3. Product clarity: add README wording that explicitly calls the minimal
+   scaffold a product test, not an adoption commitment.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
