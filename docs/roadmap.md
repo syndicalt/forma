@@ -257,6 +257,8 @@ The current MVP provides:
   points maintainers to package consumer troubleshooting.
 - Package review fails generated CI workflows that omit troubleshooting
   guidance and reports `missingGuidance` in CI and publish workflow rows.
+- Registry docs explain the package-review troubleshooting guidance gates for
+  generated package and publish workflows.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -387,8 +389,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add registry docs for package-review troubleshooting
-   guidance gates in generated workflows.
+3. Runtime embedding clarity: add focused TypeScript and Python package-consumer
+   docs for provider key placement, model selection, and what the generated
+   `agent(...)` helpers call.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

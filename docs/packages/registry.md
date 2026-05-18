@@ -64,7 +64,11 @@ bundle, and that the package workflow runs the package check, lock check,
 eval-suite summary, and package-review commands. It also checks that the README
 documents the same package-review, package-check, lock-check, eval-suite,
 baseline review, and compare commands that reviewers need before publishing or
-consuming a changed package.
+consuming a changed package. Generated package and publish workflows must keep
+their troubleshooting link to
+`docs/guides/package-consumer-quickstart.md#troubleshooting`; if either
+workflow drops that guidance, package review fails the corresponding
+`ci-workflow` or `publish-bundle` row with `missingGuidance`.
 
 The scaffolded `.github/workflows/forma-publish.yml` automates the release
 artifact path for registry-style sharing. It runs `forma package-review`, writes
@@ -222,6 +226,9 @@ Run the test commands after lock verification so the files being executed are
 the same files that reviewers approved. `forma package-review` prints those
 commands in the `tests` row and checks that the README and package CI workflow
 include them whenever the manifest has a `tests` section.
+The same review keeps generated workflow failure handling reviewable: if the
+package or publish workflow omits the troubleshooting link, the `ci-workflow`
+or `publish-bundle` row reports `missingGuidance`.
 
 The review output is JSON so CI can gate on it, but it is also useful as a
 human checklist before publishing or consuming a package. A passing package
@@ -283,6 +290,27 @@ at the exact command that needs to be restored:
 
 Use the `tests.commands` row from the same `package-review` output as the
 source of truth when repairing those README or workflow entries.
+
+When generated workflow troubleshooting guidance is missing, the failing row
+names the exact guide link to restore:
+
+```json
+{
+  "name": "ci-workflow",
+  "passed": false,
+  "total": 6,
+  "missingGuidance": ["docs/guides/package-consumer-quickstart.md#troubleshooting"]
+}
+```
+
+```json
+{
+  "name": "publish-bundle",
+  "passed": false,
+  "total": 17,
+  "missingGuidance": ["docs/guides/package-consumer-quickstart.md#troubleshooting"]
+}
+```
 
 ## Review
 
@@ -381,10 +409,12 @@ Publishing checklist:
   the review.
 - Confirm the `ci-workflow` row passes; missing package-check, lock check,
   eval-suite, or package-review commands in `.github/workflows/forma-package.yml`
-  fail the review.
+  fail the review. Missing troubleshooting guidance reports `missingGuidance`
+  and also fails the review.
 - Confirm the `publish-bundle` row passes; missing manifest, lockfile, task
   source, eval, provider profile, binding, example, README, or workflow paths
-  in the publish workflow fail the review.
+  in the publish workflow fail the review. Missing troubleshooting guidance
+  reports `missingGuidance` and also fails the review.
 - Confirm the `eval-coverage` row in package-review lists every task from the
   manifest; missing tasks or mismatched source hashes fail the review.
 - Run `forma package-check` against the manifest.
