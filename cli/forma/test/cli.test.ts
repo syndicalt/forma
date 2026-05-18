@@ -678,6 +678,26 @@ describe("forma cli", () => {
     });
   });
 
+  it("reviews a package against a baseline eval artifact", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-baseline-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const baselinePath = join(dir, "baseline.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const baseline = await runCli(["eval-suite", join(dir, "forma.eval.json"), "--summary"]);
+    await writeFile(baselinePath, baseline.stdout);
+
+    const result = await runCli(["package-review", manifestPath, "--baseline", baselinePath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 0, stdout: expect.any(String), stderr: "" });
+    expect(review.checks).toContainEqual({
+      name: "compare",
+      passed: true,
+      baseline: baselinePath,
+      failOn: ["breaking", "environment"],
+    });
+  });
+
   it("scaffolds a package with task source, evals, bindings, and examples", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-init-"));
     const result = await runCli([
@@ -719,6 +739,7 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
+    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json --baseline baseline.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma compare baseline.json candidate.json --fail-on breaking,environment");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");

@@ -27,6 +27,7 @@ forma package-lock ./review-diff-package/review_diff.forma.pkg.json \
   --output ./review-diff-package/review_diff.forma.lock.json \
   --check
 forma package-review ./review-diff-package/review_diff.forma.pkg.json
+forma package-review ./review-diff-package/review_diff.forma.pkg.json --baseline baseline.json
 ```
 
 Scaffolded packages include `forma.provider.json` so runtime configuration is a
@@ -152,6 +153,7 @@ previous release artifact:
 
 ```bash
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary > candidate.json
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --baseline baseline.json
 node cli/forma/dist/index.js compare baseline.json candidate.json --fail-on breaking,environment
 ```
 
@@ -161,7 +163,8 @@ array before approving a version bump.
 
 Publishing checklist:
 
-- Run `forma package-review` against the manifest.
+- Run `forma package-review` against the manifest, with `--baseline` when a
+  previous release artifact is available.
 - Run `forma package-check` against the manifest.
 - Run `forma package-lock --check` against the checked-in lockfile.
 - Run the package eval suite and archive the summary artifact.

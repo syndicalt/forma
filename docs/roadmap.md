@@ -127,6 +127,8 @@ The current MVP provides:
   a reviewed `.tgz` package bundle and uploads release assets from version tags.
 - `forma package-review` runs a machine-readable package publishing checklist
   across manifest validation, lockfile verification, and eval-suite execution.
+- `forma package-review --baseline` folds previous-release eval comparison into
+  the package publishing checklist.
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,
   generated binding, and host example hashes for publishable packages.
 - Package scaffolding supports review-agent and tool-using coding-agent

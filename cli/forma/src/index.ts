@@ -45,7 +45,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
     }
 
     if (command === "package-review") {
-      return await reviewPackageManifest(path);
+      return await reviewPackageManifest(path, rest);
     }
 
     if (command === "compare") {
@@ -163,7 +163,7 @@ async function lockPackageManifest(path: string, args: string[]): Promise<CliRes
   return { exitCode: 0, stdout: serialized, stderr: "" };
 }
 
-async function reviewPackageManifest(path: string): Promise<CliResult> {
+async function reviewPackageManifest(path: string, args: string[] = []): Promise<CliResult> {
   const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
   const manifestDir = dirname(path);
   await validatePackageManifest(manifest, manifestDir);
@@ -177,21 +177,42 @@ async function reviewPackageManifest(path: string): Promise<CliResult> {
   if (suiteResult.exitCode !== 0) {
     return { exitCode: 1, stdout: "", stderr: suiteResult.stderr || "eval suite failed\n" };
   }
-  const suite = JSON.parse(suiteResult.stdout) as { summary?: { total?: number; failed?: number } };
+  const suite = JSON.parse(suiteResult.stdout) as EvalSuiteArtifact;
+  const checks: Array<Record<string, unknown>> = [
+    { name: "package-check", passed: true },
+    { name: "package-lock", passed: true, path: lockPath },
+    { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
+  ];
+  let passed = true;
+  const baselinePath = optionValue(args, "--baseline");
+  if (baselinePath) {
+    const failOnArgs = optionValue(args, "--fail-on") ? args : [...args, "--fail-on", "breaking,environment"];
+    const baseline = JSON.parse(await readFile(baselinePath, "utf8")) as EvalReport | EvalReport[] | EvalSuiteArtifact;
+    const comparison = compareReportArtifacts(baseline, suite, failOnArgs);
+    const report = comparison.report as SuiteComparison;
+    const failOn = Array.from(failOnSeverities(failOnArgs));
+    passed = passed && report.passed;
+    checks.push({
+      name: "compare",
+      passed: report.passed,
+      baseline: baselinePath,
+      failOn,
+      ...(report.failedOn ? { failedOn: report.failedOn } : {}),
+      ...(report.regressions.length > 0 ? { regressions: report.regressions } : {}),
+      ...(report.contractChanges ? { contractChanges: report.contractChanges } : {}),
+      ...(report.settingChanges ? { settingChanges: report.settingChanges } : {}),
+    });
+  }
   return {
-    exitCode: 0,
+    exitCode: passed ? 0 : 1,
     stdout: `${JSON.stringify({
-      passed: true,
+      passed,
       package: {
         name: manifest.name,
         version: manifest.version,
         manifest: path,
       },
-      checks: [
-        { name: "package-check", passed: true },
-        { name: "package-lock", passed: true, path: lockPath },
-        { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
-      ],
+      checks,
     }, null, 2)}\n`,
     stderr: "",
   };
@@ -626,6 +647,7 @@ forma package-review ${manifestFile}
 forma package-check ${manifestFile}
 forma package-lock ${manifestFile} --output ${lockFile} --check
 forma eval-suite ${evalSuite} --summary > candidate.json
+forma package-review ${manifestFile} --baseline baseline.json
 forma compare baseline.json candidate.json --fail-on breaking,environment
 \`\`\`
 
@@ -1196,6 +1218,17 @@ interface ChangeDetail {
   details?: FieldChangeDetails;
 }
 
+interface SuiteComparison {
+  passed: boolean;
+  regressions: string[];
+  improvements: string[];
+  contractChanges?: string[];
+  settingChanges?: string[];
+  changes?: ChangeDetail[];
+  failedOn?: string[];
+  reports: ReportComparison[];
+}
+
 interface FieldChangeDetails {
   added?: string[];
   removed?: string[];
@@ -1210,14 +1243,26 @@ async function compareReports(baselinePath: string, args: string[]): Promise<Cli
 
   const baselineRaw = JSON.parse(await readFile(baselinePath, "utf8")) as EvalReport | EvalReport[] | EvalSuiteArtifact;
   const candidateRaw = JSON.parse(await readFile(candidatePath, "utf8")) as EvalReport | EvalReport[] | EvalSuiteArtifact;
+  const comparison = compareReportArtifacts(baselineRaw, candidateRaw, args);
+  return {
+    exitCode: comparison.exitCode,
+    stdout: `${JSON.stringify(comparison.report, null, 2)}\n`,
+    stderr: "",
+  };
+}
+
+function compareReportArtifacts(
+  baselineRaw: EvalReport | EvalReport[] | EvalSuiteArtifact,
+  candidateRaw: EvalReport | EvalReport[] | EvalSuiteArtifact,
+  args: string[],
+): { exitCode: number; report: ReportComparison | SuiteComparison } {
   const baselineReports = normalizeReportFile(baselineRaw);
   const candidateReports = normalizeReportFile(candidateRaw);
   if (isSingleReportFile(baselineRaw) && isSingleReportFile(candidateRaw)) {
     const report = compareReport(baselineReports[0], candidateReports[0]);
     return {
       exitCode: report.passed ? 0 : 1,
-      stdout: `${JSON.stringify(report, null, 2)}\n`,
-      stderr: "",
+      report,
     };
   }
 
@@ -1248,8 +1293,7 @@ async function compareReports(baselinePath: string, args: string[]): Promise<Cli
 
   return {
     exitCode: report.passed ? 0 : 1,
-    stdout: `${JSON.stringify(report, null, 2)}\n`,
-    stderr: "",
+    report,
   };
 }
 

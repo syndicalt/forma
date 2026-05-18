@@ -100,12 +100,16 @@ forma package-lock examples/review_diff.forma.pkg.json --output examples/review_
 forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check
 ```
 
-`forma package-review` runs the publish-review checklist for a package: manifest
-validation, adjacent lockfile verification, and eval suite summary. It prints a
-machine-readable checklist result:
+`forma package-review` runs the publish-review checklist for a package:
+manifest validation, adjacent lockfile verification, and eval suite summary. It
+prints a machine-readable checklist result. Add `--baseline baseline.json` to
+compare the candidate eval suite against a previous release artifact; baseline
+comparisons default to `--fail-on breaking,environment` unless you pass a
+different `--fail-on` severity list:
 
 ```bash
 forma package-review examples/review_diff.forma.pkg.json
+forma package-review examples/review_diff.forma.pkg.json --baseline baseline.json
 ```
 
 `forma package-init` scaffolds a starter package directory with a `.forma` task,
@@ -159,6 +163,7 @@ forma package-lock ./review-diff-package/review_diff.forma.pkg.json \
   --output ./review-diff-package/review_diff.forma.lock.json \
   --check
 forma package-review ./review-diff-package/review_diff.forma.pkg.json
+forma package-review ./review-diff-package/review_diff.forma.pkg.json --baseline baseline.json
 ```
 
 The default generated provider profile is:
