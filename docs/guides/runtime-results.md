@@ -75,6 +75,9 @@ Fallback route labels should be logged with failed validation results. When a
 provider attempt returns `ok: false`, store the stable route label beside the
 `error`, `diagnostics`, `verification.failures`, and trace so fallback retries
 can be compared without losing which provider path produced the failure.
+Route-label evidence should not be copied into model output. Keep provider
+route labels in logs, traces, diagnostics, or host-owned retry records instead
+of asking the model to echo deployment evidence inside task output fields.
 
 ## Verification
 
