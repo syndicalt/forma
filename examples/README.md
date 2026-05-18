@@ -43,3 +43,6 @@ Commit the package manifest, lockfile, `.forma` source, eval suite, provider
 profile, generated bindings, host examples, lock-aware consumer examples,
 package tests, importable contract modules, README, and workflows together so
 TypeScript and Python consumers review the same contract.
+See `docs/guides/package-consumer-quickstart.md#what-the-helper-calls` for
+where provider keys and model defaults live and what the generated `agent(...)`
+helpers call at runtime.

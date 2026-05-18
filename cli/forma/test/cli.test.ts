@@ -1534,6 +1534,8 @@ describe("forma cli", () => {
     expect(readme).toContain("docs/packages/cli.md#release-runtime-flow");
     expect(readme).toContain("consumer troubleshooting");
     expect(readme).toContain("docs/guides/package-consumer-quickstart.md#troubleshooting");
+    expect(readme).toContain("provider keys and model defaults");
+    expect(readme).toContain("docs/guides/package-consumer-quickstart.md#what-the-helper-calls");
     expect(readme).not.toContain('"kind": "setting"');
     expect(readme).not.toContain('"kind": "contract"');
     const packageWorkflow = await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8");

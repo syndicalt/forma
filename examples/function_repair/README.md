@@ -24,3 +24,6 @@ forma compare baseline.json candidate.json --fail-on breaking,environment
 Commit the package manifest, lockfile, `.forma` source, eval suite, provider
 profile, generated bindings, and host examples together so TypeScript and Python
 consumers review the same contract.
+See `docs/guides/package-consumer-quickstart.md#what-the-helper-calls` for
+where provider keys and model defaults live and what the generated `agent(...)`
+helpers call at runtime.

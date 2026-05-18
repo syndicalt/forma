@@ -1232,9 +1232,12 @@ Commit the package manifest, lockfile, \`.forma\` source, eval suite, provider
 profile, generated bindings, and host examples together so TypeScript and Python
 consumers review the same contract. See the Forma CLI docs Release Runtime Flow
 section at docs/packages/cli.md#release-runtime-flow for how provider profiles,
-eval summaries, package locks, and host embedding APIs fit together. See package
-consumer troubleshooting at docs/guides/package-consumer-quickstart.md#troubleshooting
-when lockfile checks, provider profiles, or generated smoke tests fail.
+eval summaries, package locks, and host embedding APIs fit together. See the
+package consumer quickstart at docs/guides/package-consumer-quickstart.md#what-the-helper-calls
+for where provider keys and model defaults live and what the generated
+\`agent(...)\` helpers call at runtime. See package consumer troubleshooting at
+docs/guides/package-consumer-quickstart.md#troubleshooting when lockfile checks,
+provider profiles, or generated smoke tests fail.
 `;
 }
 
