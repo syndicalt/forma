@@ -189,6 +189,10 @@ Route-label cleanup should preserve release proof comparability. Keep the old
 and cleaned-up labels linked in the proof notes, eval summaries, and installed
 smoke artifacts so reviewers can compare the same provider path across the
 cleanup.
+Route-label cleanup should leave installed smoke labels traceable. When cleanup
+changes the displayed route name, keep the prior label beside the cleaned-up
+label in installed smoke summaries so reviewers can follow the same deployment
+path across reruns.
 Fallback route labels should match diagnostics and eval summaries. Use the same
 stable route label in the failed diagnostics, rerun smoke summary, baseline eval
 summary, and candidate eval summary so reviewers can trace which provider path

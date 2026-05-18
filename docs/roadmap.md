@@ -462,6 +462,8 @@ The current MVP provides:
   summaries, not alone.
 - Provider-adapter docs now say cleaned-up route labels should remain
   overrideable per deployment.
+- Testing guide now says route-label cleanup should leave installed smoke
+  labels traceable.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1024,12 +1026,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add testing-guide wording that route-label cleanup should
-   leave installed smoke labels traceable.
-2. Product clarity: add runtime-result wording that cleaned-up route labels
+1. Product clarity: add runtime-result wording that cleaned-up route labels
    should preserve original failure context.
-3. Product clarity: add first-use audit wording that cleaned-up route labels
+2. Product clarity: add first-use audit wording that cleaned-up route labels
    should not obscure the first-use comparison.
+3. Product clarity: add package-consumer quickstart wording that cleaned-up
+   route labels should not require lock regeneration.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
