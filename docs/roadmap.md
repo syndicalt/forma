@@ -224,6 +224,9 @@ The current MVP provides:
 - Documentation index now frames Forma as an agent contract compiler for Python
   and TypeScript, not a prompt file format, so the first docs page points at
   generated bindings, runtime validation, and the `agent(...)` facade.
+- Architecture docs now distinguish the `.forma` contract, generated bindings,
+  runtime agent facade, and provider adapter so users can see where Forma ends
+  and host application ownership begins.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -755,13 +758,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add a short architecture note that distinguishes the
-   `.forma` contract, generated bindings, runtime agent facade, and provider
-   adapter responsibilities.
-2. Product clarity: add README wording that explicitly calls the minimal
+1. Product clarity: add README wording that explicitly calls the minimal
    scaffold a product test, not an adoption commitment.
-3. Product clarity: add quickstart wording that tells users to stop after the
+2. Product clarity: add quickstart wording that tells users to stop after the
    minimal scaffold if the before/after host code is not simpler.
+3. Product clarity: add provider-adapter docs wording that repeats where keys,
+   model choice, routing, and retries live in host code.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

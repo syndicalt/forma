@@ -63,6 +63,14 @@ const requiredTerms = {
     "constraints",
     "verify",
   ],
+  "docs/language/architecture.md": [
+    "Contract, Bindings, Facade, Provider",
+    ".forma contract",
+    "generated bindings",
+    "runtime agent facade",
+    "provider adapter",
+    "host application owns provider keys and model selection",
+  ],
   "docs/packages/python.md": ["FormaRuntime", "StaticProvider"],
   "docs/packages/typescript.md": ["FormaRuntime", "StaticProvider"],
   "docs/packages/cli.md": [

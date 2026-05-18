@@ -26,6 +26,25 @@ validate it into the MVP semantic contract. Shared fixtures in
 `packages/forma-core/conformance` keep the runtimes aligned. Schemas in
 `packages/forma-core/schema` describe diagnostics and result shape.
 
+## Contract, Bindings, Facade, Provider
+
+Forma's host boundary has four separate responsibilities:
+
+- The `.forma contract` is the reviewed task source: instructions, input
+  fields, output fields, permissions, constraints, and verify rules.
+- The generated bindings are TypeScript interfaces or Python dataclasses plus
+  output validators derived from the same task contract.
+- The runtime agent facade is `agent(...)`, `agentFromPackageLock(...)`, or the
+  Python equivalents. It binds a named task, source file or package lock, and
+  provider into a `run(input)` call that returns `FormaResult`.
+- The provider adapter turns the runtime request into a model call. The host application owns provider keys and model selection,
+  plus retries, logging,
+  routing, deployment policy, and any permission tool implementations.
+
+Keeping those roles separate is the product point: Forma owns reviewable task
+contracts, generated host types, and runtime validation, while the application
+keeps operational control of the model client.
+
 ## Why Tree-sitter Is Syntax Only
 
 Tree-sitter gives Forma a real language grammar and corpus tests without making
