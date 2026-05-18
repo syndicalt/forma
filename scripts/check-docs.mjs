@@ -99,7 +99,15 @@ const requiredTerms = {
     "docs/guides/package-consumer-quickstart.md#missingmigrationparitytests",
   ],
   "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
-  "docs/guides/migrating-from-inline-prompts.md": ["inline prompt", ".forma", "agent(...)", "apiKeyEnv", "package-review"],
+  "docs/guides/migrating-from-inline-prompts.md": [
+    "inline prompt",
+    ".forma",
+    "agent(...)",
+    "apiKeyEnv",
+    "package-review",
+    "--proof-command",
+    "missingMigrationParityProofCommand",
+  ],
   "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification"],
   "docs/language/limitations.md": ["MVP", "named task", "provider"],
 };

@@ -195,7 +195,16 @@ move together:
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
 forma package-review ./review-diff-package/review_diff.forma.pkg.json
+forma package-review ./review-diff-package/review_diff.forma.pkg.json --proof-command "npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py"
 ```
+
+The `--proof-command` row makes the before/after migration proof part of
+release review instead of leaving it as a separate local command. If
+`package-review` reports `missingMigrationParityProofCommand`, the migration
+fixtures and direct tests may still exist, but the package README or CI
+workflow no longer runs that proof through the blocking package-review gate.
+Restore the reported `package-review --proof-command` command to both places
+before publishing the task package.
 
 ## Verification
 
@@ -207,6 +216,7 @@ forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.js
 npx vitest run review_diff_migration.test.ts
 python review_diff_migration_test.py
 forma eval-suite forma.eval.json --summary > candidate.json
+forma package-review review_diff.forma.pkg.json --proof-command "npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py"
 forma package-review review_diff.forma.pkg.json --baseline baseline.json
 forma compare baseline.json candidate.json --fail-on breaking,environment
 ```

@@ -362,6 +362,9 @@ The current MVP provides:
 - Quickstart explains `missingMigrationParityProofCommand` as a missing
   `package-review --proof-command` gate that should be restored to README and
   CI.
+- Migration guide shows how inline-prompt migrations keep their before/after
+  proof in release review with `package-review --proof-command` and explains
+  `missingMigrationParityProofCommand`.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -492,9 +495,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add a package-review proof-command note to the migration
-   guide so inline-prompt migration readers know how to keep the before/after
-   proof in release review.
+3. Product proof: make the clean-project onboarding path prove the same
+   TypeScript/Python embedding shape from a generated project, not only the
+   checked example package.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
