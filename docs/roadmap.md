@@ -492,6 +492,8 @@ The current MVP provides:
   diagnostics searchable.
 - First-use audit now says cleaned-up route labels should stay out of scaffold
   selection.
+- Package-consumer quickstart now says cleaned-up route labels should stay
+  local until shared release review.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1054,12 +1056,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer quickstart wording that cleaned-up
-   route labels should stay local until shared release review.
-2. Product clarity: add product-proof wording that cleaned-up route labels
+1. Product clarity: add product-proof wording that cleaned-up route labels
    should not hide baseline diagnostics.
-3. Product clarity: add provider-adapter wording that cleaned-up route labels
+2. Product clarity: add provider-adapter wording that cleaned-up route labels
    should not change provider profile ownership.
+3. Product clarity: add testing-guide wording that cleaned-up route labels
+   should keep smoke summaries searchable.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
