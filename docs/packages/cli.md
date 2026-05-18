@@ -256,7 +256,11 @@ eval fixture, eval suite, package manifest, package lockfile, generated
 TypeScript/Python bindings, host examples, importable contract modules, and a
 package `README.md` with CI commands. The generated contract modules wrap
 `agentFromPackageLock(...)` and `agent_from_package_lock(...)` so package
-consumers can import a stable module instead of copying example files. It also
+consumers can import a stable module instead of copying example files. The
+generated README also explains how to inspect the `compare` row from
+`package-review --baseline`: `failedOn` names the blocking severity,
+`contractChanges` and `settingChanges` summarize the changed surface, and
+`changes[].details` points at exact field paths or setting values. It also
 writes `.github/workflows/forma-package.yml` as a GitHub Actions starting point
 for package checks. It also writes
 `.github/workflows/forma-publish.yml`, which reviews the package, builds a

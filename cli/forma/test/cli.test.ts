@@ -1459,6 +1459,9 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json --baseline baseline.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma compare baseline.json candidate.json --fail-on breaking,environment");
+    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("If the baseline review fails");
+    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("failedOn");
+    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("changes[].details");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");

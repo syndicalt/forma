@@ -1207,6 +1207,12 @@ forma package-review ${manifestFile} --baseline baseline.json
 forma compare baseline.json candidate.json --fail-on breaking,environment
 \`\`\`
 
+If the baseline review fails, inspect the \`compare\` row in
+\`package-review\` output. \`failedOn\` shows which configured severity blocked
+the release, \`contractChanges\` and \`settingChanges\` summarize the changed
+surface, and \`changes[].details\` names the exact contract fields or
+environment setting values that changed.
+
 Commit the package manifest, lockfile, \`.forma\` source, eval suite, provider
 profile, generated bindings, and host examples together so TypeScript and Python
 consumers review the same contract.
