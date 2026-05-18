@@ -718,6 +718,11 @@ Use it in CI before running host-language compilers or live provider smoke
 tests so a generated project cannot silently drift back into ad hoc provider
 calls or unvalidated model output.
 
+If `project-check` reports that `.github/workflows/forma-project.yml` is
+missing proof commands, restore the generated project workflow entries for
+`forma project-check .`, `pnpm run check`, Python bytecode compilation,
+`pnpm run smoke:ts`, and `python test/review_diff_agent_smoke.py`.
+
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
 runs the named task, compares `ok`, `output`, `trace`, `verification`, and
 `error`, and prints a JSON evaluation report:

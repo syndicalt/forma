@@ -2346,6 +2346,27 @@ describe("forma cli", () => {
     expect(result.stderr).toContain("project workflow is missing: .github/workflows/forma-project.yml");
   });
 
+  it("fails project checks when generated project CI workflow omits proof commands", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-workflow-command-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    const workflowPath = join(dir, ".github", "workflows", "forma-project.yml");
+    const workflow = await readFile(workflowPath, "utf8");
+    await writeFile(workflowPath, workflow.replace("      - run: pnpm run smoke:ts\n", ""));
+
+    const result = await runCli(["project-check", dir]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("project workflow .github/workflows/forma-project.yml is missing proof commands: pnpm run smoke:ts");
+    expect(result.stderr).toContain("restore the generated project workflow");
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);

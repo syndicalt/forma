@@ -978,7 +978,7 @@ async function validateProjectManifest(manifest: FormaProjectManifest, manifestD
   ].filter(Boolean);
   const missingWorkflowCommands = requiredWorkflowCommands.filter((command) => !workflow.includes(command));
   if (missingWorkflowCommands.length > 0) {
-    throw new Error(`project workflow is missing commands: ${missingWorkflowCommands.join(", ")}`);
+    throw new Error(`project workflow ${manifest.ciWorkflow} is missing proof commands: ${missingWorkflowCommands.join(", ")}; restore the generated project workflow`);
   }
 }
 
