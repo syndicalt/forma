@@ -529,6 +529,8 @@ The current MVP provides:
 - Package-review proof failures now add recovery guidance when
   `packages:installed-smoke` fails, including the focused rerun command and the
   docs gate to check after package artifacts or tests are restored.
+- Installed-package smoke recovery now includes the failing `packageKind` when
+  proof output contains the package-kind marker.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -654,12 +656,11 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add docs-check coverage for installed-package smoke
-   recovery guidance in package-review proof output.
-2. Registry and versioning: add a third installed package kind that exercises a
+1. Registry and versioning: add a third installed package kind that exercises a
    generated project consuming a reviewed package lock.
-3. Registry and versioning: include package-kind labels in package-review
-   recovery guidance when installed-package smoke fails.
+2. Registry and versioning: turn installed-package smoke output into a compact
+   JSON summary for CI systems.
+3. Product clarity: document how to triage each installed package kind failure.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

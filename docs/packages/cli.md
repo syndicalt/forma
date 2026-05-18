@@ -378,7 +378,9 @@ workflow commands. If the proof row fails at `packages:installed-smoke`, the row
 adds `guidance` and `recoveryCommands` with `corepack pnpm
 packages:installed-smoke` and `corepack pnpm docs:check`; rerun the installed
 release-bundle smoke, restore missing package artifacts or tests, then rerun
-the docs gate.
+the docs gate. When the smoke output includes an `installed package smoke: ...`
+marker, the failed proof row also includes `packageKind` so CI can point to the
+exact bundle that was running.
 When a package declares migration parity tests, `package-review` also expects
 README and CI command coverage for a proof review command derived from those
 tests, for example:

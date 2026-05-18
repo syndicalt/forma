@@ -364,7 +364,14 @@ function proofCommandRecovery(command: string, failed: { stdout?: unknown; stder
       "corepack pnpm packages:installed-smoke",
       "corepack pnpm docs:check",
     ],
+    ...installedPackageSmokeKind(output),
   };
+}
+
+function installedPackageSmokeKind(output: string): Record<string, unknown> {
+  const matches = [...output.matchAll(/^installed package smoke: (.+)$/gm)];
+  const packageKind = matches.at(-1)?.[1]?.trim();
+  return packageKind ? { packageKind } : {};
 }
 
 function packageCompatibilityPolicyCheck(manifest: FormaPackageManifest): Record<string, unknown> {

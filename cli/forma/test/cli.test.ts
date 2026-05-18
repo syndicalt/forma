@@ -794,7 +794,7 @@ describe("forma cli", () => {
       "package-review",
       "../../examples/review_diff.forma.pkg.json",
       "--proof-command",
-      "node -e \"process.stderr.write('packages:installed-smoke failed'); process.exit(7)\"",
+      "node -e \"process.stdout.write('installed package smoke: function-repair tool package\\n'); process.stderr.write('packages:installed-smoke failed'); process.exit(7)\"",
     ]);
     const review = JSON.parse(result.stdout);
 
@@ -802,9 +802,11 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual(expect.objectContaining({
       name: "proof-command",
       passed: false,
-      command: "node -e \"process.stderr.write('packages:installed-smoke failed'); process.exit(7)\"",
+      command: "node -e \"process.stdout.write('installed package smoke: function-repair tool package\\n'); process.stderr.write('packages:installed-smoke failed'); process.exit(7)\"",
       exitCode: 7,
+      stdout: "installed package smoke: function-repair tool package\n",
       stderr: "packages:installed-smoke failed",
+      packageKind: "function-repair tool package",
       guidance: "rerun corepack pnpm packages:installed-smoke and restore the installed release bundle smoke path",
       recoveryCommands: [
         "corepack pnpm packages:installed-smoke",
