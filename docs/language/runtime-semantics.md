@@ -136,6 +136,16 @@ scopes file reads, searches, and edits to `--workspace`, defaulting to the
 current working directory, and can restrict test execution to exact
 `--allow-test-command` strings.
 
+## Traces
+
+Runtime traces are host workflow evidence, not just debug output. Host programs
+should preserve trace entries beside diagnostics, verification results, and
+provider metadata when deciding whether to retry, escalate for review, accept a
+tool-assisted edit, or fail a CI gate. A `tool_failed` or
+`permission_denied` trace explains the workflow decision that followed the
+provider response; it should not be discarded before the host has recorded why
+the agent result was trusted or rejected.
+
 ## Output Contract
 
 Provider and compute output is validated against the task `output` block before
