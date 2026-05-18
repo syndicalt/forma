@@ -74,6 +74,10 @@ Consume reviewed releases instead of copying package internals. Application
 teams should depend on the reviewed lock, generated contract helper, and smoke
 tests from the release bundle so package review can keep the source, bindings,
 provider profile, tests, evals, and release files moving together.
+Copied package internals lose package-review and lock drift protection. If a
+consumer copies only the `.forma` source, generated bindings, or helper module,
+the application has prompt sharing without the reviewed artifact set that tells
+maintainers when source, profiles, tests, evals, or release files drift apart.
 
 Generated packages include smoke tests for the lockfile-backed contract modules.
 Run them after the lock check and before application-specific tests:

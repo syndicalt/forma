@@ -344,6 +344,8 @@ The current MVP provides:
   not proof that every local task belongs in Forma.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
+- Package-consumer quickstart now says copied package internals lose
+  package-review and lock drift protection.
 - CLI docs now say `package-init` is for reusable task packages, not local
   prompt extraction.
 - README now says minimal and checked projects are valid stopping points, not
@@ -887,12 +889,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer wording that copied internals lose
-   package-review and lock drift protection.
-2. Product clarity: add CLI package-review wording that review gates should
+1. Product clarity: add CLI package-review wording that review gates should
    reference a downstream consumer, not a hypothetical package audience.
-3. Product clarity: add README wording that package proof is not the product
+2. Product clarity: add README wording that package proof is not the product
    wedge; reusable agent contracts are.
+3. Product clarity: add package-consumer wording that package locks protect
+   real handoffs, not internal file organization.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
