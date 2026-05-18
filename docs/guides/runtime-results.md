@@ -64,6 +64,10 @@ Model fallback should retry from diagnostics, not bypass validation. When a
 host switches models after a failed response, pass the same Forma contract
 through the next provider attempt and preserve the original diagnostics so the
 fallback cannot turn invalid model output into trusted application data.
+Fallback comparisons should keep both failed and replacement results. Store the
+first failed `FormaResult` beside the fallback result so reviewers can compare
+errors, diagnostics, verification failures, and traces before trusting the
+replacement output.
 
 ## Verification
 
