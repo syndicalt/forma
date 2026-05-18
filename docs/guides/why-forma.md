@@ -123,6 +123,13 @@ Forma puts the task boundary in one file and keeps host-owned execution in the
 host language. That makes the task easier to review and easier to run from both
 Python and TypeScript.
 
+The useful part is not that instructions live in a new file extension. A plain
+Markdown prompt can already do that. Forma is useful when the prompt has become
+application behavior and needs the same treatment as other application
+interfaces: typed inputs, typed outputs, generated host bindings, package
+locks, CI smoke tests, provider profile review, eval reports, and compatibility
+checks.
+
 The useful artifact is not only the `.forma` file. It is the set:
 
 - `examples/review_diff.forma` for the contract
@@ -142,6 +149,10 @@ no meaningful output contract. A model SDK call plus a local schema is simpler.
 Use Forma when the task is shared, reviewed, evaluated, or reused across Python
 and TypeScript. The more the task looks like application behavior rather than a
 temporary prompt, the more the contract pays for itself.
+
+The honest decision rule is: if replacing an inline model call with Forma does
+not reduce duplicated host schema code, improve reviewability, or catch drift in
+CI, do not use Forma for that task yet.
 
 ## Current Limit
 

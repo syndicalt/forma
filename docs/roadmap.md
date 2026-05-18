@@ -284,6 +284,9 @@ The current MVP provides:
   include that guidance.
 - Package review fails generated READMEs that omit
   `missingProviderOverrideTests` recovery guidance.
+- Package consumer quickstart documents the checked TypeScript and Python
+  `review_diff` provider override smoke-test flow, including `StaticProvider`
+  tests that avoid real model credentials.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -414,8 +417,10 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Runtime embedding clarity: add package consumer docs for the checked
-   review-diff provider override smoke-test flow.
+3. Product clarity: add a migration guide that converts an inline
+   TypeScript/Python model call with local schemas into a reviewed Forma task
+   package, showing exactly which duplicated code disappears and which review
+   gates replace it.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

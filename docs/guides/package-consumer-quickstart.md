@@ -162,6 +162,57 @@ review_diff = agent_from_package_lock(
 )
 ```
 
+Generated packages include checked smoke tests for both paths: default provider
+profile loading and explicit provider overrides. The checked `review_diff`
+package keeps those tests in `examples/review_diff_contract.test.ts` and
+`examples/review_diff_contract_test.py`.
+
+The TypeScript test imports the generated contract helper and passes a
+`StaticProvider` directly:
+
+```ts
+import { StaticProvider } from "@forma-lang/forma";
+import { reviewCodeDiff } from "./review_diff_contract/index.js";
+
+const output = await reviewCodeDiff(
+  "diff --git a/src/example.ts b/src/example.ts",
+  new StaticProvider({
+    summary: "Reviewed with an explicit provider override.",
+    findings: [],
+    clean: true,
+  }),
+);
+```
+
+The Python test uses the same shape:
+
+```python
+from forma import StaticProvider
+from review_diff_contract import review_code_diff
+
+output = review_code_diff(
+    "diff --git a/src/example.py b/src/example.py",
+    provider=StaticProvider({
+        "summary": "Reviewed with an explicit provider override.",
+        "findings": [],
+        "clean": True,
+    }),
+)
+```
+
+Run the checked flow with:
+
+```bash
+npx vitest run review_diff_contract.test.ts
+python review_diff_contract_test.py
+```
+
+Those tests do not need a real model key for the override case. They prove that
+the reviewed package lock can build the standard agent facade from the default
+provider profile, and that host code can still replace the provider explicitly
+for local tests, custom model routing, retry policy, logging, or deployment
+controls.
+
 ## What The Helper Calls
 
 The generated `reviewDiffAgent()` / `review_diff_agent()` function is a thin
