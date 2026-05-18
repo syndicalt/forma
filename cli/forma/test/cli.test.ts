@@ -2423,7 +2423,13 @@ describe("forma cli", () => {
     expect(workflow).toContain("python test/review_diff_package_lock_smoke.py");
     const packageJson = await readFile(join(dir, "package.json"), "utf8");
     expect(packageJson).toContain("\"smoke:lock:ts\"");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("Reviewed Package Lock");
+    const readme = await readFile(join(dir, "README.md"), "utf8");
+    expect(readme).toContain("Reviewed Package Lock");
+    expect(readme).toContain("This is the reviewed package-lock host-project scaffold");
+    expect(readme).toContain("consumes pinned package artifacts");
+    expect(readme).toContain("Use `forma project-init --minimal`");
+    expect(readme).toContain("Use default `forma project-init`");
+    expect(readme).toContain("docs/packages/cli.md#project-init");
 
     const projectCheck = await runCli(["project-check", dir]);
     expect(projectCheck).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });

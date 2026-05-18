@@ -2639,6 +2639,32 @@ Run \`pnpm run smoke:lock:ts\` and
 the reviewed package lock with explicit \`StaticProvider\` test doubles.
 `
     : "";
+  const scaffoldChoiceSection = packageLock
+    ? `## Scaffold Choice
+
+This is the reviewed package-lock host-project scaffold.
+It consumes pinned package artifacts after package review.
+
+The host still owns provider keys, model selection, retries, logging, and
+deployment policy.
+
+Use \`forma project-init --minimal\` when you only need the five-minute
+first-use path before CI and project checks. Use default \`forma project-init\`
+when you need a checked host project before package review and package locks.
+
+For the scaffold decision table, see \`docs/packages/cli.md#project-init\`.
+`
+    : `## Scaffold Choice
+
+This is the checked host-project scaffold. Use \`forma project-init --minimal\`
+when you only need the five-minute first-use path before CI and project checks.
+Use \`forma project-init --package-lock\` when this host should consume a
+reviewed package lock with pinned artifacts.
+
+For the minimal first-use path, see
+\`docs/guides/quickstart.md#five-minute-usefulness-path\`. For the scaffold
+decision table, see \`docs/packages/cli.md#project-init\`.
+`;
   return `# ${projectName}
 
 This project embeds a Forma coding-agent task from TypeScript and Python.
@@ -2685,16 +2711,7 @@ Run \`python test/${taskName}_agent_smoke.py\` to execute it with
 \`StaticProvider\` and no model credentials.
 ${packageLockSection}
 
-## Scaffold Choice
-
-This is the checked host-project scaffold. Use \`forma project-init --minimal\`
-when you only need the five-minute first-use path before CI and project checks.
-Use \`forma project-init --package-lock\` when this host should consume a
-reviewed package lock with pinned artifacts.
-
-For the minimal first-use path, see
-\`docs/guides/quickstart.md#five-minute-usefulness-path\`. For the scaffold
-decision table, see \`docs/packages/cli.md#project-init\`.
+${scaffoldChoiceSection}
 
 ## CLI
 
