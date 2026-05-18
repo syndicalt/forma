@@ -194,6 +194,11 @@ In that progression, project-check is the first CI gate for application-owned
 host projects. package-review is a later release gate for reusable task
 packages after the minimal path has proved useful and the task is ready for
 manifest, lockfile, eval, release-file, and publish-bundle review.
+Move from minimal to checked only after the minimal smoke path proves that the
+generated bindings and `agent(...)` entrypoints make the host code clearer than
+an inline prompt plus local schemas. The evidence is passing local
+`StaticProvider` smoke tests and a before/after host boundary that no longer
+duplicates TypeScript and Python schema code by hand.
 
 ```bash
 node cli/forma/dist/index.js project-init ./review-diff-agent \
