@@ -247,15 +247,17 @@ async function packageProviderProfileCheck(manifest: FormaPackageManifest, manif
   const secretFields = [
     ...("apiKey" in profile ? ["apiKey"] : []),
   ];
+  const missingApiKeyEnv = required && profile.provider === "openai-responses" && !profile.apiKeyEnv;
   return {
     name: "provider-profile",
-    passed: secretFields.length === 0,
+    passed: secretFields.length === 0 && !missingApiKeyEnv,
     provider: profile.provider,
     model: profile.model,
     ...(required ? { required } : {}),
     ...(profile.apiKeyEnv ? { apiKeyEnv: profile.apiKeyEnv } : {}),
     ...(profile.endpoint ? { endpoint: profile.endpoint } : {}),
     ...(secretFields.length > 0 ? { secretFields } : {}),
+    ...(missingApiKeyEnv ? { missingApiKeyEnv } : {}),
   };
 }
 

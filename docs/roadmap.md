@@ -139,6 +139,8 @@ The current MVP provides:
   `apiKey` secrets instead of naming an environment variable.
 - `forma package-review` requires provider profiles for agent task packages
   while allowing deterministic task packages to omit them.
+- `forma package-review` requires OpenAI package profiles to name API-key
+  environment variables without storing key values.
 - `forma package-review` fails package reviews that omit TypeScript or Python
   generated bindings and reports included and missing targets.
 - `forma package-review` fails package reviews that omit TypeScript or Python

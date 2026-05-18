@@ -169,6 +169,8 @@ Publishing checklist:
   task packages; deterministic packages may omit provider profiles.
 - Confirm the `provider-profile` row in package-review does not report
   `secretFields`; published profiles should use `apiKeyEnv`, not `apiKey`.
+- Confirm OpenAI package profiles list `apiKeyEnv`; package-review reports
+  `missingApiKeyEnv` when that credential boundary is absent.
 - Confirm the `bindings` row in package-review lists both `typescript` and
   `python`; missing targets fail the review.
 - Confirm the `examples` row in package-review lists both `typescript` and

@@ -295,9 +295,11 @@ forma eval packages/forma-core/conformance/review_diff.json \
 The profile supports `provider`, `endpoint`, `model`, `apiKey`, `apiKeyEnv`,
 `responseFormat`, `temperature`, and `timeoutMs`. Command-line flags override
 profile values. Agent task packages should include a provider profile.
-Deterministic task packages may omit one. Use `apiKeyEnv` for package profiles
-so the profile names the secret environment variable without storing the secret
-value; `forma package-review` fails package profiles that include `apiKey`.
+Deterministic task packages may omit one. OpenAI agent package profiles must
+name an API-key environment variable with `apiKeyEnv`. Use `apiKeyEnv` for
+package profiles so the profile names the secret environment variable without
+storing the secret value; `forma package-review` fails package profiles that
+include `apiKey`.
 
 Use `--provider openai-responses` to evaluate against the built-in OpenAI
 Responses adapter. The CLI passes the task output contract to the provider so

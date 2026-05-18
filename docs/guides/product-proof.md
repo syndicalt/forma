@@ -82,7 +82,8 @@ as passed, with `bindings.targets` and `examples.runtimes` listing both
 names. Eval coverage also checks that each evaluated task source hash matches
 the package manifest. Provider profile review fails if the profile embeds an
 `apiKey`; agent task packages should include a provider profile that uses
-`apiKeyEnv`.
+`apiKeyEnv`, and OpenAI profiles fail review when that key environment variable
+is missing.
 `examples:check` should finish without output. A live provider run requires
 `OPENAI_API_KEY`; without it, the failure is expected and confirms that
 credentials stay in host configuration instead of the `.forma` contract.

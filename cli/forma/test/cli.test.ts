@@ -779,6 +779,32 @@ describe("forma cli", () => {
     });
   });
 
+  it("fails package review when OpenAI provider profile omits apiKeyEnv", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-missing-key-env-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    const profilePath = join(dir, "forma.provider.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const profile = JSON.parse(await readFile(profilePath, "utf8"));
+    delete profile.apiKeyEnv;
+    await writeFile(profilePath, `${JSON.stringify(profile, null, 2)}\n`);
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "provider-profile",
+      passed: false,
+      provider: "openai-responses",
+      model: "gpt-5",
+      required: true,
+      missingApiKeyEnv: true,
+    });
+  });
+
   it("fails package review when eval suite does not cover package tasks", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-eval-coverage-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");
