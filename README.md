@@ -76,6 +76,9 @@ process needs the reviewed contract as a shared dependency.
 If you are skeptical, run the first-use audit before the product proof. The
 audit keeps the question concrete: whether Forma makes your host code clearer
 before you spend time on package review, package locks, or release checks.
+Product proof should follow first-use proof, not replace it. Run the heavier
+package checks after the minimal or checked path shows the contract improves
+host code.
 
 ## Product Proof
 

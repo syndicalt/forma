@@ -366,6 +366,7 @@ The current MVP provides:
   scaffolds until reuse is real.
 - README now says package proof is not the product wedge; reusable agent
   contracts are.
+- README now says product proof should follow first-use proof, not replace it.
 - Why-Forma now says copying `.forma` files without bindings, evals, and locks
   is prompt sharing.
 - Why-Forma now says a package is useful only when the contract is consumed
@@ -911,12 +912,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add README wording that product proof should follow
-   first-use proof, not replace it.
-2. Product clarity: add package-consumer wording that consumer retries should
+1. Product clarity: add package-consumer wording that consumer retries should
    wrap reviewed contracts, not patch package artifacts.
-3. Product clarity: add provider-adapter wording that deployment overrides are
+2. Product clarity: add provider-adapter wording that deployment overrides are
    host policy, not package mutation.
+3. Product clarity: add first-use audit wording that no named consumer means no
+   package lock yet.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
