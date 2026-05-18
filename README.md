@@ -58,7 +58,10 @@ node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name"
 Expected output is `{"message":"Hello, Sam!"}`.
 
 Read `docs/guides/product-proof.md` for the full proof path and
-`docs/guides/why-forma.md` for the product problem.
+`docs/guides/why-forma.md` for the product problem. Read
+`docs/guides/migrating-from-inline-prompts.md` to see an inline
+TypeScript/Python model call with local schemas converted into a reviewed Forma
+task package.
 
 ## Repository Layout
 

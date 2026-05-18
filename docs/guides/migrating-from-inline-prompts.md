@@ -19,9 +19,69 @@ runtimes can inspect, generate types from, evaluate, lock, and package.
 
 ## Steps
 
-Start by isolating the stable task boundary from the existing host call. Put
-inputs, output fields, permissions, verification rules, and model instructions
-in a `.forma` task:
+Start by finding the inline model call that has become application behavior.
+This is the kind of TypeScript code Forma is meant to replace:
+
+```ts
+const reviewPrompt = `
+Review the supplied code diff.
+Return JSON with summary, findings, and clean.
+`;
+
+type Finding = {
+  path: string;
+  line?: number;
+  message: string;
+};
+
+type ReviewDiffOutput = {
+  summary: string;
+  findings: Finding[];
+  clean: boolean;
+};
+
+const response = await model.responses.create({
+  model: process.env.OPENAI_MODEL ?? "gpt-5",
+  input: `${reviewPrompt}\n\n${diff}`,
+});
+
+const output = JSON.parse(response.output_text) as ReviewDiffOutput;
+if (typeof output.summary !== "string" || !Array.isArray(output.findings)) {
+  throw new Error("review_diff returned invalid output");
+}
+```
+
+Python hosts usually repeat the same prompt and schema boundary:
+
+```python
+review_prompt = """
+Review the supplied code diff.
+Return JSON with summary, findings, and clean.
+"""
+
+@dataclass
+class Finding:
+    path: str
+    line: int | None
+    message: str
+
+@dataclass
+class ReviewDiffOutput:
+    summary: str
+    findings: list[Finding]
+    clean: bool
+
+response = model.responses.create(
+    model=os.environ.get("OPENAI_MODEL", "gpt-5"),
+    input=f"{review_prompt}\n\n{diff}",
+)
+raw_output = json.loads(response.output_text)
+output = ReviewDiffOutput(**raw_output)
+```
+
+The migration starts by isolating the stable task boundary from those host
+calls. Put inputs, output fields, permissions, verification rules, and model
+instructions in a `.forma` task:
 
 ```forma
 task review_diff {
@@ -104,6 +164,21 @@ review_diff = agent(
 result = review_diff.run({"diff": "diff --git a/src/example.py b/src/example.py"})
 output = assert_review_diff_output(result.output)
 ```
+
+After migration, the host still owns the provider client, key source, model
+selection, retries, logging, and user workflow. The duplicated task boundary
+moves into reviewed artifacts instead:
+
+| Inline concern | Forma artifact |
+| --- | --- |
+| Prompt string in TypeScript and Python | `review_diff.forma` `agent` instruction |
+| Hand-written input object shape | `.forma` `input` block and generated bindings |
+| Hand-written result types or dataclasses | `.forma` `output` block and generated bindings |
+| Local JSON shape checks | generated `assertReviewDiffOutput` / `assert_review_diff_output` |
+| Hidden model default | reviewed `forma.provider.json` `model` field |
+| Key lookup inside call sites | reviewed `apiKeyEnv` plus host environment |
+| One-off smoke tests | package tests pinned in `review_diff.forma.lock.json` |
+| Manual release review | `forma package-review` checklist and eval comparison |
 
 When the task is ready to share, scaffold a package so the contract, evals,
 bindings, provider profile, examples, README, workflows, manifest, and lockfile

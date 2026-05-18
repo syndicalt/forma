@@ -287,6 +287,12 @@ The current MVP provides:
 - Package consumer quickstart documents the checked TypeScript and Python
   `review_diff` provider override smoke-test flow, including `StaticProvider`
   tests that avoid real model credentials.
+- Migration guide shows an inline TypeScript/Python model call with duplicated
+  prompt, schema, and validation code becoming a reviewed Forma task package
+  with generated bindings, provider profile review, package lock checks, smoke
+  tests, and package-review gates.
+- README and product-proof docs link directly to the migration guide so readers
+  can move from the usefulness question to the before/after implementation path.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -417,10 +423,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add a migration guide that converts an inline
-   TypeScript/Python model call with local schemas into a reviewed Forma task
-   package, showing exactly which duplicated code disappears and which review
-   gates replace it.
+3. Product proof: add a checked migration fixture that keeps an inline
+   TypeScript/Python baseline beside the Forma package version and verifies the
+   generated outputs preserve the same host-facing review decision.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

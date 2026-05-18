@@ -11,6 +11,8 @@ locking, and package review.
 
 Use this guide when deciding whether Forma is adding enough value over a model
 SDK call plus local Zod or Pydantic schemas.
+Read `docs/guides/migrating-from-inline-prompts.md` when you want the
+before/after implementation path from inline model calls to a reviewed package.
 
 ## Steps
 
