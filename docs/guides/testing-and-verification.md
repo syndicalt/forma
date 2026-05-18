@@ -170,6 +170,9 @@ artifact repair instead of a blind retry.
 Fallback policy changes should stay outside package lock regeneration. Do not
 rewrite reviewed locks just to try a different deployment model, route, or
 retry budget; regenerate locks only when reviewed package artifacts change.
+Fallback traces belong in artifacts, not lockfiles. Keep trace entries in
+uploaded proof logs, smoke summaries, or saved failure bundles so reviewers can
+inspect host workflow evidence without changing the reviewed package lock.
 
 ### Release Artifact Reading Guide
 
