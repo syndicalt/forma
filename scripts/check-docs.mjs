@@ -37,7 +37,7 @@ const required = [
 
 const requiredTerms = {
   "README.md": ["Migration Parity", "review_diff_inline", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
-  "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "missingMigrationParityProofCommand"],
+  "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
   "docs/language/diagnostics.md": [
     "F0001",
     "F1001",

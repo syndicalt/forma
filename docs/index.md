@@ -16,6 +16,7 @@ corepack pnpm build
 node cli/forma/dist/index.js outline examples/review_diff.forma
 corepack pnpm examples:check
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
