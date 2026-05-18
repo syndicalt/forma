@@ -131,6 +131,7 @@ const requiredTerms = {
     "package-lock proof command",
     "Generated project CI is application contract protection, not framework ceremony",
     "Generated package scaffolds are release candidates, not first-use proofs",
+    "`--package-lock` is for consuming a reviewed release, not proving the first task",
     "package-init is for reusable task packages, not local prompt extraction",
     "Do not publish a release candidate until a downstream consumer exists",
     "Review gates should reference a downstream consumer, not a hypothetical package audience",

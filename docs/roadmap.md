@@ -352,6 +352,8 @@ The current MVP provides:
   internal file organization.
 - CLI docs now say `package-init` is for reusable task packages, not local
   prompt extraction.
+- CLI docs now say `--package-lock` is for consuming a reviewed release, not
+  proving the first task.
 - README now says minimal and checked projects are valid stopping points, not
   failed adoption.
 - README now says a local prompt extraction should stop at minimal or checked
@@ -901,12 +903,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add CLI project-init wording that `--package-lock` is for
-   consuming a reviewed release, not proving the first task.
-2. Product clarity: add package-consumer troubleshooting wording that stale
+1. Product clarity: add package-consumer troubleshooting wording that stale
    locks are package-owner work unless the consumer owns the reviewed release.
-3. Product clarity: add docs index wording that first-use proof asks whether
+2. Product clarity: add docs index wording that first-use proof asks whether
    host code improves, not whether packaging succeeds.
+3. Product clarity: add testing guide wording that `proof:release` belongs
+   after a named package consumer exists.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
