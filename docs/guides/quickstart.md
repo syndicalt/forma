@@ -108,6 +108,13 @@ entrypoints that lost the generated `agent(...)` embedding shape fail early:
 node cli/forma/dist/index.js project-check ./review-diff-agent
 ```
 
+Use `project-check --json` when CI needs machine-readable check rows for stale
+bindings, entrypoint drift, smoke-test drift, or workflow proof-command drift:
+
+```bash
+node cli/forma/dist/index.js project-check ./review-diff-agent --json
+```
+
 Then run the generated no-credential smoke tests. They pass `StaticProvider`
 into the TypeScript and Python entrypoints, so the embedding path executes
 without `OPENAI_API_KEY`:

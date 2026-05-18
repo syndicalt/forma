@@ -83,7 +83,7 @@ const requiredTerms = {
     "\"missingCommands\": [\"pnpm run smoke:ts\"]",
   ],
   "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair", "missingMigrationParityProofCommand"],
-  "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
+  "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json"],
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
   "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],
