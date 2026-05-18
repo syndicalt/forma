@@ -276,6 +276,9 @@ The current MVP provides:
   smoke tests in its manifest, README, CI workflow, and package lock.
 - Package review fails packages that declare tests but omit the generated
   TypeScript/Python explicit-provider override smoke tests.
+- Package consumer troubleshooting explains how to restore
+  `missingProviderOverrideTests` failures across manifest tests, README
+  commands, CI commands, publish bundle paths, and lockfile regeneration.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -406,9 +409,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Runtime embedding clarity: add docs that explain package-review
-   `missingProviderOverrideTests` failures and how to restore the generated
-   TypeScript/Python smoke tests.
+3. Runtime embedding clarity: add generated README guidance for restoring
+   `missingProviderOverrideTests` failures.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

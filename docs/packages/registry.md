@@ -302,7 +302,9 @@ Use the `tests.commands` row from the same `package-review` output as the
 source of truth when repairing those README or workflow entries.
 When a package declares tests, keep the generated TypeScript and Python
 lockfile consumer smoke tests in that manifest too. If they are removed, the
-`tests` row reports `missingProviderOverrideTests`:
+`tests` row reports `missingProviderOverrideTests`. The package consumer
+troubleshooting guide shows the restore sequence for README commands, CI
+commands, publish bundle paths, and lockfile regeneration:
 
 ```json
 {

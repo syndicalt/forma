@@ -369,7 +369,8 @@ to add back:
 
 If a package declares tests but omits the generated lockfile consumer smoke
 tests that pass explicit provider overrides, the `tests` row reports
-`missingProviderOverrideTests`:
+`missingProviderOverrideTests`. Restore the reported files and commands using
+the package consumer troubleshooting guide:
 
 ```json
 {

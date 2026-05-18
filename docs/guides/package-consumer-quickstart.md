@@ -230,3 +230,22 @@ a generated smoke test such as `review_diff_contract.test.ts` or
 package artifact drift: inspect the test change, run the TypeScript and Python
 smoke-test commands, then regenerate the lockfile as part of the same reviewed
 package update.
+
+If the `tests` row reports `missingProviderOverrideTests`, the package manifest
+still declares tests but no longer includes the generated TypeScript and Python
+lockfile consumer smoke tests. Restore the reported files, keep both paths in
+`tests`, add their commands back to `README.md` and
+`.github/workflows/forma-package.yml`, and include both files in the publish
+workflow bundle before regenerating the lockfile:
+
+```bash
+npx vitest run review_diff_contract.test.ts
+python review_diff_contract_test.py
+forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json
+forma package-review review_diff.forma.pkg.json
+```
+
+Those smoke tests are intentionally small. They prove that host code can load a
+reviewed package lock with the default provider profile and can also pass an
+explicit provider override for custom retries, logging, routing, model choice,
+or test doubles.
