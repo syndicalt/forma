@@ -1,6 +1,9 @@
+import hashlib
+import json
 from pathlib import Path
+from typing import Any
 
-from .provider import ModelProvider
+from .provider import ModelProvider, provider_from_profile, provider_profile_from_file
 from .runtime import FormaRuntime
 from .types import FormaResult, FormaValue
 
@@ -52,3 +55,43 @@ def agent(
         source_name=source_name,
         file=file,
     )
+
+
+def agent_from_package_lock(
+    *,
+    lock_file: str | Path,
+    task: str,
+    provider: ModelProvider | None = None,
+    tools: dict[str, object] | None = None,
+) -> FormaAgent:
+    lock_path = Path(lock_file)
+    lock = json.loads(lock_path.read_text(encoding="utf8"))
+    if lock.get("formaPackageLock") != 1:
+        raise ValueError("package lock must have formaPackageLock: 1")
+
+    locked_task = _locked_task(lock, task)
+    source_path = lock_path.parent / locked_task["source"]
+    source_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
+    if source_sha256 != locked_task["sourceSha256"]:
+        raise ValueError(f"task source does not match reviewed package lock: {source_path}")
+
+    return agent(
+        file=source_path,
+        task=task,
+        provider=provider or _provider_from_package_lock(lock, lock_path.parent),
+        tools=tools,
+    )
+
+
+def _locked_task(lock: dict[str, Any], name: str) -> dict[str, str]:
+    for task in lock.get("tasks", []):
+        if task.get("name") == name and task.get("source") and task.get("sourceSha256"):
+            return task
+    raise ValueError(f"{name} is not pinned by the Forma package lock")
+
+
+def _provider_from_package_lock(lock: dict[str, Any], lock_dir: Path) -> ModelProvider:
+    provider_profile = lock.get("providerProfile")
+    if not isinstance(provider_profile, dict) or not provider_profile.get("path"):
+        raise ValueError("package lock providerProfile.path is required when provider is not supplied")
+    return provider_from_profile(provider_profile_from_file(lock_dir / provider_profile["path"]))

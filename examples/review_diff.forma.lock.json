@@ -65,18 +65,18 @@
     {
       "runtime": "typescript",
       "path": "review_diff_lock_consumer.ts",
-      "sha256": "4ccc7663159c3f6922afd60e3ff093ceaa2b43a4cf8cdb196add62dbfa85e28e"
+      "sha256": "4491b346ced8de175b61eec2f1f1f70b2d523e65bf6d6a052748b8842faa2eb2"
     },
     {
       "runtime": "python",
       "path": "review_diff_lock_consumer.py",
-      "sha256": "ba891f8bd384ef490f0f1b64fe1f9d95d160cbedc77281e1af5079ab3fd6aeef"
+      "sha256": "2868e84ba2e6faea3f4090cc5c39884da19a99a8968f9abcc5d28e3c8922bf18"
     }
   ],
   "releaseFiles": [
     {
       "path": "README.md",
-      "sha256": "2858c4a304fcc386458910db61b0f238523c3a9995604305996b81c90ea6b2aa"
+      "sha256": "6a37b3f4217b981777b727b6c632b8abbf796638e7238c0d6090fce64c939e37"
     },
     {
       "path": ".github/workflows/forma-package.yml",

@@ -1,7 +1,8 @@
 # TypeScript Package
 
 The TypeScript runtime package is `@forma-lang/forma`, with source under
-`packages/forma-typescript/src`. It exports `agent`, `FormaRuntime`,
+`packages/forma-typescript/src`. It exports `agent`, `agentFromPackageLock`,
+`FormaRuntime`,
 `StaticProvider`, `RecordingProvider`, `HttpJsonProvider`,
 `OpenAIResponsesProvider`, `parseForma`, `providerProfileFromFile`,
 `providerFromProfile`, binding generators, `ModelProvider`, and public result
@@ -101,6 +102,18 @@ const reviewDiff = agent({
 });
 
 const result = await reviewDiff.run({ diff, max_findings: 5 });
+```
+
+Use `agentFromPackageLock(...)` when consuming a reviewed Forma package. It
+reads the lockfile, verifies the pinned task source hash, loads the reviewed
+provider profile when no provider override is supplied, and returns the same
+agent facade:
+
+```ts
+const reviewDiff = agentFromPackageLock({
+  lockFile: "examples/review_diff.forma.lock.json",
+  task: "review_diff",
+});
 ```
 
 `providerProfileFromFile` validates the profile shape. `providerFromProfile`

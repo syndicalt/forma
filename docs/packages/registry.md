@@ -172,9 +172,10 @@ Consumers can review the manifest for intent and compatibility policy, then use
 the lockfile to verify the exact artifacts that were evaluated and published.
 The checked consumer examples `examples/review_diff_lock_consumer.ts` and
 `examples/review_diff_lock_consumer.py` demonstrate that flow in TypeScript and
-Python by reading the lockfile, checking the pinned task source hash, loading
-the reviewed provider profile, and constructing `agent(...)` only after the
-artifact matches the reviewed lock.
+Python through `agentFromPackageLock(...)` and `agent_from_package_lock(...)`.
+Those helpers read the lockfile, check the pinned task source hash, load the
+reviewed provider profile, and construct `agent(...)` only after the artifact
+matches the reviewed lock.
 
 ## Review
 

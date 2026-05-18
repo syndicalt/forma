@@ -5,10 +5,10 @@ TypeScript and Python bindings, host embedding examples, eval fixtures, and a
 locked artifact set.
 
 The `review_diff_lock_consumer.ts` and `review_diff_lock_consumer.py` examples
-show consumer-side embedding from the reviewed lockfile: each reads
-`review_diff.forma.lock.json`, verifies the pinned `review_diff.forma` source
-hash, loads the reviewed provider profile, and only then constructs
-`agent(...)`.
+show consumer-side embedding from the reviewed lockfile through
+`agentFromPackageLock(...)` and `agent_from_package_lock(...)`. The helpers read
+`review_diff.forma.lock.json`, verify the pinned `review_diff.forma` source
+hash, load the reviewed provider profile, and only then construct `agent(...)`.
 
 ## CI
 

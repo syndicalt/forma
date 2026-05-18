@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { FormaRuntime, StaticProvider, agent } from "../src/index.js";
+import { createHash } from "node:crypto";
+import { FormaRuntime, StaticProvider, agent, agentFromPackageLock } from "../src/index.js";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -129,6 +130,62 @@ const editSource = `task update_file {
 }`;
 
 describe("FormaRuntime", () => {
+  it("embeds a reviewed package lock task through the agent facade", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-agent-lock-"));
+    const sourcePath = join(dir, "task.forma");
+    const profilePath = join(dir, "forma.provider.json");
+    const lockPath = join(dir, "task.forma.lock.json");
+    await writeFile(sourcePath, agentSource);
+    await writeFile(profilePath, JSON.stringify({ provider: "http-json", endpoint: "https://example.test/agent", model: "test-model" }));
+    await writeFile(lockPath, JSON.stringify({
+      formaPackageLock: 1,
+      tasks: [
+        {
+          name: "greet_user_warmly",
+          source: "task.forma",
+          sourceSha256: createHash("sha256").update(agentSource).digest("hex"),
+        },
+      ],
+      providerProfile: {
+        path: "forma.provider.json",
+      },
+    }));
+
+    const greet = agentFromPackageLock({
+      lockFile: lockPath,
+      task: "greet_user_warmly",
+      provider: new StaticProvider({ message: "Hello from a reviewed lock." }),
+    });
+
+    const result = await greet.run({ user_name: "Sam" });
+
+    expect(result.ok).toBe(true);
+    expect(result.output).toEqual({ message: "Hello from a reviewed lock." });
+  });
+
+  it("rejects package lock agents when the pinned task source drifts", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-agent-lock-drift-"));
+    const sourcePath = join(dir, "task.forma");
+    const lockPath = join(dir, "task.forma.lock.json");
+    await writeFile(sourcePath, agentSource);
+    await writeFile(lockPath, JSON.stringify({
+      formaPackageLock: 1,
+      tasks: [
+        {
+          name: "greet_user_warmly",
+          source: "task.forma",
+          sourceSha256: "0".repeat(64),
+        },
+      ],
+    }));
+
+    expect(() => agentFromPackageLock({
+      lockFile: lockPath,
+      task: "greet_user_warmly",
+      provider: new StaticProvider({ message: "unused" }),
+    })).toThrow("task source does not match reviewed package lock");
+  });
+
   it("embeds a named source task through the agent facade", async () => {
     const greet = agent({
       source: agentSource,

@@ -1,7 +1,8 @@
 # Python Package
 
 The Python runtime package is `forma-lang`, with source under
-`packages/forma-python/src/forma`. It exports `agent`, `FormaRuntime`,
+`packages/forma-python/src/forma`. It exports `agent`,
+`agent_from_package_lock`, `FormaRuntime`,
 `StaticProvider`, `RecordingProvider`, `HttpJsonProvider`,
 `OpenAIResponsesProvider`, `provider_profile_from_file`, and
 `provider_from_profile` from `forma`. It also exports `ModelProvider` for
@@ -101,6 +102,18 @@ review_diff = agent(
 )
 
 result = review_diff.run({"diff": diff, "max_findings": 5})
+```
+
+Use `agent_from_package_lock(...)` when consuming a reviewed Forma package. It
+reads the lockfile, verifies the pinned task source hash, loads the reviewed
+provider profile when no provider override is supplied, and returns the same
+agent facade:
+
+```python
+review_diff = agent_from_package_lock(
+    lock_file=Path("examples/review_diff.forma.lock.json"),
+    task="review_diff",
+)
 ```
 
 `provider_profile_from_file` validates the profile shape.

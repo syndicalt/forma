@@ -1,4 +1,4 @@
-from .agent import FormaAgent, agent
+from .agent import FormaAgent, agent, agent_from_package_lock
 from .bindings import generate_pydantic_bindings, generate_python_bindings
 from .parser import parse_forma
 from .provider import (
@@ -28,6 +28,7 @@ __all__ = [
     "RecordingProvider",
     "StaticProvider",
     "agent",
+    "agent_from_package_lock",
     "generate_pydantic_bindings",
     "generate_python_bindings",
     "parse_forma",
