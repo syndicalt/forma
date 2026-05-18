@@ -85,6 +85,44 @@ describe("HttpJsonProvider", () => {
       }),
     ).rejects.toThrow("F5001: provider response requires object output");
   });
+
+  it("executes provider-requested tools and posts tool results", async () => {
+    const requests: Array<{ body: Record<string, unknown> }> = [];
+    const provider = new HttpJsonProvider({
+      endpoint: "https://model.example/v1/agent",
+      model: "example-model",
+      fetch: async (_url, init) => {
+        requests.push({ body: JSON.parse(init.body) as Record<string, unknown> });
+        return {
+          ok: true,
+          status: 200,
+          text: async () => requests.length === 1
+            ? JSON.stringify({ toolCalls: [{ id: "read-1", name: "readText", args: { path: "README.md" } }] })
+            : JSON.stringify({ output: { message: "Read the file." } }),
+        } as Response;
+      },
+    });
+
+    const output = await provider.runAgent({
+      instruction: "Read a file.",
+      values: {},
+      permissions: ["read"],
+      output: { message: { type: "Text", array: false, optional: false } },
+      schemas: {},
+      tools: {
+        require() {},
+        readText: async (path) => `contents:${path}`,
+        searchText: async () => [],
+        runTest: async () => ({ ok: true, output: "" }),
+        writeText: async () => ({ ok: true, output: "" }),
+      },
+    });
+
+    expect(output).toEqual({ message: "Read the file." });
+    expect(requests[1]?.body.toolResults).toEqual([
+      { id: "read-1", ok: true, result: "contents:README.md" },
+    ]);
+  });
 });
 
 describe("OpenAIResponsesProvider", () => {

@@ -274,6 +274,32 @@ Response body:
 }
 ```
 
+HTTP JSON providers can also request one or more host tool calls before
+returning final output:
+
+```json
+{
+  "toolCalls": [
+    { "id": "read-1", "name": "readText", "args": { "path": "README.md" } }
+  ]
+}
+```
+
+Forma executes supported calls through the configured host tools and sends the
+next request with `toolResults`:
+
+```json
+{
+  "toolResults": [
+    { "id": "read-1", "ok": true, "result": "file contents..." }
+  ]
+}
+```
+
+Supported tool names are `readText`, `searchText`, `runTest`, and `writeText`.
+Tool calls still pass through the task permission gate and fail if the host did
+not configure that tool.
+
 The CLI can reuse the same provider settings through a profile file:
 
 ```json

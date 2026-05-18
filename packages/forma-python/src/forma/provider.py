@@ -82,20 +82,27 @@ class HttpJsonProvider:
         if self.api_key:
             headers["authorization"] = f"Bearer {self.api_key}"
 
-        response = self.transport(
-            self.endpoint,
-            {
+        tool_results: list[dict[str, object]] = []
+        for _ in range(8):
+            body = {
                 "model": self.model,
                 "instruction": instruction,
                 "input": values,
                 "permissions": permissions,
-            },
-            headers,
-        )
-        output = response.get("output")
-        if not isinstance(output, dict):
-            raise ValueError("F5001: provider response requires object output")
-        return output
+            }
+            if tool_results:
+                body["toolResults"] = tool_results
+            response = self.transport(self.endpoint, body, headers)
+            output = response.get("output")
+            if isinstance(output, dict):
+                return output
+            calls = _parse_tool_calls(response.get("toolCalls"))
+            if not calls:
+                raise ValueError("F5001: provider response requires object output")
+            if tools is None:
+                raise ValueError("F4002: provider requested a host tool that is not configured")
+            tool_results = [_run_tool_call(call, tools) for call in calls]
+        raise ValueError("F5002: provider exceeded tool call limit")
 
     @staticmethod
     def _default_transport(url: str, body: dict[str, object], headers: dict[str, str]) -> dict[str, object]:
@@ -226,6 +233,52 @@ def _object_schema(fields: dict[str, dict[str, object]], schemas: dict[str, dict
         "properties": {name: _field_schema(field, schemas) for name, field in fields.items()},
         "required": [name for name, field in fields.items() if not field["optional"]],
     }
+
+
+def _parse_tool_calls(value: object) -> list[dict[str, object]]:
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValueError("F5001: provider toolCalls must be a list")
+    calls = []
+    for item in value:
+        if not isinstance(item, dict):
+            raise ValueError("F5001: provider toolCalls must be objects")
+        if not isinstance(item.get("id"), str) or not isinstance(item.get("name"), str):
+            raise ValueError("F5001: provider toolCalls require id and name")
+        if item["name"] not in {"readText", "searchText", "runTest", "writeText"}:
+            raise ValueError(f"F5001: unsupported provider tool call '{item['name']}'")
+        args = item.get("args", {})
+        if not isinstance(args, dict):
+            args = {}
+        calls.append({"id": item["id"], "name": item["name"], "args": args})
+    return calls
+
+
+def _run_tool_call(call: dict[str, object], tools: PermissionTools) -> dict[str, object]:
+    try:
+        name = str(call["name"])
+        args = call["args"]
+        if not isinstance(args, dict):
+            args = {}
+        if name == "readText":
+            result = tools.read_text(_string_arg(name, args, "path"))
+        elif name == "searchText":
+            result = tools.search_text(_string_arg(name, args, "query"))
+        elif name == "runTest":
+            result = tools.run_test(_string_arg(name, args, "command"))
+        else:
+            result = tools.write_text(_string_arg(name, args, "path"), _string_arg(name, args, "content"))
+        return {"id": str(call["id"]), "ok": True, "result": result}
+    except Exception as error:
+        return {"id": str(call["id"]), "ok": False, "error": str(error)}
+
+
+def _string_arg(tool_name: str, args: dict[object, object], name: str) -> str:
+    value = args.get(name)
+    if not isinstance(value, str):
+        raise ValueError(f"F5001: provider tool call '{tool_name}' requires string arg '{name}'")
+    return value
 
 
 def _field_schema(field: dict[str, object], schemas: dict[str, dict[str, dict[str, object]]]) -> dict[str, object]:

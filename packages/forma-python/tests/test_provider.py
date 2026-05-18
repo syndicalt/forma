@@ -55,6 +55,50 @@ def test_http_json_provider_fails_when_response_output_is_not_object():
         provider.run_agent("Write a greeting.", {}, [], tools=None)
 
 
+def test_http_json_provider_executes_requested_tools_and_posts_tool_results():
+    requests = []
+
+    def transport(url, body, headers):
+        requests.append({"url": url, "body": body, "headers": headers})
+        if len(requests) == 1:
+            return {"toolCalls": [{"id": "read-1", "name": "readText", "args": {"path": "README.md"}}]}
+        return {"output": {"message": "Read the file."}}
+
+    class Tools:
+        def require(self, permission):
+            return None
+
+        def read_text(self, path):
+            return f"contents:{path}"
+
+        def search_text(self, query):
+            return []
+
+        def run_test(self, command):
+            return {"ok": True, "output": ""}
+
+        def write_text(self, path, content):
+            return {"ok": True, "output": ""}
+
+    provider = HttpJsonProvider(
+        endpoint="https://model.example/v1/agent",
+        model="example-model",
+        transport=transport,
+    )
+
+    output = provider.run_agent(
+        "Read a file.",
+        {},
+        ["read"],
+        tools=Tools(),
+    )
+
+    assert output == {"message": "Read the file."}
+    assert requests[1]["body"]["toolResults"] == [
+        {"id": "read-1", "ok": True, "result": "contents:README.md"}
+    ]
+
+
 def test_openai_responses_provider_posts_schema_generated_from_forma_output_fields():
     requests = []
 

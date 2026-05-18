@@ -80,6 +80,84 @@ describe("forma cli", () => {
     }
   });
 
+  it("runs provider-requested read tools when explicitly allowed", async () => {
+    const originalFetch = globalThis.fetch;
+    const originalApiKey = process.env.FORMA_TEST_TOOL_KEY;
+    const dir = await mkdtemp(join(tmpdir(), "forma-run-tool-"));
+    const profile = join(dir, "provider.json");
+    const sourcePath = join(dir, "example.ts");
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    process.env.FORMA_TEST_TOOL_KEY = "tool-secret";
+    await writeFile(profile, JSON.stringify({
+      provider: "http-json",
+      endpoint: "https://tool.example/v1/agent",
+      model: "tool-model",
+      apiKeyEnv: "FORMA_TEST_TOOL_KEY",
+    }));
+    await writeFile(sourcePath, "export const value = 'NEEDS_FIX';\n");
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      if (requests.length === 1) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({
+            toolCalls: [
+              { id: "read-1", name: "readText", args: { path: sourcePath } },
+            ],
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          output: {
+            summary: "Read source through CLI tools.",
+            findings: [],
+            clean: true,
+          },
+        }),
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "run",
+        "../../examples/review_diff.forma",
+        "--task",
+        "review_diff",
+        "--input",
+        "{\"diff\":\"diff --git a/src/example.ts b/src/example.ts\"}",
+        "--provider-profile",
+        profile,
+        "--allow-read",
+      ]);
+      const secondBody = JSON.parse(String(requests[1]?.init.body));
+
+      expect(result.exitCode).toBe(0);
+      expect(JSON.parse(result.stdout)).toEqual({
+        summary: "Read source through CLI tools.",
+        findings: [],
+        clean: true,
+      });
+      expect(secondBody.toolResults).toEqual([
+        {
+          id: "read-1",
+          ok: true,
+          result: "export const value = 'NEEDS_FIX';\n",
+        },
+      ]);
+    } finally {
+      globalThis.fetch = originalFetch;
+      if (originalApiKey === undefined) {
+        delete process.env.FORMA_TEST_TOOL_KEY;
+      } else {
+        process.env.FORMA_TEST_TOOL_KEY = originalApiKey;
+      }
+    }
+  });
+
   it("generates TypeScript bindings from a Forma file", async () => {
     const result = await runCli(["generate", "../../examples/review_diff.forma", "--target", "typescript"]);
 

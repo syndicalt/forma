@@ -78,6 +78,8 @@ The current MVP provides:
 - Permission declarations and `tools.require` enforcement hooks in TypeScript
   and Python provider calls.
 - Host read, search, test, and edit tool mapping through runtime tools.
+- HTTP JSON provider adapters can execute provider-requested tool calls through
+  host-owned runtime tools before returning final structured output.
 - HTTP JSON and OpenAI Responses provider adapters for TypeScript and Python.
 - CLI live evaluation mode through `--provider http-json`.
 - CLI provider profiles for reusable provider, endpoint, model, and key-env

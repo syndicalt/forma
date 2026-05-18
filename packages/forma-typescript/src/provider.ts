@@ -66,27 +66,102 @@ export class HttpJsonProvider implements ModelProvider {
       headers.authorization = `Bearer ${this.options.apiKey}`;
     }
 
-    const response = await this.fetchImpl(this.options.endpoint, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        model: this.options.model,
-        instruction: input.instruction,
-        input: input.values,
-        permissions: input.permissions,
-      }),
-    });
-    const text = await response.text();
-    if (!response.ok) {
-      throw new Error(`F5000: provider request failed with status ${response.status}`);
-    }
+    const toolResults: ToolResult[] = [];
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      const response = await this.fetchImpl(this.options.endpoint, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model: this.options.model,
+          instruction: input.instruction,
+          input: input.values,
+          permissions: input.permissions,
+          ...(toolResults.length > 0 ? { toolResults } : {}),
+        }),
+      });
+      const text = await response.text();
+      if (!response.ok) {
+        throw new Error(`F5000: provider request failed with status ${response.status}`);
+      }
 
-    const parsed = JSON.parse(text) as { output?: unknown };
-    if (!parsed.output || typeof parsed.output !== "object" || Array.isArray(parsed.output)) {
-      throw new Error("F5001: provider response requires object output");
+      const parsed = JSON.parse(text) as { output?: unknown; toolCalls?: unknown };
+      if (parsed.output && typeof parsed.output === "object" && !Array.isArray(parsed.output)) {
+        return parsed.output as Record<string, FormaValue>;
+      }
+      const calls = parseToolCalls(parsed.toolCalls);
+      if (calls.length === 0) {
+        throw new Error("F5001: provider response requires object output");
+      }
+      toolResults.length = 0;
+      for (const call of calls) {
+        toolResults.push(await runToolCall(call, input.tools));
+      }
     }
-    return parsed.output as Record<string, FormaValue>;
+    throw new Error("F5002: provider exceeded tool call limit");
   }
+}
+
+interface ToolCall {
+  id: string;
+  name: "readText" | "searchText" | "runTest" | "writeText";
+  args: Record<string, unknown>;
+}
+
+interface ToolResult {
+  id: string;
+  ok: boolean;
+  result?: unknown;
+  error?: string;
+}
+
+function parseToolCalls(value: unknown): ToolCall[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((item): ToolCall => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      throw new Error("F5001: provider toolCalls must be objects");
+    }
+    const call = item as { id?: unknown; name?: unknown; args?: unknown };
+    if (typeof call.id !== "string" || typeof call.name !== "string") {
+      throw new Error("F5001: provider toolCalls require id and name");
+    }
+    if (call.name !== "readText" && call.name !== "searchText" && call.name !== "runTest" && call.name !== "writeText") {
+      throw new Error(`F5001: unsupported provider tool call '${call.name}'`);
+    }
+    return {
+      id: call.id,
+      name: call.name,
+      args: call.args && typeof call.args === "object" && !Array.isArray(call.args) ? call.args as Record<string, unknown> : {},
+    };
+  });
+}
+
+async function runToolCall(call: ToolCall, tools: PermissionTools): Promise<ToolResult> {
+  try {
+    if (call.name === "readText") {
+      return { id: call.id, ok: true, result: await tools.readText(stringArg(call, "path")) };
+    }
+    if (call.name === "searchText") {
+      return { id: call.id, ok: true, result: await tools.searchText(stringArg(call, "query")) };
+    }
+    if (call.name === "runTest") {
+      return { id: call.id, ok: true, result: await tools.runTest(stringArg(call, "command")) };
+    }
+    return {
+      id: call.id,
+      ok: true,
+      result: await tools.writeText(stringArg(call, "path"), stringArg(call, "content")),
+    };
+  } catch (error) {
+    return { id: call.id, ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+function stringArg(call: ToolCall, name: string): string {
+  const value = call.args[name];
+  if (typeof value !== "string") {
+    throw new Error(`F5001: provider tool call '${call.name}' requires string arg '${name}'`);
+  }
+  return value;
 }
 
 export interface OpenAIResponsesProviderOptions {

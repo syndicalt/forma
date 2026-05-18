@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
+import { exec } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { promisify } from "node:util";
 import {
   FormaRuntime,
   generatePythonBindings,
@@ -12,7 +15,9 @@ import {
   parseForma,
   StaticProvider,
 } from "@forma-lang/forma";
-import type { FormaDiagnostic, FormaField, FormaResult, FormaTask, FormaValue, ModelProvider } from "@forma-lang/forma";
+import type { FormaDiagnostic, FormaField, FormaResult, FormaTask, FormaValue, ModelProvider, ToolHost } from "@forma-lang/forma";
+
+const execAsync = promisify(exec);
 
 export interface CliResult {
   exitCode: number;
@@ -70,7 +75,11 @@ export async function runCli(args: string[]): Promise<CliResult> {
     const input = parseInput(rest);
     const evalOptions = await parseEvalOptions(rest);
     const modelProvider = evalOptions.provider === "fixture" ? undefined : createConfiguredProvider(evalOptions);
-    const runtime = new FormaRuntime(modelProvider ? { modelProvider } : {});
+    const tools = createCliTools(rest);
+    const runtimeOptions: { modelProvider?: ModelProvider; tools?: ToolHost } = {};
+    if (modelProvider) runtimeOptions.modelProvider = modelProvider;
+    if (tools) runtimeOptions.tools = tools;
+    const runtime = new FormaRuntime(runtimeOptions);
     const taskName = optionValue(rest, "--task");
     const result = taskName
       ? await runtime.runTask(source, taskName, { input, sourceName: path })
@@ -1081,6 +1090,56 @@ function createConfiguredProvider(options: EvalOptions): ModelProvider {
     });
   }
   throw new Error(`unsupported eval provider '${options.provider}'`);
+}
+
+function createCliTools(args: string[]): ToolHost | undefined {
+  const tools: ToolHost = {};
+  if (args.includes("--allow-read")) {
+    tools.readText = async (path) => readFile(path, "utf8");
+  }
+  if (args.includes("--allow-search")) {
+    tools.searchText = async (query) => searchFiles(process.cwd(), query);
+  }
+  if (args.includes("--allow-test")) {
+    tools.runTest = async (command) => {
+      try {
+        const result = await execAsync(command);
+        return { ok: true, output: `${result.stdout}${result.stderr}` };
+      } catch (error) {
+        const failure = error as { stdout?: string; stderr?: string };
+        return { ok: false, output: `${failure.stdout ?? ""}${failure.stderr ?? ""}` };
+      }
+    };
+  }
+  if (args.includes("--allow-edit")) {
+    tools.writeText = async (path, content) => {
+      await writeFile(path, content, "utf8");
+      return { ok: true, output: "" };
+    };
+  }
+  return Object.keys(tools).length > 0 ? tools : undefined;
+}
+
+async function searchFiles(root: string, query: string): Promise<string[]> {
+  const matches: string[] = [];
+  async function visit(path: string): Promise<void> {
+    const entries = await readdir(path, { withFileTypes: true }).catch(() => []);
+    for (const entry of entries) {
+      if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "dist") continue;
+      const child = resolve(path, entry.name);
+      if (entry.isDirectory()) {
+        await visit(child);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      const text = await readFile(child, "utf8").catch(() => "");
+      if (text.includes(query)) {
+        matches.push(child);
+      }
+    }
+  }
+  await visit(root);
+  return matches;
 }
 
 function providerName(fixture: EvalFixture, options: EvalOptions): string {

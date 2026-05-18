@@ -128,6 +128,11 @@ Python for focused verification. Providers call `tools.writeText(path, content)`
 in TypeScript or `tools.write_text(path, content)` in Python for edits. If a
 requested tool is not configured, the runtime returns `F4002`.
 
+The HTTP JSON provider adapters expose the same capability to model gateways
+with a two-step JSON protocol. A provider response may include `toolCalls`; the
+adapter runs those calls through the host tools and sends `toolResults` on the
+next request before accepting final structured `output`.
+
 ## Output Contract
 
 Provider and compute output is validated against the task `output` block before
