@@ -112,6 +112,9 @@ Package locks are evidence for reusable package adoption, not proof that every
 local task belongs in Forma. Use them when a reviewed package needs pinned
 artifacts for another consumer; keep local tasks on the minimal or checked host
 project path until that consumer exists.
+A package lock should follow a named consuming application, not generic adoption anxiety.
+If the team cannot name the application, repository, or release process that
+will consume the reviewed lock, stay on the local host-project path.
 If the before/after host code is not simpler after this minimal path, keep the
 inline prompt plus local schemas and do not adopt Forma for that task.
 

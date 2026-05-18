@@ -342,6 +342,8 @@ The current MVP provides:
   package workflow before adopting package locks.
 - Quickstart now says package locks are evidence for reusable package adoption,
   not proof that every local task belongs in Forma.
+- Quickstart now says a package lock should follow a named consuming
+  application, not generic adoption anxiety.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -897,12 +899,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add quickstart wording that a package lock should follow a
-   named consuming application, not generic adoption anxiety.
-2. Product clarity: add README wording that a local prompt extraction should
+1. Product clarity: add README wording that a local prompt extraction should
    stop at minimal or checked scaffolds until reuse is real.
-3. Product clarity: add CLI project-init wording that `--package-lock` is for
+2. Product clarity: add CLI project-init wording that `--package-lock` is for
    consuming a reviewed release, not proving the first task.
+3. Product clarity: add package-consumer troubleshooting wording that stale
+   locks are package-owner work unless the consumer owns the reviewed release.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
