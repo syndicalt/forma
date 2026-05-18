@@ -99,6 +99,10 @@ Cleaned-up route labels should preserve scaffold audit lookup keys. Keep
 minimal, checked, and package-lock scaffold decisions searchable by the
 original scaffold route key, then attach the cleaned-up label after the
 first-use scaffold choice is recorded.
+Cleaned-up route labels should preserve proof-command audit lookup keys. Keep
+proof commands, smoke output, before/after notes, and decision evidence
+searchable by the original proof-command route key, then attach the cleaned-up
+label after the proof command result is recorded.
 
 ## Steps
 
