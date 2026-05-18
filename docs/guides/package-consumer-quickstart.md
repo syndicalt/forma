@@ -58,6 +58,11 @@ forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.js
 forma package-review review_diff.forma.pkg.json
 ```
 
+Pin reviewed locks before adding app-specific retries or logging. First prove
+the host can load the reviewed lock and run the generated smoke tests; then add
+deployment concerns such as retries, logging, routing, or workflow-specific
+error handling around the stable contract boundary.
+
 Generated packages include smoke tests for the lockfile-backed contract modules.
 Run them after the lock check and before application-specific tests:
 

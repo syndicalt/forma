@@ -169,6 +169,7 @@ const requiredTerms = {
     "Do not start with package consumption",
     "Treat package-lock consumption as a dependency decision, not a starter path",
     "Package-lock smoke failures usually mean a stale reviewed artifact set",
+    "Pin reviewed locks before adding app-specific retries or logging",
   ],
   "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "projects:installed-smoke", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "package-install checks", "path-alias checks", "installed-project smoke CI step", "installed-package smoke CI step", "@forma-lang/forma", "forma-lang", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "review_diff_migration.test.ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "forma-project.yml", "missingCommands", "packageKind", "installedPackageSmokeSummary", "installedPackageSmokeFailureSummary", "expected artifact categories", "expectedArtifactFiles", "installed-package-smoke-summary.jsonl", "forma-release-proof-artifacts", "Release Artifact Reading Guide", "Installed-Package Smoke Triage", "review-diff package-lock consumer failure", "function-repair tool package failure", "reviewed package-lock project consumer failure"],
   "docs/guides/migrating-from-inline-prompts.md": [

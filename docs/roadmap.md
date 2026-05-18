@@ -302,6 +302,8 @@ The current MVP provides:
   before reading `output`.
 - Provider-adapter docs now say production adapters prove deployment routing,
   not Forma usefulness, and should follow a useful local smoke path.
+- Package-consumer quickstart now tells real consumers to pin reviewed locks
+  before adding app-specific retries, logging, routing, or workflow handling.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -833,12 +835,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer quickstart wording that real consumers
-   should pin reviewed locks before adding app-specific retries or logging.
-2. Product clarity: add runtime-semantics wording that provider output
+1. Product clarity: add runtime-semantics wording that provider output
    validation is part of the host trust boundary.
-3. Product clarity: add package-init README wording that release candidates
+2. Product clarity: add package-init README wording that release candidates
    should not be published until a downstream consumer exists.
+3. Product clarity: add testing guide wording that release proof answers
+   consumer readiness, not first-use usefulness.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
