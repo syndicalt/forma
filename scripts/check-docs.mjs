@@ -71,6 +71,8 @@ const requiredTerms = {
     "preview --watch",
     "forma project-init",
     "forma project-check",
+    "--package-lock",
+    "smoke:lock:ts",
     "function-repair",
     "review_diff_contract.test.ts",
     "review_diff_contract_test.py",

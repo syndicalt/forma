@@ -839,6 +839,15 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   const pythonAgent = `src/${taskName}_agent.py`;
   const typeScriptSmoke = `test/${taskName}_agent_smoke.ts`;
   const pythonSmoke = `test/${taskName}_agent_smoke.py`;
+  const packageLock = optionValue(args, "--package-lock");
+  const typeScriptPackageLockSmoke = `test/${taskName}_package_lock_smoke.ts`;
+  const pythonPackageLockSmoke = `test/${taskName}_package_lock_smoke.py`;
+  const packageLockSmokeTests = packageLock
+    ? [
+        { runtime: "typescript", path: typeScriptPackageLockSmoke, command: "pnpm run smoke:lock:ts" },
+        { runtime: "python", path: pythonPackageLockSmoke, command: `python test/${taskName}_package_lock_smoke.py` },
+      ]
+    : undefined;
   const ciWorkflow = ".github/workflows/forma-project.yml";
   const taskFile = `${taskName}.forma`;
   const providerProfile = scaffoldProviderProfile(args);
@@ -860,6 +869,7 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
       { runtime: "typescript", path: typeScriptSmoke, command: "pnpm run smoke:ts" },
       { runtime: "python", path: pythonSmoke, command: `python test/${taskName}_agent_smoke.py` },
     ],
+    ...(packageLockSmokeTests ? { packageLockSmokeTests } : {}),
     ciWorkflow,
   };
 
@@ -870,13 +880,17 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, pythonAgent), scaffoldProjectPythonAgent(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, typeScriptSmoke), scaffoldProjectTypeScriptSmokeTest(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonSmoke), scaffoldProjectPythonSmokeTest(taskName, kind, schema), "utf8");
-  await writeFile(resolve(path, ciWorkflow), scaffoldProjectWorkflow(taskName), "utf8");
+  if (packageLock) {
+    await writeFile(resolve(path, typeScriptPackageLockSmoke), scaffoldProjectTypeScriptPackageLockSmokeTest(taskName, packageLock, kind, schema), "utf8");
+    await writeFile(resolve(path, pythonPackageLockSmoke), scaffoldProjectPythonPackageLockSmokeTest(taskName, packageLock, kind, schema), "utf8");
+  }
+  await writeFile(resolve(path, ciWorkflow), scaffoldProjectWorkflow(taskName, packageLockSmokeTests), "utf8");
   await writeFile(resolve(path, "forma.provider.json"), `${JSON.stringify(providerProfile, null, 2)}\n`, "utf8");
   await writeFile(resolve(path, "forma.project.json"), `${JSON.stringify(projectManifest, null, 2)}\n`, "utf8");
-  await writeFile(resolve(path, "package.json"), scaffoldProjectPackageJson(projectName, taskName), "utf8");
+  await writeFile(resolve(path, "package.json"), scaffoldProjectPackageJson(projectName, taskName, Boolean(packageLock)), "utf8");
   await writeFile(resolve(path, "tsconfig.json"), scaffoldProjectTsconfig(), "utf8");
   await writeFile(resolve(path, "pyproject.toml"), scaffoldProjectPyproject(projectName), "utf8");
-  await writeFile(resolve(path, "README.md"), scaffoldProjectReadme(projectName, taskName, providerProfile), "utf8");
+  await writeFile(resolve(path, "README.md"), scaffoldProjectReadme(projectName, taskName, providerProfile, packageLock), "utf8");
 
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
@@ -2358,7 +2372,61 @@ print(output)
 `;
 }
 
-function scaffoldProjectWorkflow(taskName: string): string {
+function scaffoldProjectTypeScriptPackageLockSmokeTest(taskName: string, packageLock: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
+  const providerOutput = renderTypeScriptObject(Object.fromEntries(effectiveOutputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "");
+  return `import { strict as assert } from "node:assert";
+import { agentFromPackageLock, StaticProvider } from "@forma-lang/forma";
+
+const reviewDiff = agentFromPackageLock({
+  lockFile: ${JSON.stringify(packageLock)},
+  task: ${JSON.stringify(taskName)},
+  provider: new StaticProvider(${providerOutput}),
+});
+
+const result = await reviewDiff.run({
+  diff: "diff --git a/src/example.ts b/src/example.ts",
+  max_findings: 1,
+});
+
+assert.equal(result.ok, true);
+assert.ok(result.output);
+console.log(JSON.stringify(result.output, null, 2));
+`;
+}
+
+function scaffoldProjectPythonPackageLockSmokeTest(taskName: string, packageLock: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
+  const providerOutput = renderPythonObject(Object.fromEntries(effectiveOutputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "");
+  return `from forma import StaticProvider, agent_from_package_lock
+
+
+review_diff = agent_from_package_lock(
+    lock_file=${JSON.stringify(packageLock)},
+    task=${JSON.stringify(taskName)},
+    provider=StaticProvider(${providerOutput}),
+)
+
+result = review_diff.run({
+    "diff": "diff --git a/src/example.py b/src/example.py",
+    "max_findings": 1,
+})
+
+assert result.ok
+assert result.output is not None
+print(result.output)
+`;
+}
+
+function scaffoldProjectWorkflow(
+  taskName: string,
+  packageLockSmokeTests?: Array<{ command?: string }>,
+): string {
+  const packageLockCommands = packageLockSmokeTests?.map((test) => `      - run: ${test.command}\n`).join("") ?? "";
   return `name: Forma Project
 
 on:
@@ -2386,10 +2454,10 @@ jobs:
       - run: python -m py_compile src/${taskName}_forma.py src/${taskName}_agent.py test/${taskName}_agent_smoke.py
       - run: pnpm run smoke:ts
       - run: python test/${taskName}_agent_smoke.py
-`;
+${packageLockCommands}`;
 }
 
-function scaffoldProjectPackageJson(projectName: string, taskName: string): string {
+function scaffoldProjectPackageJson(projectName: string, taskName: string, includePackageLockSmoke = false): string {
   return `${JSON.stringify({
     name: projectName,
     private: true,
@@ -2399,6 +2467,7 @@ function scaffoldProjectPackageJson(projectName: string, taskName: string): stri
       check: "tsc --noEmit",
       "run:ts": `tsx src/${taskName}_agent.ts`,
       "smoke:ts": `tsx test/${taskName}_agent_smoke.ts`,
+      ...(includePackageLockSmoke ? { "smoke:lock:ts": `tsx test/${taskName}_package_lock_smoke.ts` } : {}),
     },
     dependencies: {
       "@forma-lang/forma": "latest",
@@ -2438,8 +2507,18 @@ pythonpath = ["src"]
 `;
 }
 
-function scaffoldProjectReadme(projectName: string, taskName: string, profile: ProviderProfile): string {
+function scaffoldProjectReadme(projectName: string, taskName: string, profile: ProviderProfile, packageLock?: string): string {
   const apiKeyEnv = profile.apiKeyEnv ?? "MODEL_API_KEY";
+  const packageLockSection = packageLock
+    ? `
+## Reviewed Package Lock
+
+This project includes reviewed package-lock smoke tests for \`${packageLock}\`.
+Run \`pnpm run smoke:lock:ts\` and
+\`python test/${taskName}_package_lock_smoke.py\` to verify the host can load
+the reviewed package lock with explicit \`StaticProvider\` test doubles.
+`
+    : "";
   return `# ${projectName}
 
 This project embeds a Forma coding-agent task from TypeScript and Python.
@@ -2484,6 +2563,7 @@ python src/${taskName}_agent.py
 The Python embedding entrypoint is \`src/${taskName}_agent.py\`.
 Run \`python test/${taskName}_agent_smoke.py\` to execute it with
 \`StaticProvider\` and no model credentials.
+${packageLockSection}
 
 ## CLI
 

@@ -684,6 +684,16 @@ forma project-init ./review-diff-agent \
   --api-key-env OPENAI_API_KEY
 ```
 
+When a reviewed package lock is already available, pass it to the scaffold so
+the generated project also proves the reviewed package consumer path:
+
+```bash
+forma project-init ./review-diff-agent \
+  --name review-diff-agent \
+  --task review_diff \
+  --package-lock ../review_diff.forma.lock.json
+```
+
 The generated provider profile stores the provider, model, response format,
 temperature, timeout, and key environment variable name. It does not store the
 secret key. The generated TypeScript entrypoint uses `agent(...)`,
@@ -700,10 +710,18 @@ pnpm run smoke:ts
 python test/review_diff_agent_smoke.py
 ```
 
+Projects scaffolded with `--package-lock` also include
+`test/review_diff_package_lock_smoke.ts`,
+`test/review_diff_package_lock_smoke.py`, `pnpm run smoke:lock:ts`, and a
+`package-lock-smoke-tests` manifest row. Those tests load the reviewed lock with
+`agentFromPackageLock(...)` and `agent_from_package_lock(...)` while passing
+explicit `StaticProvider` test doubles.
+
 They also include `.github/workflows/forma-project.yml`. That workflow runs
 `forma project-check .`, `pnpm run check`, Python bytecode compilation, and the
-two generated smoke tests so the clean-project embedding proof stays enforced
-after the initial scaffold.
+two generated smoke tests. When `--package-lock` is used, the workflow also
+runs the reviewed package-lock smoke commands so both direct project embedding
+and reviewed package-lock embedding stay enforced after the initial scaffold.
 
 `forma project-check` validates a generated host project. It reads
 `forma.project.json`, confirms the named agent task exists, validates the

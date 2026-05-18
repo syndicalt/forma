@@ -2260,6 +2260,72 @@ describe("forma cli", () => {
     });
   });
 
+  it("scaffolds package-lock smoke tests when a reviewed lock is provided", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-init-lock-"));
+    const lockPath = resolve(repoRoot, "examples", "review_diff.forma.lock.json");
+    const result = await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+      "--package-lock",
+      lockPath,
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    expect(JSON.parse(await readFile(join(dir, "forma.project.json"), "utf8"))).toMatchObject({
+      packageLockSmokeTests: [
+        {
+          runtime: "typescript",
+          path: "test/review_diff_package_lock_smoke.ts",
+          command: "pnpm run smoke:lock:ts",
+        },
+        {
+          runtime: "python",
+          path: "test/review_diff_package_lock_smoke.py",
+          command: "python test/review_diff_package_lock_smoke.py",
+        },
+      ],
+    });
+    expect(await readFile(join(dir, "test", "review_diff_package_lock_smoke.ts"), "utf8")).toContain("agentFromPackageLock");
+    expect(await readFile(join(dir, "test", "review_diff_package_lock_smoke.py"), "utf8")).toContain("agent_from_package_lock");
+    const workflow = await readFile(join(dir, ".github", "workflows", "forma-project.yml"), "utf8");
+    expect(workflow).toContain("pnpm run smoke:lock:ts");
+    expect(workflow).toContain("python test/review_diff_package_lock_smoke.py");
+    const packageJson = await readFile(join(dir, "package.json"), "utf8");
+    expect(packageJson).toContain("\"smoke:lock:ts\"");
+    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("Reviewed Package Lock");
+
+    const projectCheck = await runCli(["project-check", dir]);
+    expect(projectCheck).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    await mkdir(join(dir, "node_modules", "@forma-lang"), { recursive: true });
+    await symlink(resolve(repoRoot, "packages/forma-typescript"), join(dir, "node_modules", "@forma-lang", "forma"), "dir");
+    const runtimeTsconfig = join(dir, "tsconfig.runtime.json");
+    await writeFile(runtimeTsconfig, JSON.stringify({
+      compilerOptions: {
+        target: "ES2022",
+        module: "NodeNext",
+        moduleResolution: "NodeNext",
+        strict: true,
+        outDir: "dist",
+        typeRoots: [resolve(repoRoot, "packages/forma-typescript/node_modules/@types")],
+        types: ["node"],
+        skipLibCheck: true,
+      },
+      include: ["src/**/*.ts", "test/**/*.ts"],
+    }, null, 2));
+    await execFileAsync(resolve(repoRoot, "node_modules/.bin/tsc"), ["-p", runtimeTsconfig], { cwd: dir });
+    await execFileAsync("node", [join(dir, "dist", "test", "review_diff_package_lock_smoke.js")], { cwd: dir });
+    await execFileAsync("python", [join(dir, "test", "review_diff_package_lock_smoke.py")], {
+      env: {
+        ...process.env,
+        PYTHONPATH: resolve(repoRoot, "packages/forma-python/src"),
+      },
+    });
+  });
+
   it("fails project checks when generated host bindings are stale", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-project-check-stale-"));
     await runCli([

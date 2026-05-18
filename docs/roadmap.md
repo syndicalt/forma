@@ -241,6 +241,11 @@ The current MVP provides:
 - `project-check` requires declared reviewed package-lock smoke commands in the
   checked clean-project CI workflow, and `examples/review-diff-agent` runs
   those TypeScript and Python package-lock smoke tests in its workflow.
+- `forma project-init --package-lock` scaffolds TypeScript and Python reviewed
+  package-lock smoke tests, manifest rows, package scripts, workflow commands,
+  and README guidance when a reviewed package lock is already available.
+- CLI tests execute generated `project-init --package-lock` TypeScript and
+  Python smoke tests against the checked review-diff lock.
 - README and documentation index Product Proof commands include
   `projects:check`, so the checked clean-project fixture is part of the main
   proof path.
@@ -559,9 +564,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add the reviewed package-lock smoke-test workflow commands
-   to generated project scaffolds when package-lock consumer proof is available
-   outside the checked fixture.
+3. Product proof: promote `project-init --package-lock` into the quickstart so
+   users see direct project embedding and reviewed package-lock embedding as
+   separate, executable onboarding paths.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
