@@ -632,6 +632,9 @@ The publish workflow uses the same guidance check in the `publish-bundle` row:
 eval fixture, eval suite, package manifest, package lockfile, generated
 TypeScript/Python bindings, host examples, importable contract modules, and a
 package `README.md` with CI commands. Generated package scaffolds are release candidates, not first-use proofs.
+Use this boundary directly: package-init is for reusable task packages, not local prompt extraction.
+Keep a one-application prompt on the minimal or checked project path until
+another consumer needs a reviewed package release.
 Use them after a minimal or checked host project has already shown that the
 `.forma` contract is clearer than an inline prompt plus local schemas. Do not publish a release candidate until a downstream consumer exists
 and needs the reviewed manifest, lockfile, generated bindings, tests, release

@@ -344,6 +344,8 @@ The current MVP provides:
   not proof that every local task belongs in Forma.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
+- CLI docs now say `package-init` is for reusable task packages, not local
+  prompt extraction.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -875,12 +877,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add CLI docs wording that package-init is for reusable task
-   packages, not local prompt extraction.
-2. Product clarity: add README wording that minimal and checked projects are
+1. Product clarity: add README wording that minimal and checked projects are
    valid stopping points, not failed adoption.
-3. Product clarity: add why-forma wording that copying `.forma` files without
+2. Product clarity: add why-forma wording that copying `.forma` files without
    bindings, evals, and locks is just prompt sharing.
+3. Product clarity: add first-use audit wording that package review should be
+   deferred until one concrete consumer needs release artifacts.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
