@@ -256,6 +256,8 @@ The current MVP provides:
   bindings, validation, providers, locks, evals, and CI checks.
 - Generated package READMEs now tell authors to publish only after package
   review protects real consumers from reviewed artifact drift.
+- CLI package-review output docs now tell users to fix failing checks before
+  interpreting informational notes.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -787,12 +789,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-review output wording that tells users to fix
-   failing checks before interpreting informational notes.
-2. Product clarity: add runtime README wording that separates model-call
+1. Product clarity: add runtime README wording that separates model-call
    execution from contract validation in both host languages.
-3. Product clarity: add provider-profile docs wording that tells users when
+2. Product clarity: add provider-profile docs wording that tells users when
    model defaults belong in package profiles versus host overrides.
+3. Product clarity: add project-check docs wording that treats generated
+   project CI as application contract protection, not framework ceremony.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

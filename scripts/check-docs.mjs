@@ -123,6 +123,7 @@ const requiredTerms = {
     "\"group\": \"bindings\"",
     "notes are informational",
     "checks are blocking",
+    "Fix failing checks before interpreting informational notes",
     "Scaffold proof commands",
     "minimal proof command",
     "checked proof command",

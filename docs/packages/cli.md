@@ -294,6 +294,9 @@ CI commands, publish bundle contents, eval coverage, and eval-suite results.
 In the JSON output, notes are informational guidance for humans and automation
 dashboards, while checks are blocking pass/fail rows that decide the command
 exit status.
+Fix failing checks before interpreting informational notes. A failed `checks`
+row means the package is not ready to publish or consume, even when `notes`
+describe useful first-use or release-readiness context.
 For example, the checked `review_diff` package `tests` row includes the
 migration parity fixtures separately from the generic package test commands:
 
