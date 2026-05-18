@@ -352,6 +352,8 @@ The current MVP provides:
   is prompt sharing.
 - First-use audit now says to defer package review until one concrete consumer
   needs release artifacts.
+- Testing guide now says release proof validates reusable package readiness, not
+  local adoption.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -883,12 +885,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add testing guide wording that release proof validates
-   reusable package readiness, not local adoption.
-2. Product clarity: add package-consumer wording that copied internals lose
+1. Product clarity: add package-consumer wording that copied internals lose
    package-review and lock drift protection.
-3. Product clarity: add CLI package-review wording that review gates should
+2. Product clarity: add CLI package-review wording that review gates should
    reference a downstream consumer, not a hypothetical package audience.
+3. Product clarity: add docs index wording that release proof is a packaging
+   readiness check, not the first thing skeptics should run.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

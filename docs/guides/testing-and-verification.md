@@ -102,6 +102,7 @@ corepack pnpm proof:release
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration && corepack pnpm projects:check && corepack pnpm packages:installed-smoke"
 ```
 
+Release proof validates reusable package readiness, not local adoption.
 Release proof answers consumer readiness, not first-use usefulness. Use the
 minimal smoke path and migration proof to decide whether Forma improves the
 host workflow; use `proof:release` after that decision when reusable packages
