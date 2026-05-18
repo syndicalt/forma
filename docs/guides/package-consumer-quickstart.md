@@ -13,6 +13,21 @@ variables, the real provider client, logging, retries, and user workflow code.
 The reviewed package supplies the task contract and a lockfile that rejects
 drift before the agent runs.
 
+## Choose The Consumer Path
+
+Do not start with package consumption when the task is still local to one
+application. Start with a minimal host project when you are deciding whether a
+`.forma` contract beats an inline prompt plus local schemas. Move to a checked host project
+when application code depends on generated TypeScript and Python
+bindings, `StaticProvider` smoke tests, and CI `project-check` rows. Use a
+reviewed package-lock project only after the task is a reviewed package that
+multiple applications or repositories should consume through pinned artifacts.
+
+That progression mirrors the scaffold choices in
+`docs/guides/quickstart.md#five-minute-usefulness-path` and
+`docs/packages/cli.md#project-init`: local usefulness first, checked host
+project second, reviewed package-lock project last.
+
 ## Steps
 
 Start from a reviewed package bundle or checkout that includes the lockfile and

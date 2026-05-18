@@ -215,6 +215,9 @@ The current MVP provides:
   consumption is worth the extra scaffold: shared reusable tasks, pinned
   provider profile and artifact drift checks, and consumer proof before
   deployment.
+- Package-consumer quickstart now starts with the same minimal, checked, and
+  package-lock progression so readers do not jump to reviewed consumption
+  before local usefulness and host-project CI checks are justified.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -746,12 +749,13 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer quickstart guidance that mirrors the
-   minimal, checked, and package-lock scaffold progression.
-2. Product clarity: add CLI docs examples that map each `project-init` scaffold
+1. Product clarity: add CLI docs examples that map each `project-init` scaffold
    choice to the proof command that should be run before depending on it.
-3. Product clarity: add docs index wording that names Forma as an agent
+2. Product clarity: add docs index wording that names Forma as an agent
    contract compiler rather than only a prompt file format.
+3. Product clarity: add a short architecture note that distinguishes the
+   `.forma` contract, generated bindings, runtime agent facade, and provider
+   adapter responsibilities.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
