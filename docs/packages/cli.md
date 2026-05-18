@@ -37,6 +37,7 @@ forma run examples/review_diff.forma \
   --task review_diff \
   --input '{"diff":"diff --git a/src/example.ts b/src/example.ts"}' \
   --provider-profile examples/forma.provider.json \
+  --workspace . \
   --allow-read \
   --allow-search \
   --allow-test
@@ -45,7 +46,10 @@ forma run examples/review_diff.forma \
 Use `--allow-read`, `--allow-search`, `--allow-test`, and `--allow-edit` to
 wire local CLI tools into provider-backed runs. These flags configure host
 tools; the task still has to declare the matching permission in its `.forma`
-file before the runtime will execute the tool call.
+file before the runtime will execute the tool call. File reads, searches, and
+edits are scoped to `--workspace`, which defaults to the current working
+directory. Provider-requested paths outside that workspace return failed tool
+results.
 
 Invalid usage exits with code 2 and prints `usage: forma
 <check|run|eval|eval-suite|compare|generate|package-check|package-init> <path> [--input JSON]`.

@@ -131,6 +131,8 @@ describe("forma cli", () => {
         "{\"diff\":\"diff --git a/src/example.ts b/src/example.ts\"}",
         "--provider-profile",
         profile,
+        "--workspace",
+        dir,
         "--allow-read",
       ]);
       const secondBody = JSON.parse(String(requests[1]?.init.body));
@@ -146,6 +148,82 @@ describe("forma cli", () => {
           id: "read-1",
           ok: true,
           result: "export const value = 'NEEDS_FIX';\n",
+        },
+      ]);
+    } finally {
+      globalThis.fetch = originalFetch;
+      if (originalApiKey === undefined) {
+        delete process.env.FORMA_TEST_TOOL_KEY;
+      } else {
+        process.env.FORMA_TEST_TOOL_KEY = originalApiKey;
+      }
+    }
+  });
+
+  it("denies provider-requested reads outside the configured workspace", async () => {
+    const originalFetch = globalThis.fetch;
+    const originalApiKey = process.env.FORMA_TEST_TOOL_KEY;
+    const dir = await mkdtemp(join(tmpdir(), "forma-run-tool-scope-"));
+    const workspace = join(dir, "workspace");
+    const outsidePath = join(dir, "outside.txt");
+    const profile = join(dir, "provider.json");
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    process.env.FORMA_TEST_TOOL_KEY = "tool-secret";
+    await writeFile(outsidePath, "outside secret\n");
+    await writeFile(profile, JSON.stringify({
+      provider: "http-json",
+      endpoint: "https://tool.example/v1/agent",
+      model: "tool-model",
+      apiKeyEnv: "FORMA_TEST_TOOL_KEY",
+    }));
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      if (requests.length === 1) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({
+            toolCalls: [
+              { id: "read-1", name: "readText", args: { path: outsidePath } },
+            ],
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          output: {
+            summary: "Denied out-of-workspace read.",
+            findings: [],
+            clean: true,
+          },
+        }),
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "run",
+        "../../examples/review_diff.forma",
+        "--task",
+        "review_diff",
+        "--input",
+        "{\"diff\":\"diff --git a/src/example.ts b/src/example.ts\"}",
+        "--provider-profile",
+        profile,
+        "--workspace",
+        workspace,
+        "--allow-read",
+      ]);
+      const secondBody = JSON.parse(String(requests[1]?.init.body));
+
+      expect(result.exitCode).toBe(0);
+      expect(secondBody.toolResults).toEqual([
+        {
+          id: "read-1",
+          ok: false,
+          error: expect.stringContaining("outside workspace"),
         },
       ]);
     } finally {

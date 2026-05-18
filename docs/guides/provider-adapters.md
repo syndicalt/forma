@@ -298,7 +298,8 @@ next request with `toolResults`:
 
 Supported tool names are `readText`, `searchText`, `runTest`, and `writeText`.
 Tool calls still pass through the task permission gate and fail if the host did
-not configure that tool.
+not configure that tool. In the CLI host, file tools are scoped to `--workspace`
+and out-of-workspace paths are returned as failed tool results.
 
 The CLI can reuse the same provider settings through a profile file:
 

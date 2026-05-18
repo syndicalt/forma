@@ -86,6 +86,8 @@ The current MVP provides:
   configuration.
 - CLI `run` supports named provider-backed tasks through provider flags and
   provider profiles.
+- CLI tool flags are workspace-scoped so provider-requested file reads,
+  searches, and edits cannot silently operate outside the selected workspace.
 - Python generated bindings include recursive `from_dict` constructors and
   `assert_<task>_output` validators for runtime output dictionaries and nested
   schema dataclasses.

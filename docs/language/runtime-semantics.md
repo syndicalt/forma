@@ -131,7 +131,9 @@ requested tool is not configured, the runtime returns `F4002`.
 The HTTP JSON provider adapters expose the same capability to model gateways
 with a two-step JSON protocol. A provider response may include `toolCalls`; the
 adapter runs those calls through the host tools and sends `toolResults` on the
-next request before accepting final structured `output`.
+next request before accepting final structured `output`. The CLI tool host also
+scopes file reads, searches, and edits to `--workspace`, defaulting to the
+current working directory.
 
 ## Output Contract
 

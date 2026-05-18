@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { exec } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { readdir } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import {
@@ -1093,17 +1093,18 @@ function createConfiguredProvider(options: EvalOptions): ModelProvider {
 }
 
 function createCliTools(args: string[]): ToolHost | undefined {
+  const workspaceRoot = resolve(optionValue(args, "--workspace") ?? process.cwd());
   const tools: ToolHost = {};
   if (args.includes("--allow-read")) {
-    tools.readText = async (path) => readFile(path, "utf8");
+    tools.readText = async (path) => readFile(resolveWorkspacePath(workspaceRoot, path), "utf8");
   }
   if (args.includes("--allow-search")) {
-    tools.searchText = async (query) => searchFiles(process.cwd(), query);
+    tools.searchText = async (query) => searchFiles(workspaceRoot, query);
   }
   if (args.includes("--allow-test")) {
     tools.runTest = async (command) => {
       try {
-        const result = await execAsync(command);
+        const result = await execAsync(command, { cwd: workspaceRoot });
         return { ok: true, output: `${result.stdout}${result.stderr}` };
       } catch (error) {
         const failure = error as { stdout?: string; stderr?: string };
@@ -1113,11 +1114,23 @@ function createCliTools(args: string[]): ToolHost | undefined {
   }
   if (args.includes("--allow-edit")) {
     tools.writeText = async (path, content) => {
-      await writeFile(path, content, "utf8");
+      await writeFile(resolveWorkspacePath(workspaceRoot, path), content, "utf8");
       return { ok: true, output: "" };
     };
   }
   return Object.keys(tools).length > 0 ? tools : undefined;
+}
+
+function resolveWorkspacePath(workspaceRoot: string, path: string): string {
+  const resolved = resolve(workspaceRoot, path);
+  const local = relative(workspaceRoot, resolved);
+  if (local === "") {
+    return resolved;
+  }
+  if (local === ".." || local.startsWith("../") || local.startsWith("..\\") || isAbsolute(local)) {
+    throw new Error(`path is outside workspace: ${path}`);
+  }
+  return resolved;
 }
 
 async function searchFiles(root: string, query: string): Promise<string[]> {
