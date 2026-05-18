@@ -276,6 +276,8 @@ The current MVP provides:
 - Why-Forma guide now names the minimum useful contract boundary before
   packaging: reviewable instructions, declared inputs and outputs, runtime
   validation, and a host smoke path that beats duplicated local schemas.
+- README now names keeping a local-only task out of Forma as a valid
+  non-adoption outcome after the first-use path.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -807,12 +809,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add README wording that names local-only tasks as a valid
-   non-adoption outcome after the first-use path.
-2. Product clarity: add quickstart wording that tells users what evidence
+1. Product clarity: add quickstart wording that tells users what evidence
    justifies moving from minimal to checked scaffold.
-3. Product clarity: add provider-adapter wording that distinguishes local smoke
+2. Product clarity: add provider-adapter wording that distinguishes local smoke
    providers from production provider adapters.
+3. Product clarity: add package-consumer quickstart wording that says not every
+   reviewed local task should become a reusable package.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

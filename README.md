@@ -46,6 +46,9 @@ deployment policy in the host application. Forma supplies the task boundary,
 generated TypeScript and Python bindings, direct `agent(...)` entrypoints, and
 local `StaticProvider` smoke tests. If that does not improve the application
 over an inline prompt plus local schemas, do not add package review yet.
+Keeping a local-only task out of Forma is a valid outcome when the first-use
+path does not make host code clearer or remove duplicated cross-language schema
+work.
 
 | Before Forma | After Forma |
 | --- | --- |
