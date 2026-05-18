@@ -119,6 +119,10 @@ Cleaned-up route labels should preserve lock audit lookup keys. Keep reviewed
 lock notes, stale-lock reports, and package-lock smoke evidence searchable by
 the original lock route key, then record the cleaned-up label as consumer audit
 metadata until a reviewed lock carries it.
+Cleaned-up route labels should preserve dependency audit lookup keys. Keep
+dependency-review notes, package adoption records, stale-lock evidence, and
+consumer smoke output searchable by the original dependency route key, then
+attach the cleaned-up label as application-owned audit metadata.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
