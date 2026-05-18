@@ -177,6 +177,7 @@ const requiredTerms = {
     "Lockfile consumption is for shared ownership, not local cleanup",
     "Package locks protect real handoffs, not internal file organization",
     "Package-lock smoke failures usually mean a stale reviewed artifact set",
+    "Stale locks are package-owner work unless the consumer owns the reviewed release",
     "Keep diagnostics with failed package-lock smoke runs",
     "Preserve package-lock smoke evidence before retrying",
     "Package owners update reviewed locks",

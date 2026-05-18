@@ -314,6 +314,10 @@ or more reviewed artifacts changed after the lockfile was written. Re-run
 the changed file, and regenerate the lock only after the contract, provider
 profile, generated bindings, examples, tests, and release files have been
 reviewed together.
+Stale locks are package-owner work unless the consumer owns the reviewed release.
+Application teams should adopt the next reviewed package release instead of
+rewriting package-owned locks in place; only regenerate the lock in the consumer
+repository when that repository is also the package release owner.
 
 If the agent helper reports `provider profile apiKey or apiKeyEnv is required`,
 the reviewed provider profile cannot resolve a model credential. Committed

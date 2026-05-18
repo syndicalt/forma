@@ -330,6 +330,8 @@ The current MVP provides:
   package release dashboards.
 - Package-consumer quickstart now says package owners update reviewed locks,
   while consumers adopt reviewed package releases.
+- Package-consumer troubleshooting now says stale locks are package-owner work
+  unless the consumer owns the reviewed release.
 - Package-consumer troubleshooting now says application CI should preserve
   package-lock smoke evidence before retrying or adding fallback logic.
 - Provider-adapter docs now say provider profiles are shared defaults, while
@@ -903,12 +905,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer troubleshooting wording that stale
-   locks are package-owner work unless the consumer owns the reviewed release.
-2. Product clarity: add docs index wording that first-use proof asks whether
+1. Product clarity: add docs index wording that first-use proof asks whether
    host code improves, not whether packaging succeeds.
-3. Product clarity: add testing guide wording that `proof:release` belongs
+2. Product clarity: add testing guide wording that `proof:release` belongs
    after a named package consumer exists.
+3. Product clarity: add CLI package-lock docs wording that stale-lock recovery
+   starts with the package release owner.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
