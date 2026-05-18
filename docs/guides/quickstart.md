@@ -108,6 +108,8 @@ output = assert_review_diff_output(result.output)
 Stop here when the task is local to one application. Add package manifests,
 package review, and package locks only when the task is shared, reviewed, or
 reused across repositories.
+If the before/after host code is not simpler after this minimal path, keep the
+inline prompt plus local schemas and do not adopt Forma for that task.
 
 To scaffold that same first-use shape into a clean host project, use
 `project-init --minimal`:
