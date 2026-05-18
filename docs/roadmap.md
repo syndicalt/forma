@@ -478,6 +478,9 @@ The current MVP provides:
   scaffold, when to rerun default `forma project-init` for `project-check` and
   CI checks, and when to use `forma project-init --package-lock` for reviewed
   reusable package artifacts.
+- Generated default project READMEs explain that they are the checked
+  host-project scaffold and link back to the minimal first-use path and the
+  reviewed package-lock scaffold decision table.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -608,9 +611,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add a focused generated default-project README decision
-   note linking back to minimal first-use projects and reviewed package-lock
-   projects.
+3. Product clarity: add a generated package-lock project README decision note
+   that distinguishes reviewed package consumption from local first-use and
+   checked host-project scaffolds.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

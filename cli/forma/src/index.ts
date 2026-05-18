@@ -2685,6 +2685,17 @@ Run \`python test/${taskName}_agent_smoke.py\` to execute it with
 \`StaticProvider\` and no model credentials.
 ${packageLockSection}
 
+## Scaffold Choice
+
+This is the checked host-project scaffold. Use \`forma project-init --minimal\`
+when you only need the five-minute first-use path before CI and project checks.
+Use \`forma project-init --package-lock\` when this host should consume a
+reviewed package lock with pinned artifacts.
+
+For the minimal first-use path, see
+\`docs/guides/quickstart.md#five-minute-usefulness-path\`. For the scaffold
+decision table, see \`docs/packages/cli.md#project-init\`.
+
 ## CLI
 
 \`\`\`bash

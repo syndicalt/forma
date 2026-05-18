@@ -2265,6 +2265,11 @@ describe("forma cli", () => {
     expect(readme).toContain("Use the JSON output in CI when you need machine-readable check rows");
     expect(readme).toContain("See docs/packages/cli.md for passing and failing project-check JSON examples");
     expect(readme).toContain("missingCommands");
+    expect(readme).toContain("## Scaffold Choice");
+    expect(readme).toContain("Use `forma project-init --minimal`");
+    expect(readme).toContain("Use `forma project-init --package-lock`");
+    expect(readme).toContain("docs/guides/quickstart.md#five-minute-usefulness-path");
+    expect(readme).toContain("docs/packages/cli.md#project-init");
     expect(readme).toContain("pnpm run smoke:ts");
     expect(readme).toContain("python test/review_diff_agent_smoke.py");
     expect(readme).toContain("forma run review_diff.forma --task review_diff");
