@@ -219,6 +219,10 @@ same smoke run after a route rename.
 Cleaned-up route labels should preserve smoke audit lookup keys. Keep installed
 smoke summaries, failure summaries, and saved smoke logs searchable by the
 original smoke route key, then add the cleaned-up label as audit metadata.
+Cleaned-up route labels should preserve installed audit lookup keys. Keep
+installed project smoke output, installed package smoke output, failure
+summaries, and saved package logs searchable by the original installed route
+key, then add the cleaned-up label as installed-smoke metadata.
 Cleaned-up route labels should keep installed smoke failure notes comparable.
 When a route rename appears in a failed installed smoke run, keep the original
 failure note beside the cleaned-up label so reviewers can compare reruns
