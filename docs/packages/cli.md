@@ -770,6 +770,10 @@ use default project-init for project-check and CI workflow
 Use the default scaffold when you are ready for `forma project-check`, checked
 CI workflow proof commands, and manifest-enforced smoke tests. The minimal
 scaffold still gives you no-key local checks:
+Generated project CI is application contract protection, not framework ceremony.
+Keep the workflow when application code depends on the generated task bindings,
+provider profile, and runtime entrypoints staying aligned across TypeScript and
+Python.
 
 ```bash
 cd review-diff-agent-minimal

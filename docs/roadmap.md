@@ -264,6 +264,8 @@ The current MVP provides:
 - Provider-adapter docs now distinguish reviewed package profile defaults from
   deployment-specific host overrides for routing, retries, logging, and model
   selection.
+- CLI project-init docs now treat generated project CI as application contract
+  protection, not framework ceremony.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -795,12 +797,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add project-check docs wording that treats generated
-   project CI as application contract protection, not framework ceremony.
-2. Product clarity: add examples README wording that tells readers which proof
+1. Product clarity: add examples README wording that tells readers which proof
    command answers which adoption question.
-3. Product clarity: add migration guide wording that defines when an inline
+2. Product clarity: add migration guide wording that defines when an inline
    prompt should stay inline instead of becoming a package.
+3. Product clarity: add first-use audit wording that defines the stop condition
+   for teams that do not need cross-language contracts.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
