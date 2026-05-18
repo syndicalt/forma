@@ -52,12 +52,23 @@ host entrypoints, smoke tests, or CI workflow guidance:
 corepack pnpm projects:check
 node cli/forma/dist/index.js project-check examples/review-diff-agent
 node cli/forma/dist/index.js project-check examples/review-diff-agent --json
+corepack pnpm projects:installed-smoke
 ```
 
 Use `project-check --json` in CI when a contributor gate needs structured
 clean-project rows. The checked fixture lives at `examples/review-diff-agent`.
 Workflow drift failures include `missingCommands` with the exact generated
 proof command to restore.
+
+`projects:check` covers both local path-alias checks and package-install checks.
+The direct `project-check` commands and reviewed package-lock smoke tests
+exercise the checked fixture against repo source paths. The
+`projects:installed-smoke` command scaffolds a temporary clean project, installs
+`@forma-lang/forma` from a local npm tarball, installs `forma-lang` into a
+Python virtual environment, and runs the generated TypeScript and Python
+`StaticProvider` smoke tests. Use it when packaging or scaffold dependency
+changes could break a project that installs Forma by package name instead of
+using repo path aliases.
 
 Run the focused migration proof when changing the inline-to-Forma review
 workflow, package review gates, or product proof docs:

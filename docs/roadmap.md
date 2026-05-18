@@ -497,6 +497,9 @@ The current MVP provides:
 - `projects:check` now includes `projects:installed-smoke`, so the standard
   project gate proves both generated path-alias checks and package-install
   checks for TypeScript and Python runtimes.
+- Testing docs explain that `projects:installed-smoke` verifies clean generated
+  projects against installed `@forma-lang/forma` and `forma-lang` packages
+  instead of only repo path aliases.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -624,10 +627,10 @@ The next three implementation slices should be:
 
 1. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-2. Product clarity: add docs for the installed-project smoke command so users
-   can distinguish local path-alias checks from package-install checks.
-3. Clean-project onboarding: add an optional CI workflow example for
+2. Clean-project onboarding: add an optional CI workflow example for
    `projects:installed-smoke` once the project gate runtime remains stable.
+3. Product clarity: add docs-check coverage that keeps installed-project smoke
+   guidance tied to package-install checks and path-alias checks.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
