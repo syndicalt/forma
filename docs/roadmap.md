@@ -444,6 +444,8 @@ The current MVP provides:
   through reviewed releases.
 - Product-proof docs now say route-label review is not a substitute for eval
   comparison.
+- Product-proof docs now say route-label cleanup must keep baseline and
+  candidate artifacts comparable.
 - Provider-adapter docs now say route labels should stay host-owned until
   reviewed.
 - Package-consumer quickstart now tells application teams to consume reviewed
@@ -1008,12 +1010,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add product-proof wording that route-label cleanup must keep
-   baseline and candidate artifacts comparable.
-2. Product clarity: add provider-adapter wording that route-label cleanup should
+1. Product clarity: add provider-adapter wording that route-label cleanup should
    not mutate reviewed provider profiles.
-3. Product clarity: add testing-guide wording that route-label cleanup should
+2. Product clarity: add testing-guide wording that route-label cleanup should
    preserve release proof comparability.
+3. Product clarity: add runtime-result wording that route-label cleanup should
+   preserve failed-result diagnostics.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

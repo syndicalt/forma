@@ -161,6 +161,10 @@ evidence.
 Route-label review is not a substitute for eval comparison. A clean, stable, or
 redacted route label only identifies the provider path; reviewers still need the
 baseline and candidate eval summaries to judge task quality.
+Route-label cleanup must keep baseline and candidate artifacts comparable. When
+renaming or redacting a route label, update the paired baseline and candidate
+summaries together so reviewers can compare the same provider path before and
+after cleanup.
 Fallback baselines should identify the model route under review. Include the
 provider, model, endpoint or route label, and fallback policy in baseline and
 candidate eval summaries so reviewers know which deployment path changed.
