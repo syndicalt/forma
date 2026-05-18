@@ -233,11 +233,18 @@ function packageEvalCoverageCheck(manifest: FormaPackageManifest, suite: EvalSui
   const tasks = Array.from(new Set(suite.reports.map((report) => report.name)));
   const requiredTasks = (manifest.tasks ?? []).flatMap((task) => task.name ? [task.name] : []);
   const missingTasks = requiredTasks.filter((task) => !tasks.includes(task));
+  const reportByName = new Map(suite.reports.map((report) => [report.name, report]));
+  const mismatchedTasks = (manifest.tasks ?? []).flatMap((task) => {
+    if (!task.name || !task.sourceSha256) return [];
+    const report = reportByName.get(task.name);
+    return report?.metadata?.contract?.sourceSha256 === task.sourceSha256 ? [] : [task.name];
+  }).filter((task) => !missingTasks.includes(task));
   return {
     name: "eval-coverage",
-    passed: missingTasks.length === 0,
+    passed: missingTasks.length === 0 && mismatchedTasks.length === 0,
     tasks,
     ...(missingTasks.length > 0 ? { missingTasks } : {}),
+    ...(mismatchedTasks.length > 0 ? { mismatchedTasks } : {}),
   };
 }
 

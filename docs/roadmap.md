@@ -140,7 +140,7 @@ The current MVP provides:
 - `forma package-review` fails package reviews that omit TypeScript or Python
   host examples and reports included and missing runtimes.
 - `forma package-review` fails package reviews when the eval suite omits
-  package manifest tasks and reports covered and missing task names.
+  package manifest tasks or evaluates mismatched task source hashes.
 - `forma package-review --baseline` folds previous-release eval comparison into
   the package publishing checklist.
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,

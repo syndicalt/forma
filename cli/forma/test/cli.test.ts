@@ -751,6 +751,33 @@ describe("forma cli", () => {
     });
   });
 
+  it("fails package review when eval coverage uses a different task source", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-eval-hash-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    const taskPath = join(dir, "review_diff.forma");
+    const alternateTaskPath = join(dir, "review_diff_copy.forma");
+    const fixturePath = join(dir, "review_diff.eval.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    await writeFile(alternateTaskPath, `${await readFile(taskPath, "utf8")}\n`);
+    const fixture = JSON.parse(await readFile(fixturePath, "utf8"));
+    fixture.source = "review_diff_copy.forma";
+    await writeFile(fixturePath, `${JSON.stringify(fixture, null, 2)}\n`);
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "eval-coverage",
+      passed: false,
+      tasks: ["review_diff"],
+      mismatchedTasks: ["review_diff"],
+    });
+  });
+
   it("fails package review when a generated binding target is missing", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-one-binding-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");
