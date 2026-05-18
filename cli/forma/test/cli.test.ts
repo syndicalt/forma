@@ -2221,6 +2221,8 @@ describe("forma cli", () => {
     expect(readme).toContain("forma project-check .");
     expect(readme).toContain("forma project-check . --json");
     expect(readme).toContain("Use the JSON output in CI when you need machine-readable check rows");
+    expect(readme).toContain("See docs/packages/cli.md for passing and failing project-check JSON examples");
+    expect(readme).toContain("missingCommands");
     expect(readme).toContain("pnpm run smoke:ts");
     expect(readme).toContain("python test/review_diff_agent_smoke.py");
     expect(readme).toContain("forma run review_diff.forma --task review_diff");

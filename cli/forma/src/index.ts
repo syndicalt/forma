@@ -2440,6 +2440,9 @@ Use the JSON output in CI when you need machine-readable check rows:
 \`\`\`bash
 forma project-check . --json
 \`\`\`
+
+See docs/packages/cli.md for passing and failing project-check JSON examples,
+including \`missingCommands\` when the generated workflow drops a proof command.
 `;
 }
 

@@ -216,6 +216,8 @@ The current MVP provides:
   clean-project checks, including a `ci-workflow` row with `missingCommands`.
 - Generated clean-project READMEs show `project-check --json` as the
   machine-readable CI check path alongside the human `project-check` workflow.
+- Generated clean-project READMEs point to CLI docs for passing and failing
+  `project-check --json` examples, including `missingCommands`.
 - Quickstart shows `project-check --json` for clean-project CI checks before
   the generated `StaticProvider` smoke-test commands.
 - Quickstart points to the CLI docs for passing and failing
@@ -516,9 +518,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add project-check JSON examples or pointers to generated
-   clean-project READMEs so scaffolded repositories carry the same report-shape
-   guidance as the central docs.
+3. Product proof: add project-check JSON guidance to the docs index Start Here
+   flow so the clean-project CI path is visible before quickstart.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
