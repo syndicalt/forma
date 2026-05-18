@@ -158,6 +158,11 @@ The repository release workflow also captures the raw
 `installedPackageSmokeSummary` or `installedPackageSmokeFailureSummary` line in
 `installed-package-smoke-summary.jsonl` and uploads it with the installed smoke
 log as `forma-release-proof-artifacts`.
+Fallback retries must keep validation evidence in release artifacts. If a
+release proof rerun changes provider routing or model fallback policy, preserve
+the original diagnostics, failed smoke summary, and installed-package log so
+reviewers can see whether the retry fixed provider behavior or hid contract
+validation drift.
 
 ### Release Artifact Reading Guide
 
