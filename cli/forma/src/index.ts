@@ -418,12 +418,14 @@ function packageTestsCheck(manifest: FormaPackageManifest): Record<string, unkno
   const missingProviderOverrideTests = tests.length > 0
     ? requiredProviderOverrideTests.filter((path) => !testPaths.has(path))
     : [];
+  const migrationParityTests = packageMigrationParityTestPaths(tests);
   return {
     name: "tests",
     passed: missingProviderOverrideTests.length === 0,
     total: tests.length,
     runtimes,
     ...(commands.length > 0 ? { commands } : {}),
+    ...(migrationParityTests.length > 0 ? { migrationParityTests } : {}),
     ...(missingProviderOverrideTests.length > 0 ? { missingProviderOverrideTests } : {}),
   };
 }
@@ -431,6 +433,15 @@ function packageTestsCheck(manifest: FormaPackageManifest): Record<string, unkno
 function packageProviderOverrideTestPaths(manifest: FormaPackageManifest): string[] {
   const taskNames = manifest.tasks?.flatMap((task) => typeof task.name === "string" ? [task.name] : []) ?? [];
   return taskNames.flatMap((name) => [`${name}_contract.test.ts`, `${name}_contract_test.py`]);
+}
+
+function packageMigrationParityTestPaths(tests: Array<{ runtime?: string; path?: string }>): string[] {
+  return tests.flatMap((test) => {
+    if (typeof test.path !== "string") {
+      return [];
+    }
+    return /_migration(_test)?\.(test\.ts|py)$/.test(test.path) ? [test.path] : [];
+  });
 }
 
 function packageReleaseFilesCheck(manifest: FormaPackageManifest): Record<string, unknown> {

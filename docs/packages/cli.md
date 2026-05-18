@@ -251,18 +251,25 @@ package reports rows for the reviewed lockfile, secret-free provider profile,
 TypeScript and Python bindings, TypeScript and Python host examples, pinned
 package tests with copyable commands, release files, README commands, package
 CI commands, publish bundle contents, eval coverage, and eval-suite results.
-For example, the `tests` row includes:
+For example, the checked `review_diff` package `tests` row includes the
+migration parity fixtures separately from the generic package test commands:
 
 ```json
 {
   "name": "tests",
   "passed": true,
-  "total": 4,
+  "total": 8,
   "runtimes": ["typescript", "python"],
   "commands": [
-    "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts",
+    "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts",
     "python review_diff_decision_test.py",
-    "python tool_permission_workflow_test.py"
+    "python tool_permission_workflow_test.py",
+    "python review_diff_contract_test.py",
+    "python review_diff_migration_test.py"
+  ],
+  "migrationParityTests": [
+    "review_diff_migration.test.ts",
+    "review_diff_migration_test.py"
   ]
 }
 ```

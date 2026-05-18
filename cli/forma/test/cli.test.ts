@@ -689,20 +689,25 @@ describe("forma cli", () => {
       },
       checks: expect.arrayContaining([
         expect.objectContaining({ name: "package-lock", passed: true }),
-        expect.objectContaining({ name: "examples", passed: true, total: 12, runtimes: ["typescript", "python"] }),
+        expect.objectContaining({ name: "examples", passed: true, total: 14, runtimes: ["typescript", "python"] }),
         expect.objectContaining({
           name: "tests",
           passed: true,
-          total: 6,
+          total: 8,
           runtimes: ["typescript", "python"],
           commands: [
-            "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts",
+            "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts",
             "python review_diff_decision_test.py",
             "python tool_permission_workflow_test.py",
             "python review_diff_contract_test.py",
+            "python review_diff_migration_test.py",
+          ],
+          migrationParityTests: [
+            "review_diff_migration.test.ts",
+            "review_diff_migration_test.py",
           ],
         }),
-        expect.objectContaining({ name: "publish-bundle", passed: true, total: 31 }),
+        expect.objectContaining({ name: "publish-bundle", passed: true, total: 35 }),
       ]),
     });
   });

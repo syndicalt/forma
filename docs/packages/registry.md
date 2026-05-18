@@ -237,6 +237,10 @@ Run the test commands after lock verification so the files being executed are
 the same files that reviewers approved. `forma package-review` prints those
 commands in the `tests` row and checks that the README and package CI workflow
 include them whenever the manifest has a `tests` section.
+When the manifest includes migration parity tests such as
+`review_diff_migration.test.ts` and `review_diff_migration_test.py`, the same
+row also reports `migrationParityTests` so reviewers can identify the
+before/after migration proof separately from other package tests.
 The same review keeps generated workflow failure handling reviewable: if the
 package or publish workflow omits the troubleshooting link, the `ci-workflow`
 or `publish-bundle` row reports `missingGuidance`.
@@ -255,21 +259,27 @@ review includes rows like:
     { "name": "package-lock", "passed": true, "path": "examples/review_diff.forma.lock.json" },
     { "name": "provider-profile", "passed": true, "provider": "openai-responses", "model": "gpt-5", "apiKeyEnv": "OPENAI_API_KEY" },
     { "name": "bindings", "passed": true, "total": 2, "targets": ["typescript", "python"] },
-    { "name": "examples", "passed": true, "total": 12, "runtimes": ["typescript", "python"] },
+    { "name": "examples", "passed": true, "total": 14, "runtimes": ["typescript", "python"] },
     {
       "name": "tests",
       "passed": true,
-      "total": 4,
+      "total": 8,
       "runtimes": ["typescript", "python"],
       "commands": [
-        "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts",
+        "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts",
         "python review_diff_decision_test.py",
-        "python tool_permission_workflow_test.py"
+        "python tool_permission_workflow_test.py",
+        "python review_diff_contract_test.py",
+        "python review_diff_migration_test.py"
+      ],
+      "migrationParityTests": [
+        "review_diff_migration.test.ts",
+        "review_diff_migration_test.py"
       ]
     },
-    { "name": "readme", "passed": true, "total": 9 },
-    { "name": "ci-workflow", "passed": true, "total": 7 },
-    { "name": "publish-bundle", "passed": true, "total": 29 },
+    { "name": "readme", "passed": true, "total": 11 },
+    { "name": "ci-workflow", "passed": true, "total": 9 },
+    { "name": "publish-bundle", "passed": true, "total": 35 },
     { "name": "eval-coverage", "passed": true, "tasks": ["greet_user", "greet_user_warmly", "review_diff"] },
     { "name": "eval-suite", "passed": true, "total": 3, "failed": 0 }
   ]
