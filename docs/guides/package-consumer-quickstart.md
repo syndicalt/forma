@@ -379,6 +379,10 @@ Fallback failures should preserve package-lock smoke evidence. If a fallback
 model, route, or provider override fails after the reviewed lock loads, keep the
 lock smoke output with the fallback error so package owners can separate
 deployment policy from reviewed artifact drift.
+Lock regeneration should not be used to test fallback policy. Prove model
+failover with host adapter tests, saved diagnostics, and preserved fallback
+trace evidence; regenerate a package lock only when reviewed package artifacts
+actually changed.
 
 If the `tests` row reports `missingProviderOverrideTests`, the package manifest
 still declares tests but no longer includes the generated TypeScript and Python
