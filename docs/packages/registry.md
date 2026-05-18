@@ -340,6 +340,15 @@ names the exact guide link to restore:
 
 ```json
 {
+  "name": "readme",
+  "passed": false,
+  "total": 8,
+  "missingGuidance": ["missingProviderOverrideTests"]
+}
+```
+
+```json
+{
   "name": "ci-workflow",
   "passed": false,
   "total": 6,

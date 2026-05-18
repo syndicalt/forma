@@ -183,6 +183,7 @@ const requiredPackageReleaseFiles = [
 ];
 const packageEmbeddingGuidance = "docs/guides/package-consumer-quickstart.md#what-the-helper-calls";
 const packageProviderOverrideGuidance = "docs/guides/package-consumer-quickstart.md#explicit-provider-overrides";
+const packageProviderOverrideRecoveryGuidance = "missingProviderOverrideTests";
 const packageTroubleshootingGuidance = "docs/guides/package-consumer-quickstart.md#troubleshooting";
 
 async function checkPackageManifest(path: string): Promise<CliResult> {
@@ -452,7 +453,7 @@ async function packageReadmeCheck(manifestPath: string, manifest: FormaPackageMa
   const readme = await readFile(resolve(manifestDir, readmePath), "utf8").catch(() => "");
   const commands = packageReadmeCommands(manifestPath, manifest, manifestDir);
   const missingCommands = commands.filter((command) => !readme.includes(command));
-  const guidance = [packageEmbeddingGuidance, packageProviderOverrideGuidance];
+  const guidance = [packageEmbeddingGuidance, packageProviderOverrideGuidance, packageProviderOverrideRecoveryGuidance];
   const missingGuidance = guidance.filter((item) => !readme.includes(item));
   return {
     name: "readme",
