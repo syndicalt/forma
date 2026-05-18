@@ -192,6 +192,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     return { exitCode: 1, stdout: "", stderr: suiteResult.stderr || "eval suite failed\n" };
   }
   const suite = JSON.parse(suiteResult.stdout) as EvalSuiteArtifact;
+  const compatibilityPolicyCheck = packageCompatibilityPolicyCheck(manifest);
   const providerProfileCheck = await packageProviderProfileCheck(manifest, manifestDir);
   const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
@@ -203,6 +204,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
   const checks: Array<Record<string, unknown>> = [
     { name: "package-check", passed: true },
     { name: "package-lock", passed: true, path: lockPath },
+    compatibilityPolicyCheck,
     providerProfileCheck,
     bindingsCheck,
     examplesCheck,
@@ -213,7 +215,8 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     evalCoverageCheck,
     { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
   ];
-  let passed = providerProfileCheck.passed === true
+  let passed = compatibilityPolicyCheck.passed === true
+    && providerProfileCheck.passed === true
     && bindingsCheck.passed === true
     && examplesCheck.passed === true
     && releaseFilesCheck.passed === true
@@ -252,6 +255,23 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
       checks,
     }, null, 2)}\n`,
     stderr: "",
+  };
+}
+
+function packageCompatibilityPolicyCheck(manifest: FormaPackageManifest): Record<string, unknown> {
+  const policy = manifest.compatibility as { breaking?: unknown; review?: unknown; environment?: unknown } | undefined;
+  const breaking = Array.isArray(policy?.breaking) ? policy.breaking.filter((field): field is string => typeof field === "string") : [];
+  const review = Array.isArray(policy?.review) ? policy.review.filter((field): field is string => typeof field === "string") : [];
+  const environment = Array.isArray(policy?.environment) ? policy.environment.filter((field): field is string => typeof field === "string") : [];
+  const missingBreakingFields = ["input", "output", "schemas"].filter((field) => !breaking.includes(field));
+  const missingReviewFields = ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples", "releaseFiles"].filter((field) => !review.includes(field));
+  const missingEnvironmentFields = ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"].filter((field) => !environment.includes(field));
+  return {
+    name: "compatibility-policy",
+    passed: missingBreakingFields.length === 0 && missingReviewFields.length === 0 && missingEnvironmentFields.length === 0,
+    ...(missingBreakingFields.length > 0 ? { missingBreakingFields } : {}),
+    ...(missingReviewFields.length > 0 ? { missingReviewFields } : {}),
+    ...(missingEnvironmentFields.length > 0 ? { missingEnvironmentFields } : {}),
   };
 }
 

@@ -119,16 +119,17 @@ forma package-lock examples/review_diff.forma.pkg.json --output examples/review_
 `forma package-review` runs the publish-review checklist for a package:
 manifest validation, adjacent lockfile verification, TypeScript and Python
 binding presence, TypeScript and Python host example presence, provider profile
-secret hygiene, release file presence, README command coverage, package CI
-coverage, publish bundle coverage, and eval suite summary. It prints a
-machine-readable checklist result. The review fails when a publishable package
-embeds provider secrets, omits a provider profile for an agent task, does not
-include generated bindings and host examples for both runtimes, omits the
-package README or scaffolded CI workflows from `releaseFiles`, omits package
-review commands from the README, omits package-check, lock check, eval-suite,
-or package-review commands from the package CI workflow, omits reviewed
-artifacts from the publish workflow bundle, or when the eval suite does not
-cover every task in the package manifest with matching task source hashes. Add `--baseline
+secret hygiene, compatibility policy coverage, release file presence, README
+command coverage, package CI coverage, publish bundle coverage, and eval suite
+summary. It prints a machine-readable checklist result. The review fails when a
+publishable package embeds provider secrets, omits a provider profile for an
+agent task, does not include generated bindings and host examples for both
+runtimes, omits required compatibility policy fields, omits the package README
+or scaffolded CI workflows from `releaseFiles`, omits package review commands
+from the README, omits package-check, lock check, eval-suite, or package-review
+commands from the package CI workflow, omits reviewed artifacts from the publish
+workflow bundle, or when the eval suite does not cover every task in the package
+manifest with matching task source hashes. Add `--baseline
 baseline.json` to compare the candidate eval suite against a previous release
 artifact; baseline comparisons default to
 `--fail-on breaking,environment` unless you pass a different `--fail-on`

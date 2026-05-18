@@ -135,6 +135,8 @@ The current MVP provides:
   a reviewed `.tgz` package bundle and uploads release assets from version tags.
 - `forma package-review` runs a machine-readable package publishing checklist
   across manifest validation, lockfile verification, and eval-suite execution.
+- `forma package-review` fails package reviews when compatibility policies omit
+  breaking, review, or environment fields used by comparison.
 - `forma package-review` fails package reviews when provider profiles embed
   `apiKey` secrets instead of naming an environment variable.
 - `forma package-review` requires provider profiles for agent task packages

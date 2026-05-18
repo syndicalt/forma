@@ -76,21 +76,23 @@ node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
 The package review output should report `package-check`, `package-lock`,
-`provider-profile`, `bindings`, `examples`, `release-files`,
-`readme`, `ci-workflow`, `publish-bundle`, `eval-coverage`, and `eval-suite`
-as passed, with `bindings.targets` and `examples.runtimes` listing both
-`typescript` and `python`, and `eval-coverage.tasks` listing the packaged task
-names. Eval coverage also checks that each evaluated task source hash matches
-the package manifest. Release file review checks that the package README and
-scaffolded CI workflows are present in the reviewed artifact set. README review
-checks that the package docs include package-review, package-check, lock check,
-eval-suite, baseline review, and compare commands. CI workflow review checks
-that the package workflow runs package-check, lock check, eval-suite, and
-package-review. Publish bundle review checks that the publish workflow
-references every reviewed artifact path before building the release bundle.
-Provider profile review fails if the profile embeds an `apiKey`; agent task
-packages should include a provider profile that uses `apiKeyEnv`, and OpenAI
-profiles fail review when that key environment variable is missing.
+`compatibility-policy`, `provider-profile`, `bindings`, `examples`,
+`release-files`, `readme`, `ci-workflow`, `publish-bundle`, `eval-coverage`,
+and `eval-suite` as passed, with `bindings.targets` and `examples.runtimes`
+listing both `typescript` and `python`, and `eval-coverage.tasks` listing the
+packaged task names. Eval coverage also checks that each evaluated task source
+hash matches the package manifest. Compatibility policy review checks that the
+manifest classifies breaking, review, and environment fields used by compare.
+Release file review checks that the package README and scaffolded CI workflows
+are present in the reviewed artifact set. README review checks that the package
+docs include package-review, package-check, lock check, eval-suite, baseline
+review, and compare commands. CI workflow review checks that the package
+workflow runs package-check, lock check, eval-suite, and package-review. Publish
+bundle review checks that the publish workflow references every reviewed
+artifact path before building the release bundle. Provider profile review fails
+if the profile embeds an `apiKey`; agent task packages should include a provider
+profile that uses `apiKeyEnv`, and OpenAI profiles fail review when that key
+environment variable is missing.
 `examples:check` should finish without output. A live provider run requires
 `OPENAI_API_KEY`; without it, the failure is expected and confirms that
 credentials stay in host configuration instead of the `.forma` contract.

@@ -186,6 +186,8 @@ Publishing checklist:
 
 - Run `forma package-review` against the manifest, with `--baseline` when a
   previous release artifact is available.
+- Confirm the `compatibility-policy` row passes; missing breaking, review, or
+  environment fields in the manifest compatibility policy fail the review.
 - Confirm the `provider-profile` row in package-review is present for agent
   task packages; deterministic packages may omit provider profiles.
 - Confirm the `provider-profile` row in package-review does not report
