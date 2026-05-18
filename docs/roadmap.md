@@ -502,6 +502,12 @@ The current MVP provides:
   instead of only repo path aliases.
 - Testing docs include an optional installed-project smoke CI step for workflows
   that need focused package-install coverage without the full release proof.
+- `packages:installed-smoke` builds the checked review-diff release bundle,
+  extracts it into a temporary consumer, installs `@forma-lang/forma` from a
+  local npm tarball and `forma-lang` into a Python venv, then runs the reviewed
+  TypeScript and Python lockfile smoke tests from the bundle.
+- `proof:release` now runs `packages:installed-smoke` after migration and
+  project checks, so release proof covers installed package-lock consumers.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -627,12 +633,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: add installed-package smoke tests once release
-   packaging is available.
-2. Product clarity: add docs-check coverage that keeps the optional
-   installed-project smoke CI step visible in the verification guide.
-3. Registry and versioning: add installed-package smoke tests once release
-   packaging is available.
+1. Product clarity: document `packages:installed-smoke` in the verification
+   guide and registry docs.
+2. Product clarity: add docs-check coverage that keeps installed-package smoke
+   guidance tied to release bundles and package-lock consumers.
+3. Registry and versioning: add an optional CI workflow example for
+   `packages:installed-smoke` once the release proof runtime remains stable.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

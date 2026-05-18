@@ -301,7 +301,7 @@ function validateRootPackageScripts() {
   }
   for (const requiredCommand of [
     "node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command",
-    "corepack pnpm proof:migration && corepack pnpm projects:check",
+    "corepack pnpm proof:migration && corepack pnpm projects:check && corepack pnpm packages:installed-smoke",
   ]) {
     if (!releaseProof.includes(requiredCommand)) {
       console.error(`package.json: proof:release missing ${requiredCommand}`);
