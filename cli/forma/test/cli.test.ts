@@ -1882,6 +1882,8 @@ describe("forma cli", () => {
     expect(readme).toContain("restore the generated TypeScript and Python lockfile smoke tests");
     expect(readme).toContain("missingMigrationParityTests");
     expect(readme).toContain("restore the TypeScript and Python migration parity fixtures");
+    expect(readme).toContain("missingMigrationParityProofCommand");
+    expect(readme).toContain("package-review --proof-command");
     expect(readme).toContain("docs/guides/package-consumer-quickstart.md#missingmigrationparitytests");
     expect(readme).toContain("regenerate the package lock");
     expect(readme).not.toContain('"kind": "setting"');

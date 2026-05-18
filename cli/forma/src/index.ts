@@ -1350,7 +1350,7 @@ ${packageTroubleshootingGuidance} when lockfile checks,
 provider profiles, or generated smoke tests fail.
 
 If package review reports \`missingProviderOverrideTests\`, restore the generated TypeScript and Python lockfile smoke tests. Keep them in the manifest \`tests\` array, add their commands back to README and CI, include them in the publish bundle, and regenerate the package lock.
-If package review reports \`missingMigrationParityTests\`, restore the TypeScript and Python migration parity fixtures. Keep them in the manifest \`tests\` array, add their commands back to README and CI, include them in the publish bundle, and regenerate the package lock. See ${packageMigrationParityTroubleshootingGuidance} for the full restore sequence.
+If package review reports \`missingMigrationParityTests\`, restore the TypeScript and Python migration parity fixtures. Keep them in the manifest \`tests\` array, add their commands back to README and CI, include them in the publish bundle, and regenerate the package lock. If it reports \`missingMigrationParityProofCommand\`, restore the reported \`package-review --proof-command\` command to README and CI so release review runs the before/after proof as a blocking row. See ${packageMigrationParityTroubleshootingGuidance} for the full restore sequence.
 `;
 }
 

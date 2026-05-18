@@ -94,6 +94,7 @@ const requiredTerms = {
     "TypeScript",
     "Python",
     "missingMigrationParityTests",
+    "missingMigrationParityProofCommand",
     "docs/guides/package-consumer-quickstart.md#missingmigrationparitytests",
   ],
   "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "tree-sitter test", "pytest", "vitest"],

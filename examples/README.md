@@ -66,3 +66,6 @@ add their commands back to README and CI, include them in the publish bundle,
 and regenerate the package lock. See
 docs/guides/package-consumer-quickstart.md#missingmigrationparitytests for the
 full restore sequence.
+If package review reports `missingMigrationParityProofCommand`, restore the
+reported `package-review --proof-command` command to README and CI so release
+review runs the before/after proof as a blocking row.

@@ -325,3 +325,29 @@ Those migration parity tests are the runnable before/after proof for moving an
 inline model call into Forma. They keep the inline TypeScript and Python
 baseline beside the reviewed Forma package output and assert that host-facing
 review decisions stay the same after migration.
+
+### missingMigrationParityProofCommand
+
+If the `readme` or `ci-workflow` row reports
+`missingMigrationParityProofCommand`, the migration parity test files are still
+present, but the reviewed README or CI workflow no longer runs them through the
+blocking package-review proof gate. Restore the exact command reported in
+`missingMigrationParityProofCommand` to both reviewed surfaces:
+
+```bash
+forma package-review review_diff.forma.pkg.json --proof-command "npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py"
+forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json
+forma package-review review_diff.forma.pkg.json
+```
+
+For checked packages that use the repository-level proof script, keep the same
+shape but use the root proof command:
+
+```bash
+forma package-review review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
+```
+
+Use `missingMigrationParityTests` when a migration parity file or test command
+is missing. Use `missingMigrationParityProofCommand` when the files and direct
+test commands exist, but the release checklist no longer runs them as a
+blocking `proof-command` row.
