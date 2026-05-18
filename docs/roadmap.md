@@ -363,6 +363,8 @@ The current MVP provides:
   bypass validation.
 - Provider-adapter docs now say fallback models are deployment policy unless
   every consumer should inherit them.
+- First-use audit now says fallback models are not part of the usefulness
+  proof.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -925,12 +927,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add first-use audit wording that fallback models are not
-   part of the usefulness proof.
-2. Product clarity: add testing-guide wording that fallback retries must keep
+1. Product clarity: add testing-guide wording that fallback retries must keep
    validation evidence in release artifacts.
-3. Product clarity: add package-consumer troubleshooting wording that fallback
+2. Product clarity: add package-consumer troubleshooting wording that fallback
    failures should preserve package-lock smoke evidence.
+3. Product clarity: add quickstart wording that fallback models belong after
+   the first local smoke proof.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

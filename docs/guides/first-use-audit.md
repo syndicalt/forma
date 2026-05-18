@@ -30,6 +30,9 @@ that the host code became simpler.
 No named consumer means no package lock yet. Stay on the minimal or checked
 host-project path until a specific application, repository, or release process
 needs pinned package artifacts from a reviewed contract.
+Fallback models are not part of the usefulness proof. First prove the Forma
+contract removes duplicated schema and prompt code with local smoke tests; add
+provider failover only after that contract is worth keeping.
 
 ## Steps
 
