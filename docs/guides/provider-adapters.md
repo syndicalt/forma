@@ -85,6 +85,10 @@ Cleaned-up route labels should preserve provider audit lookup keys. Keep
 provider-profile notes, adapter logs, retry evidence, and reviewed defaults
 searchable by the original provider route key, then add the cleaned-up label as
 metadata after ownership and review boundaries are clear.
+Cleaned-up route labels should preserve routing audit lookup keys. Keep routing
+decisions, fallback attempts, adapter configuration, and provider traces
+searchable by the original routing key, then attach the cleaned-up label after
+host ownership and review boundaries are recorded.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the
