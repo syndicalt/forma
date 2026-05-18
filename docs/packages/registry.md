@@ -98,6 +98,15 @@ bundle changes might affect installed package-lock consumers. That smoke builds
 the checked `review_diff` release bundle, extracts it into a temporary
 consumer, installs `@forma-lang/forma` and `forma-lang` by package name, and
 runs the TypeScript and Python lockfile smoke tests from the bundle.
+The release proof workflow archives the installed smoke summary as
+`installed-package-smoke-summary.jsonl`. A passing row is one JSON object per
+line; reviewers should check `packageKind`, `expectedArtifactFiles`, and the
+TypeScript/Python commands before approving the release:
+
+```json
+{"installedPackageSmokeSummary":{"passed":true,"total":1,"packages":[{"packageKind":"review-diff package-lock consumer","bundleName":"review_diff.forma-package.tgz","consumerDir":"review-diff-package","expectedArtifactFiles":[{"label":"reviewed package manifest and lock","files":["review_diff.forma.pkg.json","review_diff.forma.lock.json"]}],"typeScriptCommand":"corepack pnpm exec vitest run review_diff_contract.test.ts","pythonCommand":"review_diff_contract_test.py","passed":true}]}}
+```
+
 The checked `review_diff` package also includes
 `review_diff_migration.test.ts` and `review_diff_migration_test.py`, which keep
 an inline TypeScript/Python baseline beside the Forma package version and

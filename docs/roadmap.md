@@ -568,6 +568,10 @@ The current MVP provides:
   `installedPackageSmokeFailureSummary` lines into
   `installed-package-smoke-summary.jsonl`, and uploads the JSONL plus raw log as
   `forma-release-proof-artifacts`.
+- Registry docs now include a copied sample
+  `installed-package-smoke-summary.jsonl` row so reviewers can recognize
+  `packageKind`, `expectedArtifactFiles`, and TypeScript/Python smoke commands
+  in release artifacts.
 - Verification docs now include a release artifact reading guide for
   `forma-release-proof-artifacts`, including the success and failure JSONL rows
   and how to use `expectedArtifactFiles` during triage.
@@ -696,12 +700,11 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: include one copied sample
-   `installed-package-smoke-summary.jsonl` row in registry docs.
-2. Registry and versioning: add CI guidance for archiving stale package-lock
+1. Registry and versioning: add CI guidance for archiving stale package-lock
    JSON reports.
-3. Registry and versioning: make generated package READMEs mention artifact
+2. Registry and versioning: make generated package READMEs mention artifact
    group release notes.
+3. Product clarity: add a short package-lock JSON report example to CLI docs.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
