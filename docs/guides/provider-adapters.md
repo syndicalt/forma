@@ -49,6 +49,9 @@ or eval artifacts.
 Fallback route labels should be reviewed before becoming shared defaults. Keep
 deployment-specific labels in host adapters until every consumer should inherit
 that route name through the reviewed provider profile.
+Route labels should stay host-owned until reviewed. Treat route-label cleanup,
+renaming, and redaction as adapter or application configuration until the name
+has enough consumer evidence to become part of the reviewed package profile.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the
