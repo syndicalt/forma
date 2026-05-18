@@ -254,6 +254,9 @@ The current MVP provides:
   restore path for release proof failures that reach `projects:check`.
 - Testing and verification docs explain the same package-lock smoke-test
   recovery path for local `projects:check` and release proof failures.
+- Package consumer quickstart links clean-project package-lock smoke-test
+  recovery back to the reviewed package-lock project scaffold and product proof
+  verification guide.
 - README and documentation index Product Proof commands include
   `projects:check`, so the checked clean-project fixture is part of the main
   proof path.
@@ -572,9 +575,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add package-lock smoke-test recovery links from the package
-   consumer quickstart so package consumers can find the same restore actions
-   from lockfile troubleshooting.
+3. Product clarity: add a five-minute usefulness path that starts from the
+   inline prompt problem, shows the generated TypeScript/Python embedding code,
+   and stops before package locks unless the task is shared or reviewed.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

@@ -282,6 +282,28 @@ package artifact drift: inspect the test change, run the TypeScript and Python
 smoke-test commands, then regenerate the lockfile as part of the same reviewed
 package update.
 
+If a host application starts from a clean Forma project and already has a
+reviewed package lock, scaffold the package-lock smoke path directly:
+
+```bash
+node cli/forma/dist/index.js project-init ./review-diff-agent-lock \
+  --name review-diff-agent-lock \
+  --task review_diff \
+  --package-lock examples/review_diff.forma.lock.json
+```
+
+That project path is documented in
+`docs/guides/quickstart.md#reviewed-package-lock-projects` and participates in
+the release proof described in `docs/guides/product-proof.md#verification`.
+When `forma project-check --json` reports a `package-lock-smoke-tests` row with
+`missingPaths`, restore the reviewed package-lock smoke tests named in the
+report or rerun `project-init --package-lock` and copy the generated
+TypeScript and Python smoke files back into the project. When the
+`ci-workflow` row reports package-lock smoke `missingCommands`, restore
+`smoke:lock:ts` and the Python package-lock smoke command in
+`.github/workflows/forma-project.yml` so CI still proves the reviewed lock can
+be embedded before application traffic reaches the agent.
+
 If the `tests` row reports `missingProviderOverrideTests`, the package manifest
 still declares tests but no longer includes the generated TypeScript and Python
 lockfile consumer smoke tests. Restore the reported files, keep both paths in

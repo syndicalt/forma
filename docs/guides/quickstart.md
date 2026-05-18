@@ -140,6 +140,8 @@ The scaffold also writes `.github/workflows/forma-project.yml` with the same
 `project-check`, TypeScript compile, Python compile, and smoke-test commands for
 CI.
 
+## Reviewed Package Lock Projects
+
 When you already have a reviewed Forma package lock, scaffold the same clean
 host project with package-lock consumer smoke tests:
 
