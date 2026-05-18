@@ -862,6 +862,99 @@ describe("forma cli", () => {
     }
   });
 
+  it("evaluates provider-requested read tools when explicitly allowed", async () => {
+    const originalFetch = globalThis.fetch;
+    const originalApiKey = process.env.FORMA_TEST_EVAL_TOOL_KEY;
+    const dir = await mkdtemp(join(tmpdir(), "forma-eval-tool-"));
+    const profile = join(dir, "provider.json");
+    const sourcePath = resolve(process.cwd(), "../../examples/review_diff.forma");
+    const fixturePath = join(dir, "review_diff.json");
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    process.env.FORMA_TEST_EVAL_TOOL_KEY = "eval-tool-secret";
+    await writeFile(profile, JSON.stringify({
+      provider: "http-json",
+      endpoint: "https://eval-tool.example/v1/agent",
+      model: "eval-tool-model",
+      apiKeyEnv: "FORMA_TEST_EVAL_TOOL_KEY",
+    }));
+    await writeFile(fixturePath, JSON.stringify({
+      name: "review_diff",
+      source: sourcePath,
+      input: { diff: "diff --git a/src/example.ts b/src/example.ts" },
+      expectedResult: {
+        ok: true,
+        output: {
+          summary: "Read source through eval tools.",
+          findings: [],
+          clean: true,
+        },
+        trace: [
+          { step: "permission", detail: "read" },
+          { step: "tool", detail: `read:${sourcePath}` },
+          { step: "agent", detail: "review_diff" },
+        ],
+        verification: { ok: true },
+        error: null,
+      },
+    }));
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      if (requests.length === 1) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({
+            toolCalls: [
+              { id: "read-1", name: "readText", args: { path: sourcePath } },
+            ],
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          output: {
+            summary: "Read source through eval tools.",
+            findings: [],
+            clean: true,
+          },
+        }),
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const result = await runCli([
+        "eval",
+        fixturePath,
+        "--provider-profile",
+        profile,
+        "--workspace",
+        resolve(process.cwd(), "../.."),
+        "--allow-read",
+      ]);
+      const report = JSON.parse(result.stdout);
+      const secondBody = JSON.parse(String(requests[1]?.init.body));
+
+      expect(result.exitCode).toBe(0);
+      expect(report.passed).toBe(true);
+      expect(secondBody.toolResults).toEqual([
+        {
+          id: "read-1",
+          ok: true,
+          result: await readFile(sourcePath, "utf8"),
+        },
+      ]);
+    } finally {
+      globalThis.fetch = originalFetch;
+      if (originalApiKey === undefined) {
+        delete process.env.FORMA_TEST_EVAL_TOOL_KEY;
+      } else {
+        process.env.FORMA_TEST_EVAL_TOOL_KEY = originalApiKey;
+      }
+    }
+  });
+
   it("evaluates a fixture with an OpenAI Responses provider", async () => {
     const originalFetch = globalThis.fetch;
     const requests: Array<{ url: string; init: RequestInit }> = [];

@@ -121,6 +121,22 @@ source SHA-256, task intent, input fields, output fields, named schemas,
 permissions, and verify expressions. That makes an eval artifact useful in code
 review even before opening the `.forma` file.
 
+Provider-backed evals support the same explicit host tools as `forma run`.
+Use `--workspace` to choose the file-system boundary and opt into individual
+capabilities with `--allow-read`, `--allow-search`, `--allow-test`, and
+`--allow-edit`. If test execution is allowed, repeat `--allow-test-command`
+to restrict provider-requested test runs to exact approved commands:
+
+```bash
+forma eval packages/forma-core/conformance/review_diff.json \
+  --provider-profile ./forma.provider.json \
+  --workspace . \
+  --allow-read \
+  --allow-search \
+  --allow-test \
+  --allow-test-command "pnpm test"
+```
+
 `forma eval-suite` reads a JSON suite file and prints an array of normal eval
 reports. The repo includes `examples/forma.eval.json` as a small CI-ready
 suite:

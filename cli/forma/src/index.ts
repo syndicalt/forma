@@ -931,7 +931,8 @@ interface EvalSettings {
 
 async function evaluateFixture(path: string, args: string[]): Promise<CliResult> {
   const evalOptions = await parseEvalOptions(args);
-  const report = await evaluateFixtureReport(path, evalOptions);
+  const tools = createCliTools(args);
+  const report = await evaluateFixtureReport(path, evalOptions, tools);
   return {
     exitCode: report.passed ? 0 : 1,
     stdout: `${JSON.stringify(report, null, 2)}\n`,
@@ -942,9 +943,10 @@ async function evaluateFixture(path: string, args: string[]): Promise<CliResult>
 async function evaluateSuite(path: string, args: string[]): Promise<CliResult> {
   const suite = JSON.parse(await readFile(path, "utf8")) as EvalSuite;
   const evalOptions = await parseEvalOptions(args);
+  const tools = createCliTools(args);
   const startedAt = Date.now();
   const reports = await Promise.all(
-    suite.fixtures.map((fixturePath) => evaluateFixtureReport(resolve(dirname(path), fixturePath), evalOptions)),
+    suite.fixtures.map((fixturePath) => evaluateFixtureReport(resolve(dirname(path), fixturePath), evalOptions, tools)),
   );
   const passed = reports.every((report) => report.passed);
   if (args.includes("--summary")) {
@@ -980,14 +982,17 @@ function evalSettings(options: EvalOptions): EvalSettings {
   };
 }
 
-async function evaluateFixtureReport(path: string, evalOptions: EvalOptions) {
+async function evaluateFixtureReport(path: string, evalOptions: EvalOptions, tools?: ToolHost) {
   const fixture = JSON.parse(await readFile(path, "utf8")) as EvalFixture;
   const sourcePath = resolve(dirname(path), fixture.source);
   const source = await readFile(sourcePath, "utf8");
   const task = parseForma(source).tasks.find((candidate) => candidate.name === fixture.name);
   if (!task) throw new Error(`task not found in fixture source: ${fixture.name}`);
   const modelProvider = createEvalProvider(fixture, evalOptions);
-  const runtime = new FormaRuntime(modelProvider ? { modelProvider } : {});
+  const runtimeOptions: { modelProvider?: ModelProvider; tools?: ToolHost } = {};
+  if (modelProvider) runtimeOptions.modelProvider = modelProvider;
+  if (tools) runtimeOptions.tools = tools;
+  const runtime = new FormaRuntime(runtimeOptions);
   const startedAt = Date.now();
   const result = await runtime.runTask(source, fixture.name, {
     input: fixture.input ?? {},

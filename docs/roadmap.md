@@ -90,6 +90,8 @@ The current MVP provides:
   searches, and edits cannot silently operate outside the selected workspace.
 - CLI test tool execution can be constrained to exact approved commands with
   `--allow-test-command`.
+- CLI eval and eval-suite use the same workspace-scoped host tool flags as run,
+  so provider-backed evaluation can exercise coding-agent tool workflows.
 - Python generated bindings include recursive `from_dict` constructors and
   `assert_<task>_output` validators for runtime output dictionaries and nested
   schema dataclasses.

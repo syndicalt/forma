@@ -143,14 +143,14 @@ self.model_provider.run_agent(task.agent_instruction, input, task.permissions, t
 
 The runtime raises `F3002` if an agent task runs without a provider.
 
-The CLI cannot run agent tasks by itself because there is no CLI option for a
-provider adapter, key, or model. Embed Forma in Python or TypeScript when an
-agent task needs a model call. The public `agent(...)` helper binds the `.forma`
-source or file, task name, provider, and optional host tools into a reusable
-`run(input)` call. The `.forma` `agent` block is parsed into
-`task.agentInstruction` in TypeScript and `task.agent_instruction` in Python;
-the runtime chooses the agent path when that instruction exists, then calls the
-configured provider.
+The CLI can run or evaluate agent tasks when you pass a provider profile or
+provider flags. Embedded Python and TypeScript programs configure the provider
+in host code. In both cases the model key and model name stay outside the
+`.forma` file. The public `agent(...)` helper binds the `.forma` source or file,
+task name, provider, and optional host tools into a reusable `run(input)` call.
+The `.forma` `agent` block is parsed into `task.agentInstruction` in TypeScript
+and `task.agent_instruction` in Python; the runtime chooses the agent path when
+that instruction exists, then calls the configured provider.
 
 Permission declarations are passed to providers as `permissions`, and the
 runtime also passes `tools.require(permission)`. Host adapters can call it before
@@ -298,9 +298,10 @@ next request with `toolResults`:
 
 Supported tool names are `readText`, `searchText`, `runTest`, and `writeText`.
 Tool calls still pass through the task permission gate and fail if the host did
-not configure that tool. In the CLI host, file tools are scoped to `--workspace`
-and out-of-workspace paths are returned as failed tool results. Test tools can
-also be restricted with exact `--allow-test-command` values.
+not configure that tool. In the CLI host for `forma run`, `forma eval`, and
+`forma eval-suite`, file tools are scoped to `--workspace` and out-of-workspace
+paths are returned as failed tool results. Test tools can also be restricted
+with exact `--allow-test-command` values.
 
 The CLI can reuse the same provider settings through a profile file:
 
