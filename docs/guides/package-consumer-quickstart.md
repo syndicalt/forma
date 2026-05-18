@@ -300,3 +300,23 @@ Those smoke tests are intentionally small. They prove that host code can load a
 reviewed package lock with the default provider profile and can also pass an
 explicit provider override for custom retries, logging, routing, model choice,
 or test doubles.
+
+If the `readme`, `ci-workflow`, or `publish-bundle` row reports
+`missingMigrationParityTests`, the package still declares migration parity
+fixtures but the before/after proof drifted out of one reviewed release
+surface. Restore every reported path, keep both TypeScript and Python migration
+tests in the manifest `tests` array, add their commands back to `README.md` and
+`.github/workflows/forma-package.yml`, include both files in the publish
+workflow bundle, and regenerate the lockfile:
+
+```bash
+npx vitest run review_diff_migration.test.ts
+python review_diff_migration_test.py
+forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json
+forma package-review review_diff.forma.pkg.json
+```
+
+Those migration parity tests are the runnable before/after proof for moving an
+inline model call into Forma. They keep the inline TypeScript and Python
+baseline beside the reviewed Forma package output and assert that host-facing
+review decisions stay the same after migration.

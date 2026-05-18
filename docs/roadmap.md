@@ -307,6 +307,9 @@ The current MVP provides:
   bundle paths.
 - Generated package READMEs include `missingMigrationParityTests` recovery
   guidance, and package review fails README rows that omit it.
+- Package consumer troubleshooting explains how to restore
+  `missingMigrationParityTests` failures across README commands, CI commands,
+  publish bundle paths, and lockfile regeneration.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -437,9 +440,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add package consumer troubleshooting for
-   `missingMigrationParityTests` with the restore sequence across README
-   commands, CI commands, publish bundle paths, and lockfile regeneration.
+3. Product proof: add generated README links to the
+   `missingMigrationParityTests` troubleshooting section so maintainers can
+   jump directly from package-review failure output to the restore sequence.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
