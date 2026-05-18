@@ -39,6 +39,10 @@ Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the
 new fallback behavior is part of the shared contract for all consumers.
+Fallback overrides should log the original failed result. When an adapter
+switches route, provider, or model after a failed `agent.run(...)`, preserve
+the first `FormaResult` error, diagnostics, verification failures, and trace
+before returning or comparing the fallback attempt.
 
 ## Steps
 
