@@ -86,7 +86,13 @@ types without writing generated files:
 
 ```bash
 forma preview examples/review_diff.forma
+forma preview examples/review_diff.forma --watch
 ```
+
+Use `preview --watch` while editing a task file. It writes an initial JSON
+preview event and then writes another event each time the file changes. Add
+`--once` when a script or test should exercise the watch payload without
+leaving a long-running process.
 
 `forma generate` reads a `.forma` file and prints host-language bindings:
 

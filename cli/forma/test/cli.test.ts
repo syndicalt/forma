@@ -489,6 +489,20 @@ describe("forma cli", () => {
     expect(preview.types.pythonPydantic).toContain("class ReviewDiffInput(BaseModel)");
   });
 
+  it("previews once through the watch payload shape", async () => {
+    const result = await runCli(["preview", "../../examples/review_diff.forma", "--watch", "--once"]);
+    const preview = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 0, stdout: expect.any(String), stderr: "" });
+    expect(preview).toMatchObject({
+      event: "preview",
+      watched: true,
+      path: "../../examples/review_diff.forma",
+    });
+    expect(preview.tasks[0].name).toBe("review_diff");
+    expect(preview.types.typescript).toContain("export interface ReviewDiffInput");
+  });
+
   it("generates Python bindings from a Forma file", async () => {
     const result = await runCli(["generate", "../../examples/review_diff.forma", "--target", "python"]);
 

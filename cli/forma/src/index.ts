@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
 import { exec } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, watch, writeFile } from "node:fs/promises";
 import { readdir } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -80,7 +80,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
     }
 
     if (command === "preview") {
-      return previewSource(source);
+      return previewSource(source, path, rest);
     }
 
     if (command === "check") {
@@ -1998,18 +1998,34 @@ function outlineSource(source: string): CliResult {
   };
 }
 
-function previewSource(source: string): CliResult {
+function previewSource(source: string, path: string, args: string[]): CliResult {
+  const payload = args.includes("--watch")
+    ? watchPreviewPayload(path, source)
+    : previewPayload(source);
   return {
     exitCode: 0,
-    stdout: `${JSON.stringify({
-      ...outlinePayload(source),
-      types: {
-        typescript: generateTypeScriptBindings(source),
-        python: generatePythonBindings(source),
-        pythonPydantic: generatePydanticBindings(source),
-      },
-    }, null, 2)}\n`,
+    stdout: `${JSON.stringify(payload, null, 2)}\n`,
     stderr: "",
+  };
+}
+
+function watchPreviewPayload(path: string, source: string) {
+  return {
+    event: "preview",
+    watched: true,
+    path,
+    ...previewPayload(source),
+  };
+}
+
+function previewPayload(source: string) {
+  return {
+    ...outlinePayload(source),
+    types: {
+      typescript: generateTypeScriptBindings(source),
+      python: generatePythonBindings(source),
+      pythonPydantic: generatePydanticBindings(source),
+    },
   };
 }
 
@@ -2695,9 +2711,29 @@ function formatDiagnostics(diagnostics: FormaDiagnostic[]): string {
     .concat("\n");
 }
 
+async function streamPreviewWatch(path: string): Promise<void> {
+  const writePreview = async () => {
+    const source = await readFile(path, "utf8");
+    process.stdout.write(`${JSON.stringify(watchPreviewPayload(path, source))}\n`);
+  };
+  await writePreview();
+  for await (const _event of watch(path)) {
+    try {
+      await writePreview();
+    } catch (error) {
+      process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+    }
+  }
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const result = await runCli(process.argv.slice(2));
-  process.stdout.write(result.stdout);
-  process.stderr.write(result.stderr);
-  process.exitCode = result.exitCode;
+  const args = process.argv.slice(2);
+  if (args[0] === "preview" && args[1] && args.includes("--watch") && !args.includes("--once")) {
+    await streamPreviewWatch(args[1]);
+  } else {
+    const result = await runCli(args);
+    process.stdout.write(result.stdout);
+    process.stderr.write(result.stderr);
+    process.exitCode = result.exitCode;
+  }
 }
