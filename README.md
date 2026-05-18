@@ -152,6 +152,10 @@ review overhead yet. Move to default project-init when the contract should be
 checked in CI. Use `project-init --package-lock` only after a reviewed package
 lock exists.
 
+See `docs/guides/first-use-audit.md` for the first-use audit that maps this
+README, the docs index, quickstart, CLI docs, and generated project READMEs to
+the same scaffold choices.
+
 The first coding-agent task example is `examples/review_diff.forma`; its
 conformance fixture shows structured review metadata with scalar fields and an
 array of typed finding objects.
