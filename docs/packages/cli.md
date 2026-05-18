@@ -291,6 +291,9 @@ package reports rows for the reviewed lockfile, secret-free provider profile,
 TypeScript and Python bindings, TypeScript and Python host examples, pinned
 package tests with copyable commands, release files, README commands, package
 CI commands, publish bundle contents, eval coverage, and eval-suite results.
+In the JSON output, notes are informational guidance for humans and automation
+dashboards, while checks are blocking pass/fail rows that decide the command
+exit status.
 For example, the checked `review_diff` package `tests` row includes the
 migration parity fixtures separately from the generic package test commands:
 

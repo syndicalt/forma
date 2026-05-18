@@ -211,6 +211,8 @@ The current MVP provides:
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
+- CLI docs now explain that package-review `notes` are informational while
+  `checks` are blocking pass/fail rows that decide the command exit status.
 - Registry docs now include CI guidance for archiving stale
   `package-lock --check --json` reports as `stale-package-lock-report.json`
   with `actions/upload-artifact`, so reviewers can inspect
@@ -737,12 +739,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add CLI docs guidance for interpreting `notes` versus
-   blocking `checks` in package-review JSON.
-2. Product clarity: add README links from the before/after table to the
+1. Product clarity: add README links from the before/after table to the
    minimal, checked, and package-lock scaffold sections.
-3. Product clarity: add generated package-lock project README guidance that
+2. Product clarity: add generated package-lock project README guidance that
    explains when reviewed package consumption is worth the extra scaffold.
+3. Product clarity: add package-consumer quickstart guidance that mirrors the
+   minimal, checked, and package-lock scaffold progression.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
