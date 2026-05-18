@@ -24,6 +24,9 @@ Read `docs/guides/product-proof.md#migration-parity` for the Migration Parity
 before/after proof that compares `review_diff_inline` fixtures with the
 reviewed Forma package decision. Run `corepack pnpm proof:migration` for the
 smallest direct check of that proof.
+If package review reports `missingMigrationParityProofCommand`, restore the
+reported `package-review --proof-command` command from
+`docs/guides/package-consumer-quickstart.md#missingmigrationparityproofcommand`.
 Read `docs/guides/quickstart.md` for the full setup path and expected outputs.
 Read `docs/guides/why-forma.md` for the concrete product problem and the
 `review_diff` coding-agent workflow.

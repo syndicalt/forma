@@ -344,6 +344,9 @@ The current MVP provides:
 - Top-level README points readers to the
   `missingMigrationParityProofCommand` troubleshooting path so the proof gate
   can be recovered from first-visit docs.
+- Documentation index points readers to the
+  `missingMigrationParityProofCommand` troubleshooting path from the Start Here
+  flow.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -474,9 +477,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add a docs index pointer to the
-   `missingMigrationParityProofCommand` troubleshooting path so the docs entry
-   page covers proof-gate recovery too.
+3. Product proof: add migration proof troubleshooting coverage to the testing
+   and verification guide so contributors see the failure modes alongside the
+   commands they run.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
