@@ -181,6 +181,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const manifestFile = `${taskName}.forma.pkg.json`;
   const lockFile = `${taskName}.forma.lock.json`;
   const providerProfileFile = "forma.provider.json";
+  const readmeFile = "README.md";
   const schema = scaffoldSchema(args);
   const source = scaffoldSource(taskName, kind, schema);
   await writeFile(resolve(path, taskFile), source, "utf8");
@@ -223,6 +224,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   await validatePackageManifest(manifest, path);
   await writeFile(resolve(path, lockFile), `${JSON.stringify(await createPackageLock(manifestPath, manifest, path), null, 2)}\n`, "utf8");
+  await writeFile(resolve(path, readmeFile), scaffoldPackageReadme(packageName, taskName, manifestFile, lockFile, evalSuite), "utf8");
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
 
@@ -538,6 +540,30 @@ function scaffoldAgentEvalFixture(taskName: string, taskFile: string, input: Rec
       error: null,
     },
   };
+}
+
+function scaffoldPackageReadme(packageName: string, taskName: string, manifestFile: string, lockFile: string, evalSuite: string): string {
+  return `# ${packageName}
+
+This Forma package defines the \`${taskName}\` agent task contract, generated
+TypeScript and Python bindings, host embedding examples, eval fixtures, and a
+locked artifact set.
+
+## CI
+
+Run these checks before publishing or consuming a changed package:
+
+\`\`\`bash
+forma package-check ${manifestFile}
+forma package-lock ${manifestFile} --output ${lockFile} --check
+forma eval-suite ${evalSuite} --summary > candidate.json
+forma compare baseline.json candidate.json --fail-on breaking,environment
+\`\`\`
+
+Commit the package manifest, lockfile, \`.forma\` source, eval suite, provider
+profile, generated bindings, and host examples together so TypeScript and Python
+consumers review the same contract.
+`;
 }
 
 function scaffoldValue(field: ScaffoldField, schema: ScaffoldSchema): FormaValue {

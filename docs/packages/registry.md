@@ -17,7 +17,7 @@ validators, and result handling. Manifest paths are resolved relative to the
 package manifest file.
 
 Start a new package with the CLI when you want the task, evals, bindings,
-manifest, lockfile, and host examples created together:
+manifest, lockfile, host examples, and package CI commands created together:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
@@ -41,6 +41,10 @@ generated TypeScript/Python bindings, eval fixture, and lockfile all describe
 the task-specific contract rather than a generic review template. The generated
 host examples also use the task-specific input type, which keeps embedding code
 aligned with the reviewed package contract.
+
+The scaffolded `README.md` includes the package-check, package-lock, eval-suite,
+and compare commands that should run before publishing or consuming a changed
+package.
 
 ```json
 {

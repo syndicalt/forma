@@ -117,6 +117,8 @@ The current MVP provides:
 - `forma package-init` scaffolds a starter package with task source, eval
   fixture, eval suite, manifest, lockfile, generated bindings, and host
   examples.
+- Scaffolded packages include a README with package-check, package-lock,
+  eval-suite, and compare commands for CI review.
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,
   generated binding, and host example hashes for publishable packages.
 - Package scaffolding supports review-agent and tool-using coding-agent
@@ -253,7 +255,7 @@ The next three implementation slices should be:
 
 1. Provider adapter kit: add optional production provider packages.
 2. Registry and versioning: add registry publishing workflow automation.
-3. Coding-agent ergonomics: add generated package CI workflow guidance.
+3. Coding-agent ergonomics: add package scaffold CI workflow file generation.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
