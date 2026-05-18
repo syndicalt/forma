@@ -52,7 +52,11 @@ Consumers can then load the reviewed lock with `agentFromPackageLock(...)` or
 `agent(...)` call.
 `projects:check` verifies the checked clean-project fixture at
 `examples/review-diff-agent`, including the human and JSON `project-check`
-paths for generated TypeScript and Python host projects.
+paths for generated TypeScript and Python host projects. It also runs
+`review_diff_package_lock.test.ts` and `review_diff_package_lock_smoke.py`,
+which load the reviewed package lock through `agentFromPackageLock(...)` and
+`agent_from_package_lock(...)` from the clean fixture with explicit
+`StaticProvider` overrides.
 `proof:release` runs package review with a blocking proof command that combines
 `proof:migration` and `projects:check`, so inline migration drift and
 clean-project fixture drift both fail the reviewed release gate.

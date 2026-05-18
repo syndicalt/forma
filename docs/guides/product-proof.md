@@ -162,6 +162,12 @@ TypeScript and Python parity tests, and `package-review` reports the
 needs the proof executed inline, run `corepack pnpm proof:release` to add a
 blocking `proof-command` row that executes both `proof:migration` and
 `projects:check`.
+The `projects:check` command also runs
+`examples/review-diff-agent/test/review_diff_package_lock.test.ts` and
+`examples/review-diff-agent/test/review_diff_package_lock_smoke.py`, proving
+that a clean TypeScript and Python host can load the reviewed package lock with
+explicit test providers instead of treating the `.forma` source as prompt
+storage.
 If that row fails before `projects:check` starts, inspect
 `review_diff_migration.test.ts` and `review_diff_migration_test.py` first. If
 the row reaches the clean-project JSON report and names

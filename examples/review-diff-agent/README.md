@@ -43,6 +43,15 @@ The Python embedding entrypoint is `src/review_diff_agent.py`.
 Run `python test/review_diff_agent_smoke.py` to execute it with
 `StaticProvider` and no model credentials.
 
+## Reviewed Package Lock
+
+The root repository's `projects:check` command also runs
+`test/review_diff_package_lock.test.ts` and
+`test/review_diff_package_lock_smoke.py`. Those smoke tests load the reviewed
+package lock from `../review_diff.forma.lock.json` with
+`agentFromPackageLock(...)` and `agent_from_package_lock(...)`, then pass
+explicit `StaticProvider` test doubles so no provider credentials are needed.
+
 ## CLI
 
 ```bash

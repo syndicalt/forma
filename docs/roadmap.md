@@ -228,6 +228,11 @@ The current MVP provides:
   gate and explains `missingCommands` workflow drift rows.
 - `examples/review-diff-agent` is a checked clean-project fixture, and the root
   `projects:check` script runs both human and JSON `project-check` gates.
+- `projects:check` also runs TypeScript and Python package-lock smoke tests
+  from `examples/review-diff-agent`, proving the checked clean-project fixture
+  can embed the reviewed `review_diff` package through
+  `agentFromPackageLock(...)` and `agent_from_package_lock(...)` with explicit
+  provider overrides.
 - README and documentation index Product Proof commands include
   `projects:check`, so the checked clean-project fixture is part of the main
   proof path.
@@ -546,10 +551,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add a compact consumer-path proof that runs the checked
-   clean-project fixture through the reviewed package-lock embedding path, so
-   the "contract layer, not prompt storage" claim is backed by executable
-   TypeScript and Python host code.
+3. Product proof: add the package-lock consumer proof to `project-check --json`
+   output so CI dashboards can distinguish direct project embedding from
+   reviewed package-lock embedding.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

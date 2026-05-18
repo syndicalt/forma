@@ -39,7 +39,7 @@ const required = [
 ];
 
 const requiredTerms = {
-  "README.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
+  "README.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "review_diff_package_lock", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
   "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md"],
   "docs/language/diagnostics.md": [
     "F0001",
@@ -93,7 +93,7 @@ const requiredTerms = {
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
   "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],
-  "docs/guides/product-proof.md": ["review_diff", "examples:check", "package-review", "eval-suite", "review_diff_inline", "missingMigrationParityTests", "missingMigrationParityProofCommand", "proof:migration", "proof:release", "review_diff_migration.test.ts", "forma-project.yml"],
+  "docs/guides/product-proof.md": ["review_diff", "examples:check", "package-review", "eval-suite", "review_diff_inline", "review_diff_package_lock", "missingMigrationParityTests", "missingMigrationParityProofCommand", "proof:migration", "proof:release", "review_diff_migration.test.ts", "forma-project.yml"],
   "docs/guides/why-forma.md": ["contract layer, not prompt storage", "reviewable agent capability", "agentFromPackageLock", "agent_from_package_lock", "do not use Forma"],
   "docs/guides/package-consumer-quickstart.md": [
     "agentFromPackageLock",
@@ -265,6 +265,8 @@ function validateRootPackageScripts() {
   for (const requiredCommand of [
     "node cli/forma/dist/index.js project-check examples/review-diff-agent",
     "node cli/forma/dist/index.js project-check examples/review-diff-agent --json",
+    "vitest run --config examples/vitest.config.ts examples/review-diff-agent/test/review_diff_package_lock.test.ts",
+    "PYTHONPATH=packages/forma-python/src python examples/review-diff-agent/test/review_diff_package_lock_smoke.py",
   ]) {
     if (!projectsCheck.includes(requiredCommand)) {
       console.error(`package.json: projects:check missing ${requiredCommand}`);
