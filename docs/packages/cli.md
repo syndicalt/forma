@@ -696,6 +696,14 @@ forma project-init ./review-diff-agent-minimal \
   --minimal
 ```
 
+The command output identifies this as the first-use path:
+
+```text
+created minimal host project
+next: pnpm run smoke:local:ts
+use default project-init for project-check and CI workflow
+```
+
 Use the default scaffold when you are ready for `forma project-check`, checked
 CI workflow proof commands, and manifest-enforced smoke tests. The minimal
 scaffold still gives you no-key local checks:
@@ -706,6 +714,14 @@ pnpm run smoke:local:ts
 python test/review_diff_local_smoke.py
 ```
 
+The default scaffold output points to the checked-project gate:
+
+```text
+created checked host project
+next: forma project-check .
+use --minimal for the five-minute first-use path
+```
+
 When a reviewed package lock is already available, pass it to the scaffold so
 the generated project also proves the reviewed package consumer path:
 
@@ -714,6 +730,14 @@ forma project-init ./review-diff-agent \
   --name review-diff-agent \
   --task review_diff \
   --package-lock ../review_diff.forma.lock.json
+```
+
+The package-lock scaffold output points to the reviewed lock smoke path:
+
+```text
+created package-lock host project
+next: pnpm run smoke:lock:ts
+use --minimal only before reviewed package locks
 ```
 
 The generated provider profile stores the provider, model, response format,

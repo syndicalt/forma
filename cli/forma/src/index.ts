@@ -907,7 +907,29 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, "pyproject.toml"), scaffoldProjectPyproject(projectName), "utf8");
   await writeFile(resolve(path, "README.md"), scaffoldProjectReadme(projectName, taskName, providerProfile, packageLock, minimal), "utf8");
 
-  return { exitCode: 0, stdout: "ok\n", stderr: "" };
+  return { exitCode: 0, stdout: projectInitSummary(minimal, Boolean(packageLock)), stderr: "" };
+}
+
+function projectInitSummary(minimal: boolean, packageLock: boolean): string {
+  if (minimal) {
+    return [
+      "created minimal host project",
+      "next: pnpm run smoke:local:ts",
+      "use default project-init for project-check and CI workflow",
+    ].join("\n") + "\n";
+  }
+  if (packageLock) {
+    return [
+      "created package-lock host project",
+      "next: pnpm run smoke:lock:ts",
+      "use --minimal only before reviewed package locks",
+    ].join("\n") + "\n";
+  }
+  return [
+    "created checked host project",
+    "next: forma project-check .",
+    "use --minimal for the five-minute first-use path",
+  ].join("\n") + "\n";
 }
 
 async function checkProject(path: string, args: string[] = []): Promise<CliResult> {

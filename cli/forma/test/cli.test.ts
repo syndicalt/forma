@@ -2213,7 +2213,11 @@ describe("forma cli", () => {
       "REVIEW_MODEL_KEY",
     ]);
 
-    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("created checked host project");
+    expect(result.stdout).toContain("next: forma project-check .");
+    expect(result.stdout).toContain("use --minimal for the five-minute first-use path");
     expect(JSON.parse(await readFile(join(dir, "forma.provider.json"), "utf8"))).toEqual({
       provider: "openai-responses",
       model: "gpt-5-mini",
@@ -2310,7 +2314,11 @@ describe("forma cli", () => {
       "--minimal",
     ]);
 
-    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("created minimal host project");
+    expect(result.stdout).toContain("next: pnpm run smoke:local:ts");
+    expect(result.stdout).toContain("use default project-init for project-check and CI workflow");
     expect(await readFile(join(dir, "review_diff.forma"), "utf8")).toContain("task review_diff");
     expect(await readFile(join(dir, "src", "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
     expect(await readFile(join(dir, "src", "review_diff_forma.py"), "utf8")).toContain("assert_review_diff_output");
@@ -2379,7 +2387,11 @@ describe("forma cli", () => {
       lockPath,
     ]);
 
-    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("created package-lock host project");
+    expect(result.stdout).toContain("next: pnpm run smoke:lock:ts");
+    expect(result.stdout).toContain("use --minimal only before reviewed package locks");
     expect(JSON.parse(await readFile(join(dir, "forma.project.json"), "utf8"))).toMatchObject({
       packageLockSmokeTests: [
         {

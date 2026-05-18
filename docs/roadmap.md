@@ -457,6 +457,9 @@ The current MVP provides:
   `StaticProvider` smoke commands (`smoke:local:ts` and
   `review_diff_local_smoke.py`) so the first generated project is runnable
   without a real provider key.
+- `project-init` output now distinguishes the three onboarding modes:
+  minimal first-use projects, checked host projects, and reviewed
+  package-lock host projects.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -587,9 +590,10 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add docs and CLI output that explain when to choose
+3. Product clarity: add a concise README decision table that routes users to
    `project-init --minimal`, default `project-init`, or
-   `project-init --package-lock`.
+   `project-init --package-lock` based on whether their task is local, checked
+   in CI, or consuming a reviewed package.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
