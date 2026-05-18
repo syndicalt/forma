@@ -304,6 +304,8 @@ The current MVP provides:
   not Forma usefulness, and should follow a useful local smoke path.
 - Package-consumer quickstart now tells real consumers to pin reviewed locks
   before adding app-specific retries, logging, routing, or workflow handling.
+- Package-consumer quickstart now says consumer retries should wrap reviewed
+  contracts, not patch package artifacts.
 - Runtime-semantics docs now state that provider output validation is part of
   the host trust boundary and should prevent coercing failed model output into
   typed application data.
@@ -912,12 +914,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer wording that consumer retries should
-   wrap reviewed contracts, not patch package artifacts.
-2. Product clarity: add provider-adapter wording that deployment overrides are
+1. Product clarity: add provider-adapter wording that deployment overrides are
    host policy, not package mutation.
-3. Product clarity: add first-use audit wording that no named consumer means no
+2. Product clarity: add first-use audit wording that no named consumer means no
    package lock yet.
+3. Product clarity: add quickstart wording that retries and routing are host
+   workflow concerns after local contract proof.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

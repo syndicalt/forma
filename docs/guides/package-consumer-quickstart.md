@@ -69,6 +69,9 @@ Pin reviewed locks before adding app-specific retries or logging. First prove
 the host can load the reviewed lock and run the generated smoke tests; then add
 deployment concerns such as retries, logging, routing, or workflow-specific
 error handling around the stable contract boundary.
+Consumer retries should wrap reviewed contracts, not patch package artifacts.
+Keep retry policy in host providers, adapters, or application workflow code so
+the reviewed `.forma` source, generated bindings, tests, and lock stay intact.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
