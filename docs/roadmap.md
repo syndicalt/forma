@@ -439,6 +439,8 @@ The current MVP provides:
   model output.
 - Package-consumer quickstart now says shared route-label defaults should arrive
   through reviewed releases.
+- Product-proof docs now say route-label review is not a substitute for eval
+  comparison.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1001,12 +1003,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add product-proof wording that route-label review is not a
-   substitute for eval comparison.
-2. Product clarity: add provider-adapter wording that route labels should stay
+1. Product clarity: add provider-adapter wording that route labels should stay
    host-owned until reviewed.
-3. Product clarity: add testing-guide wording that route-label changes should
+2. Product clarity: add testing-guide wording that route-label changes should
    include eval artifacts.
+3. Product clarity: add first-use audit wording that route-label cleanup should
+   not delay local smoke proof.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
