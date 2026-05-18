@@ -690,7 +690,17 @@ describe("forma cli", () => {
       checks: expect.arrayContaining([
         expect.objectContaining({ name: "package-lock", passed: true }),
         expect.objectContaining({ name: "examples", passed: true, total: 12, runtimes: ["typescript", "python"] }),
-        expect.objectContaining({ name: "tests", passed: true, total: 4, runtimes: ["typescript", "python"] }),
+        expect.objectContaining({
+          name: "tests",
+          passed: true,
+          total: 4,
+          runtimes: ["typescript", "python"],
+          commands: [
+            "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts",
+            "python review_diff_decision_test.py",
+            "python tool_permission_workflow_test.py",
+          ],
+        }),
         expect.objectContaining({ name: "publish-bundle", passed: true, total: 29 }),
       ]),
     });
@@ -1516,7 +1526,16 @@ describe("forma cli", () => {
     const review = await runCli(["package-review", join(dir, "tool_assisted_repair.forma.pkg.json")]);
     expect(JSON.parse(review.stdout).checks).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ name: "tests", passed: true, total: 2, runtimes: ["typescript", "python"] }),
+        expect.objectContaining({
+          name: "tests",
+          passed: true,
+          total: 2,
+          runtimes: ["typescript", "python"],
+          commands: [
+            "npx vitest run tool_assisted_repair_plan.test.ts",
+            "python tool_assisted_repair_plan_test.py",
+          ],
+        }),
         expect.objectContaining({ name: "readme", passed: true, total: 8 }),
         expect.objectContaining({ name: "ci-workflow", passed: true, total: 6 }),
       ]),

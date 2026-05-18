@@ -213,9 +213,9 @@ forma package-review review_diff.forma.pkg.json
 ```
 
 Run the test commands after lock verification so the files being executed are
-the same files that reviewers approved. `forma package-review` checks that the
-README and package CI workflow include the package test commands whenever the
-manifest has a `tests` section.
+the same files that reviewers approved. `forma package-review` prints those
+commands in the `tests` row and checks that the README and package CI workflow
+include them whenever the manifest has a `tests` section.
 
 ## Review
 
@@ -249,7 +249,7 @@ Publishing checklist:
 - Confirm the `examples` row in package-review lists both `typescript` and
   `python`; missing runtimes fail the review.
 - Confirm the `tests` row in package-review lists any checked host workflow
-  tests that ship with the package.
+  tests that ship with the package and the exact commands to run them.
 - Confirm the `release-files` row in package-review lists `README.md`,
   `.github/workflows/forma-package.yml`, and
   `.github/workflows/forma-publish.yml`; missing paths fail the review.

@@ -407,11 +407,13 @@ function packageTestsCheck(manifest: FormaPackageManifest): Record<string, unkno
   const runtimes = Array.from(
     new Set(tests.flatMap((test) => test.runtime === "typescript" || test.runtime === "python" ? [test.runtime] : [])),
   );
+  const commands = packageTestCommands(tests);
   return {
     name: "tests",
     passed: true,
     total: tests.length,
     runtimes,
+    ...(commands.length > 0 ? { commands } : {}),
   };
 }
 

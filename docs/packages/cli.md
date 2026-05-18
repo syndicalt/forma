@@ -143,6 +143,9 @@ When the manifest includes `tests`, scaffolded package READMEs and CI workflows
 run the locked package test files after `forma package-lock --check` and before
 the eval suite. TypeScript tests use `npx vitest run ...`; Python tests are
 written as script-runnable files and use `python <test-file>`.
+`forma package-review` also prints those commands in the `tests` row so
+consumers can copy the reviewed test plan directly from the machine-readable
+review output.
 
 `forma package-review` runs the publish-review checklist for a package:
 manifest validation, adjacent lockfile verification, TypeScript and Python
