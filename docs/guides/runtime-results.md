@@ -78,6 +78,10 @@ can be compared without losing which provider path produced the failure.
 Route-label cleanup should preserve failed-result diagnostics. If a host
 renames or redacts a route label after failure, keep the original failed result
 and cleaned-up label in the same retry record so diagnostics remain comparable.
+Cleaned-up route labels should preserve original failure context. Store the
+pre-cleanup label, cleaned-up label, failed provider response, and retry result
+together so later readers can reconstruct the failure path without exposing
+deployment secrets.
 Route-label evidence should not be copied into model output. Keep provider
 route labels in logs, traces, diagnostics, or host-owned retry records instead
 of asking the model to echo deployment evidence inside task output fields.
