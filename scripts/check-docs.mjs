@@ -191,6 +191,9 @@ function requiredHeadings(path) {
   if (path.startsWith("docs/guides/")) {
     return ["## Purpose", "## Steps", "## Verification"];
   }
+  if (path === "docs/packages/cli.md") {
+    return ["## Release Runtime Flow"];
+  }
   return [];
 }
 

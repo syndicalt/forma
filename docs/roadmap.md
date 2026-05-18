@@ -230,6 +230,9 @@ The current MVP provides:
   `settingChanges`, and `changes[].details`.
 - Scaffolded package READMEs point to reusable package-review output examples
   instead of duplicating full compare JSON in every generated package.
+- CLI package docs include the release runtime flow connecting provider
+  profiles, eval-suite summaries, package locks, and TypeScript/Python host
+  embedding APIs.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -360,8 +363,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add release-facing package docs for how provider
-   profiles, eval summaries, and package locks work together at runtime.
+3. Coding workflow depth: surface the release runtime flow from scaffolded
+   package READMEs so generated packages point users at the right docs path.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

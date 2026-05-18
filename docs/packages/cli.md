@@ -139,6 +139,77 @@ forma package-lock examples/review_diff.forma.pkg.json --output examples/review_
 forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check
 ```
 
+## Release Runtime Flow
+
+For a publishable agent package, the CLI ties three runtime-facing artifacts
+together:
+
+- `forma.provider.json` records provider selection, model selection, response
+  format, timeout, temperature, endpoint when needed, and the API-key
+  environment variable name. It must use `apiKeyEnv` instead of storing a
+  secret value.
+- `forma eval-suite ... --summary > candidate.json` records the candidate
+  contract shape, provider settings, and eval results that reviewers compare
+  against a previous release.
+- `forma package-lock ... --check` verifies that the package manifest, `.forma`
+  source, provider profile, generated bindings, host examples, package tests,
+  release files, and eval suite still match the reviewed hashes.
+
+The release path is therefore:
+
+```bash
+forma package-check examples/review_diff.forma.pkg.json
+forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check
+forma eval-suite examples/forma.eval.json --summary > candidate.json
+forma package-review examples/review_diff.forma.pkg.json --baseline baseline.json
+```
+
+At runtime, the host program still owns the secret and the actual model client.
+TypeScript consumers can either load the provider profile directly:
+
+```ts
+import { agent, providerFromProfile, providerProfileFromFile } from "@forma-lang/forma";
+
+const profile = providerProfileFromFile("forma.provider.json");
+const reviewDiff = agent("review_diff.forma", "review_diff", {
+  provider: providerFromProfile(profile),
+});
+```
+
+or load the reviewed package lock:
+
+```ts
+import { agentFromPackageLock } from "@forma-lang/forma";
+
+const reviewDiff = agentFromPackageLock({
+  lockFile: "review_diff.forma.lock.json",
+  task: "review_diff",
+});
+```
+
+Python consumers use the same boundary:
+
+```python
+from forma import agent, agent_from_package_lock, provider_from_profile, provider_profile_from_file
+
+profile = provider_profile_from_file("forma.provider.json")
+review_diff = agent(
+    "review_diff.forma",
+    "review_diff",
+    provider=provider_from_profile(profile),
+)
+
+locked_review_diff = agent_from_package_lock(
+    lock_file="review_diff.forma.lock.json",
+    task="review_diff",
+)
+```
+
+Use the direct provider-profile path while developing an application. Use the
+package-lock path when consuming a reviewed package because it rejects drift in
+the task source, provider profile, generated bindings, host examples, package
+tests, and release files before the host runs the agent.
+
 When the manifest includes `tests`, scaffolded package READMEs and CI workflows
 run the locked package test files after `forma package-lock --check` and before
 the eval suite. TypeScript tests use `npx vitest run ...`; Python tests are
