@@ -46,6 +46,13 @@ generated TypeScript and Python bindings, direct `agent(...)` entrypoints, and
 local `StaticProvider` smoke tests. If that does not improve the application
 over an inline prompt plus local schemas, do not add package review yet.
 
+| Before Forma | After Forma |
+| --- | --- |
+| Inline prompt text is hidden inside one host function. | The reviewed instruction lives in a `.forma` task beside declared inputs and outputs. |
+| TypeScript and Python apps maintain duplicated host schemas by hand. | The task generates TypeScript and Python bindings from the same contract. |
+| Output parsing is trusted at the call site. | Runtime validators check model output before host code consumes it. |
+| Local smoke tests are custom to each language. | Both runtimes can use the same `StaticProvider` smoke path before real model calls. |
+
 Move to the default `project-init` scaffold only when the contract should be
 checked in CI. Move to `project-init --package-lock` only after the task is a
 reviewed package that consumers should load through pinned artifacts.

@@ -198,6 +198,10 @@ The current MVP provides:
 - Generated minimal project READMEs now name the smallest useful Forma boundary
   and tell users not to move to reviewed packages until that local boundary is
   better than inline prompts plus local schemas.
+- The README now includes a before/after table comparing inline prompt code,
+  duplicated host schemas, output parsing, and smoke tests against Forma task
+  contracts, generated TypeScript and Python bindings, validators, and
+  `StaticProvider` checks.
 - Registry docs now include CI guidance for archiving stale
   `package-lock --check --json` reports as `stale-package-lock-report.json`
   with `actions/upload-artifact`, so reviewers can inspect
@@ -724,12 +728,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add a README before/after table for inline prompts versus
-   Forma task contracts.
-2. Product clarity: add a package-review output note that distinguishes
+1. Product clarity: add a package-review output note that distinguishes
    minimal first-use success from reviewed release readiness.
-3. Product clarity: add generated checked-project README guidance that explains
+2. Product clarity: add generated checked-project README guidance that explains
    when CI checks are worth the extra scaffold.
+3. Product clarity: add a quickstart note that project-check is the first CI
+   gate and package-review is a later release gate.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
