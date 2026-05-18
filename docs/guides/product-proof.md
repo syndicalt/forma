@@ -158,6 +158,9 @@ Fallback eval changes need baseline comparison, not smoke-only acceptance. When
 fallback policy changes model behavior, compare the candidate eval summary
 against the reviewed baseline before treating a successful smoke run as release
 evidence.
+Fallback baselines should identify the model route under review. Include the
+provider, model, endpoint or route label, and fallback policy in baseline and
+candidate eval summaries so reviewers know which deployment path changed.
 When README or CI package test commands drift, the failing `readme` or
 `ci-workflow` row reports `missingCommands` with the exact command text to
 restore.
