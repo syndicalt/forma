@@ -13,6 +13,11 @@ provider adapter decides which model service to call and how to authenticate.
 Operational keys, model choice, routing, and retries live in host code so the
 application can keep deployment policy separate from the reviewed task
 contract.
+Reviewed package profiles carry shared model defaults; host overrides carry deployment-specific routing and model choices.
+Change the provider profile when every package consumer should inherit a new
+reviewed default. Pass an explicit provider when one host deployment needs
+different routing, retries, logging, or model selection without changing the
+reviewed package default.
 
 ## Steps
 

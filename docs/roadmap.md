@@ -261,6 +261,9 @@ The current MVP provides:
 - TypeScript and Python runtime docs now separate model-call execution from
   contract validation: providers perform calls, while Forma validates returned
   output and reports `FormaResult`.
+- Provider-adapter docs now distinguish reviewed package profile defaults from
+  deployment-specific host overrides for routing, retries, logging, and model
+  selection.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -792,12 +795,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-profile docs wording that tells users when
-   model defaults belong in package profiles versus host overrides.
-2. Product clarity: add project-check docs wording that treats generated
+1. Product clarity: add project-check docs wording that treats generated
    project CI as application contract protection, not framework ceremony.
-3. Product clarity: add examples README wording that tells readers which proof
+2. Product clarity: add examples README wording that tells readers which proof
    command answers which adoption question.
+3. Product clarity: add migration guide wording that defines when an inline
+   prompt should stay inline instead of becoming a package.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
