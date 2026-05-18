@@ -677,6 +677,24 @@ describe("forma cli", () => {
     });
   });
 
+  it("reviews the checked review-diff package with lock-aware consumer examples", async () => {
+    const result = await runCli(["package-review", "../../examples/review_diff.forma.pkg.json"]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result.exitCode).toBe(0);
+    expect(review).toMatchObject({
+      passed: true,
+      package: {
+        name: "examples/review-diff",
+      },
+      checks: expect.arrayContaining([
+        expect.objectContaining({ name: "package-lock", passed: true }),
+        expect.objectContaining({ name: "examples", passed: true, total: 6, runtimes: ["typescript", "python"] }),
+        expect.objectContaining({ name: "publish-bundle", passed: true, total: 19 }),
+      ]),
+    });
+  });
+
   it("fails package checks when a task source hash is stale", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-check-"));
     const manifest = join(dir, "review-diff.pkg.json");

@@ -4,7 +4,7 @@
     "name": "examples/review-diff",
     "version": "0.1.0",
     "manifest": "review_diff.forma.pkg.json",
-    "manifestSha256": "0c5beb9af95a992209a4a7ee6e277d5edc7af7ebbbcd5ec442e7f630d558732f"
+    "manifestSha256": "2bcef63e0d5d317e957ed8f16245fbba22dde5745cb145e8c5107576494c882d"
   },
   "tasks": [
     {
@@ -61,12 +61,22 @@
       "runtime": "python",
       "path": "tool_permission_workflow.py",
       "sha256": "3c9c103d6acfefe202192b5d1a15636acd8d92689f23ef46f8ca9fe37d82ee60"
+    },
+    {
+      "runtime": "typescript",
+      "path": "review_diff_lock_consumer.ts",
+      "sha256": "4ccc7663159c3f6922afd60e3ff093ceaa2b43a4cf8cdb196add62dbfa85e28e"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_lock_consumer.py",
+      "sha256": "ba891f8bd384ef490f0f1b64fe1f9d95d160cbedc77281e1af5079ab3fd6aeef"
     }
   ],
   "releaseFiles": [
     {
       "path": "README.md",
-      "sha256": "cbd18443624012266c2a52597a6ccf018660c96c37e27259bc415618e9b4220a"
+      "sha256": "2858c4a304fcc386458910db61b0f238523c3a9995604305996b81c90ea6b2aa"
     },
     {
       "path": ".github/workflows/forma-package.yml",
@@ -74,7 +84,7 @@
     },
     {
       "path": ".github/workflows/forma-publish.yml",
-      "sha256": "385c590be17f652d68780a68da3628617ac6c444c7f1421e14b67776e72b91d7"
+      "sha256": "b9fe6835f83054cada0844381023d6207d6c95ef7bab8334d5322c831d0350ff"
     }
   ]
 }

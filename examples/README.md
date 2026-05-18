@@ -4,6 +4,12 @@ This Forma package defines the `review_diff` agent task contract, generated
 TypeScript and Python bindings, host embedding examples, eval fixtures, and a
 locked artifact set.
 
+The `review_diff_lock_consumer.ts` and `review_diff_lock_consumer.py` examples
+show consumer-side embedding from the reviewed lockfile: each reads
+`review_diff.forma.lock.json`, verifies the pinned `review_diff.forma` source
+hash, loads the reviewed provider profile, and only then constructs
+`agent(...)`.
+
 ## CI
 
 Run these checks before publishing or consuming a changed package:
@@ -18,5 +24,6 @@ forma compare baseline.json candidate.json --fail-on breaking,environment
 ```
 
 Commit the package manifest, lockfile, `.forma` source, eval suite, provider
-profile, generated bindings, host examples, README, and workflows together so
-TypeScript and Python consumers review the same contract.
+profile, generated bindings, host examples, lock-aware consumer examples,
+README, and workflows together so TypeScript and Python consumers review the
+same contract.

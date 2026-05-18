@@ -40,6 +40,14 @@
     {
       "runtime": "python",
       "path": "tool_permission_workflow.py"
+    },
+    {
+      "runtime": "typescript",
+      "path": "review_diff_lock_consumer.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_lock_consumer.py"
     }
   ],
   "releaseFiles": [

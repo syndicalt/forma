@@ -170,6 +170,11 @@ node cli/forma/dist/index.js package-lock examples/review_diff.forma.pkg.json \
 The checked-in example lockfile is `examples/review_diff.forma.lock.json`.
 Consumers can review the manifest for intent and compatibility policy, then use
 the lockfile to verify the exact artifacts that were evaluated and published.
+The checked consumer examples `examples/review_diff_lock_consumer.ts` and
+`examples/review_diff_lock_consumer.py` demonstrate that flow in TypeScript and
+Python by reading the lockfile, checking the pinned task source hash, loading
+the reviewed provider profile, and constructing `agent(...)` only after the
+artifact matches the reviewed lock.
 
 ## Review
 

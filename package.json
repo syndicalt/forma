@@ -9,7 +9,7 @@
     "test": "corepack pnpm -r run test",
     "test:ts": "corepack pnpm --filter @forma-lang/forma test && corepack pnpm --filter @forma-lang/openai test && corepack pnpm --filter @forma-lang/cli test",
     "test:tree-sitter": "corepack pnpm --filter tree-sitter-forma test",
-    "examples:check": "tsc -p examples/tsconfig.json && python -m py_compile examples/embedded_agent.py examples/review_diff_forma.py examples/review_diff_package.py examples/tool_permission_workflow.py examples/function_repair/repair_function_forma.py examples/function_repair/repair_function_package.py",
+    "examples:check": "tsc -p examples/tsconfig.json && python -m py_compile examples/embedded_agent.py examples/review_diff_forma.py examples/review_diff_package.py examples/review_diff_lock_consumer.py examples/tool_permission_workflow.py examples/function_repair/repair_function_forma.py examples/function_repair/repair_function_package.py",
     "docs:check": "corepack pnpm --filter @forma-lang/forma build && node scripts/check-docs.mjs"
   },
   "devDependencies": {
