@@ -179,6 +179,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const evalFixture = `${taskName}.eval.json`;
   const evalSuite = "forma.eval.json";
   const manifestFile = `${taskName}.forma.pkg.json`;
+  const lockFile = `${taskName}.forma.lock.json`;
   const providerProfileFile = "forma.provider.json";
   const schema = scaffoldSchema(args);
   const source = scaffoldSource(taskName, kind, schema);
@@ -218,8 +219,10 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
       environment: ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"],
     },
   };
-  await writeFile(resolve(path, manifestFile), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  const manifestPath = resolve(path, manifestFile);
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   await validatePackageManifest(manifest, path);
+  await writeFile(resolve(path, lockFile), `${JSON.stringify(await createPackageLock(manifestPath, manifest, path), null, 2)}\n`, "utf8");
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
 

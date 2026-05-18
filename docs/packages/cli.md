@@ -101,8 +101,8 @@ forma package-lock examples/review_diff.forma.pkg.json --output examples/review_
 ```
 
 `forma package-init` scaffolds a starter package directory with a `.forma` task,
-eval fixture, eval suite, package manifest, generated TypeScript/Python
-bindings, and host examples. Use `--kind review` for the default code-review
+eval fixture, eval suite, package manifest, package lockfile, generated
+TypeScript/Python bindings, and host examples. Use `--kind review` for the default code-review
 agent shape or `--kind tool` for a coding-agent shape that declares `read`,
 `search`, `test`, and `edit` permissions and generates host examples that call
 those tools. The scaffold also writes `forma.provider.json`; review-agent host
@@ -142,6 +142,9 @@ forma package-init ./risk-review \
   --output-object Finding.message:Text \
   --output-object Finding.severity:Text?
 forma package-check ./review-diff-package/review_diff.forma.pkg.json
+forma package-lock ./review-diff-package/review_diff.forma.pkg.json \
+  --output ./review-diff-package/review_diff.forma.lock.json \
+  --check
 ```
 
 The default generated provider profile is:

@@ -667,6 +667,7 @@ describe("forma cli", () => {
 
     expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
     const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
     const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
     expect(manifest).toMatchObject({
       formaPackage: 1,
@@ -693,9 +694,20 @@ describe("forma cli", () => {
     expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({
       fixtures: ["review_diff.eval.json"],
     });
+    expect(JSON.parse(await readFile(lockPath, "utf8"))).toMatchObject({
+      formaPackageLock: 1,
+      package: {
+        name: "acme/review-diff",
+        version: "0.1.0",
+        manifest: "review_diff.forma.pkg.json",
+        manifestSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      },
+    });
 
     const check = await runCli(["package-check", manifestPath]);
     expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    const lockCheck = await runCli(["package-lock", manifestPath, "--output", lockPath, "--check"]);
+    expect(lockCheck).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
   });
 
   it("scaffolds a package with custom provider profile settings", async () => {

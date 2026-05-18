@@ -17,12 +17,15 @@ validators, and result handling. Manifest paths are resolved relative to the
 package manifest file.
 
 Start a new package with the CLI when you want the task, evals, bindings,
-manifest, and host examples created together:
+manifest, lockfile, and host examples created together:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
 forma package-init ./repair-package --name acme/tool-repair --task tool_assisted_repair --kind tool
 forma package-check ./review-diff-package/review_diff.forma.pkg.json
+forma package-lock ./review-diff-package/review_diff.forma.pkg.json \
+  --output ./review-diff-package/review_diff.forma.lock.json \
+  --check
 ```
 
 Scaffolded packages include `forma.provider.json` so runtime configuration is a
