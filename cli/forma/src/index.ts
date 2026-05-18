@@ -2675,7 +2675,7 @@ agent task contract is better than an inline prompt plus local schemas.
 
 ## Five-Minute Usefulness Path
 
-Start with the generated contract before package-review or package locks:
+Start with the smallest useful Forma boundary before package-review or package locks:
 
 \`\`\`bash
 pnpm install
@@ -2689,6 +2689,9 @@ The task contract lives in \`${taskName}.forma\`. It owns the input fields,
 output fields, instructions, permissions, and verification rules. The generated
 TypeScript and Python bindings live in \`src/${taskName}.forma.ts\` and
 \`src/${taskName}_forma.py\`.
+
+Do not move to reviewed packages until this local boundary is clearly better
+than keeping an inline prompt plus local schemas in the host application.
 
 ## Provider Configuration
 
