@@ -137,6 +137,21 @@ const result = await reviewDiff.run({ diff, max_findings: 5 });
 See `examples/embedded-agent.ts` and `examples/embedded_agent.py` for the full
 TypeScript and Python `review_diff` embedding shape.
 
+## Which Scaffold Should I Use?
+
+Use the scaffold that matches how reviewed the task is:
+
+| Situation | Command | What it creates |
+| --- | --- | --- |
+| The task is local to one application and you are deciding whether Forma helps | `forma project-init ./review-diff-agent-minimal --name review-diff-agent-minimal --task review_diff --minimal` | Minimal TypeScript/Python host project with generated bindings, direct `agent(...)` entrypoints, and local `StaticProvider` smoke commands |
+| The task should be checked in CI before application code depends on it | `forma project-init ./review-diff-agent --name review-diff-agent --task review_diff` | Default project-init scaffold with `forma.project.json`, `project-check`, generated smoke tests, and CI workflow |
+| The application is consuming a reviewed package | `forma project-init ./review-diff-agent-lock --name review-diff-agent-lock --task review_diff --package-lock examples/review_diff.forma.lock.json` | Package-lock host project that also proves `agentFromPackageLock(...)` and `agent_from_package_lock(...)` embedding |
+
+Start with `project-init --minimal` when the task has not earned CI or package
+review overhead yet. Move to default project-init when the contract should be
+checked in CI. Use `project-init --package-lock` only after a reviewed package
+lock exists.
+
 The first coding-agent task example is `examples/review_diff.forma`; its
 conformance fixture shows structured review metadata with scalar fields and an
 array of typed finding objects.

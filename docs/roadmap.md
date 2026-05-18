@@ -460,6 +460,10 @@ The current MVP provides:
 - `project-init` output now distinguishes the three onboarding modes:
   minimal first-use projects, checked host projects, and reviewed
   package-lock host projects.
+- README includes a scaffold decision table that routes users to
+  `project-init --minimal`, default `project-init`, or
+  `project-init --package-lock` based on whether the task is local to one
+  application, checked in CI, or consuming a reviewed package.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -590,10 +594,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add a concise README decision table that routes users to
-   `project-init --minimal`, default `project-init`, or
-   `project-init --package-lock` based on whether their task is local, checked
-   in CI, or consuming a reviewed package.
+3. Product clarity: add a short CLI docs decision table beside `project-init`
+   so the package docs mirror the README scaffold routing.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
