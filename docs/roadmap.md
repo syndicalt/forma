@@ -510,6 +510,8 @@ The current MVP provides:
   diagnostics comparable.
 - Provider-adapter docs now say cleaned-up route labels should preserve host
   override ownership.
+- Testing guide now says cleaned-up route labels should keep installed smoke
+  failure notes comparable.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1072,12 +1074,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add testing-guide wording that cleaned-up route labels
-   should keep installed smoke failure notes comparable.
-2. Product clarity: add runtime-result wording that cleaned-up route labels
+1. Product clarity: add runtime-result wording that cleaned-up route labels
    should preserve retry lookup keys.
-3. Product clarity: add first-use wording that cleaned-up route labels should
+2. Product clarity: add first-use wording that cleaned-up route labels should
    not change local smoke fixture ownership.
+3. Product clarity: add package-consumer wording that cleaned-up route labels
+   should not change installed contract fixture ownership.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

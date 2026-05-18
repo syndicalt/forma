@@ -205,6 +205,10 @@ Cleaned-up route labels should keep smoke summaries searchable. Include the
 old and cleaned-up labels in `installedPackageSmokeSummary` and
 `installedPackageSmokeFailureSummary` notes so support searches can find the
 same smoke run after a route rename.
+Cleaned-up route labels should keep installed smoke failure notes comparable.
+When a route rename appears in a failed installed smoke run, keep the original
+failure note beside the cleaned-up label so reviewers can compare reruns
+without treating the failure as a different package path.
 Fallback route labels should match diagnostics and eval summaries. Use the same
 stable route label in the failed diagnostics, rerun smoke summary, baseline eval
 summary, and candidate eval summary so reviewers can trace which provider path
