@@ -53,6 +53,10 @@ interface FormaPackageLock {
     path?: string;
     sha256?: string;
   }>;
+  tests?: Array<{
+    path?: string;
+    sha256?: string;
+  }>;
   releaseFiles?: Array<{
     path?: string;
     sha256?: string;
@@ -126,6 +130,11 @@ function verifyPackageLockArtifacts(lock: FormaPackageLock, lockDir: string): vo
   for (const example of lock.examples ?? []) {
     if (example.path && example.sha256) {
       verifyPackageLockHash(join(lockDir, example.path), example.sha256, "host example");
+    }
+  }
+  for (const test of lock.tests ?? []) {
+    if (test.path && test.sha256) {
+      verifyPackageLockHash(join(lockDir, test.path), test.sha256, "package test");
     }
   }
   for (const releaseFile of lock.releaseFiles ?? []) {

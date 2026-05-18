@@ -311,6 +311,38 @@ describe("FormaRuntime", () => {
     })).toThrow("release file does not match reviewed package lock");
   });
 
+  it("rejects package lock agents when a package test drifts", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-agent-lock-test-drift-"));
+    const sourcePath = join(dir, "task.forma");
+    const testPath = join(dir, "task_plan.test.ts");
+    const lockPath = join(dir, "task.forma.lock.json");
+    await writeFile(sourcePath, agentSource);
+    await writeFile(testPath, "export const changed = true;\n");
+    await writeFile(lockPath, JSON.stringify({
+      formaPackageLock: 1,
+      tasks: [
+        {
+          name: "greet_user_warmly",
+          source: "task.forma",
+          sourceSha256: createHash("sha256").update(agentSource).digest("hex"),
+        },
+      ],
+      tests: [
+        {
+          runtime: "typescript",
+          path: "task_plan.test.ts",
+          sha256: "0".repeat(64),
+        },
+      ],
+    }));
+
+    expect(() => agentFromPackageLock({
+      lockFile: lockPath,
+      task: "greet_user_warmly",
+      provider: new StaticProvider({ message: "unused" }),
+    })).toThrow("package test does not match reviewed package lock");
+  });
+
   it("embeds a named source task through the agent facade", async () => {
     const greet = agent({
       source: agentSource,

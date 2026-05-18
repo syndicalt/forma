@@ -166,16 +166,16 @@ The current MVP provides:
 - `forma package-review --baseline` folds previous-release eval comparison into
   the package publishing checklist.
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,
-  generated binding, host example, and release file hashes for publishable
-  packages.
+  generated binding, host example, package test, and release file hashes for
+  publishable packages.
 - Checked-in TypeScript and Python consumer examples depend on
   `examples/review_diff.forma.lock.json` by verifying pinned task source,
-  generated binding, provider profile, host example, and release file hashes
-  before constructing `agent(...)`.
+  generated binding, provider profile, host example, package test, and release
+  file hashes before constructing `agent(...)`.
 - TypeScript `agentFromPackageLock(...)` and Python
   `agent_from_package_lock(...)` load reviewed package locks, verify pinned task
-  source, generated binding, provider profile, host example, and release file
-  hashes, and return the standard agent facade.
+  source, generated binding, provider profile, host example, package test, and
+  release file hashes, and return the standard agent facade.
 - Checked-in importable TypeScript and Python contract entrypoints expose the
   reviewed `review_diff` package through stable module layouts.
 - `forma package-init` scaffolds importable TypeScript and Python contract
@@ -341,8 +341,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: verify lock-based consumers also check pinned package
-   test artifacts when a package lock includes them.
+3. Coding workflow depth: add lock-aware package consumer docs that show how CI
+   should run the pinned host tests after lock verification.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

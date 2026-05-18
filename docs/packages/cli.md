@@ -130,9 +130,9 @@ forma package-check examples/review_diff.forma.pkg.json
 
 `forma package-lock` records the reviewed package artifact set in a lockfile.
 It validates the manifest first, then pins the manifest, task sources, eval
-suite, provider profile, generated bindings, and host examples by SHA-256. Use
-`--output` to write the lockfile and `--check` in CI to fail when any locked
-artifact drifts:
+suite, provider profile, generated bindings, host examples, package tests, and
+release files by SHA-256. Use `--output` to write the lockfile and `--check` in
+CI to fail when any locked artifact drifts:
 
 ```bash
 forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json

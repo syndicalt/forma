@@ -113,6 +113,16 @@ artifact count and requires those files in the publish bundle.
       "path": "review_diff_package.py"
     }
   ],
+  "tests": [
+    {
+      "runtime": "typescript",
+      "path": "review_diff_decision.test.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_decision_test.py"
+    }
+  ],
   "releaseFiles": [
     {
       "path": "README.md"
@@ -158,10 +168,10 @@ Use `forma package-lock` to produce a reviewed artifact lock for a package
 manifest. The lockfile schema lives at
 `packages/forma-core/schema/package-lock.schema.json`. A lock pins the package
 manifest hash, task source hashes, eval suite hash, provider profile hash,
-generated binding hashes, host example hashes, and release file hashes. Provider
-secrets stay out of the lock; the provider section records reviewable settings
-such as provider, endpoint, model, `apiKeyEnv`, response format, temperature,
-and timeout.
+generated binding hashes, host example hashes, package test hashes, and release
+file hashes. Provider secrets stay out of the lock; the provider section
+records reviewable settings such as provider, endpoint, model, `apiKeyEnv`,
+response format, temperature, and timeout.
 
 ```bash
 node cli/forma/dist/index.js package-lock examples/review_diff.forma.pkg.json \
@@ -179,8 +189,8 @@ The checked consumer examples `examples/review_diff_lock_consumer.ts` and
 Python through `agentFromPackageLock(...)` and `agent_from_package_lock(...)`.
 Those helpers read the lockfile, check the pinned task source hash, load the
 reviewed provider profile, verify generated binding, provider profile, host
-example, and release file hashes, and construct `agent(...)` only after the
-artifacts match the reviewed lock.
+example, package test, and release file hashes, and construct `agent(...)` only
+after the artifacts match the reviewed lock.
 The importable package entrypoints `examples/review_diff_contract/index.ts` and
 `examples/review_diff_contract/__init__.py` wrap those helpers behind stable
 TypeScript and Python module names so consumers can depend on the reviewed
@@ -239,8 +249,8 @@ Publishing checklist:
 - Compare the candidate summary against the previous release with
   `forma compare --fail-on breaking,environment`.
 - Publish the manifest, lockfile, `.forma` sources, eval suite, provider
-  profile, generated TypeScript/Python bindings, host examples, README, and
-  workflows together.
+  profile, generated TypeScript/Python bindings, host examples, package tests,
+  README, and workflows together.
 - Use the scaffolded `forma-publish.yml` workflow when publishing release
   assets from tags.
 
