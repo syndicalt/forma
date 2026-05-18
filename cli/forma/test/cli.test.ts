@@ -808,6 +808,7 @@ describe("forma cli", () => {
       stderr: "packages:installed-smoke failed",
       packageKind: "function-repair tool package",
       guidance: "rerun corepack pnpm packages:installed-smoke and restore the installed release bundle smoke path",
+      triageGuide: "docs/guides/testing-and-verification.md#installed-package-smoke-triage",
       recoveryCommands: [
         "corepack pnpm packages:installed-smoke",
         "corepack pnpm docs:check",

@@ -532,6 +532,9 @@ The current MVP provides:
 - Verification docs now include triage guidance for each installed-package
   smoke package kind: reviewed lock consumer, function-repair tool package, and
   generated reviewed package-lock project consumer.
+- `package-review --proof-command` installed-package smoke failures now include
+  a `triageGuide` field pointing to the installed-package smoke triage section,
+  so CI output connects the failed package kind to the restore path.
 - `proof:release` now runs `packages:installed-smoke` after migration and
   project checks, so release proof covers installed package-lock consumers.
 - Verification and registry docs explain `packages:installed-smoke` as the
@@ -672,12 +675,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: surface the installed-package smoke triage section from
-   `package-review` recovery guidance.
-2. Registry and versioning: validate installed-package smoke `expectedArtifacts`
+1. Registry and versioning: validate installed-package smoke `expectedArtifacts`
    against bundled file groups instead of only checking field presence.
-3. Registry and versioning: include installed-package smoke summary examples in
+2. Registry and versioning: include installed-package smoke summary examples in
    release workflow artifacts.
+3. Registry and versioning: add a package-lock compatibility fixture that
+   proves artifact group changes are reviewable across versions.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

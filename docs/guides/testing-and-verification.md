@@ -141,6 +141,8 @@ release-bundle coverage without running the full release proof:
 - run: corepack pnpm packages:installed-smoke
 ```
 
+### Installed-Package Smoke Triage
+
 Triage by the last `installed package smoke: ...` marker before the failure:
 
 - `review-diff package-lock consumer failure`: restore the reviewed
