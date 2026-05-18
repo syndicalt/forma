@@ -87,6 +87,12 @@ fixtures before regenerating package locks. If stdout reaches
 `project-check examples/review-diff-agent --json` and the JSON row reports
 `.github/workflows/forma-project.yml` or `missingCommands`, restore the checked
 clean-project workflow proof commands and rerun `corepack pnpm projects:check`.
+If the JSON report includes `package-lock-smoke-tests` with `missingPaths`,
+restore the named reviewed package-lock smoke files before rerunning
+`projects:check`. If the workflow row reports missing TypeScript or Python
+package-lock smoke commands, restore those commands in
+`.github/workflows/forma-project.yml`; the recovery hint is
+`restore the reviewed package-lock smoke tests`.
 
 Run CLI smoke tests after building:
 
