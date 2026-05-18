@@ -62,7 +62,7 @@ artifacts, and host example artifacts:
 
 ```bash
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
-node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
+corepack pnpm proof:release
 ```
 
 Run the eval suite directly when you want the lower-level artifact:
@@ -97,11 +97,13 @@ The reviewed package pins those tests in the manifest and lockfile. The
 `package-review` `tests` row reports `migrationParityTests` when the package
 contains them, and `readme`, `ci-workflow`, or `publish-bundle` rows report
 `missingMigrationParityTests` if the parity files drift out of README commands,
-CI commands, or release bundle paths. Add
-`--proof-command "corepack pnpm proof:migration"` when you want package review
-to run the before/after proof before trusting the release artifact rows. If the
-parity files still exist but README or CI no longer runs that blocking review
-command, the `readme` or `ci-workflow` row reports
+CI commands, or release bundle paths. Run `corepack pnpm proof:release` when
+you want package review to run the before/after proof and checked
+clean-project fixture before trusting the release artifact rows. That script
+passes `--proof-command "corepack pnpm proof:migration && corepack pnpm
+projects:check"` to package review. If the parity files still exist but README
+or CI no longer runs that blocking review command, the `readme` or
+`ci-workflow` row reports
 `missingMigrationParityProofCommand` with the exact
 `package-review --proof-command` command to restore. The restore sequence lives
 in
@@ -124,7 +126,7 @@ A useful local proof run should include:
 corepack pnpm build
 corepack pnpm examples:check
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
-node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
+corepack pnpm proof:release
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
@@ -157,8 +159,9 @@ credentials stay in host configuration instead of the `.forma` contract.
 Migration parity should be visible in both layers: `examples:check` runs the
 TypeScript and Python parity tests, and `package-review` reports the
 `migrationParityTests` paths as reviewed release artifacts. When release review
-needs the proof executed inline, pass `--proof-command` with
-`corepack pnpm proof:migration` to add a blocking `proof-command` row.
+needs the proof executed inline, run `corepack pnpm proof:release` to add a
+blocking `proof-command` row that executes both `proof:migration` and
+`projects:check`.
 `missingMigrationParityTests` means a parity file or direct test command
 drifted out of review; `missingMigrationParityProofCommand` means the files and
 direct test commands are present, but release review no longer runs them through

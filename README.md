@@ -40,7 +40,7 @@ node cli/forma/dist/index.js generate examples/review_diff.forma --target python
 corepack pnpm examples:check
 corepack pnpm projects:check
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
-node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
+corepack pnpm proof:release
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
@@ -53,6 +53,10 @@ Consumers can then load the reviewed lock with `agentFromPackageLock(...)` or
 `projects:check` verifies the checked clean-project fixture at
 `examples/review-diff-agent`, including the human and JSON `project-check`
 paths for generated TypeScript and Python host projects.
+`proof:release` runs package review with a blocking proof command that combines
+`proof:migration` and `projects:check`, so inline migration drift and
+clean-project fixture drift both fail the reviewed release gate.
+It expands to `node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration && corepack pnpm projects:check"`.
 
 ### Migration Parity
 

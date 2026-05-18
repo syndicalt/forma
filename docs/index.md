@@ -17,7 +17,7 @@ node cli/forma/dist/index.js outline examples/review_diff.forma
 corepack pnpm examples:check
 corepack pnpm projects:check
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
-node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
+corepack pnpm proof:release
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
@@ -25,6 +25,9 @@ Read `docs/guides/product-proof.md` for the full reviewed package path.
 Run `corepack pnpm projects:check` to verify the checked clean-project fixture
 at `examples/review-diff-agent`, including the human and JSON `project-check`
 paths for generated TypeScript and Python host projects.
+Run `corepack pnpm proof:release` to put migration parity and clean-project
+fixture drift in the blocking package-review `proof-command` row.
+It expands to `node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration && corepack pnpm projects:check"`.
 Read `docs/guides/product-proof.md#migration-parity` for the Migration Parity
 before/after proof that compares `review_diff_inline` fixtures with the
 reviewed Forma package decision. Run `corepack pnpm proof:migration` for the

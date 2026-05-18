@@ -36,8 +36,8 @@ const required = [
 ];
 
 const requiredTerms = {
-  "README.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
-  "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md"],
+  "README.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
+  "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md"],
   "docs/language/diagnostics.md": [
     "F0001",
     "F1001",
@@ -104,7 +104,7 @@ const requiredTerms = {
     "missingMigrationParityProofCommand",
     "docs/guides/package-consumer-quickstart.md#missingmigrationparitytests",
   ],
-  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "missingCommands"],
+  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "missingCommands"],
   "docs/guides/migrating-from-inline-prompts.md": [
     "inline prompt",
     ".forma",
@@ -259,6 +259,20 @@ function validateRootPackageScripts() {
   ]) {
     if (!projectsCheck.includes(requiredCommand)) {
       console.error(`package.json: projects:check missing ${requiredCommand}`);
+      process.exit(1);
+    }
+  }
+  const releaseProof = manifest.scripts?.["proof:release"];
+  if (typeof releaseProof !== "string") {
+    console.error("package.json: missing proof:release script");
+    process.exit(1);
+  }
+  for (const requiredCommand of [
+    "node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command",
+    "corepack pnpm proof:migration && corepack pnpm projects:check",
+  ]) {
+    if (!releaseProof.includes(requiredCommand)) {
+      console.error(`package.json: proof:release missing ${requiredCommand}`);
       process.exit(1);
     }
   }

@@ -231,6 +231,8 @@ The current MVP provides:
 - README and documentation index Product Proof commands include
   `projects:check`, so the checked clean-project fixture is part of the main
   proof path.
+- The root `proof:release` script runs package review with
+  `proof:migration && projects:check` as the blocking proof command.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -527,8 +529,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add `projects:check` to package-review proof-command guidance
-   or CI so clean-project fixture drift can block reviewed releases.
+3. Product proof: add the release proof script to the checked package CI docs
+   or workflow so contributors see the same command in automated release gates.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
