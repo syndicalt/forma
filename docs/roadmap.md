@@ -511,6 +511,9 @@ The current MVP provides:
 - Verification and registry docs explain `packages:installed-smoke` as the
   release-bundle check for installed TypeScript and Python package-lock
   consumers.
+- The docs gate keeps installed-package smoke guidance tied to release bundles
+  and installed package-lock consumers in both the verification and registry
+  docs.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -636,12 +639,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add docs-check coverage that keeps installed-package smoke
-   guidance tied to release bundles and package-lock consumers.
-2. Registry and versioning: add an optional CI workflow example for
+1. Registry and versioning: add an optional CI workflow example for
    `packages:installed-smoke` once the release proof runtime remains stable.
-3. Registry and versioning: add installed-package smoke coverage for additional
+2. Registry and versioning: add installed-package smoke coverage for additional
    package kinds beyond the checked `review_diff` bundle.
+3. Product clarity: add recovery guidance for installed-package smoke failures
+   in release proof output.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
