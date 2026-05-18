@@ -183,18 +183,23 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     return { exitCode: 1, stdout: "", stderr: suiteResult.stderr || "eval suite failed\n" };
   }
   const suite = JSON.parse(suiteResult.stdout) as EvalSuiteArtifact;
+  const providerProfileCheck = await packageProviderProfileCheck(manifest, manifestDir);
   const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
   const evalCoverageCheck = packageEvalCoverageCheck(manifest, suite);
   const checks: Array<Record<string, unknown>> = [
     { name: "package-check", passed: true },
     { name: "package-lock", passed: true, path: lockPath },
+    providerProfileCheck,
     bindingsCheck,
     examplesCheck,
     evalCoverageCheck,
     { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
   ];
-  let passed = bindingsCheck.passed === true && examplesCheck.passed === true && evalCoverageCheck.passed === true;
+  let passed = providerProfileCheck.passed === true
+    && bindingsCheck.passed === true
+    && examplesCheck.passed === true
+    && evalCoverageCheck.passed === true;
   const baselinePath = optionValue(args, "--baseline");
   if (baselinePath) {
     const failOnArgs = optionValue(args, "--fail-on") ? args : [...args, "--fail-on", "breaking,environment"];
@@ -226,6 +231,25 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
       checks,
     }, null, 2)}\n`,
     stderr: "",
+  };
+}
+
+async function packageProviderProfileCheck(manifest: FormaPackageManifest, manifestDir: string): Promise<Record<string, unknown>> {
+  if (!manifest.providerProfile) {
+    return { name: "provider-profile", passed: true };
+  }
+  const profile = JSON.parse(await readFile(resolve(manifestDir, manifest.providerProfile), "utf8")) as ProviderProfile;
+  const secretFields = [
+    ...("apiKey" in profile ? ["apiKey"] : []),
+  ];
+  return {
+    name: "provider-profile",
+    passed: secretFields.length === 0,
+    provider: profile.provider,
+    model: profile.model,
+    ...(profile.apiKeyEnv ? { apiKeyEnv: profile.apiKeyEnv } : {}),
+    ...(profile.endpoint ? { endpoint: profile.endpoint } : {}),
+    ...(secretFields.length > 0 ? { secretFields } : {}),
   };
 }
 

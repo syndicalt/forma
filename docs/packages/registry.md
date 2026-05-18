@@ -165,6 +165,8 @@ Publishing checklist:
 
 - Run `forma package-review` against the manifest, with `--baseline` when a
   previous release artifact is available.
+- Confirm the `provider-profile` row in package-review does not report
+  `secretFields`; published profiles should use `apiKeyEnv`, not `apiKey`.
 - Confirm the `bindings` row in package-review lists both `typescript` and
   `python`; missing targets fail the review.
 - Confirm the `examples` row in package-review lists both `typescript` and

@@ -720,11 +720,38 @@ describe("forma cli", () => {
       checks: [
         { name: "package-check", passed: true },
         { name: "package-lock", passed: true, path: join(dir, "review_diff.forma.lock.json") },
+        { name: "provider-profile", passed: true, provider: "openai-responses", model: "gpt-5", apiKeyEnv: "OPENAI_API_KEY" },
         { name: "bindings", passed: true, total: 2, targets: ["typescript", "python"] },
         { name: "examples", passed: true, total: 2, runtimes: ["typescript", "python"] },
         { name: "eval-coverage", passed: true, tasks: ["review_diff"] },
         { name: "eval-suite", passed: true, total: 1, failed: 0 },
       ],
+    });
+  });
+
+  it("fails package review when provider profile stores an api key", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-provider-secret-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    const profilePath = join(dir, "forma.provider.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const profile = JSON.parse(await readFile(profilePath, "utf8"));
+    profile.apiKey = "do-not-publish";
+    await writeFile(profilePath, `${JSON.stringify(profile, null, 2)}\n`);
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "provider-profile",
+      passed: false,
+      provider: "openai-responses",
+      model: "gpt-5",
+      apiKeyEnv: "OPENAI_API_KEY",
+      secretFields: ["apiKey"],
     });
   });
 
