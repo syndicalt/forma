@@ -232,6 +232,9 @@ The current MVP provides:
   review or lockfile overhead.
 - Quickstart now tells users to keep the inline prompt plus local schemas if
   the minimal before/after host code is not simpler after the first-use path.
+- Provider-adapter docs now state that operational keys, model choice, routing,
+  and retries live in host code, keeping deployment policy separate from the
+  reviewed task contract.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -763,12 +766,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-adapter docs wording that repeats where keys,
-   model choice, routing, and retries live in host code.
-2. Product clarity: add generated minimal-project README wording that names the
+1. Product clarity: add generated minimal-project README wording that names the
    same product-test decision before adopting checked scaffolds.
-3. Product clarity: add docs index routing that sends skeptical users directly
+2. Product clarity: add docs index routing that sends skeptical users directly
    to the first-use audit and migration parity proof before package review.
+3. Product clarity: add runtime-result docs wording that explains validation
+   failures as the guard between model output and host code.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

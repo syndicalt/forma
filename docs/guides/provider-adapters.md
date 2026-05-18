@@ -10,6 +10,9 @@ requests, and optional OpenAI adapter packages for production Responses API
 calls. Provider credentials and model names belong in host application code,
 not in the `.forma` file. A Forma task describes what should be done; the
 provider adapter decides which model service to call and how to authenticate.
+Operational keys, model choice, routing, and retries live in host code so the
+application can keep deployment policy separate from the reviewed task
+contract.
 
 ## Steps
 
