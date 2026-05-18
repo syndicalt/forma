@@ -192,6 +192,9 @@ The current MVP provides:
 - The first-use audit now states when to not use Forma, comparing the minimal
   path against an inline prompt plus local schemas before package locks or
   package review enter the workflow.
+- The README now leads with a five-minute usefulness path that starts from the
+  minimal host scaffold before package-review or package locks, keeping the
+  heavier product proof behind the first-use decision.
 - Registry docs now include CI guidance for archiving stale
   `package-lock --check --json` reports as `stale-package-lock-report.json`
   with `actions/upload-artifact`, so reviewers can inspect
@@ -718,12 +721,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: make the README lead with the five-minute usefulness path
-   before package-review and release proof.
-2. Product clarity: make the generated minimal project README explain the
+1. Product clarity: make the generated minimal project README explain the
    smallest useful Forma boundary before reviewed packages.
-3. Product clarity: add a README before/after table for inline prompts versus
+2. Product clarity: add a README before/after table for inline prompts versus
    Forma task contracts.
+3. Product clarity: add a package-review output note that distinguishes
+   minimal first-use success from reviewed release readiness.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

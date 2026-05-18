@@ -24,6 +24,32 @@ The project ships a real `.forma` language package:
 - TypeScript CLI
 - complete documentation for shipped behavior
 
+## Five-Minute Usefulness Path
+
+Start before package-review or package locks by testing Forma against the
+smallest useful question: does a `.forma` task remove enough duplicated prompt
+and schema code to beat an inline prompt plus local schemas?
+
+Start with the minimal host scaffold:
+
+```bash
+forma project-init ./review-diff-agent-minimal --name review-diff-agent-minimal --task review_diff --minimal
+cd review-diff-agent-minimal
+pnpm install
+pnpm run smoke:local:ts
+python review_diff_local_smoke.py
+```
+
+That scaffold keeps provider keys, model selection, retries, logging, and
+deployment policy in the host application. Forma supplies the task boundary,
+generated TypeScript and Python bindings, direct `agent(...)` entrypoints, and
+local `StaticProvider` smoke tests. If that does not improve the application
+over an inline prompt plus local schemas, do not add package review yet.
+
+Move to the default `project-init` scaffold only when the contract should be
+checked in CI. Move to `project-init --package-lock` only after the task is a
+reviewed package that consumers should load through pinned artifacts.
+
 ## Product Proof
 
 The concrete proof is `examples/review_diff.forma`: one reviewed coding-agent
