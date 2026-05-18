@@ -1,0 +1,19 @@
+{
+  "name": "review-diff-agent",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "forma generate review_diff.forma --target typescript --output src/review_diff.forma.ts",
+    "check": "tsc --noEmit",
+    "run:ts": "tsx src/review_diff_agent.ts",
+    "smoke:ts": "tsx test/review_diff_agent_smoke.ts"
+  },
+  "dependencies": {
+    "@forma-lang/forma": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.18",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3"
+  }
+}

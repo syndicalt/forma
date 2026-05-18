@@ -1,0 +1,8 @@
+[project]
+name = "review-diff-agent"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["forma-lang"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

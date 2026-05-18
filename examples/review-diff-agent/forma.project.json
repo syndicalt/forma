@@ -1,0 +1,42 @@
+{
+  "formaProject": 1,
+  "name": "review-diff-agent",
+  "task": "review_diff",
+  "source": "review_diff.forma",
+  "providerProfile": "forma.provider.json",
+  "bindings": [
+    {
+      "target": "typescript",
+      "source": "review_diff.forma",
+      "output": "src/review_diff.forma.ts"
+    },
+    {
+      "target": "python",
+      "source": "review_diff.forma",
+      "output": "src/review_diff_forma.py"
+    }
+  ],
+  "entrypoints": [
+    {
+      "runtime": "typescript",
+      "path": "src/review_diff_agent.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "src/review_diff_agent.py"
+    }
+  ],
+  "smokeTests": [
+    {
+      "runtime": "typescript",
+      "path": "test/review_diff_agent_smoke.ts",
+      "command": "pnpm run smoke:ts"
+    },
+    {
+      "runtime": "python",
+      "path": "test/review_diff_agent_smoke.py",
+      "command": "python test/review_diff_agent_smoke.py"
+    }
+  ],
+  "ciWorkflow": ".github/workflows/forma-project.yml"
+}

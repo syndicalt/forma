@@ -104,7 +104,7 @@ const requiredTerms = {
     "missingMigrationParityProofCommand",
     "docs/guides/package-consumer-quickstart.md#missingmigrationparitytests",
   ],
-  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "missingCommands"],
+  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "missingCommands"],
   "docs/guides/migrating-from-inline-prompts.md": [
     "inline prompt",
     ".forma",
@@ -245,6 +245,20 @@ function validateRootPackageScripts() {
   ]) {
     if (!migrationProof.includes(requiredCommand)) {
       console.error(`package.json: proof:migration missing ${requiredCommand}`);
+      process.exit(1);
+    }
+  }
+  const projectsCheck = manifest.scripts?.["projects:check"];
+  if (typeof projectsCheck !== "string") {
+    console.error("package.json: missing projects:check script");
+    process.exit(1);
+  }
+  for (const requiredCommand of [
+    "node cli/forma/dist/index.js project-check examples/review-diff-agent",
+    "node cli/forma/dist/index.js project-check examples/review-diff-agent --json",
+  ]) {
+    if (!projectsCheck.includes(requiredCommand)) {
+      console.error(`package.json: projects:check missing ${requiredCommand}`);
       process.exit(1);
     }
   }
