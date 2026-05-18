@@ -70,6 +70,10 @@ reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
 task source, provider profile, generated bindings, contract tests, eval suite,
 and release files.
+Consume reviewed releases instead of copying package internals. Application
+teams should depend on the reviewed lock, generated contract helper, and smoke
+tests from the release bundle so package review can keep the source, bindings,
+provider profile, tests, evals, and release files moving together.
 
 Generated packages include smoke tests for the lockfile-backed contract modules.
 Run them after the lock check and before application-specific tests:
