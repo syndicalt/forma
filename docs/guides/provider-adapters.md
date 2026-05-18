@@ -93,6 +93,10 @@ Cleaned-up route labels should preserve fallback audit lookup keys. Keep
 fallback decisions, failed-result diagnostics, rerun traces, and adapter notes
 searchable by the original fallback route key, then attach the cleaned-up label
 after the host-owned retry record is saved.
+Cleaned-up route labels should preserve deployment-owner audit lookup keys.
+Keep deployment-owner notes, adapter overrides, incident records, and routing
+decisions searchable by the original deployment-owner route key, then attach
+the cleaned-up label after host ownership is recorded.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the
