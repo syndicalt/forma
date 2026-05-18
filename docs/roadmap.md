@@ -350,6 +350,9 @@ The current MVP provides:
 - Testing and verification guide documents `proof:migration`,
   `missingMigrationParityTests`, and `missingMigrationParityProofCommand`
   alongside the example and package checks contributors run.
+- Testing and verification guide shows how to run
+  `package-review --proof-command "corepack pnpm proof:migration"` as the
+  blocking release checklist for the migration proof.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -480,9 +483,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add a direct package-review proof-command example to the
-   testing and verification guide so contributors can run the blocking release
-   gate, not just the standalone parity proof.
+3. Product proof: add the blocking migration proof package-review command to
+   the README Product Proof command list so first-time readers run the same
+   gate as contributors.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

@@ -59,6 +59,13 @@ migration parity files or direct test commands. If it reports
 exist, but README or CI no longer runs them through the blocking
 `package-review --proof-command` gate.
 
+Run the same proof through package review when you need the release checklist to
+fail if the proof fails:
+
+```bash
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
+```
+
 Run CLI smoke tests after building:
 
 ```bash
