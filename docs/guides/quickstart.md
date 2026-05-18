@@ -109,6 +109,21 @@ Stop here when the task is local to one application. Add package manifests,
 package review, and package locks only when the task is shared, reviewed, or
 reused across repositories.
 
+To scaffold that same first-use shape into a clean host project, use
+`project-init --minimal`:
+
+```bash
+node cli/forma/dist/index.js project-init ./review-diff-agent-minimal \
+  --name review-diff-agent-minimal \
+  --task review_diff \
+  --minimal
+```
+
+The minimal scaffold writes the `.forma` task, `forma.provider.json`, generated
+TypeScript and Python bindings, and direct `agent(...)` entrypoints. It skips
+`forma.project.json`, generated smoke tests, and `.github/workflows` so the
+first project stays focused on the contract boundary before package-review or package locks.
+
 ## Verification
 
 A clean local verification run should include these commands:

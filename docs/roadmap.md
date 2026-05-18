@@ -449,6 +449,10 @@ The current MVP provides:
   inline prompt plus local schemas problem, shows direct TypeScript and Python
   `agent(...)` embedding with generated output validators, and stops before
   package locks unless the task is shared or reviewed.
+- `forma project-init --minimal` scaffolds the same first-use shape into a
+  clean host project by writing the task, provider profile, generated
+  TypeScript/Python bindings, and direct `agent(...)` entrypoints before
+  project-check, CI workflow, package-review, or package-lock surfaces.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -579,9 +583,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add `project-init --minimal` or equivalent scaffolding so
-   the generated first project follows the five-minute usefulness path before
-   package-review and lockfile surfaces.
+3. Product clarity: make the generated minimal scaffold runnable without a real
+   provider key by adding an optional local `StaticProvider` smoke command that
+   does not pull in the full checked-project workflow.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { runCli } from "../src/index.js";
-import { cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { execFile } from "node:child_process";
@@ -36,6 +36,43 @@ async function compileGeneratedProject(dir: string): Promise<void> {
     join(dir, "src", "review_diff_agent.py"),
     join(dir, "test", "review_diff_agent_smoke.py"),
   ]);
+}
+
+async function compileMinimalGeneratedProject(dir: string): Promise<void> {
+  const tsconfig = join(dir, "tsconfig.consumer.json");
+  await writeFile(tsconfig, JSON.stringify({
+    compilerOptions: {
+      target: "ES2022",
+      module: "NodeNext",
+      moduleResolution: "NodeNext",
+      strict: true,
+      noEmit: true,
+      baseUrl: repoRoot,
+      paths: {
+        "@forma-lang/forma": ["packages/forma-typescript/src/index.ts"],
+      },
+      typeRoots: [resolve(repoRoot, "packages/forma-typescript/node_modules/@types")],
+      types: ["node"],
+      skipLibCheck: true,
+    },
+    include: [join(dir, "src", "*.ts")],
+  }, null, 2));
+  await execFileAsync(resolve(repoRoot, "node_modules/.bin/tsc"), ["-p", tsconfig], { cwd: repoRoot });
+  await execFileAsync("python", [
+    "-m",
+    "py_compile",
+    join(dir, "src", "review_diff_forma.py"),
+    join(dir, "src", "review_diff_agent.py"),
+  ]);
+}
+
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 describe("forma cli", () => {
@@ -2258,6 +2295,37 @@ describe("forma cli", () => {
         PYTHONPATH: `${join(dir, "src")}:${resolve(repoRoot, "packages/forma-python/src")}`,
       },
     });
+  });
+
+  it("scaffolds a minimal first-use TypeScript and Python host project", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-init-minimal-"));
+    const result = await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+      "--minimal",
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    expect(await readFile(join(dir, "review_diff.forma"), "utf8")).toContain("task review_diff");
+    expect(await readFile(join(dir, "src", "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
+    expect(await readFile(join(dir, "src", "review_diff_forma.py"), "utf8")).toContain("assert_review_diff_output");
+    expect(await readFile(join(dir, "src", "review_diff_agent.ts"), "utf8")).toContain("agent({");
+    expect(await readFile(join(dir, "src", "review_diff_agent.py"), "utf8")).toContain("agent(");
+    const readme = await readFile(join(dir, "README.md"), "utf8");
+    expect(readme).toContain("Five-Minute Usefulness Path");
+    expect(readme).toContain("inline prompt plus local schemas");
+    expect(readme).toContain("before package-review or package locks");
+    expect(readme).toContain("src/review_diff_agent.ts");
+    expect(readme).toContain("src/review_diff_agent.py");
+    expect(await pathExists(join(dir, "forma.project.json"))).toBe(false);
+    expect(await pathExists(join(dir, "test", "review_diff_agent_smoke.ts"))).toBe(false);
+    expect(await pathExists(join(dir, ".github", "workflows", "forma-project.yml"))).toBe(false);
+
+    await compileMinimalGeneratedProject(dir);
   });
 
   it("scaffolds package-lock smoke tests when a reviewed lock is provided", async () => {

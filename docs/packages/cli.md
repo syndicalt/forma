@@ -684,6 +684,21 @@ forma project-init ./review-diff-agent \
   --api-key-env OPENAI_API_KEY
 ```
 
+Use `--minimal` for the first five-minute usefulness path. It writes the task,
+provider profile, generated TypeScript and Python bindings, host entrypoints,
+runtime package manifests, and a README, but skips `forma.project.json`,
+generated smoke tests, and `.github/workflows/forma-project.yml`:
+
+```bash
+forma project-init ./review-diff-agent-minimal \
+  --name review-diff-agent-minimal \
+  --task review_diff \
+  --minimal
+```
+
+Use the default scaffold when you are ready for `forma project-check`, checked
+smoke tests, and generated CI workflow proof commands.
+
 When a reviewed package lock is already available, pass it to the scaffold so
 the generated project also proves the reviewed package consumer path:
 

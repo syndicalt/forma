@@ -818,6 +818,7 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   const projectName = optionValue(args, "--name");
   const taskName = optionValue(args, "--task") ?? "review_diff";
   const kind = scaffoldKind(args);
+  const minimal = args.includes("--minimal");
   if (!projectName) {
     throw new Error("--name is required for project-init");
   }
@@ -840,6 +841,9 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   const typeScriptSmoke = `test/${taskName}_agent_smoke.ts`;
   const pythonSmoke = `test/${taskName}_agent_smoke.py`;
   const packageLock = optionValue(args, "--package-lock");
+  if (minimal && packageLock) {
+    throw new Error("--minimal cannot be combined with --package-lock");
+  }
   const typeScriptPackageLockSmoke = `test/${taskName}_package_lock_smoke.ts`;
   const pythonPackageLockSmoke = `test/${taskName}_package_lock_smoke.py`;
   const packageLockSmokeTests = packageLock
@@ -878,19 +882,25 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
   await writeFile(resolve(path, typeScriptAgent), scaffoldProjectTypeScriptAgent(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonAgent), scaffoldProjectPythonAgent(taskName, kind, schema), "utf8");
-  await writeFile(resolve(path, typeScriptSmoke), scaffoldProjectTypeScriptSmokeTest(taskName, kind, schema), "utf8");
-  await writeFile(resolve(path, pythonSmoke), scaffoldProjectPythonSmokeTest(taskName, kind, schema), "utf8");
+  if (!minimal) {
+    await writeFile(resolve(path, typeScriptSmoke), scaffoldProjectTypeScriptSmokeTest(taskName, kind, schema), "utf8");
+    await writeFile(resolve(path, pythonSmoke), scaffoldProjectPythonSmokeTest(taskName, kind, schema), "utf8");
+  }
   if (packageLock) {
     await writeFile(resolve(path, typeScriptPackageLockSmoke), scaffoldProjectTypeScriptPackageLockSmokeTest(taskName, packageLock, kind, schema), "utf8");
     await writeFile(resolve(path, pythonPackageLockSmoke), scaffoldProjectPythonPackageLockSmokeTest(taskName, packageLock, kind, schema), "utf8");
   }
-  await writeFile(resolve(path, ciWorkflow), scaffoldProjectWorkflow(taskName, packageLockSmokeTests), "utf8");
+  if (!minimal) {
+    await writeFile(resolve(path, ciWorkflow), scaffoldProjectWorkflow(taskName, packageLockSmokeTests), "utf8");
+  }
   await writeFile(resolve(path, "forma.provider.json"), `${JSON.stringify(providerProfile, null, 2)}\n`, "utf8");
-  await writeFile(resolve(path, "forma.project.json"), `${JSON.stringify(projectManifest, null, 2)}\n`, "utf8");
-  await writeFile(resolve(path, "package.json"), scaffoldProjectPackageJson(projectName, taskName, Boolean(packageLock)), "utf8");
+  if (!minimal) {
+    await writeFile(resolve(path, "forma.project.json"), `${JSON.stringify(projectManifest, null, 2)}\n`, "utf8");
+  }
+  await writeFile(resolve(path, "package.json"), scaffoldProjectPackageJson(projectName, taskName, Boolean(packageLock), minimal), "utf8");
   await writeFile(resolve(path, "tsconfig.json"), scaffoldProjectTsconfig(), "utf8");
   await writeFile(resolve(path, "pyproject.toml"), scaffoldProjectPyproject(projectName), "utf8");
-  await writeFile(resolve(path, "README.md"), scaffoldProjectReadme(projectName, taskName, providerProfile, packageLock), "utf8");
+  await writeFile(resolve(path, "README.md"), scaffoldProjectReadme(projectName, taskName, providerProfile, packageLock, minimal), "utf8");
 
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
@@ -2457,7 +2467,7 @@ jobs:
 ${packageLockCommands}`;
 }
 
-function scaffoldProjectPackageJson(projectName: string, taskName: string, includePackageLockSmoke = false): string {
+function scaffoldProjectPackageJson(projectName: string, taskName: string, includePackageLockSmoke = false, minimal = false): string {
   return `${JSON.stringify({
     name: projectName,
     private: true,
@@ -2466,7 +2476,7 @@ function scaffoldProjectPackageJson(projectName: string, taskName: string, inclu
       generate: `forma generate ${taskName}.forma --target typescript --output src/${taskName}.forma.ts`,
       check: "tsc --noEmit",
       "run:ts": `tsx src/${taskName}_agent.ts`,
-      "smoke:ts": `tsx test/${taskName}_agent_smoke.ts`,
+      ...(minimal ? {} : { "smoke:ts": `tsx test/${taskName}_agent_smoke.ts` }),
       ...(includePackageLockSmoke ? { "smoke:lock:ts": `tsx test/${taskName}_package_lock_smoke.ts` } : {}),
     },
     dependencies: {
@@ -2507,8 +2517,67 @@ pythonpath = ["src"]
 `;
 }
 
-function scaffoldProjectReadme(projectName: string, taskName: string, profile: ProviderProfile, packageLock?: string): string {
+function scaffoldProjectReadme(projectName: string, taskName: string, profile: ProviderProfile, packageLock?: string, minimal = false): string {
   const apiKeyEnv = profile.apiKeyEnv ?? "MODEL_API_KEY";
+  if (minimal) {
+    return `# ${projectName}
+
+This project is a minimal Forma host project for deciding whether a durable
+agent task contract is better than an inline prompt plus local schemas.
+
+## Five-Minute Usefulness Path
+
+Start with the generated contract before package-review or package locks:
+
+\`\`\`bash
+pnpm install
+python -m pip install -e .
+pnpm run check
+\`\`\`
+
+The task contract lives in \`${taskName}.forma\`. It owns the input fields,
+output fields, instructions, permissions, and verification rules. The generated
+TypeScript and Python bindings live in \`src/${taskName}.forma.ts\` and
+\`src/${taskName}_forma.py\`.
+
+## Provider Configuration
+
+\`forma.provider.json\` names the provider, model, response format, timeout,
+temperature, and API-key environment variable. It does not store the secret
+value:
+
+\`\`\`bash
+export ${apiKeyEnv}=...
+\`\`\`
+
+Change the model in \`forma.provider.json\` when both runtimes should use a
+different default. Keep retries, logging, routing, and secret loading in the
+host application.
+
+## TypeScript
+
+\`src/${taskName}_agent.ts\` creates the provider from \`forma.provider.json\`,
+calls \`agent(...)\`, runs the named \`${taskName}\` task, checks \`result.ok\`,
+and validates the result with the generated output validator.
+
+\`\`\`bash
+pnpm run run:ts
+\`\`\`
+
+## Python
+
+\`src/${taskName}_agent.py\` uses the same \`${taskName}.forma\` contract,
+provider profile, and generated output validator from Python:
+
+\`\`\`bash
+python src/${taskName}_agent.py
+\`\`\`
+
+Add \`forma project-check\`, smoke tests, CI workflow checks, package-review,
+and package locks after the task is shared, reviewed, or reused across
+repositories.
+`;
+  }
   const packageLockSection = packageLock
     ? `
 ## Reviewed Package Lock
