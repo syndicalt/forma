@@ -200,6 +200,7 @@ describe("HttpJsonProvider", () => {
     const provider = new HttpJsonProvider({
       endpoint: "https://model.example/v1/agent",
       model: "example-model",
+      responseFormat: "json_schema",
       temperature: 0.2,
       timeoutMs: 1000,
       fetch: async (_url, init) => {
@@ -231,6 +232,7 @@ describe("HttpJsonProvider", () => {
     });
 
     expect(requests[0]?.body.temperature).toBe(0.2);
+    expect(requests[0]?.body.responseFormat).toBe("json_schema");
     expect(requests[0]?.signal).toBeInstanceOf(AbortSignal);
   });
 });
@@ -353,6 +355,7 @@ describe("OpenAIResponsesProvider", () => {
     const provider = new OpenAIResponsesProvider({
       apiKey: "secret",
       model: "gpt-example",
+      responseFormat: "json_object",
       temperature: 0.1,
       timeoutMs: 1000,
       fetch: async (_url, init) => {
@@ -384,6 +387,7 @@ describe("OpenAIResponsesProvider", () => {
     });
 
     expect(requests[0]?.body.temperature).toBe(0.1);
+    expect((requests[0]?.body.text as { format: { type: string } }).format.type).toBe("json_object");
     expect(requests[0]?.signal).toBeInstanceOf(AbortSignal);
   });
 });
@@ -440,6 +444,7 @@ describe("provider profiles", () => {
       provider: "openai-responses",
       model: "gpt-profile",
       apiKeyEnv: "FORMA_TEST_API_KEY",
+      responseFormat: "json_object",
       temperature: 0.3,
       timeoutMs: 2000,
     }));
@@ -473,6 +478,7 @@ describe("provider profiles", () => {
     });
 
     expect(JSON.parse(String(requests[0]?.init.body)).temperature).toBe(0.3);
+    expect((JSON.parse(String(requests[0]?.init.body)).text as { format: { type: string } }).format.type).toBe("json_object");
     expect(requests[0]?.init.signal).toBeInstanceOf(AbortSignal);
   });
 });

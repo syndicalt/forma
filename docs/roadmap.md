@@ -81,8 +81,8 @@ The current MVP provides:
 - HTTP JSON provider adapters can execute provider-requested tool calls through
   host-owned runtime tools before returning final structured output.
 - HTTP JSON and OpenAI Responses provider adapters for TypeScript and Python.
-- Provider adapters and provider profiles share model, temperature, and timeout
-  settings across TypeScript, Python, and the CLI.
+- Provider adapters and provider profiles share model, response-format,
+  temperature, and timeout settings across TypeScript, Python, and the CLI.
 - RecordingProvider test adapters in TypeScript and Python record agent
   requests while returning queued fixture outputs.
 - CLI live evaluation mode through `--provider http-json`.

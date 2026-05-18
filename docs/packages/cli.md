@@ -37,6 +37,7 @@ forma run examples/review_diff.forma \
   --task review_diff \
   --input '{"diff":"diff --git a/src/example.ts b/src/example.ts"}' \
   --provider-profile examples/forma.provider.json \
+  --response-format json_schema \
   --temperature 0.2 \
   --timeout-ms 30000 \
   --workspace . \
@@ -54,8 +55,8 @@ edits are scoped to `--workspace`, which defaults to the current working
 directory. Provider-requested paths outside that workspace return failed tool
 results. Use `--allow-test-command` one or more times to restrict provider
 requested test commands to exact approved command strings.
-Use `--temperature` and `--timeout-ms` to override provider profile generation
-settings for one command.
+Use `--response-format`, `--temperature`, and `--timeout-ms` to override
+provider profile generation settings for one command.
 
 Invalid usage exits with code 2 and prints `usage: forma
 <check|run|eval|eval-suite|compare|generate|package-check|package-init> <path> [--input JSON]`.
@@ -107,6 +108,7 @@ The default generated provider profile is:
   "provider": "openai-responses",
   "model": "gpt-5",
   "apiKeyEnv": "OPENAI_API_KEY",
+  "responseFormat": "json_schema",
   "temperature": 0.2,
   "timeoutMs": 30000
 }
@@ -136,6 +138,7 @@ to restrict provider-requested test runs to exact approved commands:
 ```bash
 forma eval packages/forma-core/conformance/review_diff.json \
   --provider-profile ./forma.provider.json \
+  --response-format json_schema \
   --temperature 0.2 \
   --timeout-ms 30000 \
   --workspace . \
@@ -191,6 +194,7 @@ same model configuration without putting secrets in the fixture:
   "endpoint": "https://model.example/v1/agent",
   "model": "example-model",
   "apiKeyEnv": "MODEL_API_KEY",
+  "responseFormat": "json_schema",
   "temperature": 0.2,
   "timeoutMs": 30000
 }
@@ -202,9 +206,9 @@ forma eval packages/forma-core/conformance/review_diff.json \
 ```
 
 The profile supports `provider`, `endpoint`, `model`, `apiKey`, `apiKeyEnv`,
-`temperature`, and `timeoutMs`. Command-line flags override profile values.
-Prefer `apiKeyEnv` so the profile names the secret environment variable without
-storing the secret value.
+`responseFormat`, `temperature`, and `timeoutMs`. Command-line flags override
+profile values. Prefer `apiKeyEnv` so the profile names the secret environment
+variable without storing the secret value.
 
 Use `--provider openai-responses` to evaluate against the built-in OpenAI
 Responses adapter. The CLI passes the task output contract to the provider so
@@ -242,7 +246,8 @@ includes a `reports` array for task-level detail. When both sides include
 `metadata.contract`, compare also reports informational `contractChanges` entries
 such as `review_diff:sourceSha256` or `review_diff:output`. When both sides are
 summary artifacts, compare also reports informational `settingChanges` such as
-`provider`, `endpoint`, `model`, `temperature`, or `timeoutMs`. It also emits a
+`provider`, `endpoint`, `model`, `responseFormat`, `temperature`, or
+`timeoutMs`. It also emits a
 machine-readable `changes` array with `kind`, `field`, and `severity`; output,
 input, and schema contract
 changes are marked `breaking`, additive optional output fields and permission

@@ -161,6 +161,7 @@ def test_http_json_provider_includes_optional_adapter_settings():
     provider = HttpJsonProvider(
         endpoint="https://model.example/v1/agent",
         model="example-model",
+        response_format="json_schema",
         temperature=0.2,
         timeout_ms=1000,
         transport=transport,
@@ -170,6 +171,7 @@ def test_http_json_provider_includes_optional_adapter_settings():
 
     assert output == {"message": "Hello."}
     assert requests[0]["body"]["temperature"] == 0.2
+    assert requests[0]["body"]["responseFormat"] == "json_schema"
     assert provider.timeout_ms == 1000
 
 
@@ -288,6 +290,7 @@ def test_openai_responses_provider_includes_optional_adapter_settings():
     provider = OpenAIResponsesProvider(
         api_key="secret",
         model="gpt-example",
+        response_format="json_object",
         temperature=0.1,
         timeout_ms=1000,
         transport=transport,
@@ -304,6 +307,7 @@ def test_openai_responses_provider_includes_optional_adapter_settings():
 
     assert output == {"message": "Hello."}
     assert requests[0]["body"]["temperature"] == 0.1
+    assert requests[0]["body"]["text"]["format"]["type"] == "json_object"
     assert provider.timeout_ms == 1000
 
 
@@ -351,6 +355,7 @@ def test_provider_profile_passes_optional_adapter_settings(tmp_path, monkeypatch
                 "provider": "openai-responses",
                 "model": "gpt-profile",
                 "apiKeyEnv": "FORMA_TEST_API_KEY",
+                "responseFormat": "json_object",
                 "temperature": 0.3,
                 "timeoutMs": 2000,
             }
@@ -378,4 +383,5 @@ def test_provider_profile_passes_optional_adapter_settings(tmp_path, monkeypatch
 
     assert output == {"message": "Hello from profile."}
     assert requests[0]["body"]["temperature"] == 0.3
+    assert requests[0]["body"]["text"]["format"]["type"] == "json_object"
     assert provider.timeout_ms == 2000

@@ -94,7 +94,8 @@ regressions such as `review_diff:output`. If both artifacts include contract
 metadata, compare also lists changed contract fields such as
 `review_diff:sourceSha256`, `review_diff:output`, or `review_diff:permissions`.
 If both artifacts include summary settings, compare also lists changed provider
-settings such as `provider`, `endpoint`, `model`, `temperature`, or `timeoutMs`.
+settings such as `provider`, `endpoint`, `model`, `responseFormat`,
+`temperature`, or `timeoutMs`.
 The `changes` array gives each change a `kind`, `field`, and `severity`:
 `breaking` for input, output, and schema contract changes; `review` for
 additive optional output fields,

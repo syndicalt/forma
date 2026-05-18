@@ -180,7 +180,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
     compatibility: {
       breaking: ["input", "output", "schemas"],
       review: ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
-      environment: ["provider", "endpoint", "model", "temperature", "timeoutMs"],
+      environment: ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"],
     },
   };
   await writeFile(resolve(path, manifestFile), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
@@ -207,6 +207,7 @@ function scaffoldProviderProfile() {
     provider: "openai-responses",
     model: "gpt-5",
     apiKeyEnv: "OPENAI_API_KEY",
+    responseFormat: "json_schema",
     temperature: 0.2,
     timeoutMs: 30000,
   };
@@ -592,6 +593,9 @@ function validateProviderProfile(profile: ProviderProfile): void {
   if (profile.apiKeyEnv !== undefined && typeof profile.apiKeyEnv !== "string") {
     throw new Error("provider profile apiKeyEnv must be a string");
   }
+  if (profile.responseFormat !== undefined && profile.responseFormat !== "json_schema" && profile.responseFormat !== "json_object") {
+    throw new Error("provider profile responseFormat must be json_schema or json_object");
+  }
   if (profile.temperature !== undefined && (typeof profile.temperature !== "number" || !Number.isFinite(profile.temperature))) {
     throw new Error("provider profile temperature must be a number");
   }
@@ -766,7 +770,7 @@ function summarySettings(report: EvalReport | EvalReport[] | EvalSuiteArtifact):
 
 function compareSettings(baseline: EvalSettings | undefined, candidate: EvalSettings | undefined): string[] {
   if (!baseline || !candidate) return [];
-  const fields: Array<keyof EvalSettings> = ["provider", "endpoint", "model", "temperature", "timeoutMs"];
+  const fields: Array<keyof EvalSettings> = ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"];
   return fields.filter((field) => baseline[field] !== candidate[field]);
 }
 
@@ -921,6 +925,7 @@ interface EvalOptions {
   endpoint?: string;
   model?: string;
   apiKey?: string;
+  responseFormat?: "json_schema" | "json_object";
   temperature?: number;
   timeoutMs?: number;
 }
@@ -931,6 +936,7 @@ interface ProviderProfile {
   model?: string;
   apiKey?: string;
   apiKeyEnv?: string;
+  responseFormat?: "json_schema" | "json_object";
   temperature?: number;
   timeoutMs?: number;
 }
@@ -939,6 +945,7 @@ interface EvalSettings {
   provider: EvalOptions["provider"];
   endpoint?: string;
   model?: string;
+  responseFormat?: "json_schema" | "json_object";
   temperature?: number;
   timeoutMs?: number;
 }
@@ -993,6 +1000,7 @@ function evalSettings(options: EvalOptions): EvalSettings {
     provider: options.provider,
     ...(options.endpoint ? { endpoint: options.endpoint } : {}),
     ...(options.model ? { model: options.model } : {}),
+    ...(options.responseFormat ? { responseFormat: options.responseFormat } : {}),
     ...(options.temperature !== undefined ? { temperature: options.temperature } : {}),
     ...(options.timeoutMs !== undefined ? { timeoutMs: options.timeoutMs } : {}),
   };
@@ -1070,6 +1078,7 @@ async function parseEvalOptions(args: string[]): Promise<EvalOptions> {
   if (provider === "http-json" && !endpoint) {
     throw new Error("--endpoint is required for --provider http-json");
   }
+  const responseFormat = responseFormatOption(args) ?? profile.responseFormat;
   const temperature = numericOption(args, "--temperature") ?? profile.temperature;
   const timeoutMs = numericOption(args, "--timeout-ms") ?? profile.timeoutMs;
   return {
@@ -1077,6 +1086,7 @@ async function parseEvalOptions(args: string[]): Promise<EvalOptions> {
     ...(endpoint ? { endpoint } : {}),
     model,
     ...(apiKey ? { apiKey } : {}),
+    ...(responseFormat ? { responseFormat } : {}),
     ...(temperature !== undefined ? { temperature } : {}),
     ...(timeoutMs !== undefined ? { timeoutMs } : {}),
   };
@@ -1105,6 +1115,7 @@ function createConfiguredProvider(options: EvalOptions): ModelProvider {
       endpoint: options.endpoint ?? "",
       model: options.model ?? "",
       ...(options.apiKey ? { apiKey: options.apiKey } : {}),
+      ...(options.responseFormat ? { responseFormat: options.responseFormat } : {}),
       ...(options.temperature !== undefined ? { temperature: options.temperature } : {}),
       ...(options.timeoutMs !== undefined ? { timeoutMs: options.timeoutMs } : {}),
     });
@@ -1114,6 +1125,7 @@ function createConfiguredProvider(options: EvalOptions): ModelProvider {
       model: options.model ?? "",
       apiKey: options.apiKey ?? "",
       ...(options.endpoint ? { endpoint: options.endpoint } : {}),
+      ...(options.responseFormat ? { responseFormat: options.responseFormat } : {}),
       ...(options.temperature !== undefined ? { temperature: options.temperature } : {}),
       ...(options.timeoutMs !== undefined ? { timeoutMs: options.timeoutMs } : {}),
     });
@@ -1221,6 +1233,15 @@ function numericOption(args: string[], name: string): number | undefined {
     throw new Error("--timeout-ms must be positive");
   }
   return parsed;
+}
+
+function responseFormatOption(args: string[]): "json_schema" | "json_object" | undefined {
+  const value = optionValue(args, "--response-format");
+  if (value === undefined) return undefined;
+  if (value !== "json_schema" && value !== "json_object") {
+    throw new Error("--response-format must be json_schema or json_object");
+  }
+  return value;
 }
 
 function deepEqual(left: unknown, right: unknown): boolean {

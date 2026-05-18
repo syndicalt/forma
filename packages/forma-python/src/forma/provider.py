@@ -90,6 +90,7 @@ class HttpJsonProvider:
         endpoint: str,
         model: str,
         api_key: str | None = None,
+        response_format: str | None = None,
         temperature: float | None = None,
         timeout_ms: int | None = None,
         transport: Transport | None = None,
@@ -97,6 +98,7 @@ class HttpJsonProvider:
         self.endpoint = endpoint
         self.model = model
         self.api_key = api_key
+        self.response_format = response_format
         self.temperature = temperature
         self.timeout_ms = timeout_ms
         self.transport = transport or self._default_transport
@@ -122,6 +124,8 @@ class HttpJsonProvider:
                 "input": values,
                 "permissions": permissions,
             }
+            if self.response_format is not None:
+                body["responseFormat"] = self.response_format
             if self.temperature is not None:
                 body["temperature"] = self.temperature
             if tool_results:
@@ -159,6 +163,7 @@ class OpenAIResponsesProvider:
         api_key: str,
         model: str,
         endpoint: str = "https://api.openai.com/v1/responses",
+        response_format: str | None = None,
         temperature: float | None = None,
         timeout_ms: int | None = None,
         transport: Transport | None = None,
@@ -166,6 +171,7 @@ class OpenAIResponsesProvider:
         self.api_key = api_key
         self.model = model
         self.endpoint = endpoint
+        self.response_format = response_format
         self.temperature = temperature
         self.timeout_ms = timeout_ms
         self.transport = transport or self._default_transport
@@ -183,14 +189,7 @@ class OpenAIResponsesProvider:
             "model": self.model,
             "instructions": instruction,
             "input": json.dumps({"input": values, "permissions": permissions}),
-            "text": {
-                "format": {
-                    "type": "json_schema",
-                    "name": "forma_output",
-                    "strict": True,
-                    "schema": _object_schema(output or {}, schemas or {}),
-                }
-            },
+            "text": _text_format(self.response_format, output or {}, schemas or {}),
         }
         if self.temperature is not None:
             body["temperature"] = self.temperature
@@ -247,6 +246,7 @@ def provider_from_profile(
             endpoint=endpoint,
             model=profile["model"],
             api_key=api_key,
+            response_format=_optional_response_format(profile),
             temperature=_optional_float(profile, "temperature"),
             timeout_ms=_optional_int(profile, "timeoutMs"),
             transport=transport,
@@ -257,6 +257,7 @@ def provider_from_profile(
         api_key=api_key,
         model=profile["model"],
         endpoint=profile.get("endpoint", "https://api.openai.com/v1/responses"),
+        response_format=_optional_response_format(profile),
         temperature=_optional_float(profile, "temperature"),
         timeout_ms=_optional_int(profile, "timeoutMs"),
         transport=transport,
@@ -274,6 +275,8 @@ def _validate_provider_profile(value: object) -> ProviderProfile:
     for field in ["endpoint", "apiKey", "apiKeyEnv"]:
         if field in value and not isinstance(value[field], str):
             raise ValueError(f"provider profile {field} must be a string")
+    if "responseFormat" in value and value["responseFormat"] not in {"json_schema", "json_object"}:
+        raise ValueError("provider profile responseFormat must be json_schema or json_object")
     if "temperature" in value and not isinstance(value["temperature"], (int, float)):
         raise ValueError("provider profile temperature must be a number")
     if "timeoutMs" in value and (not isinstance(value["timeoutMs"], int) or value["timeoutMs"] <= 0):
@@ -289,6 +292,28 @@ def _optional_float(profile: ProviderProfile, field: str) -> float | None:
 def _optional_int(profile: ProviderProfile, field: str) -> int | None:
     value = profile.get(field)
     return value if isinstance(value, int) else None
+
+
+def _optional_response_format(profile: ProviderProfile) -> str | None:
+    value = profile.get("responseFormat")
+    return value if value in {"json_schema", "json_object"} else None
+
+
+def _text_format(
+    response_format: str | None,
+    output: dict[str, dict[str, object]],
+    schemas: dict[str, dict[str, dict[str, object]]],
+) -> dict[str, object]:
+    if response_format == "json_object":
+        return {"format": {"type": "json_object"}}
+    return {
+        "format": {
+            "type": "json_schema",
+            "name": "forma_output",
+            "strict": True,
+            "schema": _object_schema(output, schemas),
+        }
+    }
 
 
 def _object_schema(fields: dict[str, dict[str, object]], schemas: dict[str, dict[str, dict[str, object]]]) -> dict[str, object]:

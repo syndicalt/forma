@@ -81,10 +81,13 @@ export interface HttpJsonProviderOptions {
   endpoint: string;
   model: string;
   apiKey?: string;
+  responseFormat?: ProviderResponseFormat;
   temperature?: number;
   timeoutMs?: number;
   fetch?: FetchLike;
 }
+
+export type ProviderResponseFormat = "json_schema" | "json_object";
 
 export class HttpJsonProvider implements ModelProvider {
   private readonly fetchImpl: FetchLike;
@@ -119,6 +122,7 @@ export class HttpJsonProvider implements ModelProvider {
           instruction: input.instruction,
           input: input.values,
           permissions: input.permissions,
+          ...(this.options.responseFormat ? { responseFormat: this.options.responseFormat } : {}),
           ...(this.options.temperature !== undefined ? { temperature: this.options.temperature } : {}),
           ...(toolResults.length > 0 ? { toolResults } : {}),
         }),
@@ -212,6 +216,7 @@ export interface OpenAIResponsesProviderOptions {
   apiKey: string;
   model: string;
   endpoint?: string;
+  responseFormat?: ProviderResponseFormat;
   temperature?: number;
   timeoutMs?: number;
   fetch?: FetchLike;
@@ -249,14 +254,7 @@ export class OpenAIResponsesProvider implements ModelProvider {
           permissions: input.permissions,
         }),
         ...(this.options.temperature !== undefined ? { temperature: this.options.temperature } : {}),
-        text: {
-          format: {
-            type: "json_schema",
-            name: "forma_output",
-            strict: true,
-            schema: objectSchema(input.output, input.schemas),
-          },
-        },
+        text: textFormat(this.options.responseFormat, input.output, input.schemas),
       }),
     });
     const text = await response.text();
@@ -279,6 +277,7 @@ export interface ProviderProfile {
   model: string;
   apiKey?: string;
   apiKeyEnv?: string;
+  responseFormat?: ProviderResponseFormat;
   temperature?: number;
   timeoutMs?: number;
 }
@@ -303,6 +302,7 @@ export function providerFromProfile(profile: ProviderProfile, options: ProviderP
       endpoint: profile.endpoint,
       model: profile.model,
       ...(apiKey ? { apiKey } : {}),
+      ...(profile.responseFormat ? { responseFormat: profile.responseFormat } : {}),
       ...(profile.temperature !== undefined ? { temperature: profile.temperature } : {}),
       ...(profile.timeoutMs !== undefined ? { timeoutMs: profile.timeoutMs } : {}),
       ...(options.fetch ? { fetch: options.fetch } : {}),
@@ -315,6 +315,7 @@ export function providerFromProfile(profile: ProviderProfile, options: ProviderP
     apiKey,
     model: profile.model,
     ...(profile.endpoint ? { endpoint: profile.endpoint } : {}),
+    ...(profile.responseFormat ? { responseFormat: profile.responseFormat } : {}),
     ...(profile.temperature !== undefined ? { temperature: profile.temperature } : {}),
     ...(profile.timeoutMs !== undefined ? { timeoutMs: profile.timeoutMs } : {}),
     ...(options.fetch ? { fetch: options.fetch } : {}),
@@ -341,6 +342,9 @@ function validateProviderProfile(value: unknown): ProviderProfile {
   if (profile.apiKeyEnv !== undefined && typeof profile.apiKeyEnv !== "string") {
     throw new Error("provider profile apiKeyEnv must be a string");
   }
+  if (profile.responseFormat !== undefined && profile.responseFormat !== "json_schema" && profile.responseFormat !== "json_object") {
+    throw new Error("provider profile responseFormat must be json_schema or json_object");
+  }
   if (profile.temperature !== undefined && (typeof profile.temperature !== "number" || !Number.isFinite(profile.temperature))) {
     throw new Error("provider profile temperature must be a number");
   }
@@ -353,6 +357,24 @@ function validateProviderProfile(value: unknown): ProviderProfile {
 function timeoutSignal(timeoutMs: number | undefined): { signal?: AbortSignal } {
   if (timeoutMs === undefined) return {};
   return { signal: AbortSignal.timeout(timeoutMs) };
+}
+
+function textFormat(
+  responseFormat: ProviderResponseFormat | undefined,
+  output: Record<string, FormaField>,
+  schemas: Record<string, Record<string, FormaField>>,
+): { format: Record<string, unknown> } {
+  if (responseFormat === "json_object") {
+    return { format: { type: "json_object" } };
+  }
+  return {
+    format: {
+      type: "json_schema",
+      name: "forma_output",
+      strict: true,
+      schema: objectSchema(output, schemas),
+    },
+  };
 }
 
 function objectSchema(fields: Record<string, FormaField>, schemas: Record<string, Record<string, FormaField>>): Record<string, unknown> {

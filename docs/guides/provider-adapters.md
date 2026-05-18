@@ -253,6 +253,7 @@ const runtime = new FormaRuntime({
     endpoint: process.env.MODEL_ENDPOINT ?? "",
     apiKey: process.env.MODEL_API_KEY,
     model: process.env.MODEL_NAME ?? "example-model",
+    responseFormat: "json_schema",
     temperature: 0.2,
     timeoutMs: 30000,
   }),
@@ -267,6 +268,7 @@ runtime = FormaRuntime(
         endpoint=os.environ["MODEL_ENDPOINT"],
         api_key=os.environ.get("MODEL_API_KEY"),
         model=os.environ.get("MODEL_NAME", "example-model"),
+        response_format="json_schema",
         temperature=0.2,
         timeout_ms=30000,
     )
@@ -335,6 +337,7 @@ The CLI can reuse the same provider settings through a profile file:
   "endpoint": "https://model.example/v1/agent",
   "model": "example-model",
   "apiKeyEnv": "MODEL_API_KEY",
+  "responseFormat": "json_schema",
   "temperature": 0.2,
   "timeoutMs": 30000
 }
@@ -347,8 +350,9 @@ forma eval packages/forma-core/conformance/review_diff.json \
 
 Use `apiKeyEnv` for committed profiles; it names the environment variable that
 contains the secret. `--provider`, `--endpoint`, `--model`, and `--api-key`
-override profile values for one-off runs. `--temperature` and `--timeout-ms`
-override the profile's generation and request-timeout settings.
+override profile values for one-off runs. `--response-format`,
+`--temperature`, and `--timeout-ms` override the profile's generation and
+request-timeout settings.
 
 Hosts can use the same profile file at runtime instead of hand-parsing JSON:
 
@@ -377,6 +381,7 @@ const reviewDiff = agent({
   provider: new OpenAIResponsesProvider({
     apiKey: process.env.OPENAI_API_KEY ?? "",
     model: process.env.OPENAI_MODEL ?? "gpt-5",
+    responseFormat: "json_schema",
     temperature: 0.2,
     timeoutMs: 30000,
   }),
@@ -392,6 +397,7 @@ review_diff = agent(
     provider=OpenAIResponsesProvider(
         api_key=os.environ["OPENAI_API_KEY"],
         model=os.environ.get("OPENAI_MODEL", "gpt-5"),
+        response_format="json_schema",
         temperature=0.2,
         timeout_ms=30000,
     ),

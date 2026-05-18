@@ -79,7 +79,7 @@ Use the same vocabulary as `forma compare --fail-on`: `breaking`, `review`, and
   "compatibility": {
     "breaking": ["input", "output", "schemas"],
     "review": ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
-    "environment": ["provider", "endpoint", "model", "temperature", "timeoutMs"]
+    "environment": ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"]
   }
 }
 ```

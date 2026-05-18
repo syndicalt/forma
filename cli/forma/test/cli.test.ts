@@ -416,7 +416,7 @@ describe("forma cli", () => {
       compatibility: {
         breaking: ["input", "output", "schemas"],
         review: ["intent", "permissions", "verify", "sourceSha256"],
-        environment: ["provider", "endpoint", "model", "temperature", "timeoutMs"],
+        environment: ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"],
       },
     }));
 
@@ -463,7 +463,7 @@ describe("forma cli", () => {
       compatibility: {
         breaking: ["input", "output", "schemas"],
         review: ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples"],
-        environment: ["provider", "endpoint", "model", "temperature", "timeoutMs"],
+        environment: ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"],
       },
     }));
 
@@ -501,6 +501,7 @@ describe("forma cli", () => {
       provider: "openai-responses",
       model: "gpt-5",
       apiKeyEnv: "OPENAI_API_KEY",
+      responseFormat: "json_schema",
       temperature: 0.2,
       timeoutMs: 30000,
     });
@@ -722,6 +723,8 @@ describe("forma cli", () => {
         "https://model.example/v1/agent",
         "--model",
         "example-model",
+        "--response-format",
+        "json_schema",
         "--temperature",
         "0.2",
         "--timeout-ms",
@@ -736,6 +739,7 @@ describe("forma cli", () => {
         provider: "http-json",
         endpoint: "https://model.example/v1/agent",
         model: "example-model",
+        responseFormat: "json_schema",
         temperature: 0.2,
         timeoutMs: 2000,
       });
@@ -821,6 +825,7 @@ describe("forma cli", () => {
       endpoint: "https://profile.example/v1/agent",
       model: "profile-model",
       apiKeyEnv: "FORMA_TEST_MODEL_KEY",
+      responseFormat: "json_schema",
       temperature: 0.3,
       timeoutMs: 2000,
     }));
@@ -862,6 +867,7 @@ describe("forma cli", () => {
         authorization: "Bearer profile-secret",
       });
       expect(body.model).toBe("profile-model");
+      expect(body.responseFormat).toBe("json_schema");
       expect(body.temperature).toBe(0.3);
       expect(requests[0]?.init.signal).toBeInstanceOf(AbortSignal);
     } finally {
@@ -1572,6 +1578,7 @@ describe("forma cli", () => {
           provider: "http-json",
           endpoint: "https://model.example/v1/agent",
           model: "baseline-model",
+          responseFormat: "json_schema",
           temperature: 0.2,
           timeoutMs: 30000,
         },
@@ -1589,6 +1596,7 @@ describe("forma cli", () => {
           provider: "http-json",
           endpoint: "https://model.example/v1/agent",
           model: "candidate-model",
+          responseFormat: "json_object",
           temperature: 0.3,
           timeoutMs: 30000,
         },
@@ -1602,9 +1610,10 @@ describe("forma cli", () => {
       passed: true,
       regressions: [],
       improvements: [],
-      settingChanges: ["model", "temperature"],
+      settingChanges: ["model", "responseFormat", "temperature"],
       changes: [
         { kind: "setting", field: "model", severity: "environment" },
+        { kind: "setting", field: "responseFormat", severity: "environment" },
         { kind: "setting", field: "temperature", severity: "environment" },
       ],
       reports: [
