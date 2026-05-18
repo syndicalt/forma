@@ -159,7 +159,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
   await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName, kind), "utf8");
   await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName, kind), "utf8");
-  await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(scaffoldProviderProfile(), null, 2)}\n`, "utf8");
+  await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(scaffoldProviderProfile(args), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
   const manifest = {
@@ -209,15 +209,28 @@ function scaffoldSource(taskName: string, kind: ScaffoldKind): string {
   return kind === "tool" ? scaffoldToolSource(taskName) : scaffoldReviewSource(taskName);
 }
 
-function scaffoldProviderProfile() {
-  return {
-    provider: "openai-responses",
-    model: "gpt-5",
-    apiKeyEnv: "OPENAI_API_KEY",
-    responseFormat: "json_schema",
-    temperature: 0.2,
-    timeoutMs: 30000,
+function scaffoldProviderProfile(args: string[]): ProviderProfile {
+  const provider = optionValue(args, "--provider") ?? "openai-responses";
+  if (provider !== "http-json" && provider !== "openai-responses") {
+    throw new Error("--provider must be http-json or openai-responses");
+  }
+  const profile: ProviderProfile = {
+    provider,
+    model: optionValue(args, "--model") ?? "gpt-5",
+    apiKeyEnv: optionValue(args, "--api-key-env") ?? "OPENAI_API_KEY",
+    responseFormat: responseFormatOption(args) ?? "json_schema",
+    temperature: numericOption(args, "--temperature") ?? 0.2,
+    timeoutMs: numericOption(args, "--timeout-ms") ?? 30000,
   };
+  const endpoint = optionValue(args, "--endpoint");
+  if (endpoint) {
+    profile.endpoint = endpoint;
+  }
+  if (provider === "http-json" && !profile.endpoint) {
+    throw new Error("--endpoint is required for --provider http-json");
+  }
+  validateProviderProfile(profile);
+  return profile;
 }
 
 function scaffoldReviewSource(taskName: string): string {

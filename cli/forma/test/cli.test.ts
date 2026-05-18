@@ -596,6 +596,46 @@ describe("forma cli", () => {
     expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
   });
 
+  it("scaffolds a package with custom provider profile settings", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-init-provider-"));
+    const result = await runCli([
+      "package-init",
+      dir,
+      "--name",
+      "acme/review-diff",
+      "--task",
+      "review_diff",
+      "--provider",
+      "http-json",
+      "--endpoint",
+      "https://model.example/v1/agent",
+      "--model",
+      "acme-review-model",
+      "--api-key-env",
+      "ACME_MODEL_KEY",
+      "--response-format",
+      "json_object",
+      "--temperature",
+      "0.1",
+      "--timeout-ms",
+      "10000",
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    expect(JSON.parse(await readFile(join(dir, "forma.provider.json"), "utf8"))).toEqual({
+      provider: "http-json",
+      endpoint: "https://model.example/v1/agent",
+      model: "acme-review-model",
+      apiKeyEnv: "ACME_MODEL_KEY",
+      responseFormat: "json_object",
+      temperature: 0.1,
+      timeoutMs: 10000,
+    });
+
+    const check = await runCli(["package-check", join(dir, "review_diff.forma.pkg.json")]);
+    expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+  });
+
   it("scaffolds a tool-using package when requested", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-init-tools-"));
     const result = await runCli([

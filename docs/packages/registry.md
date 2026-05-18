@@ -26,8 +26,13 @@ forma package-check ./review-diff-package/review_diff.forma.pkg.json
 ```
 
 Scaffolded packages include `forma.provider.json` so runtime configuration is a
-reviewable file instead of hidden in host code. The package manifest records it
-as `providerProfile`.
+reviewable file instead of hidden in host code. `forma package-init` can
+customize that file with provider flags such as `--provider`, `--endpoint`,
+`--model`, `--api-key-env`, `--response-format`, `--temperature`, and
+`--timeout-ms`. The generated profile stays secret-free by recording the key
+environment variable name with `apiKeyEnv`; hosts read the actual key from the
+process environment. The package manifest records the profile path as
+`providerProfile`.
 
 ```json
 {

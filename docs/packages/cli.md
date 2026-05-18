@@ -96,11 +96,23 @@ agent shape or `--kind tool` for a coding-agent shape that declares `read`,
 `search`, `test`, and `edit` permissions and generates host examples that call
 those tools. The scaffold also writes `forma.provider.json`; review-agent host
 examples load it to choose the provider, model, and API-key environment
-variable:
+variable. Pass `--provider`, `--endpoint`, `--model`, `--api-key-env`,
+`--response-format`, `--temperature`, and `--timeout-ms` to generate a provider
+profile that matches the runtime you plan to use:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
 forma package-init ./repair-package --name acme/tool-repair --task tool_assisted_repair --kind tool
+forma package-init ./review-diff-http \
+  --name acme/review-diff \
+  --task review_diff \
+  --provider http-json \
+  --endpoint https://model.example/v1/agent \
+  --model acme-review-model \
+  --api-key-env ACME_MODEL_KEY \
+  --response-format json_object \
+  --temperature 0.1 \
+  --timeout-ms 10000
 forma package-check ./review-diff-package/review_diff.forma.pkg.json
 ```
 
