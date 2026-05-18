@@ -15,6 +15,7 @@ import {
   OpenAIResponsesProvider,
   parseForma,
   StaticProvider,
+  validateProgram,
 } from "@forma-lang/forma";
 import type { FormaDiagnostic, FormaField, FormaResult, FormaTask, FormaValue, ModelProvider, ToolHost } from "@forma-lang/forma";
 
@@ -2001,9 +2002,9 @@ function outlineSource(source: string): CliResult {
 function previewSource(source: string, path: string, args: string[]): CliResult {
   const payload = args.includes("--watch")
     ? watchPreviewPayload(path, source)
-    : previewPayload(source);
+    : previewPayload(source, path);
   return {
-    exitCode: 0,
+    exitCode: payload.diagnostics.length > 0 ? 1 : 0,
     stdout: `${JSON.stringify(payload, null, 2)}\n`,
     stderr: "",
   };
@@ -2014,23 +2015,54 @@ function watchPreviewPayload(path: string, source: string) {
     event: "preview",
     watched: true,
     path,
-    ...previewPayload(source),
+    ...previewPayload(source, path),
   };
 }
 
-function previewPayload(source: string) {
+function previewPayload(source: string, sourceName = "<memory>") {
+  try {
+    const program = parseForma(source);
+    const diagnostics = validateProgram(program, sourceName);
+    return {
+      ...outlinePayloadForProgram(program),
+      types: {
+        typescript: generateTypeScriptBindings(source),
+        python: generatePythonBindings(source),
+        pythonPydantic: generatePydanticBindings(source),
+      },
+      diagnostics,
+    };
+  } catch (error) {
+    return {
+      tasks: [],
+      types: {
+        typescript: "",
+        python: "",
+        pythonPydantic: "",
+      },
+      diagnostics: [diagnosticFromError(error, sourceName)],
+    };
+  }
+}
+
+function diagnosticFromError(error: unknown, sourceName: string): FormaDiagnostic {
+  const raw = error instanceof Error ? error.message : String(error);
+  const match = raw.match(/^(F\d{4}):\s*(.*)$/);
   return {
-    ...outlinePayload(source),
-    types: {
-      typescript: generateTypeScriptBindings(source),
-      python: generatePythonBindings(source),
-      pythonPydantic: generatePydanticBindings(source),
-    },
+    severity: "error",
+    code: match?.[1] ?? "F0001",
+    message: match?.[2] ?? raw,
+    source: sourceName,
+    start: { line: 1, column: 1 },
+    end: { line: 1, column: 1 },
   };
 }
 
 function outlinePayload(source: string) {
-  const program = parseForma(source);
+  return outlinePayloadForProgram(parseForma(source));
+}
+
+function outlinePayloadForProgram(program: ReturnType<typeof parseForma>) {
   return {
     tasks: program.tasks.map((task) => ({
       name: task.name,

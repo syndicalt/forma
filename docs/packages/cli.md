@@ -89,6 +89,12 @@ forma preview examples/review_diff.forma
 forma preview examples/review_diff.forma --watch
 ```
 
+The preview payload always includes a `diagnostics` array. Valid files return
+an empty array and exit 0. Parser failures and validation failures return the
+same JSON shape with diagnostics and exit 1, so editors can show the current
+outline and generated type preview whenever parsing succeeds while still
+surfacing stable `F` codes.
+
 Use `preview --watch` while editing a task file. It writes an initial JSON
 preview event and then writes another event each time the file changes. Add
 `--once` when a script or test should exercise the watch payload without

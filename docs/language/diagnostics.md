@@ -14,6 +14,12 @@ const result = await new FormaRuntime().runSource(source, {
 
 The call shape above matches `packages/forma-typescript/test/runtime.test.ts`.
 
+For editor integrations, `forma preview <path>` returns diagnostics in the same
+JSON payload as the task outline and generated host type previews. Valid files
+return `"diagnostics": []`. Parser or validation failures exit 1 and keep the
+payload machine-readable; when parsing succeeds, the payload still includes the
+task outline and generated type previews alongside the diagnostics.
+
 ## Syntax And Parse Codes
 
 - `F0001`: expected task declaration. The parser did not find a top-level

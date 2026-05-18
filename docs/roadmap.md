@@ -62,6 +62,8 @@ The current MVP provides:
   permissions, and verify rules.
 - CLI preview output for inspecting task outlines with generated TypeScript,
   Python dataclass, and Python Pydantic type previews.
+- CLI preview payloads include parser and validation diagnostics for editor
+  integrations, returning the same JSON shape for valid and invalid files.
 - CLI preview watch mode for streaming updated preview payloads while editing
   a task file.
 - TypeScript and Python parsers record task source spans for editor-facing
@@ -312,10 +314,10 @@ The next three implementation slices should be:
 1. Clean-project onboarding: add installed-project smoke tests for the
    published TypeScript and Python package names once release packaging is
    available.
-2. Developer experience: add editor-facing diagnostics output that pairs
-   preview payloads with parser and validation errors.
-3. Registry and versioning: add a checked consumer example for depending on a
+2. Registry and versioning: add a checked consumer example for depending on a
    reviewed Forma package lock.
+3. Runtime ergonomics: add a host-facing helper that loads a package lock and
+   verifies the pinned task source before constructing an agent.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

@@ -472,6 +472,7 @@ describe("forma cli", () => {
     const preview = JSON.parse(result.stdout);
 
     expect(result).toEqual({ exitCode: 0, stdout: expect.any(String), stderr: "" });
+    expect(preview.diagnostics).toEqual([]);
     expect(preview.tasks[0]).toMatchObject({
       name: "review_diff",
       mode: "agent",
@@ -487,6 +488,76 @@ describe("forma cli", () => {
     expect(preview.types.python).toContain("@dataclass");
     expect(preview.types.python).toContain("def assert_review_diff_output");
     expect(preview.types.pythonPydantic).toContain("class ReviewDiffInput(BaseModel)");
+  });
+
+  it("previews validation diagnostics with task outlines for editor integrations", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-preview-diagnostics-"));
+    const sourcePath = join(dir, "invalid.forma");
+    await writeFile(sourcePath, `task incomplete {
+  intent "Show editor diagnostics"
+
+  input {
+    name: Text
+  }
+
+  output {
+  }
+}
+`);
+
+    const result = await runCli(["preview", sourcePath]);
+    const preview = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(preview.tasks[0]).toMatchObject({
+      name: "incomplete",
+      intent: "Show editor diagnostics",
+    });
+    expect(preview.types.typescript).toContain("export interface IncompleteInput");
+    expect(preview.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        code: "F2001",
+        message: "task requires at least one output field",
+        source: sourcePath,
+        start: { line: 1, column: 1 },
+      }),
+      expect.objectContaining({
+        severity: "error",
+        code: "F2002",
+        message: "task requires compute or agent behavior",
+        source: sourcePath,
+      }),
+    ]);
+  });
+
+  it("previews parser diagnostics in the same editor payload shape", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-preview-parse-diagnostics-"));
+    const sourcePath = join(dir, "invalid.forma");
+    await writeFile(sourcePath, "intent \"missing task\"\n");
+
+    const result = await runCli(["preview", sourcePath]);
+    const preview = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(preview).toEqual({
+      tasks: [],
+      types: {
+        typescript: "",
+        python: "",
+        pythonPydantic: "",
+      },
+      diagnostics: [
+        {
+          severity: "error",
+          code: "F0001",
+          message: "expected task declaration",
+          source: sourcePath,
+          start: { line: 1, column: 1 },
+          end: { line: 1, column: 1 },
+        },
+      ],
+    });
   });
 
   it("previews once through the watch payload shape", async () => {

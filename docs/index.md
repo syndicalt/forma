@@ -59,6 +59,7 @@ Generate host bindings from the same contract with:
 
 ```bash
 forma outline examples/review_diff.forma
+forma preview examples/review_diff.forma
 forma generate examples/review_diff.forma --target typescript
 forma generate examples/review_diff.forma --target python
 forma generate examples/review_diff.forma --target python-pydantic
@@ -70,6 +71,8 @@ The checked package example `examples/review_diff.forma.pkg.json` records the
 task source hash, eval suite, generated binding files, and TypeScript/Python
 host examples. Use `forma package-check` to catch stale generated files or
 missing embedding examples before depending on a task package.
+Use `forma preview` for editor-facing task outlines, host type previews, and
+machine-readable parser or validation diagnostics in one JSON payload.
 The checked package example
 `examples/function_repair/repair_function.forma.pkg.json` covers the
 function-repair coding-agent workflow with host tools, evals, generated
