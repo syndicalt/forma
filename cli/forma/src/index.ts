@@ -396,6 +396,9 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
         version: manifest.version,
         manifest: path,
       },
+      notes: [
+        "minimal first-use success proves local embedding; package-review proves reviewed release readiness for reusable packages",
+      ],
       checks,
     }, null, 2)}\n`,
     stderr: "",

@@ -1085,6 +1085,9 @@ describe("forma cli", () => {
         version: "0.1.0",
         manifest: manifestPath,
       },
+      notes: [
+        "minimal first-use success proves local embedding; package-review proves reviewed release readiness for reusable packages",
+      ],
       checks: [
         { name: "package-check", passed: true },
         { name: "package-lock", passed: true, path: join(dir, "review_diff.forma.lock.json") },

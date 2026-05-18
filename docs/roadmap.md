@@ -202,6 +202,9 @@ The current MVP provides:
   duplicated host schemas, output parsing, and smoke tests against Forma task
   contracts, generated TypeScript and Python bindings, validators, and
   `StaticProvider` checks.
+- `package-review` output now includes a top-level note that distinguishes
+  minimal first-use success from reviewed release readiness for reusable
+  packages.
 - Registry docs now include CI guidance for archiving stale
   `package-lock --check --json` reports as `stale-package-lock-report.json`
   with `actions/upload-artifact`, so reviewers can inspect
@@ -728,12 +731,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add a package-review output note that distinguishes
-   minimal first-use success from reviewed release readiness.
-2. Product clarity: add generated checked-project README guidance that explains
+1. Product clarity: add generated checked-project README guidance that explains
    when CI checks are worth the extra scaffold.
-3. Product clarity: add a quickstart note that project-check is the first CI
+2. Product clarity: add a quickstart note that project-check is the first CI
    gate and package-review is a later release gate.
+3. Product clarity: add CLI docs guidance for interpreting `notes` versus
+   blocking `checks` in package-review JSON.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

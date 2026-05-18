@@ -279,6 +279,11 @@ host-owned: `package-review` executes it from the current working directory,
 adds a `proof-command` row to the JSON output, and fails the review if the
 command exits nonzero.
 
+The top-level `notes` field separates first-use proof from release readiness:
+minimal first-use success proves local embedding, while `package-review` proves
+reviewed release readiness for reusable packages. Use `project-init --minimal`
+and local smoke tests before promoting a task to the package-review path.
+
 ## Package Review Output
 
 A passing review is a compact artifact checklist. The checked review-diff
