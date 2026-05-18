@@ -45,6 +45,20 @@ corepack pnpm examples:check
 This type-checks the TypeScript examples under `examples/` and compiles the
 Python examples so package host code stays aligned with the generated bindings.
 
+Run the focused migration proof when changing the inline-to-Forma review
+workflow, package review gates, or product proof docs:
+
+```bash
+corepack pnpm proof:migration
+```
+
+That command runs the TypeScript and Python `review_diff_migration` tests. If
+package review reports `missingMigrationParityTests`, restore the missing
+migration parity files or direct test commands. If it reports
+`missingMigrationParityProofCommand`, the files and direct test commands still
+exist, but README or CI no longer runs them through the blocking
+`package-review --proof-command` gate.
+
 Run CLI smoke tests after building:
 
 ```bash
