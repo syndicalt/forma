@@ -136,3 +136,25 @@ lockfile so drift is caught before runtime traffic reaches the agent. Packages
 created by `forma package-init` already include those tests as
 `review_diff_contract.test.ts` and `review_diff_contract_test.py`; keep them in
 the release bundle with the reviewed lockfile.
+
+## Troubleshooting
+
+If `forma package-lock ... --check` reports `package lock is out of date`, one
+or more reviewed artifacts changed after the lockfile was written. Re-run
+`forma package-review review_diff.forma.pkg.json` to see the failing row, inspect
+the changed file, and regenerate the lock only after the contract, provider
+profile, generated bindings, examples, tests, and release files have been
+reviewed together.
+
+If the agent helper reports `provider profile apiKey or apiKeyEnv is required`,
+the reviewed provider profile cannot resolve a model credential. Committed
+profiles should use `apiKeyEnv`, not `apiKey`; set that environment variable in
+the host runtime or pass an explicit provider to `agentFromPackageLock(...)` /
+`agent_from_package_lock(...)`.
+
+If package review reports `package test does not match reviewed package lock`,
+a generated smoke test such as `review_diff_contract.test.ts` or
+`review_diff_contract_test.py` changed after review. Treat that like any other
+package artifact drift: inspect the test change, run the TypeScript and Python
+smoke-test commands, then regenerate the lockfile as part of the same reviewed
+package update.
