@@ -76,6 +76,9 @@ Fallback models belong in host adapters unless the reviewed package default chan
 Add deployment fallback policy around the consumed contract; update the package
 profile only when every reviewed consumer should inherit the same model
 fallback.
+Fallback policy is application configuration, not reviewed artifact drift. Keep
+per-deployment model failover beside host provider setup unless the fallback
+changes the shared reviewed default that all consumers should inherit.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
