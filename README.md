@@ -65,6 +65,10 @@ Map that progression to the [minimal scaffold](#which-scaffold-should-i-use),
 Move to the default `project-init` scaffold only when the contract should be
 checked in CI. Move to `project-init --package-lock` only after the task is a
 reviewed package that consumers should load through pinned artifacts.
+Minimal and checked projects are valid stopping points, not failed adoption.
+Stop at the smallest scaffold that makes the host code clearer; package review
+and package locks are only useful when a reusable task package has real
+consumers.
 
 If you are skeptical, run the first-use audit before the product proof. The
 audit keeps the question concrete: whether Forma makes your host code clearer
