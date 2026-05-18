@@ -163,6 +163,10 @@ release proof rerun changes provider routing or model fallback policy, preserve
 the original diagnostics, failed smoke summary, and installed-package log so
 reviewers can see whether the retry fixed provider behavior or hid contract
 validation drift.
+Fallback reruns should compare against the saved failed artifact. Keep the
+failed `forma-release-proof-artifacts` bundle and review it beside the rerun so
+the fix can be traced to provider environment, fallback policy, or reviewed
+artifact repair instead of a blind retry.
 
 ### Release Artifact Reading Guide
 

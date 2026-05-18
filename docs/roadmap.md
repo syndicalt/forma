@@ -374,6 +374,8 @@ The current MVP provides:
   output into trusted data.
 - Provider-adapter docs now say fallback overrides should log the original
   failed result.
+- Testing guide now says fallback reruns should compare against the saved
+  failed artifact.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -936,12 +938,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add testing-guide wording that fallback reruns should
-   compare against the saved failed artifact.
-2. Product clarity: add package-consumer wording that fallback policy is
+1. Product clarity: add package-consumer wording that fallback policy is
    application configuration, not reviewed artifact drift.
-3. Product clarity: add runtime-results wording that fallback comparisons
+2. Product clarity: add runtime-results wording that fallback comparisons
    should keep both failed and replacement results.
+3. Product clarity: add provider-adapter wording that fallback reruns should
+   preserve traces across attempts.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
