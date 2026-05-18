@@ -135,8 +135,10 @@ change is visible as reviewed artifact drift. Use an explicit provider when a
 specific deployment needs to override routing or model choice without changing
 the package default.
 
+## Explicit Provider Overrides
+
 Pass an explicit provider when the host application needs custom retries,
-logging, routing, or test doubles:
+logging, routing, model choice, or test doubles:
 
 ```ts
 import { agentFromPackageLock, providerFromProfile, providerProfileFromFile } from "@forma-lang/forma";

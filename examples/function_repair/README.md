@@ -27,3 +27,6 @@ consumers review the same contract.
 See `docs/guides/package-consumer-quickstart.md#what-the-helper-calls` for
 where provider keys and model defaults live and what the generated `agent(...)`
 helpers call at runtime.
+See `docs/guides/package-consumer-quickstart.md#explicit-provider-overrides`
+when a host application needs custom retries, logging, routing, model choice,
+or test doubles.

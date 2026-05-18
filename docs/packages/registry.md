@@ -72,6 +72,10 @@ workflow drops that guidance, package review fails the corresponding
 READMEs must also keep their runtime embedding link to
 `docs/guides/package-consumer-quickstart.md#what-the-helper-calls`; if that
 link is removed, package review fails the `readme` row with `missingGuidance`.
+The README must also keep the explicit-provider override link to
+`docs/guides/package-consumer-quickstart.md#explicit-provider-overrides` so host
+teams can find the TypeScript and Python override path for custom retries,
+logging, routing, model choice, or test doubles.
 
 The scaffolded `.github/workflows/forma-publish.yml` automates the release
 artifact path for registry-style sharing. It runs `forma package-review`, writes
@@ -233,7 +237,8 @@ The same review keeps generated workflow failure handling reviewable: if the
 package or publish workflow omits the troubleshooting link, the `ci-workflow`
 or `publish-bundle` row reports `missingGuidance`.
 If the README omits the runtime embedding guide link, the `readme` row reports
-`missingGuidance` too.
+`missingGuidance` too. The same row reports the explicit-provider override link
+when that guidance is removed.
 
 The review output is JSON so CI can gate on it, but it is also useful as a
 human checklist before publishing or consuming a package. A passing package
@@ -305,6 +310,15 @@ names the exact guide link to restore:
   "passed": false,
   "total": 8,
   "missingGuidance": ["docs/guides/package-consumer-quickstart.md#what-the-helper-calls"]
+}
+```
+
+```json
+{
+  "name": "readme",
+  "passed": false,
+  "total": 8,
+  "missingGuidance": ["docs/guides/package-consumer-quickstart.md#explicit-provider-overrides"]
 }
 ```
 
@@ -420,8 +434,8 @@ Publishing checklist:
   `.github/workflows/forma-publish.yml`; missing paths fail the review.
 - Confirm the `readme` row passes; missing package-review, package-check, lock
   check, eval-suite, baseline review, or compare commands in `README.md` fail
-  the review. Missing runtime embedding guidance reports `missingGuidance` and
-  also fails the review.
+  the review. Missing runtime embedding or explicit-provider override guidance
+  reports `missingGuidance` and also fails the review.
 - Confirm the `ci-workflow` row passes; missing package-check, lock check,
   eval-suite, or package-review commands in `.github/workflows/forma-package.yml`
   fail the review. Missing troubleshooting guidance reports `missingGuidance`

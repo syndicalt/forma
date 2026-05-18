@@ -182,6 +182,7 @@ const requiredPackageReleaseFiles = [
   ".github/workflows/forma-publish.yml",
 ];
 const packageEmbeddingGuidance = "docs/guides/package-consumer-quickstart.md#what-the-helper-calls";
+const packageProviderOverrideGuidance = "docs/guides/package-consumer-quickstart.md#explicit-provider-overrides";
 const packageTroubleshootingGuidance = "docs/guides/package-consumer-quickstart.md#troubleshooting";
 
 async function checkPackageManifest(path: string): Promise<CliResult> {
@@ -440,7 +441,8 @@ async function packageReadmeCheck(manifestPath: string, manifest: FormaPackageMa
   const readme = await readFile(resolve(manifestDir, readmePath), "utf8").catch(() => "");
   const commands = packageReadmeCommands(manifestPath, manifest, manifestDir);
   const missingCommands = commands.filter((command) => !readme.includes(command));
-  const missingGuidance = readme.includes(packageEmbeddingGuidance) ? [] : [packageEmbeddingGuidance];
+  const guidance = [packageEmbeddingGuidance, packageProviderOverrideGuidance];
+  const missingGuidance = guidance.filter((item) => !readme.includes(item));
   return {
     name: "readme",
     passed: readme.length > 0 && missingCommands.length === 0 && missingGuidance.length === 0,
@@ -1238,7 +1240,9 @@ section at docs/packages/cli.md#release-runtime-flow for how provider profiles,
 eval summaries, package locks, and host embedding APIs fit together. See the
 package consumer quickstart at ${packageEmbeddingGuidance}
 for where provider keys and model defaults live and what the generated
-\`agent(...)\` helpers call at runtime. See package consumer troubleshooting at
+\`agent(...)\` helpers call at runtime. See ${packageProviderOverrideGuidance}
+when a host application needs custom retries, logging, routing, model choice, or
+test doubles. See package consumer troubleshooting at
 ${packageTroubleshootingGuidance} when lockfile checks,
 provider profiles, or generated smoke tests fail.
 `;

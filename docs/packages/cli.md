@@ -379,6 +379,18 @@ omits it, the `readme` row reports `missingGuidance`:
 }
 ```
 
+The same row reports the explicit-provider override guide if that link is
+removed:
+
+```json
+{
+  "name": "readme",
+  "passed": false,
+  "total": 8,
+  "missingGuidance": ["docs/guides/package-consumer-quickstart.md#explicit-provider-overrides"]
+}
+```
+
 Generated workflows must also keep their failure guidance link. If the package
 workflow omits it, the `ci-workflow` row reports `missingGuidance`:
 

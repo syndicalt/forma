@@ -1276,6 +1276,29 @@ describe("forma cli", () => {
     });
   });
 
+  it("reports missing README explicit provider override guidance", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-readme-provider-guidance-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    const readmePath = join(dir, "README.md");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const readme = await readFile(readmePath, "utf8");
+    await writeFile(readmePath, readme.replace("docs/guides/package-consumer-quickstart.md#explicit-provider-overrides", "docs/guides/package-consumer-quickstart.md"));
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "readme",
+      passed: false,
+      total: 8,
+      missingGuidance: ["docs/guides/package-consumer-quickstart.md#explicit-provider-overrides"],
+    });
+  });
+
   it("fails package review when the CI workflow omits required package checks", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-ci-workflow-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");
@@ -1559,6 +1582,7 @@ describe("forma cli", () => {
     expect(readme).toContain("docs/guides/package-consumer-quickstart.md#troubleshooting");
     expect(readme).toContain("provider keys and model defaults");
     expect(readme).toContain("docs/guides/package-consumer-quickstart.md#what-the-helper-calls");
+    expect(readme).toContain("docs/guides/package-consumer-quickstart.md#explicit-provider-overrides");
     expect(readme).not.toContain('"kind": "setting"');
     expect(readme).not.toContain('"kind": "contract"');
     const packageWorkflow = await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8");

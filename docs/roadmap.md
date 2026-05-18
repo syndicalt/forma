@@ -266,6 +266,11 @@ The current MVP provides:
   model-selection, and helper-call flow in the package consumer quickstart.
 - Package review fails generated READMEs that omit the runtime embedding guide
   link and reports `missingGuidance` in the README row.
+- Generated package READMEs and package-review docs point host teams to the
+  explicit TypeScript/Python provider override path for custom retries, logging,
+  routing, model choice, and test doubles.
+- Package review fails generated READMEs that omit explicit-provider override
+  guidance and reports `missingGuidance` in the README row.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -396,8 +401,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Runtime embedding clarity: add package-review output examples and generated
-   README pointers for explicit provider overrides in TypeScript and Python.
+3. Runtime embedding clarity: add lockfile consumer smoke tests that pass
+   explicit provider overrides in TypeScript and Python.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
