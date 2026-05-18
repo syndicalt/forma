@@ -45,6 +45,11 @@ That check also runs the `review_diff_decision.ts` and
 `review_diff_decision.py` workflow assertions. Those helpers consume the typed
 `ReviewDiffOutput` produced from the `.forma` contract and turn structured
 findings into an `approve` or `request_changes` decision with affected paths.
+It also runs `review_diff_migration.test.ts` and
+`review_diff_migration_test.py`, which keep `review_diff_inline.ts` and
+`review_diff_inline.py` beside the Forma package path. Those tests prove that
+moving the old inline baseline into the reviewed Forma output shape preserves
+the same host-facing review decision.
 It also runs `tool_permission_workflow.test.ts` and
 `tool_permission_workflow_test.py`, which check a host planning layer around
 declared `read`, `search`, `test`, and `edit` permissions.
@@ -64,6 +69,29 @@ Run the eval suite directly when you want the lower-level artifact:
 ```bash
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
+
+## Migration Parity
+
+The migration parity fixtures are the current before/after proof that Forma is
+more than a prompt file. `examples/review_diff_inline.ts` and
+`examples/review_diff_inline.py` model the pre-Forma inline task boundary. The
+matching migration tests convert that inline output into the generated
+`ReviewDiffOutput` shape and assert that the host decision helper still returns
+the same `approve` or `request_changes` result.
+
+Run the parity checks directly with:
+
+```bash
+npx vitest run --config examples/vitest.config.ts examples/review_diff_migration.test.ts
+PYTHONPATH=examples python examples/review_diff_migration_test.py
+```
+
+The reviewed package pins those tests in the manifest and lockfile. The
+`package-review` `tests` row reports `migrationParityTests` when the package
+contains them, and `readme`, `ci-workflow`, or `publish-bundle` rows report
+`missingMigrationParityTests` if the parity files drift out of README commands,
+CI commands, or release bundle paths. The restore sequence lives in
+`docs/guides/package-consumer-quickstart.md#missingmigrationparitytests`.
 
 For a live model run, keep credentials and model selection in host-controlled
 provider configuration. The `.forma` source does not contain the API key or
@@ -111,3 +139,6 @@ restore.
 `examples:check` should finish without output. A live provider run requires
 `OPENAI_API_KEY`; without it, the failure is expected and confirms that
 credentials stay in host configuration instead of the `.forma` contract.
+Migration parity should be visible in both layers: `examples:check` runs the
+TypeScript and Python parity tests, and `package-review` reports the
+`migrationParityTests` paths as reviewed release artifacts.

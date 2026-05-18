@@ -315,6 +315,9 @@ The current MVP provides:
   fails README rows that omit that direct restore link.
 - Package-review docs include README, CI, and publish-bundle JSON examples for
   `missingMigrationParityTests` failures.
+- Product proof guide explains the checked migration parity fixtures, direct
+  parity-test commands, package-review `migrationParityTests` rows, and
+  `missingMigrationParityTests` troubleshooting flow.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -445,9 +448,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add a migration-parity section to the product proof guide
-   connecting the inline baseline fixtures, package-review rows, and package
-   consumer troubleshooting flow.
+3. Product proof: add README and docs index pointers to the product proof
+   migration-parity section so new readers can find the runnable before/after
+   proof from the top-level docs.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
