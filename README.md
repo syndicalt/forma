@@ -69,6 +69,9 @@ Minimal and checked projects are valid stopping points, not failed adoption.
 Stop at the smallest scaffold that makes the host code clearer; package review
 and package locks are only useful when a reusable task package has real
 consumers.
+A local prompt extraction should stop at minimal or checked scaffolds until reuse is real.
+Move past those scaffolds only when another application, repository, or release
+process needs the reviewed contract as a shared dependency.
 
 If you are skeptical, run the first-use audit before the product proof. The
 audit keeps the question concrete: whether Forma makes your host code clearer

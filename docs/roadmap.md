@@ -354,6 +354,8 @@ The current MVP provides:
   prompt extraction.
 - README now says minimal and checked projects are valid stopping points, not
   failed adoption.
+- README now says a local prompt extraction should stop at minimal or checked
+  scaffolds until reuse is real.
 - README now says package proof is not the product wedge; reusable agent
   contracts are.
 - Why-Forma now says copying `.forma` files without bindings, evals, and locks
@@ -899,12 +901,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add README wording that a local prompt extraction should
-   stop at minimal or checked scaffolds until reuse is real.
-2. Product clarity: add CLI project-init wording that `--package-lock` is for
+1. Product clarity: add CLI project-init wording that `--package-lock` is for
    consuming a reviewed release, not proving the first task.
-3. Product clarity: add package-consumer troubleshooting wording that stale
+2. Product clarity: add package-consumer troubleshooting wording that stale
    locks are package-owner work unless the consumer owns the reviewed release.
+3. Product clarity: add docs index wording that first-use proof asks whether
+   host code improves, not whether packaging succeeds.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
