@@ -372,6 +372,8 @@ The current MVP provides:
   needs release artifacts.
 - Testing guide now says release proof validates reusable package readiness, not
   local adoption.
+- Testing guide now says `proof:release` belongs after a named package consumer
+  exists.
 - Docs index now says release proof is a packaging readiness check, not the
   first thing skeptics should run.
 - Quickstart now says project-check is the first CI gate for application-owned
@@ -907,12 +909,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add testing guide wording that `proof:release` belongs
-   after a named package consumer exists.
-2. Product clarity: add CLI package-lock docs wording that stale-lock recovery
+1. Product clarity: add CLI package-lock docs wording that stale-lock recovery
    starts with the package release owner.
-3. Product clarity: add README wording that product proof should follow
+2. Product clarity: add README wording that product proof should follow
    first-use proof, not replace it.
+3. Product clarity: add package-consumer wording that consumer retries should
+   wrap reviewed contracts, not patch package artifacts.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

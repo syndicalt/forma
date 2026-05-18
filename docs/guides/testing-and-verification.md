@@ -107,6 +107,9 @@ Release proof answers consumer readiness, not first-use usefulness. Use the
 minimal smoke path and migration proof to decide whether Forma improves the
 host workflow; use `proof:release` after that decision when reusable packages
 and reviewed locks need to protect downstream consumers.
+`proof:release` belongs after a named package consumer exists. If the team
+cannot name the consuming application, repository, or release process, keep the
+task on the minimal or checked host-project verification path.
 
 Read the `proof-command` row to identify which part failed. If stdout stops at
 `review_diff_migration.test.ts`, fix the TypeScript/Python migration parity
