@@ -7,6 +7,19 @@ place a new user is likely to read first: which project shape should I create,
 where do provider keys and model selection live, and what does the generated
 `agent(...)` entrypoint run?
 
+## Decision Rule
+
+Do not use Forma for a one-off prompt that has one call site, no shared runtime
+boundary, and no output contract worth reviewing. Use `inline prompt plus local schemas`
+instead until the task needs generated TypeScript and Python types, runtime
+output validation, evals, or CI checks.
+
+Use the first-use path as a before/after audit. Before Forma, the useful
+baseline is an inline model call with a local Zod or Pydantic schema and a small
+smoke test. After Forma, the `.forma` task should remove duplicated input and
+output shape code, generate the host bindings, and catch stale contracts with
+`project-check` before package locks or package review enter the workflow.
+
 ## Steps
 
 | User state | Command | Artifact |

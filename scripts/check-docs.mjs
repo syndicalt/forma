@@ -116,7 +116,7 @@ const requiredTerms = {
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
   "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],
   "docs/guides/product-proof.md": ["review_diff", "examples:check", "package-review", "eval-suite", "review_diff_inline", "review_diff_package_lock", "missingMigrationParityTests", "missingMigrationParityProofCommand", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "proof:migration", "proof:release", "review_diff_migration.test.ts", "forma-project.yml"],
-  "docs/guides/first-use-audit.md": ["First-Use Audit", "README.md", "docs/index.md", "docs/guides/quickstart.md", "docs/packages/cli.md", "generated minimal project README", "generated checked project README", "generated package-lock project README", "project-init --minimal", "default project-init", "project-init --package-lock", "local first-use task", "checked host project", "reviewed package-lock project"],
+  "docs/guides/first-use-audit.md": ["First-Use Audit", "README.md", "docs/index.md", "docs/guides/quickstart.md", "docs/packages/cli.md", "generated minimal project README", "generated checked project README", "generated package-lock project README", "project-init --minimal", "default project-init", "project-init --package-lock", "local first-use task", "checked host project", "reviewed package-lock project", "Do not use Forma", "inline prompt plus local schemas"],
   "docs/guides/why-forma.md": ["contract layer, not prompt storage", "reviewable agent capability", "agentFromPackageLock", "agent_from_package_lock", "do not use Forma"],
   "docs/guides/package-consumer-quickstart.md": [
     "agentFromPackageLock",
