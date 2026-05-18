@@ -228,10 +228,8 @@ The current MVP provides:
 - Scaffolded package READMEs explain how to interpret `package-review
   --baseline` compare rows, including `failedOn`, `contractChanges`,
   `settingChanges`, and `changes[].details`.
-- Scaffolded package READMEs include an environment setting drift JSON example
-  so generated packages show model/provider review alongside contract review.
-- Scaffolded package READMEs include a breaking contract drift JSON example so
-  generated packages show version-bump review alongside environment review.
+- Scaffolded package READMEs point to reusable package-review output examples
+  instead of duplicating full compare JSON in every generated package.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -362,8 +360,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: extract package-review interpretation guidance into a
-   reusable docs section so scaffolded package READMEs can stay compact.
+3. Coding workflow depth: add release-facing package docs for how provider
+   profiles, eval summaries, and package locks work together at runtime.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

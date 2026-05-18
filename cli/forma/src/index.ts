@@ -1211,42 +1211,8 @@ If the baseline review fails, inspect the \`compare\` row in
 \`package-review\` output. \`failedOn\` shows which configured severity blocked
 the release, \`contractChanges\` and \`settingChanges\` summarize the changed
 surface, and \`changes[].details\` names the exact contract fields or
-environment setting values that changed.
-
-\`\`\`json
-{
-  "name": "compare",
-  "passed": false,
-  "failedOn": ["environment"],
-  "settingChanges": ["model"],
-  "changes": [
-    {
-      "kind": "setting",
-      "field": "model",
-      "severity": "environment",
-      "details": { "from": "baseline-model", "to": "candidate-model" }
-    }
-  ]
-}
-\`\`\`
-
-\`\`\`json
-{
-  "name": "compare",
-  "passed": false,
-  "failedOn": ["breaking"],
-  "contractChanges": ["${taskName}:output"],
-  "changes": [
-    {
-      "kind": "contract",
-      "name": "${taskName}",
-      "field": "output",
-      "severity": "breaking",
-      "details": { "removed": ["legacy_required_field"] }
-    }
-  ]
-}
-\`\`\`
+environment setting values that changed. See the Forma package-review output
+docs for JSON examples.
 
 Commit the package manifest, lockfile, \`.forma\` source, eval suite, provider
 profile, generated bindings, and host examples together so TypeScript and Python

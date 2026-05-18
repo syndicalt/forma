@@ -1453,19 +1453,20 @@ describe("forma cli", () => {
       { runtime: "typescript", path: "review_diff_contract/index.ts" },
       { runtime: "python", path: "review_diff_contract/__init__.py" },
     ]));
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json --baseline baseline.json");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma compare baseline.json candidate.json --fail-on breaking,environment");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("If the baseline review fails");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("failedOn");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("changes[].details");
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain('"kind": "setting"');
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain('"details": { "from": "baseline-model", "to": "candidate-model" }');
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain('"kind": "contract"');
-    expect(await readFile(join(dir, "README.md"), "utf8")).toContain('"details": { "removed": ["legacy_required_field"] }');
+    const readme = await readFile(join(dir, "README.md"), "utf8");
+    expect(readme).toContain("forma package-review review_diff.forma.pkg.json");
+    expect(readme).toContain("forma package-check review_diff.forma.pkg.json");
+    expect(readme).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
+    expect(readme).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
+    expect(readme).toContain("forma package-review review_diff.forma.pkg.json --baseline baseline.json");
+    expect(readme).toContain("forma compare baseline.json candidate.json --fail-on breaking,environment");
+    expect(readme).toContain("If the baseline review fails");
+    expect(readme).toContain("failedOn");
+    expect(readme).toContain("changes[].details");
+    expect(readme).toContain("Forma package-review output");
+    expect(readme).toContain("docs for JSON examples");
+    expect(readme).not.toContain('"kind": "setting"');
+    expect(readme).not.toContain('"kind": "contract"');
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");

@@ -173,6 +173,8 @@ forma package-review examples/review_diff.forma.pkg.json
 forma package-review examples/review_diff.forma.pkg.json --baseline baseline.json
 ```
 
+## Package Review Output
+
 A passing review is a compact artifact checklist. The checked review-diff
 package reports rows for the reviewed lockfile, secret-free provider profile,
 TypeScript and Python bindings, TypeScript and Python host examples, pinned
@@ -260,10 +262,9 @@ consumers can import a stable module instead of copying example files. The
 generated README also explains how to inspect the `compare` row from
 `package-review --baseline`: `failedOn` names the blocking severity,
 `contractChanges` and `settingChanges` summarize the changed surface, and
-`changes[].details` points at exact field paths or setting values. It includes
-a model-drift JSON example and a breaking output-field removal example so
-generated packages show provider setting review alongside contract version-bump
-review. It also
+`changes[].details` points at exact field paths or setting values. It links
+that compact guidance back to the package-review output examples above instead
+of duplicating the full JSON blocks in every generated package. It also
 writes `.github/workflows/forma-package.yml` as a GitHub Actions starting point
 for package checks. It also writes
 `.github/workflows/forma-publish.yml`, which reviews the package, builds a
