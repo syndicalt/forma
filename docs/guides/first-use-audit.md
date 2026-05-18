@@ -40,6 +40,10 @@ Fallback policy is not a reason to skip the minimal smoke comparison. If model
 routing, retry, or failover needs are already visible, still run the minimal
 before/after smoke path first so the team knows whether Forma simplifies the
 host contract before adding deployment policy.
+Fallback route testing follows, not replaces, host-code simplification. Prove
+the `.forma` contract reduces duplicated schema and prompt handling first, then
+use route tests to decide whether provider failover belongs in the host
+workflow.
 
 ## Steps
 
