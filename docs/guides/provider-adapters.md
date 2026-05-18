@@ -56,6 +56,10 @@ Route-label cleanup should not mutate reviewed provider profiles. Rename or
 redact deployment labels in the host adapter first; update the shared provider
 profile only after review decides every consumer should inherit the cleaned-up
 route name.
+Cleaned-up route labels should remain overrideable per deployment. Even after a
+reviewed profile adopts a safer label, allow host adapters to pass their own
+deployment route label when regional, canary, or incident workflows need local
+evidence separation.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the
