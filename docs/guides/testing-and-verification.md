@@ -185,6 +185,10 @@ Route-label changes should include eval artifacts. When a provider route name
 changes, keep the baseline summary, candidate summary, and release proof logs
 together so reviewers can tell whether the label changed independently from
 task behavior.
+Route-label cleanup should preserve release proof comparability. Keep the old
+and cleaned-up labels linked in the proof notes, eval summaries, and installed
+smoke artifacts so reviewers can compare the same provider path across the
+cleanup.
 Fallback route labels should match diagnostics and eval summaries. Use the same
 stable route label in the failed diagnostics, rerun smoke summary, baseline eval
 summary, and candidate eval summary so reviewers can trace which provider path
