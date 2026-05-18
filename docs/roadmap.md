@@ -500,6 +500,8 @@ The current MVP provides:
   provider profile ownership.
 - Testing guide now says cleaned-up route labels should keep smoke summaries
   searchable.
+- Runtime-result docs now say cleaned-up route labels should preserve trace
+  search keys.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1062,12 +1064,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add runtime-result wording that cleaned-up route labels
-   should preserve trace search keys.
-2. Product clarity: add first-use audit wording that cleaned-up route labels
+1. Product clarity: add first-use audit wording that cleaned-up route labels
    should not change the first-use proof command.
-3. Product clarity: add package-consumer quickstart wording that cleaned-up
+2. Product clarity: add package-consumer quickstart wording that cleaned-up
    route labels should not force consumer lock updates.
+3. Product clarity: add product-proof wording that cleaned-up route labels
+   should keep candidate diagnostics comparable.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

@@ -90,6 +90,9 @@ Cleaned-up route labels should keep original diagnostics searchable. Index the
 failed result by the pre-cleanup label as well as the cleaned-up label so
 support tools can find the original diagnostics after route names are renamed
 or redacted.
+Cleaned-up route labels should preserve trace search keys. Keep the original
+trace route label as a search key and add the cleaned-up label as a display
+alias so runtime support can find the same trace entries after cleanup.
 Route-label evidence should not be copied into model output. Keep provider
 route labels in logs, traces, diagnostics, or host-owned retry records instead
 of asking the model to echo deployment evidence inside task output fields.
