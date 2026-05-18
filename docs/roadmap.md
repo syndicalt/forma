@@ -346,6 +346,8 @@ The current MVP provides:
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
   package-review and lock drift protection.
+- Package-consumer quickstart now says package locks protect real handoffs, not
+  internal file organization.
 - CLI docs now say `package-init` is for reusable task packages, not local
   prompt extraction.
 - README now says minimal and checked projects are valid stopping points, not
@@ -893,12 +895,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer wording that package locks protect
-   real handoffs, not internal file organization.
-2. Product clarity: add why-forma wording that the package is useful only when
+1. Product clarity: add why-forma wording that the package is useful only when
    the contract is consumed outside its authoring context.
-3. Product clarity: add quickstart wording that a package lock should follow a
+2. Product clarity: add quickstart wording that a package lock should follow a
    named consuming application, not generic adoption anxiety.
+3. Product clarity: add README wording that a local prompt extraction should
+   stop at minimal or checked scaffolds until reuse is real.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

@@ -25,6 +25,10 @@ multiple applications or repositories should consume through pinned artifacts.
 Treat package-lock consumption as a dependency decision, not a starter path.
 Use it when the lock protects real downstream consumers from reviewed artifact
 drift.
+Package locks protect real handoffs, not internal file organization. Do not add
+a lock just because the task moved between folders; add it when another
+application, repository, or release process needs pinned artifacts to stay
+reviewed together.
 Lockfile consumption is for shared ownership, not local cleanup. If the same
 team and repository own the only workflow, stay with the checked host project
 until another consumer needs the reviewed package boundary.

@@ -174,6 +174,7 @@ const requiredTerms = {
     "Do not start with package consumption",
     "Treat package-lock consumption as a dependency decision, not a starter path",
     "Lockfile consumption is for shared ownership, not local cleanup",
+    "Package locks protect real handoffs, not internal file organization",
     "Package-lock smoke failures usually mean a stale reviewed artifact set",
     "Keep diagnostics with failed package-lock smoke runs",
     "Preserve package-lock smoke evidence before retrying",
