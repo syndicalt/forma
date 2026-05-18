@@ -521,8 +521,10 @@ async function packageReadmeCheck(manifestPath: string, manifest: FormaPackageMa
 function packageReadmeCommands(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): string[] {
   const manifestFile = relative(manifestDir, resolve(manifestPath));
   const lockFile = packageLockPath(manifestFile);
+  const migrationProofCommand = packageMigrationParityProofReviewCommand(manifestFile, manifest.tests);
   return [
     `forma package-review ${manifestFile}`,
+    ...(migrationProofCommand ? [migrationProofCommand] : []),
     `forma package-check ${manifestFile}`,
     `forma package-lock ${manifestFile} --output ${lockFile} --check`,
     ...packageTestCommands(manifest.tests),
@@ -554,13 +556,30 @@ async function packageCiWorkflowCheck(manifestPath: string, manifest: FormaPacka
 function packageCiWorkflowCommands(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): string[] {
   const manifestFile = relative(manifestDir, resolve(manifestPath));
   const lockFile = packageLockPath(manifestFile);
+  const migrationProofCommand = packageMigrationParityProofReviewCommand(manifestFile, manifest.tests);
   return [
     `forma package-check ${manifestFile}`,
     `forma package-lock ${manifestFile} --output ${lockFile} --check`,
     ...packageTestCommands(manifest.tests),
     `forma eval-suite ${manifest.evalSuite ?? ""} --summary`,
     `forma package-review ${manifestFile}`,
+    ...(migrationProofCommand ? [migrationProofCommand] : []),
   ];
+}
+
+function packageMigrationParityProofReviewCommand(
+  manifestFile: string,
+  tests: Array<{ runtime?: string; path?: string }> = [],
+): string | undefined {
+  const migrationTests = tests.filter((test) => typeof test.path === "string" && packageMigrationParityTestPaths([test]).length > 0);
+  if (migrationTests.length === 0) {
+    return undefined;
+  }
+  const proofCommands = packageTestCommands(migrationTests);
+  if (proofCommands.length === 0) {
+    return undefined;
+  }
+  return packageReviewProofCommand(manifestFile, proofCommands.join(" && "));
 }
 
 function packageTestCommands(tests: Array<{ runtime?: string; path?: string }> = []): string[] {

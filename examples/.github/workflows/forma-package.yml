@@ -35,6 +35,8 @@ jobs:
         run: forma eval-suite forma.eval.json --summary > candidate.json
       - name: Review package
         run: forma package-review review_diff.forma.pkg.json
+      - name: Review migration parity proof
+        run: forma package-review review_diff.forma.pkg.json --proof-command "npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py"
       - name: Troubleshoot package failures
         if: failure()
         run: echo "See docs/guides/package-consumer-quickstart.md#troubleshooting"

@@ -368,6 +368,13 @@ A passing proof row includes the exact command and any captured output:
 
 If the command fails, the row reports `passed: false`, the exit code when
 available, and captured stdout or stderr, and the overall review fails.
+When a package declares migration parity tests, `package-review` also expects
+README and CI command coverage for a proof review command derived from those
+tests, for example:
+
+```bash
+forma package-review review_diff.forma.pkg.json --proof-command "npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py"
+```
 
 Environment changes use the same `changes` array but are marked as
 `kind: "setting"` with before and after values from the eval-suite summary:

@@ -1331,7 +1331,7 @@ describe("forma cli", () => {
       const lockPath = join(dir, "review_diff.forma.lock.json");
       const readmePath = join(dir, "README.md");
       const readme = await readFile(readmePath, "utf8");
-      await writeFile(readmePath, readme.replace(" review_diff_migration.test.ts", ""));
+      await writeFile(readmePath, readme.replaceAll("review_diff_migration.test.ts", "review_diff_migration_missing.test.ts"));
       await runCli(["package-lock", manifestPath, "--output", lockPath]);
 
       const result = await runCli(["package-review", manifestPath]);
@@ -1437,7 +1437,7 @@ describe("forma cli", () => {
       expect(review.checks).toContainEqual({
         name: "readme",
         passed: false,
-        total: 11,
+        total: 12,
         missingGuidance: ["missingMigrationParityTests"],
       });
     } finally {
@@ -1464,9 +1464,40 @@ describe("forma cli", () => {
       expect(review.checks).toContainEqual({
         name: "readme",
         passed: false,
-        total: 11,
+        total: 12,
         missingGuidance: ["docs/guides/package-consumer-quickstart.md#missingmigrationparitytests"],
       });
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("reports missing README migration parity proof review command", async () => {
+    const dir = await mkdtemp(join(repoRoot, ".tmp-forma-package-review-readme-migration-proof-"));
+    await cp(resolve(repoRoot, "examples"), dir, { recursive: true });
+    try {
+      const manifestPath = join(dir, "review_diff.forma.pkg.json");
+      const lockPath = join(dir, "review_diff.forma.lock.json");
+      const readmePath = join(dir, "README.md");
+      const readme = await readFile(readmePath, "utf8");
+      await writeFile(readmePath, readme.replace(
+        "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\"",
+        "echo run migration parity proof later",
+      ));
+      await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+      const result = await runCli(["package-review", manifestPath]);
+      const review = JSON.parse(result.stdout);
+
+      expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+      expect(review.passed).toBe(false);
+      expect(review.checks).toContainEqual(expect.objectContaining({
+        name: "readme",
+        passed: false,
+        missingCommands: [
+          "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\"",
+        ],
+      }));
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
@@ -1526,7 +1557,7 @@ describe("forma cli", () => {
       const lockPath = join(dir, "review_diff.forma.lock.json");
       const workflowPath = join(dir, ".github", "workflows", "forma-package.yml");
       const workflow = await readFile(workflowPath, "utf8");
-      await writeFile(workflowPath, workflow.replace("python review_diff_migration_test.py", "echo run migration parity later"));
+      await writeFile(workflowPath, workflow.replaceAll("review_diff_migration_test.py", "review_diff_migration_missing.py"));
       await runCli(["package-lock", manifestPath, "--output", lockPath]);
 
       const result = await runCli(["package-review", manifestPath]);
@@ -1538,6 +1569,37 @@ describe("forma cli", () => {
         name: "ci-workflow",
         passed: false,
         missingMigrationParityTests: ["review_diff_migration_test.py"],
+      }));
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("reports missing CI migration parity proof review command", async () => {
+    const dir = await mkdtemp(join(repoRoot, ".tmp-forma-package-review-ci-migration-proof-"));
+    await cp(resolve(repoRoot, "examples"), dir, { recursive: true });
+    try {
+      const manifestPath = join(dir, "review_diff.forma.pkg.json");
+      const lockPath = join(dir, "review_diff.forma.lock.json");
+      const workflowPath = join(dir, ".github", "workflows", "forma-package.yml");
+      const workflow = await readFile(workflowPath, "utf8");
+      await writeFile(workflowPath, workflow.replace(
+        "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\"",
+        "echo run migration parity proof later",
+      ));
+      await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+      const result = await runCli(["package-review", manifestPath]);
+      const review = JSON.parse(result.stdout);
+
+      expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+      expect(review.passed).toBe(false);
+      expect(review.checks).toContainEqual(expect.objectContaining({
+        name: "ci-workflow",
+        passed: false,
+        missingCommands: [
+          "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\"",
+        ],
       }));
     } finally {
       await rm(dir, { recursive: true, force: true });

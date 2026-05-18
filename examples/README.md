@@ -33,6 +33,7 @@ Run these checks before publishing or consuming a changed package:
 
 ```bash
 forma package-review review_diff.forma.pkg.json
+forma package-review review_diff.forma.pkg.json --proof-command "npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py"
 forma package-check review_diff.forma.pkg.json
 forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
 npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts

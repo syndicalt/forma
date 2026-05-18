@@ -328,6 +328,9 @@ The current MVP provides:
 - `forma package-init --proof-command` wires package-specific proof commands
   into generated READMEs and package CI workflows through
   `package-review --proof-command`.
+- The checked review-diff package README and CI workflow include the migration
+  parity proof review command, and `package-review` reports it as missing when
+  migration parity packages omit it.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -458,9 +461,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add a checked review-diff package CI command that uses
-   `package-review --proof-command "corepack pnpm proof:migration"` so the
-   flagship package demonstrates the full release proof path.
+3. Product proof: add package-review JSON examples for missing migration parity
+   proof commands so maintainers can distinguish missing tests from missing
+   proof-gate wiring.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
