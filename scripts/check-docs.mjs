@@ -55,7 +55,7 @@ const requiredTerms = {
   ],
   "docs/packages/python.md": ["FormaRuntime", "StaticProvider"],
   "docs/packages/typescript.md": ["FormaRuntime", "StaticProvider"],
-  "docs/packages/cli.md": ["forma check", "forma run"],
+  "docs/packages/cli.md": ["forma check", "forma run", "forma project-init"],
   "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite"],
   "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run"],
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],

@@ -79,3 +79,18 @@ file, provider, model, and task name into a reusable `run(input)` call:
 OPENAI_API_KEY=... OPENAI_MODEL=gpt-5 node examples/embedded-agent.ts
 OPENAI_API_KEY=... OPENAI_MODEL=gpt-5 PYTHONPATH=packages/forma-python/src python examples/embedded_agent.py
 ```
+
+To start from a clean host project instead of the repository examples, scaffold
+both runtimes with `project-init`:
+
+```bash
+node cli/forma/dist/index.js project-init ./review-diff-agent \
+  --name review-diff-agent \
+  --task review_diff \
+  --model gpt-5 \
+  --api-key-env OPENAI_API_KEY
+```
+
+The generated project writes `forma.provider.json` for model and key-env
+selection, `src/review_diff_agent.ts` for TypeScript embedding, and
+`src/review_diff_agent.py` for Python embedding.

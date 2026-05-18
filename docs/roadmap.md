@@ -170,6 +170,9 @@ The current MVP provides:
   named output object schemas through repeatable schema flags.
 - Custom-schema scaffolds generate TypeScript and Python host examples that
   import the generated input types and run with schema-matched example input.
+- `forma project-init` scaffolds a clean TypeScript and Python host project
+  with a `.forma` task, provider profile, generated bindings, host entrypoints,
+  and runtime package manifests.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -295,9 +298,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Provider adapter kit: add optional production provider packages.
-2. Registry and versioning: add registry publishing workflow automation.
-3. Coding-agent ergonomics: add baseline-aware package review comparisons.
+1. Clean-project onboarding: compile and smoke-test `project-init` output as
+   generated consumer code.
+2. Coding-agent ergonomics: add a richer "modify a function and run focused
+   tests" package template with fixture coverage.
+3. Developer experience: add task outline and generated type preview surfaces
+   suitable for an editor or language-server client.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

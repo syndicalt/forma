@@ -28,11 +28,15 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "outline" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock" && command !== "package-review")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "outline" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock" && command !== "package-review" && command !== "project-init")) {
     return usage();
   }
 
   try {
+    if (command === "project-init") {
+      return await initializeProject(path, rest);
+    }
+
     if (command === "package-init") {
       return await initializePackage(path, rest);
     }
@@ -113,7 +117,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-init> <path> [--input JSON]\n" };
 }
 
 interface FormaPackageManifest {
@@ -567,6 +571,44 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   );
   await validatePackageManifest(manifest, path);
   await writeFile(resolve(path, lockFile), `${JSON.stringify(await createPackageLock(manifestPath, manifest, path), null, 2)}\n`, "utf8");
+  return { exitCode: 0, stdout: "ok\n", stderr: "" };
+}
+
+async function initializeProject(path: string, args: string[]): Promise<CliResult> {
+  const projectName = optionValue(args, "--name");
+  const taskName = optionValue(args, "--task") ?? "review_diff";
+  const kind = scaffoldKind(args);
+  if (!projectName) {
+    throw new Error("--name is required for project-init");
+  }
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(projectName)) {
+    throw new Error("invalid project name");
+  }
+  validateScaffoldIdentifier(taskName, "--task");
+
+  await mkdir(path, { recursive: true });
+  await mkdir(resolve(path, "src"), { recursive: true });
+
+  const schema = scaffoldSchema(args);
+  const source = scaffoldSource(taskName, kind, schema);
+  const typeScriptBindings = `src/${taskName}.forma.ts`;
+  const pythonBindings = `src/${taskName}_forma.py`;
+  const typeScriptAgent = `src/${taskName}_agent.ts`;
+  const pythonAgent = `src/${taskName}_agent.py`;
+  const taskFile = `${taskName}.forma`;
+  const providerProfile = scaffoldProviderProfile(args);
+
+  await writeFile(resolve(path, taskFile), source, "utf8");
+  await writeFile(resolve(path, typeScriptBindings), generateTypeScriptBindings(source), "utf8");
+  await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
+  await writeFile(resolve(path, typeScriptAgent), scaffoldProjectTypeScriptAgent(taskName, kind, schema), "utf8");
+  await writeFile(resolve(path, pythonAgent), scaffoldProjectPythonAgent(taskName, kind, schema), "utf8");
+  await writeFile(resolve(path, "forma.provider.json"), `${JSON.stringify(providerProfile, null, 2)}\n`, "utf8");
+  await writeFile(resolve(path, "package.json"), scaffoldProjectPackageJson(projectName, taskName), "utf8");
+  await writeFile(resolve(path, "tsconfig.json"), scaffoldProjectTsconfig(), "utf8");
+  await writeFile(resolve(path, "pyproject.toml"), scaffoldProjectPyproject(projectName), "utf8");
+  await writeFile(resolve(path, "README.md"), scaffoldProjectReadme(projectName, taskName, providerProfile), "utf8");
+
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
 
@@ -1197,6 +1239,197 @@ def run_${taskName}(input: ${inputType} = example_input) -> ${pascalName}Output:
     if not result.ok:
         raise RuntimeError(result.error or "Forma ${taskName} failed")
     return assert_${taskName}_output(result.output)
+`;
+}
+
+function scaffoldProjectTypeScriptAgent(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
+  if (kind === "tool") {
+    return scaffoldToolTypeScriptExample(taskName)
+      .replace(
+        `file: fileURLToPath(new URL("./${taskName}.forma", import.meta.url)),`,
+        `file: fileURLToPath(new URL("../${taskName}.forma", import.meta.url)),`,
+      );
+  }
+  const pascalName = toPascalCase(taskName);
+  const camelName = toCamelCase(taskName);
+  const inputType = `${pascalName}Input`;
+  const exampleInput = renderTypeScriptObject(Object.fromEntries(effectiveInputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "");
+  return `import { fileURLToPath } from "node:url";
+import { agent, providerFromProfile, providerProfileFromFile } from "@forma-lang/forma";
+import { assert${pascalName}Output, type ${inputType}, type ${pascalName}Output } from "./${taskName}.forma.js";
+
+const providerProfile = providerProfileFromFile(fileURLToPath(new URL("../forma.provider.json", import.meta.url)));
+
+const ${camelName} = agent({
+  file: fileURLToPath(new URL("../${taskName}.forma", import.meta.url)),
+  task: "${taskName}",
+  provider: providerFromProfile(providerProfile),
+});
+
+const exampleInput: ${inputType} = ${exampleInput};
+
+export async function run${pascalName}(input: ${inputType} = exampleInput): Promise<${pascalName}Output> {
+  const result = await ${camelName}.run(input);
+  if (!result.ok) {
+    throw new Error(result.error ?? "Forma ${taskName} failed");
+  }
+  return assert${pascalName}Output(result.output);
+}
+
+if (import.meta.url === \`file://\${process.argv[1]}\`) {
+  const output = await run${pascalName}();
+  console.log(JSON.stringify(output, null, 2));
+}
+`;
+}
+
+function scaffoldProjectPythonAgent(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
+  if (kind === "tool") {
+    return scaffoldToolPythonExample(taskName)
+      .replace(
+        "from pathlib import Path\n",
+        "from pathlib import Path\n\nPROJECT_ROOT = Path(__file__).resolve().parent.parent\n",
+      )
+      .replace(
+        `file=Path(__file__).with_name("${taskName}.forma"),`,
+        `file=PROJECT_ROOT / "${taskName}.forma",`,
+      );
+  }
+  const pascalName = toPascalCase(taskName);
+  const inputType = `${pascalName}Input`;
+  const exampleInput = renderPythonObject(Object.fromEntries(effectiveInputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "    ");
+  return `from dataclasses import asdict
+from pathlib import Path
+
+from forma import agent, provider_from_profile, provider_profile_from_file
+from ${taskName}_forma import ${inputType}, ${pascalName}Output, assert_${taskName}_output
+
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+provider_profile = provider_profile_from_file(PROJECT_ROOT / "forma.provider.json")
+
+${taskName} = agent(
+    file=PROJECT_ROOT / "${taskName}.forma",
+    task="${taskName}",
+    provider=provider_from_profile(provider_profile),
+)
+
+
+example_input = ${inputType}.from_dict(${exampleInput})
+
+
+def run_${taskName}(input: ${inputType} = example_input) -> ${pascalName}Output:
+    result = ${taskName}.run(asdict(input))
+    if not result.ok:
+        raise RuntimeError(result.error or "Forma ${taskName} failed")
+    return assert_${taskName}_output(result.output)
+
+
+if __name__ == "__main__":
+    print(run_${taskName}())
+`;
+}
+
+function scaffoldProjectPackageJson(projectName: string, taskName: string): string {
+  return `${JSON.stringify({
+    name: projectName,
+    private: true,
+    type: "module",
+    scripts: {
+      generate: `forma generate ${taskName}.forma --target typescript --output src/${taskName}.forma.ts`,
+      check: "tsc --noEmit",
+      "run:ts": `tsx src/${taskName}_agent.ts`,
+    },
+    dependencies: {
+      "@forma-lang/forma": "latest",
+    },
+    devDependencies: {
+      "@types/node": "^22.15.18",
+      tsx: "^4.20.0",
+      typescript: "^5.8.3",
+    },
+  }, null, 2)}\n`;
+}
+
+function scaffoldProjectTsconfig(): string {
+  return `${JSON.stringify({
+    compilerOptions: {
+      target: "ES2022",
+      module: "NodeNext",
+      moduleResolution: "NodeNext",
+      strict: true,
+      esModuleInterop: true,
+      skipLibCheck: true,
+      outDir: "dist",
+    },
+    include: ["src/**/*.ts"],
+  }, null, 2)}\n`;
+}
+
+function scaffoldProjectPyproject(projectName: string): string {
+  return `[project]
+name = "${projectName}"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["forma-lang"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+`;
+}
+
+function scaffoldProjectReadme(projectName: string, taskName: string, profile: ProviderProfile): string {
+  const apiKeyEnv = profile.apiKeyEnv ?? "MODEL_API_KEY";
+  return `# ${projectName}
+
+This project embeds a Forma coding-agent task from TypeScript and Python.
+
+## Provider Configuration
+
+The task contract lives in \`${taskName}.forma\`. The provider profile lives in
+\`forma.provider.json\`. The profile names the provider, model, response format,
+and API-key environment variable, but it does not store the secret value.
+
+\`\`\`bash
+export ${apiKeyEnv}=...
+\`\`\`
+
+Change the model in \`forma.provider.json\` when you want both runtimes to use a
+different model. Keep deployment-specific retries, logging, and secret loading
+in the host application.
+
+## TypeScript
+
+\`\`\`bash
+pnpm install
+pnpm run check
+pnpm run run:ts
+\`\`\`
+
+The TypeScript embedding entrypoint is \`src/${taskName}_agent.ts\`.
+
+## Python
+
+\`\`\`bash
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -e .
+python src/${taskName}_agent.py
+\`\`\`
+
+The Python embedding entrypoint is \`src/${taskName}_agent.py\`.
+
+## CLI
+
+\`\`\`bash
+forma run ${taskName}.forma --task ${taskName} --input '{"diff":"diff --git a/src/example.ts b/src/example.ts"}' --provider-profile forma.provider.json
+\`\`\`
 `;
 }
 

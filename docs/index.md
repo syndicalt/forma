@@ -25,6 +25,8 @@ Read `docs/guides/product-proof.md` when you want to test whether the current
 package workflow is more useful than an inline prompt plus local schemas.
 Read `docs/guides/migrating-from-inline-prompts.md` when moving an existing
 model call into a reviewed `.forma` task package.
+Use `forma project-init` when you want a clean TypeScript and Python host
+project with provider profile, generated bindings, and `agent(...)` entrypoints.
 Read `docs/roadmap.md` for the path from the current contract runtime to a
 TypeScript and Python agent coding tool.
 

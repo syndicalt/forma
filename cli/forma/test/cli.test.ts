@@ -1294,6 +1294,46 @@ describe("forma cli", () => {
     expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
   });
 
+  it("scaffolds a clean TypeScript and Python host project", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-init-"));
+    const result = await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+      "--model",
+      "gpt-5-mini",
+      "--api-key-env",
+      "REVIEW_MODEL_KEY",
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    expect(JSON.parse(await readFile(join(dir, "forma.provider.json"), "utf8"))).toEqual({
+      provider: "openai-responses",
+      model: "gpt-5-mini",
+      apiKeyEnv: "REVIEW_MODEL_KEY",
+      responseFormat: "json_schema",
+      temperature: 0.2,
+      timeoutMs: 30000,
+    });
+    expect(await readFile(join(dir, "review_diff.forma"), "utf8")).toContain("task review_diff");
+    expect(await readFile(join(dir, "src", "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
+    expect(await readFile(join(dir, "src", "review_diff_forma.py"), "utf8")).toContain("assert_review_diff_output");
+    expect(await readFile(join(dir, "src", "review_diff_agent.ts"), "utf8")).toContain("providerProfileFromFile");
+    expect(await readFile(join(dir, "src", "review_diff_agent.ts"), "utf8")).toContain("providerFromProfile(providerProfile)");
+    expect(await readFile(join(dir, "src", "review_diff_agent.py"), "utf8")).toContain("provider_profile_from_file");
+    expect(await readFile(join(dir, "src", "review_diff_agent.py"), "utf8")).toContain("provider_from_profile(provider_profile)");
+    expect(await readFile(join(dir, "package.json"), "utf8")).toContain("\"@forma-lang/forma\"");
+    expect(await readFile(join(dir, "pyproject.toml"), "utf8")).toContain("forma-lang");
+    const readme = await readFile(join(dir, "README.md"), "utf8");
+    expect(readme).toContain("export REVIEW_MODEL_KEY=");
+    expect(readme).toContain("forma run review_diff.forma --task review_diff");
+    expect(readme).toContain("src/review_diff_agent.ts");
+    expect(readme).toContain("src/review_diff_agent.py");
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);

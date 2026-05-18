@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]
+forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-init> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -63,7 +63,7 @@ diagnostics, verification, and runtime trace entries such as `tool` and
 `tool_failed`, instead of only printing the task output object.
 
 Invalid usage exits with code 2 and prints `usage: forma
-<check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]`.
+<check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-init> <path> [--input JSON]`.
 These behaviors are covered by `cli/forma/test/cli.test.ts`.
 
 `forma outline` reads a `.forma` file and prints machine-readable task metadata
@@ -208,6 +208,29 @@ The default generated provider profile is:
   "timeoutMs": 30000
 }
 ```
+
+`forma project-init` scaffolds a clean host project for embedding a Forma agent
+task from TypeScript and Python. It writes a `.forma` task, `forma.provider.json`,
+generated TypeScript and Python bindings under `src/`, host entrypoints under
+`src/`, `package.json`, `tsconfig.json`, `pyproject.toml`, and a README. Use it
+when the goal is to run a task from an application, not to publish a versioned
+task package:
+
+```bash
+forma project-init ./review-diff-agent \
+  --name review-diff-agent \
+  --task review_diff \
+  --model gpt-5 \
+  --api-key-env OPENAI_API_KEY
+```
+
+The generated provider profile stores the provider, model, response format,
+temperature, timeout, and key environment variable name. It does not store the
+secret key. The generated TypeScript entrypoint uses `agent(...)`,
+`providerProfileFromFile`, and `providerFromProfile`; the Python entrypoint uses
+the matching `agent(...)`, `provider_profile_from_file`, and
+`provider_from_profile` APIs. Both runtimes read the same `.forma` task and
+validate model output through generated binding helpers.
 
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
 runs the named task, compares `ok`, `output`, `trace`, `verification`, and
