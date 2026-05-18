@@ -81,6 +81,13 @@ corepack pnpm proof:release
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration && corepack pnpm projects:check"
 ```
 
+Read the `proof-command` row to identify which half failed. If stdout stops at
+`review_diff_migration.test.ts`, fix the TypeScript/Python migration parity
+fixtures before regenerating package locks. If stdout reaches
+`project-check examples/review-diff-agent --json` and the JSON row reports
+`.github/workflows/forma-project.yml` or `missingCommands`, restore the checked
+clean-project workflow proof commands and rerun `corepack pnpm projects:check`.
+
 Run CLI smoke tests after building:
 
 ```bash

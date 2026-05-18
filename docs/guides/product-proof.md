@@ -162,6 +162,12 @@ TypeScript and Python parity tests, and `package-review` reports the
 needs the proof executed inline, run `corepack pnpm proof:release` to add a
 blocking `proof-command` row that executes both `proof:migration` and
 `projects:check`.
+If that row fails before `projects:check` starts, inspect
+`review_diff_migration.test.ts` and `review_diff_migration_test.py` first. If
+the row reaches the clean-project JSON report and names
+`.github/workflows/forma-project.yml` or `missingCommands`, restore the checked
+project workflow commands in `examples/review-diff-agent` before rerunning the
+release proof.
 `missingMigrationParityTests` means a parity file or direct test command
 drifted out of review; `missingMigrationParityProofCommand` means the files and
 direct test commands are present, but release review no longer runs them through
