@@ -14,6 +14,7 @@ If you are skeptical, start with `docs/guides/first-use-audit.md` and
 paths compare Forma against inline prompt plus local schemas and show the
 before/after proof without asking you to adopt package locks first.
 Evaluate Forma as a reusable agent package workflow before adopting package locks.
+Release proof is a packaging readiness check, not the first thing skeptics should run.
 The first decision is whether generated bindings, runtime validation, smoke
 tests, and reviewable package evidence improve the host application; the
 lockfile path comes later when another repository should consume pinned artifacts.

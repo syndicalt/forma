@@ -354,6 +354,8 @@ The current MVP provides:
   needs release artifacts.
 - Testing guide now says release proof validates reusable package readiness, not
   local adoption.
+- Docs index now says release proof is a packaging readiness check, not the
+  first thing skeptics should run.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -889,8 +891,8 @@ The next three implementation slices should be:
    package-review and lock drift protection.
 2. Product clarity: add CLI package-review wording that review gates should
    reference a downstream consumer, not a hypothetical package audience.
-3. Product clarity: add docs index wording that release proof is a packaging
-   readiness check, not the first thing skeptics should run.
+3. Product clarity: add README wording that package proof is not the product
+   wedge; reusable agent contracts are.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
