@@ -83,6 +83,10 @@ Shared route-label defaults should arrive through reviewed releases. If a route
 label moves from a host adapter into the reviewed provider profile, consume it
 by adopting the next reviewed package release instead of editing a local lock or
 copied helper.
+Route-label cleanup belongs in host configuration before shared defaults. Rename
+or redact deployment labels beside the consuming app's provider setup first;
+promote the cleaned-up name to the reviewed package only when every consumer
+should inherit it.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
