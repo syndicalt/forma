@@ -9,6 +9,7 @@ const required = [
   "docs/guides/task-authoring.md",
   "docs/guides/runtime-results.md",
   "docs/guides/provider-adapters.md",
+  "docs/guides/product-proof.md",
   "docs/guides/testing-and-verification.md",
   "docs/language/overview.md",
   "docs/language/syntax.md",
@@ -59,7 +60,8 @@ const requiredTerms = {
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
   "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],
-  "docs/guides/testing-and-verification.md": ["docs:check", "tree-sitter test", "pytest", "vitest"],
+  "docs/guides/product-proof.md": ["review_diff", "examples:check", "package-review", "eval-suite"],
+  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "tree-sitter test", "pytest", "vitest"],
   "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification"],
   "docs/language/limitations.md": ["MVP", "named task", "provider"],
 };

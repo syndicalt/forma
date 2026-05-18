@@ -13,6 +13,7 @@ Use project-local commands from the workspace:
 corepack pnpm install
 corepack pnpm check
 corepack pnpm test
+corepack pnpm examples:check
 corepack pnpm docs:check
 python -m pytest packages/forma-python/tests -q
 corepack pnpm build

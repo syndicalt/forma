@@ -122,6 +122,8 @@ The current MVP provides:
   `forma package-check`.
 - Tool permission workflow examples show host-owned read, search, test, and
   edit hooks from TypeScript and Python.
+- `examples:check` type-checks TypeScript host examples and compiles Python
+  host examples so package examples are verified as consumer code.
 - `forma package-init` scaffolds a starter package with task source, eval
   fixture, eval suite, manifest, lockfile, generated bindings, and host
   examples.

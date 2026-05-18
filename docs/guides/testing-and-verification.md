@@ -14,6 +14,7 @@ Run the full JavaScript and TypeScript checks:
 corepack pnpm install --frozen-lockfile
 corepack pnpm check
 corepack pnpm test
+corepack pnpm examples:check
 corepack pnpm docs:check
 ```
 
@@ -33,6 +34,16 @@ corepack pnpm --filter @forma-lang/cli test
 
 The Tree-sitter package uses `tree-sitter test`. The TypeScript packages use
 `vitest`. The Python package uses `pytest`.
+
+Check host examples when changing generated bindings, package examples, or
+embedding docs:
+
+```bash
+corepack pnpm examples:check
+```
+
+This type-checks the TypeScript examples under `examples/` and compiles the
+Python examples so package host code stays aligned with the generated bindings.
 
 Run CLI smoke tests after building:
 

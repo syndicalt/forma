@@ -20,6 +20,7 @@ TypeScript runtime before checking the CLI, so it works without preexisting
 ```bash
 corepack pnpm check
 corepack pnpm test
+corepack pnpm examples:check
 corepack pnpm docs:check
 ```
 
@@ -52,6 +53,7 @@ A clean local verification run should include these commands:
 corepack pnpm install --frozen-lockfile
 corepack pnpm check
 corepack pnpm test
+corepack pnpm examples:check
 corepack pnpm docs:check
 python -m pytest packages/forma-python/tests -q
 corepack pnpm build
