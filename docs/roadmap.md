@@ -307,6 +307,8 @@ The current MVP provides:
 - Runtime-semantics docs now state that provider output validation is part of
   the host trust boundary and should prevent coercing failed model output into
   typed application data.
+- Package-init docs and generated package READMEs now say release candidates
+  should not be published until a downstream consumer needs pinned artifacts.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -838,12 +840,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-init README wording that release candidates
-   should not be published until a downstream consumer exists.
-2. Product clarity: add testing guide wording that release proof answers
+1. Product clarity: add testing guide wording that release proof answers
    consumer readiness, not first-use usefulness.
-3. Product clarity: add CLI docs wording that package-lock drift is a release
+2. Product clarity: add CLI docs wording that package-lock drift is a release
    artifact problem before it is a host application problem.
+3. Product clarity: add package-consumer quickstart wording that lockfile
+   consumption is for shared ownership, not local cleanup.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

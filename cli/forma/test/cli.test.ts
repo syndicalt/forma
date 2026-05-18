@@ -2022,6 +2022,7 @@ describe("forma cli", () => {
     expect(readme).toContain("forma package-review review_diff.forma.pkg.json");
     expect(readme).toContain("Publish only after package review protects real consumers");
     expect(readme).toContain("Generated package scaffolds are release candidates, not first-use proofs");
+    expect(readme).toContain("Do not publish a release candidate until a downstream consumer exists");
     expect(readme).toContain("forma package-check review_diff.forma.pkg.json");
     expect(readme).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
     expect(readme).toContain("npx vitest run review_diff_contract.test.ts");

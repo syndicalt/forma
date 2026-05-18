@@ -130,6 +130,7 @@ const requiredTerms = {
     "package-lock proof command",
     "Generated project CI is application contract protection, not framework ceremony",
     "Generated package scaffolds are release candidates, not first-use proofs",
+    "Do not publish a release candidate until a downstream consumer exists",
     "package-review is a release gate, not a usefulness test",
   ],
   "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "missingMigrationParityProofCommand", "proof:release", "review_diff_migration.test.ts", "forma-project.yml", "artifact group change", "review artifact group changes before regenerating the package lock", "--check --json", "changedArtifactGroups", "Release Notes For Artifact Group Changes", "installed-package-smoke-summary.jsonl", "\"installedPackageSmokeSummary\"", "stale-package-lock-report.json", "actions/upload-artifact"],

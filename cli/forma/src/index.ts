@@ -1728,6 +1728,9 @@ locked artifact set.
 Generated package scaffolds are release candidates, not first-use proofs. Use
 them after a minimal or checked host project has already shown that the
 \`.forma\` contract is clearer than an inline prompt plus local schemas.
+Do not publish a release candidate until a downstream consumer exists and needs
+the reviewed manifest, lockfile, generated bindings, tests, release files, and
+evals as a pinned dependency.
 
 ## CI
 
