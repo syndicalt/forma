@@ -241,6 +241,10 @@ When the manifest includes migration parity tests such as
 `review_diff_migration.test.ts` and `review_diff_migration_test.py`, the same
 row also reports `migrationParityTests` so reviewers can identify the
 before/after migration proof separately from other package tests.
+If those fixture paths drift out of package README commands, package CI
+commands, or the publish workflow bundle command, the failing row reports
+`missingMigrationParityTests` next to the generic `missingCommands` or
+`missingPaths` entry.
 The same review keeps generated workflow failure handling reviewable: if the
 package or publish workflow omits the troubleshooting link, the `ci-workflow`
 or `publish-bundle` row reports `missingGuidance`.
@@ -314,6 +318,9 @@ at the exact command that needs to be restored:
 
 Use the `tests.commands` row from the same `package-review` output as the
 source of truth when repairing those README or workflow entries.
+For migration parity drift, restore every path listed in
+`missingMigrationParityTests`, then regenerate the package lock so the README or
+workflow hash is reviewed with the manifest.
 When a package declares tests, keep the generated TypeScript and Python
 lockfile consumer smoke tests in that manifest too. If they are removed, the
 `tests` row reports `missingProviderOverrideTests`. The package consumer

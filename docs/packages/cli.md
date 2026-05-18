@@ -374,6 +374,33 @@ to add back:
 }
 ```
 
+When the omitted command contains a migration parity fixture, the same row also
+reports `missingMigrationParityTests` so reviewers can see that the
+before/after migration proof drifted out of the package docs or CI workflow:
+
+```json
+{
+  "name": "ci-workflow",
+  "passed": false,
+  "total": 9,
+  "missingCommands": ["python review_diff_migration_test.py"],
+  "missingMigrationParityTests": ["review_diff_migration_test.py"]
+}
+```
+
+The publish bundle row uses the same field when a migration parity fixture is
+missing from the release tarball command:
+
+```json
+{
+  "name": "publish-bundle",
+  "passed": false,
+  "total": 35,
+  "missingPaths": ["review_diff_migration_test.py"],
+  "missingMigrationParityTests": ["review_diff_migration_test.py"]
+}
+```
+
 If a package declares tests but omits the generated lockfile consumer smoke
 tests that pass explicit provider overrides, the `tests` row reports
 `missingProviderOverrideTests`. Restore the reported files and commands using

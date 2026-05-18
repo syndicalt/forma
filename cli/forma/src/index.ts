@@ -464,14 +464,17 @@ async function packageReadmeCheck(manifestPath: string, manifest: FormaPackageMa
   const readme = await readFile(resolve(manifestDir, readmePath), "utf8").catch(() => "");
   const commands = packageReadmeCommands(manifestPath, manifest, manifestDir);
   const missingCommands = commands.filter((command) => !readme.includes(command));
+  const missingMigrationParityTests = packageMigrationParityTestPaths(manifest.tests ?? [])
+    .filter((path) => !readme.includes(path));
   const guidance = [packageEmbeddingGuidance, packageProviderOverrideGuidance, packageProviderOverrideRecoveryGuidance];
   const missingGuidance = guidance.filter((item) => !readme.includes(item));
   return {
     name: "readme",
-    passed: readme.length > 0 && missingCommands.length === 0 && missingGuidance.length === 0,
+    passed: readme.length > 0 && missingCommands.length === 0 && missingMigrationParityTests.length === 0 && missingGuidance.length === 0,
     total: commands.length,
     ...(readme.length === 0 ? { missingReadme: readmePath } : {}),
     ...(missingCommands.length > 0 ? { missingCommands } : {}),
+    ...(missingMigrationParityTests.length > 0 ? { missingMigrationParityTests } : {}),
     ...(missingGuidance.length > 0 ? { missingGuidance } : {}),
   };
 }
@@ -495,13 +498,16 @@ async function packageCiWorkflowCheck(manifestPath: string, manifest: FormaPacka
   const workflow = await readFile(resolve(manifestDir, workflowPath), "utf8").catch(() => "");
   const commands = packageCiWorkflowCommands(manifestPath, manifest, manifestDir);
   const missingCommands = commands.filter((command) => !workflow.includes(command));
+  const missingMigrationParityTests = packageMigrationParityTestPaths(manifest.tests ?? [])
+    .filter((path) => !workflow.includes(path));
   const missingGuidance = workflow.includes(packageTroubleshootingGuidance) ? [] : [packageTroubleshootingGuidance];
   return {
     name: "ci-workflow",
-    passed: workflow.length > 0 && missingCommands.length === 0 && missingGuidance.length === 0,
+    passed: workflow.length > 0 && missingCommands.length === 0 && missingMigrationParityTests.length === 0 && missingGuidance.length === 0,
     total: commands.length,
     ...(workflow.length === 0 ? { missingWorkflow: workflowPath } : {}),
     ...(missingCommands.length > 0 ? { missingCommands } : {}),
+    ...(missingMigrationParityTests.length > 0 ? { missingMigrationParityTests } : {}),
     ...(missingGuidance.length > 0 ? { missingGuidance } : {}),
   };
 }
@@ -536,6 +542,8 @@ async function packagePublishBundleCheck(manifestPath: string, manifest: FormaPa
   const workflow = await readFile(resolve(manifestDir, workflowPath), "utf8").catch(() => "");
   const paths = await packageBundlePaths(manifestPath, manifest, manifestDir);
   const missingPaths = paths.filter((path) => !workflow.includes(path));
+  const migrationParityTests = packageMigrationParityTestPaths(manifest.tests ?? []);
+  const missingMigrationParityTests = migrationParityTests.filter((path) => missingPaths.includes(path));
   const missingGuidance = workflow.includes(packageTroubleshootingGuidance) ? [] : [packageTroubleshootingGuidance];
   return {
     name: "publish-bundle",
@@ -543,6 +551,7 @@ async function packagePublishBundleCheck(manifestPath: string, manifest: FormaPa
     total: paths.length,
     ...(workflow.length === 0 ? { missingWorkflow: workflowPath } : {}),
     ...(missingPaths.length > 0 ? { missingPaths } : {}),
+    ...(missingMigrationParityTests.length > 0 ? { missingMigrationParityTests } : {}),
     ...(missingGuidance.length > 0 ? { missingGuidance } : {}),
   };
 }

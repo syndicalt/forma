@@ -302,6 +302,9 @@ The current MVP provides:
 - `forma package-review` surfaces migration parity fixture paths in the
   `tests.migrationParityTests` field so release reviews can identify the
   before/after proof separately from generic package tests.
+- `forma package-review` reports `missingMigrationParityTests` when migration
+  parity fixtures drift out of README commands, package CI commands, or publish
+  bundle paths.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -432,8 +435,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: fail package review when migration parity fixtures drift out
-   of README commands, CI commands, publish bundle paths, or lockfile hashes.
+3. Product proof: require generated package READMEs to include recovery
+   guidance for `missingMigrationParityTests`, matching the provider override
+   recovery flow.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
