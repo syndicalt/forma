@@ -436,6 +436,8 @@ The current MVP provides:
 - Provider-adapter docs now say fallback route labels should be reviewed before
   becoming shared defaults.
 - First-use audit now says route-label reviews belong after first-use proof.
+- First-use audit now says route-label cleanup should not delay local smoke
+  proof.
 - Runtime-result docs now say route-label evidence should not be copied into
   model output.
 - Package-consumer quickstart now says shared route-label defaults should arrive
@@ -1006,12 +1008,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add first-use audit wording that route-label cleanup should
-   not delay local smoke proof.
-2. Product clarity: add product-proof wording that route-label cleanup must keep
+1. Product clarity: add product-proof wording that route-label cleanup must keep
    baseline and candidate artifacts comparable.
-3. Product clarity: add provider-adapter wording that route-label cleanup should
+2. Product clarity: add provider-adapter wording that route-label cleanup should
    not mutate reviewed provider profiles.
+3. Product clarity: add testing-guide wording that route-label cleanup should
+   preserve release proof comparability.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

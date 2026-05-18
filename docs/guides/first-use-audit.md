@@ -51,6 +51,9 @@ prompt plus local schemas baseline.
 Route-label reviews belong after first-use proof. Do not spend adoption time
 reviewing fallback route names, redaction, or shared provider-profile defaults
 until the minimal smoke comparison shows the `.forma` boundary is worth keeping.
+Route-label cleanup should not delay local smoke proof. Use a simple redacted
+host-owned label for the first run, then clean up naming once the minimal smoke
+comparison proves Forma is worth adopting.
 
 ## Steps
 
