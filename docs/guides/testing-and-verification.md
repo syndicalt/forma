@@ -177,6 +177,10 @@ Fallback route changes require preserved diagnostics. Before rerunning release
 proof with a new provider route, keep the failed diagnostics and smoke artifact
 beside the rerun so reviewers can tell whether routing changed behavior or only
 hid the original validation failure.
+Fallback eval artifacts should travel with release proof logs. When fallback
+policy changes model behavior, attach the baseline and candidate eval summaries
+beside `forma-release-proof-artifacts` so reviewers can compare task quality
+with the same evidence set as package readiness.
 
 ### Release Artifact Reading Guide
 
