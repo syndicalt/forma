@@ -478,6 +478,8 @@ The current MVP provides:
   when names change.
 - Runtime-result docs now say cleaned-up route labels should not overwrite
   trace route evidence.
+- First-use audit now says cleaned-up route labels should stay outside the
+  usefulness decision.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1040,12 +1042,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add first-use audit wording that cleaned-up route labels
-   should stay outside the usefulness decision.
-2. Product clarity: add package-consumer quickstart wording that cleaned-up
+1. Product clarity: add package-consumer quickstart wording that cleaned-up
    route labels should remain app-owned until reviewed.
-3. Product clarity: add product-proof wording that cleaned-up route labels
+2. Product clarity: add product-proof wording that cleaned-up route labels
    should not replace baseline route labels.
+3. Product clarity: add provider-adapter wording that cleaned-up route labels
+   should preserve reviewed provider defaults.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

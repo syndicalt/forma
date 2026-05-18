@@ -61,6 +61,10 @@ Cleaned-up route labels should not obscure the first-use comparison. Keep the
 minimal before/after proof focused on host-code shape, and record any label
 cleanup as host configuration so reviewers can still compare the same local
 task path.
+Cleaned-up route labels should stay outside the usefulness decision. Decide
+whether Forma is worth keeping from the before/after host code, generated
+bindings, validation boundary, and smoke proof; treat route-label cleanup as
+deployment hygiene after that decision.
 
 ## Steps
 
