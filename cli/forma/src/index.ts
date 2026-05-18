@@ -159,6 +159,17 @@ interface FormaPackageManifest {
   compatibility?: unknown;
 }
 
+interface FormaPackageLock {
+  package?: Record<string, unknown>;
+  tasks?: Array<Record<string, unknown>>;
+  evalSuite?: Record<string, unknown>;
+  providerProfile?: Record<string, unknown>;
+  bindings?: Array<Record<string, unknown>>;
+  examples?: Array<Record<string, unknown>>;
+  tests?: Array<Record<string, unknown>>;
+  releaseFiles?: Array<Record<string, unknown>>;
+}
+
 interface FormaProjectManifest {
   formaProject?: number;
   name?: string;
@@ -216,6 +227,56 @@ function packageLockOutOfDateMessage(outputPath: string): string {
   ].join("\n");
 }
 
+function packageLockChangeReport(packageLock: string, current: FormaPackageLock, candidate: FormaPackageLock) {
+  return {
+    passed: false,
+    packageLock,
+    guidance: "review artifact group changes before regenerating the package lock",
+    changedArtifactGroups: changedPackageLockArtifactGroups(current, candidate),
+  };
+}
+
+function changedPackageLockArtifactGroups(current: FormaPackageLock, candidate: FormaPackageLock) {
+  return [
+    changedObjectGroup("package", current.package, candidate.package),
+    changedArrayGroup("tasks", current.tasks, candidate.tasks, "source"),
+    changedObjectGroup("evalSuite", current.evalSuite, candidate.evalSuite),
+    changedObjectGroup("providerProfile", current.providerProfile, candidate.providerProfile),
+    changedArrayGroup("bindings", current.bindings, candidate.bindings, "output"),
+    changedArrayGroup("examples", current.examples, candidate.examples, "path"),
+    changedArrayGroup("tests", current.tests, candidate.tests, "path"),
+    changedArrayGroup("releaseFiles", current.releaseFiles, candidate.releaseFiles, "path"),
+  ].filter((group) => group !== undefined);
+}
+
+function changedObjectGroup(group: string, current: Record<string, unknown> | undefined, candidate: Record<string, unknown> | undefined) {
+  if (!current && !candidate) return undefined;
+  if (!current) return { group, added: Object.keys(candidate ?? {}).sort() };
+  if (!candidate) return { group, removed: Object.keys(current).sort() };
+  const changed = Array.from(new Set([...Object.keys(current), ...Object.keys(candidate)]))
+    .filter((key) => !deepEqual(current[key], candidate[key]))
+    .sort();
+  return changed.length > 0 ? { group, changed } : undefined;
+}
+
+function changedArrayGroup(
+  group: string,
+  current: Array<Record<string, unknown>> | undefined,
+  candidate: Array<Record<string, unknown>> | undefined,
+  key: string,
+) {
+  const currentMap = new Map((current ?? []).map((entry) => [String(entry[key]), entry]));
+  const candidateMap = new Map((candidate ?? []).map((entry) => [String(entry[key]), entry]));
+  const added = [...candidateMap.keys()].filter((entryKey) => !currentMap.has(entryKey)).sort();
+  const removed = [...currentMap.keys()].filter((entryKey) => !candidateMap.has(entryKey)).sort();
+  const changed = [...candidateMap.keys()]
+    .filter((entryKey) => currentMap.has(entryKey) && !deepEqual(currentMap.get(entryKey), candidateMap.get(entryKey)))
+    .sort();
+  return added.length > 0 || removed.length > 0 || changed.length > 0
+    ? omitUndefined({ group, added: added.length > 0 ? added : undefined, removed: removed.length > 0 ? removed : undefined, changed: changed.length > 0 ? changed : undefined })
+    : undefined;
+}
+
 async function checkPackageManifest(path: string): Promise<CliResult> {
   const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
   await validatePackageManifest(manifest, dirname(path));
@@ -234,9 +295,17 @@ async function lockPackageManifest(path: string, args: string[]): Promise<CliRes
       throw new Error("--output is required for --check");
     }
     const current = await readFile(outputPath, "utf8").catch(() => "");
-    return current === serialized
-      ? { exitCode: 0, stdout: "ok\n", stderr: "" }
-      : { exitCode: 1, stdout: "", stderr: packageLockOutOfDateMessage(outputPath) };
+    if (current === serialized) {
+      return args.includes("--json")
+        ? { exitCode: 0, stdout: `${JSON.stringify({ passed: true, packageLock: outputPath, changedArtifactGroups: [] }, null, 2)}\n`, stderr: "" }
+        : { exitCode: 0, stdout: "ok\n", stderr: "" };
+    }
+    if (args.includes("--json")) {
+      const currentLock = current ? JSON.parse(current) as FormaPackageLock : {};
+      const report = packageLockChangeReport(outputPath, currentLock, lock as FormaPackageLock);
+      return { exitCode: 1, stdout: `${JSON.stringify(report, null, 2)}\n`, stderr: "" };
+    }
+    return { exitCode: 1, stdout: "", stderr: packageLockOutOfDateMessage(outputPath) };
   }
   if (outputPath) {
     await writeFile(outputPath, serialized, "utf8");

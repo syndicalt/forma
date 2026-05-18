@@ -1035,6 +1035,40 @@ describe("forma cli", () => {
     });
   });
 
+  it("prints package-lock artifact group changes as JSON", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-lock-json-artifact-groups-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "forma.lock.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.version = "0.2.0";
+    manifest.releaseFiles.push({ path: "CHANGELOG.md" });
+    await writeFile(join(dir, "CHANGELOG.md"), "## 0.2.0\n\n- Add reviewed artifact group.\n");
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+    const result = await runCli(["package-lock", manifestPath, "--output", lockPath, "--check", "--json"]);
+    const report = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(report).toEqual({
+      passed: false,
+      packageLock: lockPath,
+      guidance: "review artifact group changes before regenerating the package lock",
+      changedArtifactGroups: [
+        {
+          group: "package",
+          changed: ["manifestSha256", "version"],
+        },
+        {
+          group: "releaseFiles",
+          added: ["CHANGELOG.md"],
+        },
+      ],
+    });
+  });
+
   it("reviews a package with manifest, lockfile, and eval-suite checks", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");

@@ -137,7 +137,14 @@ CI to fail when any locked artifact drifts:
 ```bash
 forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json
 forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check
+forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check --json
 ```
+
+When `--check --json` fails, stdout includes a compact artifact group report
+with `changedArtifactGroups`. The report lists package metadata changes and
+added, removed, or changed paths for groups such as `bindings`, `examples`,
+`tests`, and `releaseFiles`, so reviewers can see which reviewed artifact group
+changed before regenerating the lock.
 
 ## Release Runtime Flow
 

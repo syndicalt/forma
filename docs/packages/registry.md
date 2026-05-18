@@ -223,6 +223,10 @@ regenerated. Treat that as an artifact group change: review the new lock before
 merging so the added path and hash are visible across package versions. The CLI
 prints `review artifact group changes before regenerating the package lock` on
 stale lock checks to keep that review step in the release log.
+Use `forma package-lock --check --json` when CI or release review needs a
+machine-readable artifact group report. The `changedArtifactGroups` array names
+the package metadata fields that changed and the added, removed, or changed
+paths under groups such as `bindings`, `examples`, `tests`, and `releaseFiles`.
 The importable package entrypoints `examples/review_diff_contract/index.ts` and
 `examples/review_diff_contract/__init__.py` wrap those helpers behind stable
 TypeScript and Python module names so consumers can depend on the reviewed
