@@ -65,6 +65,11 @@ Pin reviewed locks before adding app-specific retries or logging. First prove
 the host can load the reviewed lock and run the generated smoke tests; then add
 deployment concerns such as retries, logging, routing, or workflow-specific
 error handling around the stable contract boundary.
+Package owners update reviewed locks. Consumers should request or adopt a new
+reviewed package release instead of regenerating a stale lock inside an
+application repository, because the lock records package-owned artifacts such as
+task source, provider profile, generated bindings, contract tests, eval suite,
+and release files.
 
 Generated packages include smoke tests for the lockfile-backed contract modules.
 Run them after the lock check and before application-specific tests:

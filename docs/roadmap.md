@@ -328,6 +328,8 @@ The current MVP provides:
   output.
 - CLI docs now say `project-check --json` is for application CI dashboards, not
   package release dashboards.
+- Package-consumer quickstart now says package owners update reviewed locks,
+  while consumers adopt reviewed package releases.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -859,12 +861,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer quickstart wording that reviewed
-   package locks should be updated by package owners, not consumers.
-2. Product clarity: add package-consumer troubleshooting wording that
+1. Product clarity: add package-consumer troubleshooting wording that
    application CI should preserve package-lock smoke evidence before retrying.
-3. Product clarity: add provider-adapter docs wording that provider profiles
+2. Product clarity: add provider-adapter docs wording that provider profiles
    are shared defaults, while host overrides are deployment decisions.
+3. Product clarity: add README wording that reusable coding-agent packages are
+   the product wedge, while `.forma` is the source format.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
