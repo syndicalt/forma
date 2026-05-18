@@ -44,6 +44,10 @@ Fallback route testing follows, not replaces, host-code simplification. Prove
 the `.forma` contract reduces duplicated schema and prompt handling first, then
 use route tests to decide whether provider failover belongs in the host
 workflow.
+Fallback evidence belongs after local usefulness proof. Preserve diagnostics,
+route labels, and replacement results only after the minimal or checked host
+path has already shown that the Forma boundary is clearer than the inline
+prompt plus local schemas baseline.
 
 ## Steps
 
