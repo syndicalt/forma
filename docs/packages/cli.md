@@ -178,11 +178,11 @@ tag is pushed. The scaffolded manifest records those publish-facing files in
 `releaseFiles`, and the lockfile pins their hashes with the rest of the package
 artifact set. Use `--kind review` for the default code-review agent shape,
 `--kind tool` for a generic coding-agent shape that declares `read`, `search`,
-`test`, and `edit`, or `--kind function-repair` for a concrete workflow that
-names a source file, target function, desired behavior, and focused test
-command. The scaffold also writes `forma.provider.json`; review-agent host
-examples load it to choose the provider, model, and API-key environment
-variable. Pass
+`test`, and `edit` and includes TypeScript/Python follow-up planning helpers,
+or `--kind function-repair` for a concrete workflow that names a source file,
+target function, desired behavior, and focused test command. The scaffold also
+writes `forma.provider.json`; review-agent host examples load it to choose the
+provider, model, and API-key environment variable. Pass
 `--provider`, `--endpoint`, `--model`, `--api-key-env`, `--response-format`,
 `--temperature`, and `--timeout-ms` to generate a provider profile that matches
 the runtime you plan to use. Repeat `--input-field name:Type`, `--output-field

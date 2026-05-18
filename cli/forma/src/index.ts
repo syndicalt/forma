@@ -523,6 +523,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const pythonBindings = `${taskName}_forma.py`;
   const typeScriptExample = `${taskName}_package.ts`;
   const pythonExample = `${taskName}_package.py`;
+  const typeScriptPlan = `${taskName}_plan.ts`;
+  const pythonPlan = `${taskName}_plan.py`;
   const contractDir = `${taskName}_contract`;
   const typeScriptContract = `${contractDir}/index.ts`;
   const pythonContract = `${contractDir}/__init__.py`;
@@ -542,6 +544,10 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
   await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName, kind, schema), "utf8");
+  if (kind === "tool") {
+    await writeFile(resolve(path, typeScriptPlan), scaffoldToolTypeScriptPlan(), "utf8");
+    await writeFile(resolve(path, pythonPlan), scaffoldToolPythonPlan(), "utf8");
+  }
   await mkdir(resolve(path, contractDir), { recursive: true });
   await writeFile(resolve(path, typeScriptContract), scaffoldTypeScriptContractModule(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonContract), scaffoldPythonContractModule(taskName, kind, schema), "utf8");
@@ -569,6 +575,12 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
     examples: [
       { runtime: "typescript", path: typeScriptExample },
       { runtime: "python", path: pythonExample },
+      ...(kind === "tool"
+        ? [
+            { runtime: "typescript", path: typeScriptPlan },
+            { runtime: "python", path: pythonPlan },
+          ]
+        : []),
       { runtime: "typescript", path: typeScriptContract },
       { runtime: "python", path: pythonContract },
     ],
@@ -599,6 +611,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
       pythonBindings,
       typeScriptExample,
       pythonExample,
+      extraExamples: kind === "tool" ? [typeScriptPlan, pythonPlan] : [],
       typeScriptContract,
       pythonContract,
       readmeFile,
@@ -1183,6 +1196,7 @@ function scaffoldPackagePublishWorkflow(options: {
   pythonBindings: string;
   typeScriptExample: string;
   pythonExample: string;
+  extraExamples?: string[];
   typeScriptContract: string;
   pythonContract: string;
   readmeFile: string;
@@ -1199,6 +1213,7 @@ function scaffoldPackagePublishWorkflow(options: {
     options.pythonBindings,
     options.typeScriptExample,
     options.pythonExample,
+    ...(options.extraExamples ?? []),
     options.typeScriptContract,
     options.pythonContract,
     options.readmeFile,
@@ -1439,6 +1454,44 @@ export async function run${pascalName}(path: string): Promise<${pascalName}Outpu
     throw new Error(result.error ?? "Forma ${taskName} failed");
   }
   return assert${pascalName}Output(result.output);
+}
+`;
+}
+
+function scaffoldToolTypeScriptPlan(): string {
+  return `export interface ToolRepairOutput {
+  summary: string;
+  searched: boolean;
+  test_passed: boolean;
+  edited: boolean;
+}
+
+export interface ToolRepairFollowup {
+  action: "commit_repair" | "rerun_tests" | "inspect_manually";
+  requiresHumanReview: boolean;
+  summary: string;
+}
+
+export function planRepairFollowup(output: ToolRepairOutput): ToolRepairFollowup {
+  if (output.edited && output.test_passed) {
+    return {
+      action: "commit_repair",
+      requiresHumanReview: false,
+      summary: output.summary,
+    };
+  }
+  if (output.edited) {
+    return {
+      action: "rerun_tests",
+      requiresHumanReview: true,
+      summary: output.summary,
+    };
+  }
+  return {
+    action: "inspect_manually",
+    requiresHumanReview: true,
+    summary: output.summary,
+  };
 }
 `;
 }
@@ -1864,6 +1917,33 @@ def run_${taskName}(path: str) -> ${pascalName}Output:
     if not result.ok:
         raise RuntimeError(result.error or "Forma ${taskName} failed")
     return assert_${taskName}_output(result.output)
+`;
+}
+
+function scaffoldToolPythonPlan(): string {
+  return `from typing import Any
+
+ToolRepairOutput = dict[str, Any]
+
+
+def plan_repair_followup(output: ToolRepairOutput) -> dict[str, object]:
+    if bool(output["edited"]) and bool(output["test_passed"]):
+        return {
+            "action": "commit_repair",
+            "requires_human_review": False,
+            "summary": str(output["summary"]),
+        }
+    if bool(output["edited"]):
+        return {
+            "action": "rerun_tests",
+            "requires_human_review": True,
+            "summary": str(output["summary"]),
+        }
+    return {
+        "action": "inspect_manually",
+        "requires_human_review": True,
+        "summary": str(output["summary"]),
+    }
 `;
 }
 

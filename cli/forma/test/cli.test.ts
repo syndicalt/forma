@@ -1486,6 +1486,15 @@ describe("forma cli", () => {
     expect(source).toContain("test_command: Text?");
     expect(await readFile(join(dir, "tool_assisted_repair_package.ts"), "utf8")).toContain("input.tools.writeText");
     expect(await readFile(join(dir, "tool_assisted_repair_package.py"), "utf8")).toContain("tools.write_text");
+    expect(await readFile(join(dir, "tool_assisted_repair_plan.ts"), "utf8")).toContain("planRepairFollowup");
+    expect(await readFile(join(dir, "tool_assisted_repair_plan.py"), "utf8")).toContain("plan_repair_followup");
+    expect(JSON.parse(await readFile(join(dir, "tool_assisted_repair.forma.pkg.json"), "utf8")).examples).toEqual(
+      expect.arrayContaining([
+        { runtime: "typescript", path: "tool_assisted_repair_plan.ts" },
+        { runtime: "python", path: "tool_assisted_repair_plan.py" },
+      ]),
+    );
+    expect(await readFile(join(dir, ".github", "workflows", "forma-publish.yml"), "utf8")).toContain("tool_assisted_repair_plan.ts tool_assisted_repair_plan.py");
 
     const check = await runCli(["package-check", join(dir, "tool_assisted_repair.forma.pkg.json")]);
     expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });

@@ -182,7 +182,8 @@ The current MVP provides:
   modules for new packages.
 - Package scaffolding supports review-agent, generic tool-using coding-agent,
   and focused function-repair templates through `--kind review`, `--kind tool`,
-  and `--kind function-repair`.
+  and `--kind function-repair`; tool packages include typed follow-up planning
+  helpers in both TypeScript and Python.
 - Checked-in function-repair example package with manifest, lockfile, eval
   suite, provider profile, generated TypeScript/Python bindings, host examples,
   README, and package workflows.
@@ -337,8 +338,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: make the tool-permission workflow packageable from
-   `package-init --kind tool` with the same typed follow-up helpers.
+3. Coding workflow depth: add package-review coverage for scaffolded follow-up
+   helper tests so generated tool packages prove host workflow behavior.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

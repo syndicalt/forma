@@ -70,9 +70,10 @@ The scaffolded `.github/workflows/forma-publish.yml` automates the release
 artifact path for registry-style sharing. It runs `forma package-review`, writes
 `candidate.json`, builds a `.tgz` bundle containing the manifest, lockfile,
 `.forma` source, evals, provider profile, generated TypeScript/Python bindings,
-host examples, and README, then uploads the bundle and candidate eval summary
-as workflow artifacts. On matching version tags, it uploads those assets to the
-GitHub Release so consumers can depend on the exact reviewed artifact set.
+host examples, any scaffolded follow-up planning helpers, and README, then
+uploads the bundle and candidate eval summary as workflow artifacts. On
+matching version tags, it uploads those assets to the GitHub Release so
+consumers can depend on the exact reviewed artifact set.
 
 ```json
 {
