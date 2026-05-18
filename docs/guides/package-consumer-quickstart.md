@@ -87,6 +87,10 @@ Route-label cleanup belongs in host configuration before shared defaults. Rename
 or redact deployment labels beside the consuming app's provider setup first;
 promote the cleaned-up name to the reviewed package only when every consumer
 should inherit it.
+Cleaned-up route labels should not require lock regeneration. If the cleanup is
+host-only naming, keep the reviewed lock unchanged and record the new label in
+application configuration or smoke evidence instead of regenerating package
+artifacts.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
