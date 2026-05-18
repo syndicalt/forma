@@ -115,6 +115,10 @@ bindings, entrypoint drift, smoke-test drift, or workflow proof-command drift:
 node cli/forma/dist/index.js project-check ./review-diff-agent --json
 ```
 
+See `docs/packages/cli.md` for passing and failing `project-check --json`
+examples, including the `missingCommands` row reported when the generated
+workflow drops a proof command.
+
 Then run the generated no-credential smoke tests. They pass `StaticProvider`
 into the TypeScript and Python entrypoints, so the embedding path executes
 without `OPENAI_API_KEY`:
