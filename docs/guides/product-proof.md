@@ -191,6 +191,10 @@ Cleaned-up route labels should preserve review audit lookup keys. Keep review
 notes, approval evidence, and before-and-after summaries searchable by the
 original route key, then attach the cleaned-up label as the reviewer-facing
 display name.
+Cleaned-up route labels should preserve package-review audit lookup keys. Keep
+package-review notes, approval records, lock evidence, and eval summaries
+searchable by the original reviewed route key, then record the cleaned-up label
+as review metadata after package acceptance.
 Fallback baselines should identify the model route under review. Include the
 provider, model, endpoint or route label, and fallback policy in baseline and
 candidate eval summaries so reviewers know which deployment path changed.
