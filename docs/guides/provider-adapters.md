@@ -43,6 +43,10 @@ Fallback overrides should log the original failed result. When an adapter
 switches route, provider, or model after a failed `agent.run(...)`, preserve
 the first `FormaResult` error, diagnostics, verification failures, and trace
 before returning or comparing the fallback attempt.
+Fallback reruns should preserve traces across attempts. Keep the original trace
+entries next to the replacement result so host owners can see whether the
+retry changed provider behavior, permissions, tool calls, routing, or only the
+model name.
 
 ## Steps
 

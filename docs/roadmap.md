@@ -380,6 +380,8 @@ The current MVP provides:
   configuration, not reviewed artifact drift.
 - Runtime-result docs now say fallback comparisons should keep both failed and
   replacement results.
+- Provider-adapter docs now say fallback reruns should preserve traces across
+  attempts.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -942,12 +944,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-adapter wording that fallback reruns should
-   preserve traces across attempts.
-2. Product clarity: add testing-guide wording that fallback policy changes
+1. Product clarity: add testing-guide wording that fallback policy changes
    should stay outside package lock regeneration.
-3. Product clarity: add first-use audit wording that fallback comparisons
+2. Product clarity: add first-use audit wording that fallback comparisons
    belong after host-code simplification proof.
+3. Product clarity: add runtime-semantics wording that fallback traces are
+   workflow evidence, not model output.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
