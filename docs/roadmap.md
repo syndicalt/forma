@@ -314,6 +314,8 @@ The current MVP provides:
   migration proof paths.
 - CLI package-lock docs now say lock drift is a release artifact problem before
   it is a host application problem.
+- CLI package-lock docs now say stale-lock recovery starts with the package
+  release owner.
 - Package-consumer quickstart now says lockfile consumption is for shared
   ownership, not local cleanup.
 - Runtime-result docs now tell hosts to log `error` with diagnostics before
@@ -909,12 +911,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add CLI package-lock docs wording that stale-lock recovery
-   starts with the package release owner.
-2. Product clarity: add README wording that product proof should follow
+1. Product clarity: add README wording that product proof should follow
    first-use proof, not replace it.
-3. Product clarity: add package-consumer wording that consumer retries should
+2. Product clarity: add package-consumer wording that consumer retries should
    wrap reviewed contracts, not patch package artifacts.
+3. Product clarity: add provider-adapter wording that deployment overrides are
+   host policy, not package mutation.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

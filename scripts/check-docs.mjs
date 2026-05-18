@@ -122,6 +122,7 @@ const requiredTerms = {
     "changedArtifactGroups",
     "\"group\": \"bindings\"",
     "Package-lock drift is a release artifact problem before it is a host application problem",
+    "Stale-lock recovery starts with the package release owner",
     "notes are informational",
     "checks are blocking",
     "Fix failing checks before interpreting informational notes",

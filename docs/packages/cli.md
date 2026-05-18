@@ -149,6 +149,9 @@ Package-lock drift is a release artifact problem before it is a host application
 Inspect the changed artifact group, repair or intentionally update the package
 manifest, generated files, tests, or release files, then regenerate the reviewed
 lock before changing consuming application logic.
+Stale-lock recovery starts with the package release owner. Consumers should
+adopt the next reviewed release unless they also own the package manifest,
+lockfile, generated artifacts, tests, and release workflow.
 
 For example, a stale generated binding appears in the JSON report as a changed
 artifact group:
