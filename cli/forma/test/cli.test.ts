@@ -2026,6 +2026,9 @@ describe("forma cli", () => {
     expect(packageWorkflow).toContain("python review_diff_contract_test.py");
     expect(packageWorkflow).toContain("forma package-review review_diff.forma.pkg.json");
     expect(packageWorkflow).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
+    expect(packageWorkflow).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check --json > stale-package-lock-report.json");
+    expect(packageWorkflow).toContain("name: stale-package-lock-report");
+    expect(packageWorkflow).toContain("path: stale-package-lock-report.json");
     expect(packageWorkflow).toContain("docs/guides/package-consumer-quickstart.md#troubleshooting");
     const publishWorkflow = await readFile(join(dir, ".github", "workflows", "forma-publish.yml"), "utf8");
     expect(publishWorkflow).toContain("name: Publish Forma package");

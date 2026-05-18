@@ -1793,6 +1793,14 @@ jobs:
         run: forma package-check ${manifestFile}
       - name: Check package lock
         run: forma package-lock ${manifestFile} --output ${lockFile} --check
+      - name: Write stale package lock report
+        if: failure()
+        run: forma package-lock ${manifestFile} --output ${lockFile} --check --json > stale-package-lock-report.json || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: stale-package-lock-report
+          path: stale-package-lock-report.json
 ${testSteps}\
       - name: Run eval suite
         run: forma eval-suite ${evalSuite} --summary > candidate.json
