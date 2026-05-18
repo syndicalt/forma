@@ -1497,6 +1497,7 @@ describe("forma cli", () => {
         missingCommands: [
           "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\"",
         ],
+        missingMigrationParityProofCommand: "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\"",
       }));
     } finally {
       await rm(dir, { recursive: true, force: true });
@@ -1600,6 +1601,7 @@ describe("forma cli", () => {
         missingCommands: [
           "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\"",
         ],
+        missingMigrationParityProofCommand: "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\"",
       }));
     } finally {
       await rm(dir, { recursive: true, force: true });

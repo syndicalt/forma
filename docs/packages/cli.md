@@ -376,6 +376,34 @@ tests, for example:
 forma package-review review_diff.forma.pkg.json --proof-command "npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py"
 ```
 
+If README or CI omits that derived proof command, the row reports
+`missingMigrationParityProofCommand` alongside the generic `missingCommands`
+entry:
+
+```json
+{
+  "name": "readme",
+  "passed": false,
+  "total": 12,
+  "missingCommands": [
+    "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\""
+  ],
+  "missingMigrationParityProofCommand": "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\""
+}
+```
+
+```json
+{
+  "name": "ci-workflow",
+  "passed": false,
+  "total": 10,
+  "missingCommands": [
+    "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\""
+  ],
+  "missingMigrationParityProofCommand": "forma package-review review_diff.forma.pkg.json --proof-command \"npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py\""
+}
+```
+
 Environment changes use the same `changes` array but are marked as
 `kind: "setting"` with before and after values from the eval-suite summary:
 

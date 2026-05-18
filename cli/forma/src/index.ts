@@ -496,6 +496,10 @@ async function packageReadmeCheck(manifestPath: string, manifest: FormaPackageMa
   const readme = await readFile(resolve(manifestDir, readmePath), "utf8").catch(() => "");
   const commands = packageReadmeCommands(manifestPath, manifest, manifestDir);
   const missingCommands = commands.filter((command) => !readme.includes(command));
+  const migrationProofCommand = packageMigrationParityProofReviewCommand(relative(manifestDir, resolve(manifestPath)), manifest.tests);
+  const missingMigrationParityProofCommand = migrationProofCommand && missingCommands.includes(migrationProofCommand)
+    ? migrationProofCommand
+    : undefined;
   const missingMigrationParityTests = packageMigrationParityTestPaths(manifest.tests ?? [])
     .filter((path) => !readme.includes(path));
   const migrationParityTests = packageMigrationParityTestPaths(manifest.tests ?? []);
@@ -513,6 +517,7 @@ async function packageReadmeCheck(manifestPath: string, manifest: FormaPackageMa
     total: commands.length,
     ...(readme.length === 0 ? { missingReadme: readmePath } : {}),
     ...(missingCommands.length > 0 ? { missingCommands } : {}),
+    ...(missingMigrationParityProofCommand ? { missingMigrationParityProofCommand } : {}),
     ...(missingMigrationParityTests.length > 0 ? { missingMigrationParityTests } : {}),
     ...(missingGuidance.length > 0 ? { missingGuidance } : {}),
   };
@@ -539,6 +544,10 @@ async function packageCiWorkflowCheck(manifestPath: string, manifest: FormaPacka
   const workflow = await readFile(resolve(manifestDir, workflowPath), "utf8").catch(() => "");
   const commands = packageCiWorkflowCommands(manifestPath, manifest, manifestDir);
   const missingCommands = commands.filter((command) => !workflow.includes(command));
+  const migrationProofCommand = packageMigrationParityProofReviewCommand(relative(manifestDir, resolve(manifestPath)), manifest.tests);
+  const missingMigrationParityProofCommand = migrationProofCommand && missingCommands.includes(migrationProofCommand)
+    ? migrationProofCommand
+    : undefined;
   const missingMigrationParityTests = packageMigrationParityTestPaths(manifest.tests ?? [])
     .filter((path) => !workflow.includes(path));
   const missingGuidance = workflow.includes(packageTroubleshootingGuidance) ? [] : [packageTroubleshootingGuidance];
@@ -548,6 +557,7 @@ async function packageCiWorkflowCheck(manifestPath: string, manifest: FormaPacka
     total: commands.length,
     ...(workflow.length === 0 ? { missingWorkflow: workflowPath } : {}),
     ...(missingCommands.length > 0 ? { missingCommands } : {}),
+    ...(missingMigrationParityProofCommand ? { missingMigrationParityProofCommand } : {}),
     ...(missingMigrationParityTests.length > 0 ? { missingMigrationParityTests } : {}),
     ...(missingGuidance.length > 0 ? { missingGuidance } : {}),
   };
