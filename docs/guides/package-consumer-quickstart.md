@@ -79,6 +79,10 @@ fallback.
 Fallback policy is application configuration, not reviewed artifact drift. Keep
 per-deployment model failover beside host provider setup unless the fallback
 changes the shared reviewed default that all consumers should inherit.
+Shared route-label defaults should arrive through reviewed releases. If a route
+label moves from a host adapter into the reviewed provider profile, consume it
+by adopting the next reviewed package release instead of editing a local lock or
+copied helper.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
