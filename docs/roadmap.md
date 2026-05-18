@@ -516,6 +516,8 @@ The current MVP provides:
   lookup keys.
 - First-use audit now says cleaned-up route labels should not change local
   smoke fixture ownership.
+- Package-consumer quickstart now says cleaned-up route labels should not
+  change installed contract fixture ownership.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1078,12 +1080,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer wording that cleaned-up route labels
-   should not change installed contract fixture ownership.
-2. Product clarity: add product-proof wording that cleaned-up route labels
+1. Product clarity: add product-proof wording that cleaned-up route labels
    should preserve eval artifact lookup keys.
-3. Product clarity: add provider-adapter wording that cleaned-up route labels
+2. Product clarity: add provider-adapter wording that cleaned-up route labels
    should preserve deployment audit keys.
+3. Product clarity: add testing-guide wording that cleaned-up route labels
+   should preserve release proof lookup keys.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

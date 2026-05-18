@@ -103,6 +103,10 @@ Cleaned-up route labels should not force consumer lock updates. Keep the
 consumer's reviewed lock pinned while the label cleanup is application-only;
 adopt a new lock only after the package owner ships the cleaned label in a
 reviewed release.
+Cleaned-up route labels should not change installed contract fixture ownership.
+Keep installed contract tests, fixture inputs, and expected outputs
+owned by the reviewed package release while the consuming application records
+route-label cleanup in provider configuration or smoke evidence.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
