@@ -324,6 +324,10 @@ TypeScript and Python smoke files back into the project. When the
 `smoke:lock:ts` and the Python package-lock smoke command in
 `.github/workflows/forma-project.yml` so CI still proves the reviewed lock can
 be embedded before application traffic reaches the agent.
+Package-lock smoke failures usually mean a stale reviewed artifact set. Treat
+the failure as evidence that the host project, package lock, generated contract
+tests, or reviewed workflow no longer describe the same release; repair the
+artifact set before changing application logic.
 
 If the `tests` row reports `missingProviderOverrideTests`, the package manifest
 still declares tests but no longer includes the generated TypeScript and Python
