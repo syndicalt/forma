@@ -39,6 +39,11 @@ Check that the TypeScript and Python host examples are valid consumer code:
 corepack pnpm examples:check
 ```
 
+That check also runs the `review_diff_decision.ts` and
+`review_diff_decision.py` workflow assertions. Those helpers consume the typed
+`ReviewDiffOutput` produced from the `.forma` contract and turn structured
+findings into an `approve` or `request_changes` decision with affected paths.
+
 Run the package review gate. This validates the manifest, lockfile, TypeScript
 and Python generated binding presence, TypeScript and Python host example
 presence, required provider profile metadata for agent tasks, provider profile

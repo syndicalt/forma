@@ -51,6 +51,14 @@
     },
     {
       "runtime": "typescript",
+      "path": "review_diff_decision.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_decision.py"
+    },
+    {
+      "runtime": "typescript",
       "path": "review_diff_contract/index.ts"
     },
     {

@@ -14,6 +14,10 @@ The importable `review_diff_contract/index.ts` and
 `review_diff_contract/__init__.py` entrypoints wrap the same lock-aware agent
 helper so package consumers can import a stable contract module instead of
 copying loose example files.
+The `review_diff_decision.ts` and `review_diff_decision.py` examples show a
+host workflow consuming the typed `ReviewDiffOutput`: clean reviews become
+`approve`, and reviews with structured findings become `request_changes` with
+deduplicated affected paths.
 
 ## CI
 
