@@ -248,6 +248,12 @@ commands, or the publish workflow bundle command, the failing row reports
 If the migration parity tests are still present but README or CI no longer runs
 them through `package-review --proof-command`, the failing row reports
 `missingMigrationParityProofCommand` with the exact command to restore.
+In the Forma repository, `corepack pnpm proof:release` routes
+`proof:migration && projects:check` through that same `proof-command` row. A
+failure before `projects:check` usually points to
+`review_diff_migration.test.ts` or its Python pair; a later JSON failure naming
+`forma-project.yml` or `missingCommands` points to checked clean-project
+workflow drift.
 The same review keeps generated workflow failure handling reviewable: if the
 package or publish workflow omits the troubleshooting link, the `ci-workflow`
 or `publish-bundle` row reports `missingGuidance`.

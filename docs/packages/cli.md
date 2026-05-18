@@ -354,6 +354,7 @@ folded into review like this:
 
 ```bash
 forma package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
+corepack pnpm proof:release
 ```
 
 A passing proof row includes the exact command and any captured output:
@@ -368,6 +369,11 @@ A passing proof row includes the exact command and any captured output:
 
 If the command fails, the row reports `passed: false`, the exit code when
 available, and captured stdout or stderr, and the overall review fails.
+For the repository release gate, `proof:release` runs
+`proof:migration && projects:check` through the same row. If stdout stops near
+`review_diff_migration.test.ts`, fix migration parity first. If stdout reaches
+the clean-project JSON report and names `forma-project.yml` or
+`missingCommands`, restore the checked clean-project workflow commands.
 When a package declares migration parity tests, `package-review` also expects
 README and CI command coverage for a proof review command derived from those
 tests, for example:
