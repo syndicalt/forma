@@ -178,7 +178,7 @@ const requiredTerms = {
   ],
   "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification"],
   "docs/language/limitations.md": ["MVP", "named task", "provider"],
-  "examples/README.md": ["proof:release", "corepack pnpm proof:release", "projects:check"],
+  "examples/README.md": ["proof:release", "corepack pnpm proof:release", "projects:check", "Each proof command answers a different adoption question"],
   ".github/workflows/forma-release-proof.yml": ["proof:release", "corepack pnpm proof:release", "installed-package-smoke-summary.jsonl", "actions/upload-artifact", "installedPackageSmokeSummary"],
 };
 

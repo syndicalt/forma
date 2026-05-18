@@ -46,6 +46,14 @@ forma package-review review_diff.forma.pkg.json --baseline baseline.json
 forma compare baseline.json candidate.json --fail-on breaking,environment
 ```
 
+Each proof command answers a different adoption question:
+
+| Command | Adoption question |
+| --- | --- |
+| `corepack pnpm proof:migration` | Does the reviewed Forma contract preserve the old inline prompt behavior? |
+| `corepack pnpm projects:check` | Can a checked application scaffold depend on the generated bindings, provider profile, entrypoints, smoke tests, and CI workflow? |
+| `corepack pnpm proof:release` | Is the reviewed package ready for reusable consumers, including migration parity, checked project drift, and installed package-lock smoke coverage? |
+
 `proof:release` runs package review with a blocking proof command that combines
 the migration parity proof and `projects:check`, so the reviewed package gate
 also fails when the checked clean-project fixture at
