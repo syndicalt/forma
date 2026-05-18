@@ -242,6 +242,9 @@ The current MVP provides:
 - Package consumer quickstart shows how TypeScript and Python applications
   embed a reviewed package lock with `agentFromPackageLock(...)` and
   `agent_from_package_lock(...)`.
+- Package consumer quickstart and registry docs show the generated lockfile
+  consumer smoke-test files and commands that should ship with reviewed
+  package bundles.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -372,8 +375,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add reviewed package consumer smoke-test examples to
-   the package-consumer quickstart and release bundle docs.
+3. Coding workflow depth: add package-review output examples for generated
+   lockfile consumer smoke tests and publish-bundle failures.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

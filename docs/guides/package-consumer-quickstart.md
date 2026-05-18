@@ -26,6 +26,8 @@ review_diff.forma.ts
 review_diff_forma.py
 review_diff_contract/index.ts
 review_diff_contract/__init__.py
+review_diff_contract.test.ts
+review_diff_contract_test.py
 ```
 
 Verify the reviewed artifact set before embedding it:
@@ -33,6 +35,14 @@ Verify the reviewed artifact set before embedding it:
 ```bash
 forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
 forma package-review review_diff.forma.pkg.json
+```
+
+Generated packages include smoke tests for the lockfile-backed contract modules.
+Run them after the lock check and before application-specific tests:
+
+```bash
+npx vitest run review_diff_contract.test.ts
+python review_diff_contract_test.py
 ```
 
 TypeScript applications can bind the reviewed task through
@@ -122,4 +132,7 @@ forma package-review review_diff.forma.pkg.json --baseline baseline.json
 In application CI, keep one small TypeScript or Python smoke test around the
 lockfile helper. That test should import the package contract module or call
 `agentFromPackageLock(...)` / `agent_from_package_lock(...)` with the reviewed
-lockfile so drift is caught before runtime traffic reaches the agent.
+lockfile so drift is caught before runtime traffic reaches the agent. Packages
+created by `forma package-init` already include those tests as
+`review_diff_contract.test.ts` and `review_diff_contract_test.py`; keep them in
+the release bundle with the reviewed lockfile.

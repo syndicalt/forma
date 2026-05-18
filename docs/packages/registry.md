@@ -78,7 +78,10 @@ When a manifest includes a `tests` section, package review reports the test
 artifact count and requires those files in the publish bundle.
 Use `docs/guides/package-consumer-quickstart.md` when embedding a reviewed
 package lock in a TypeScript or Python application with `agentFromPackageLock`
-or `agent_from_package_lock`.
+or `agent_from_package_lock`. The generated release bundle includes
+`review_diff_contract.test.ts` and `review_diff_contract_test.py` style smoke
+tests so consumers can verify the lockfile-backed contract modules before
+running application code.
 
 ```json
 {
