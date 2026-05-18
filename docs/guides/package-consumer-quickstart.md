@@ -72,6 +72,10 @@ error handling around the stable contract boundary.
 Consumer retries should wrap reviewed contracts, not patch package artifacts.
 Keep retry policy in host providers, adapters, or application workflow code so
 the reviewed `.forma` source, generated bindings, tests, and lock stay intact.
+Fallback models belong in host adapters unless the reviewed package default changes.
+Add deployment fallback policy around the consumed contract; update the package
+profile only when every reviewed consumer should inherit the same model
+fallback.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
