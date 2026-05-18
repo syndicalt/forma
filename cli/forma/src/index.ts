@@ -181,6 +181,7 @@ const requiredPackageReleaseFiles = [
   ".github/workflows/forma-package.yml",
   ".github/workflows/forma-publish.yml",
 ];
+const packageEmbeddingGuidance = "docs/guides/package-consumer-quickstart.md#what-the-helper-calls";
 const packageTroubleshootingGuidance = "docs/guides/package-consumer-quickstart.md#troubleshooting";
 
 async function checkPackageManifest(path: string): Promise<CliResult> {
@@ -439,12 +440,14 @@ async function packageReadmeCheck(manifestPath: string, manifest: FormaPackageMa
   const readme = await readFile(resolve(manifestDir, readmePath), "utf8").catch(() => "");
   const commands = packageReadmeCommands(manifestPath, manifest, manifestDir);
   const missingCommands = commands.filter((command) => !readme.includes(command));
+  const missingGuidance = readme.includes(packageEmbeddingGuidance) ? [] : [packageEmbeddingGuidance];
   return {
     name: "readme",
-    passed: readme.length > 0 && missingCommands.length === 0,
+    passed: readme.length > 0 && missingCommands.length === 0 && missingGuidance.length === 0,
     total: commands.length,
     ...(readme.length === 0 ? { missingReadme: readmePath } : {}),
     ...(missingCommands.length > 0 ? { missingCommands } : {}),
+    ...(missingGuidance.length > 0 ? { missingGuidance } : {}),
   };
 }
 
@@ -1233,10 +1236,10 @@ profile, generated bindings, and host examples together so TypeScript and Python
 consumers review the same contract. See the Forma CLI docs Release Runtime Flow
 section at docs/packages/cli.md#release-runtime-flow for how provider profiles,
 eval summaries, package locks, and host embedding APIs fit together. See the
-package consumer quickstart at docs/guides/package-consumer-quickstart.md#what-the-helper-calls
+package consumer quickstart at ${packageEmbeddingGuidance}
 for where provider keys and model defaults live and what the generated
 \`agent(...)\` helpers call at runtime. See package consumer troubleshooting at
-docs/guides/package-consumer-quickstart.md#troubleshooting when lockfile checks,
+${packageTroubleshootingGuidance} when lockfile checks,
 provider profiles, or generated smoke tests fail.
 `;
 }

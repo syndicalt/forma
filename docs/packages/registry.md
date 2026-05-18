@@ -68,7 +68,10 @@ consuming a changed package. Generated package and publish workflows must keep
 their troubleshooting link to
 `docs/guides/package-consumer-quickstart.md#troubleshooting`; if either
 workflow drops that guidance, package review fails the corresponding
-`ci-workflow` or `publish-bundle` row with `missingGuidance`.
+`ci-workflow` or `publish-bundle` row with `missingGuidance`. Generated package
+READMEs must also keep their runtime embedding link to
+`docs/guides/package-consumer-quickstart.md#what-the-helper-calls`; if that
+link is removed, package review fails the `readme` row with `missingGuidance`.
 
 The scaffolded `.github/workflows/forma-publish.yml` automates the release
 artifact path for registry-style sharing. It runs `forma package-review`, writes
@@ -229,6 +232,8 @@ include them whenever the manifest has a `tests` section.
 The same review keeps generated workflow failure handling reviewable: if the
 package or publish workflow omits the troubleshooting link, the `ci-workflow`
 or `publish-bundle` row reports `missingGuidance`.
+If the README omits the runtime embedding guide link, the `readme` row reports
+`missingGuidance` too.
 
 The review output is JSON so CI can gate on it, but it is also useful as a
 human checklist before publishing or consuming a package. A passing package
@@ -293,6 +298,15 @@ source of truth when repairing those README or workflow entries.
 
 When generated workflow troubleshooting guidance is missing, the failing row
 names the exact guide link to restore:
+
+```json
+{
+  "name": "readme",
+  "passed": false,
+  "total": 8,
+  "missingGuidance": ["docs/guides/package-consumer-quickstart.md#what-the-helper-calls"]
+}
+```
 
 ```json
 {
@@ -406,7 +420,8 @@ Publishing checklist:
   `.github/workflows/forma-publish.yml`; missing paths fail the review.
 - Confirm the `readme` row passes; missing package-review, package-check, lock
   check, eval-suite, baseline review, or compare commands in `README.md` fail
-  the review.
+  the review. Missing runtime embedding guidance reports `missingGuidance` and
+  also fails the review.
 - Confirm the `ci-workflow` row passes; missing package-check, lock check,
   eval-suite, or package-review commands in `.github/workflows/forma-package.yml`
   fail the review. Missing troubleshooting guidance reports `missingGuidance`

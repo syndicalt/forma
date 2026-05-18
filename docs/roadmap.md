@@ -264,6 +264,8 @@ The current MVP provides:
   the generated `agent(...)` helpers call at runtime.
 - Generated package READMEs point consumers to the provider-key,
   model-selection, and helper-call flow in the package consumer quickstart.
+- Package review fails generated READMEs that omit the runtime embedding guide
+  link and reports `missingGuidance` in the README row.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -394,8 +396,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Runtime embedding clarity: add package-review README gates for the
-   provider-key, model-selection, and helper-call quickstart link.
+3. Runtime embedding clarity: add package-review output examples and generated
+   README pointers for explicit provider overrides in TypeScript and Python.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

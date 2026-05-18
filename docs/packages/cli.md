@@ -367,6 +367,18 @@ to add back:
 }
 ```
 
+Generated READMEs must also keep the runtime embedding guide link. If the README
+omits it, the `readme` row reports `missingGuidance`:
+
+```json
+{
+  "name": "readme",
+  "passed": false,
+  "total": 8,
+  "missingGuidance": ["docs/guides/package-consumer-quickstart.md#what-the-helper-calls"]
+}
+```
+
 Generated workflows must also keep their failure guidance link. If the package
 workflow omits it, the `ci-workflow` row reports `missingGuidance`:
 
