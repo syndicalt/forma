@@ -174,6 +174,7 @@ const requiredTerms = {
     "Lockfile consumption is for shared ownership, not local cleanup",
     "Package-lock smoke failures usually mean a stale reviewed artifact set",
     "Keep diagnostics with failed package-lock smoke runs",
+    "Preserve package-lock smoke evidence before retrying",
     "Package owners update reviewed locks",
     "Pin reviewed locks before adding app-specific retries or logging",
   ],

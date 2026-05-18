@@ -345,6 +345,10 @@ Keep diagnostics with failed package-lock smoke runs. Preserve the
 `project-check --json` row, smoke-test stdout, and failed TypeScript or Python
 command so reviewers can tell whether the stale piece is the host project,
 reviewed lock, generated contract tests, or CI workflow.
+Preserve package-lock smoke evidence before retrying the application CI job or
+wrapping the agent call in app-specific fallback logic. Retry only after the
+saved evidence shows an environmental failure; otherwise fix the reviewed
+artifact set or adopt a new reviewed package release first.
 
 If the `tests` row reports `missingProviderOverrideTests`, the package manifest
 still declares tests but no longer includes the generated TypeScript and Python
