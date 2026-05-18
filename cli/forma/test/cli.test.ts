@@ -1465,6 +1465,8 @@ describe("forma cli", () => {
     expect(readme).toContain("changes[].details");
     expect(readme).toContain("Forma package-review output");
     expect(readme).toContain("docs for JSON examples");
+    expect(readme).toContain("Release Runtime Flow");
+    expect(readme).toContain("docs/packages/cli.md#release-runtime-flow");
     expect(readme).not.toContain('"kind": "setting"');
     expect(readme).not.toContain('"kind": "contract"');
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");

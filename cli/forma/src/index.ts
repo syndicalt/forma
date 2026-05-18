@@ -1216,7 +1216,9 @@ docs for JSON examples.
 
 Commit the package manifest, lockfile, \`.forma\` source, eval suite, provider
 profile, generated bindings, and host examples together so TypeScript and Python
-consumers review the same contract.
+consumers review the same contract. See the Forma CLI docs Release Runtime Flow
+section at docs/packages/cli.md#release-runtime-flow for how provider profiles,
+eval summaries, package locks, and host embedding APIs fit together.
 `;
 }
 

@@ -233,6 +233,9 @@ The current MVP provides:
 - CLI package docs include the release runtime flow connecting provider
   profiles, eval-suite summaries, package locks, and TypeScript/Python host
   embedding APIs.
+- Scaffolded package READMEs point to the release runtime flow so generated
+  packages show where runtime embedding, provider profiles, eval summaries, and
+  package locks connect.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -363,8 +366,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: surface the release runtime flow from scaffolded
-   package READMEs so generated packages point users at the right docs path.
+3. Coding workflow depth: add a package-consumer quickstart that starts from a
+   reviewed lockfile and embeds the agent in TypeScript and Python.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
