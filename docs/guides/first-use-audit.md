@@ -65,6 +65,10 @@ Cleaned-up route labels should stay outside the usefulness decision. Decide
 whether Forma is worth keeping from the before/after host code, generated
 bindings, validation boundary, and smoke proof; treat route-label cleanup as
 deployment hygiene after that decision.
+Cleaned-up route labels should stay out of scaffold selection. Choose minimal,
+checked, or package-lock scaffolds from task ownership, CI needs, and named
+consumer requirements, not from whether provider route names have already been
+renamed or redacted.
 
 ## Steps
 
