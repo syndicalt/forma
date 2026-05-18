@@ -50,6 +50,7 @@ review task with a summary, typed finding objects, and a clean flag.
 Generate host bindings from the same contract with:
 
 ```bash
+forma outline examples/review_diff.forma
 forma generate examples/review_diff.forma --target typescript
 forma generate examples/review_diff.forma --target python
 forma generate examples/review_diff.forma --target python-pydantic

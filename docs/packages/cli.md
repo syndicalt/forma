@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]
+forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -21,6 +21,7 @@ because agent execution still requires a host-supplied provider at run time.
 ```bash
 corepack pnpm --filter @forma-lang/cli test
 forma check examples/greet_user.forma
+forma outline examples/review_diff.forma
 forma run examples/greet_user.forma --input '{"user_name":"Sam"}'
 ```
 
@@ -62,8 +63,18 @@ diagnostics, verification, and runtime trace entries such as `tool` and
 `tool_failed`, instead of only printing the task output object.
 
 Invalid usage exits with code 2 and prints `usage: forma
-<check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]`.
+<check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]`.
 These behaviors are covered by `cli/forma/test/cli.test.ts`.
+
+`forma outline` reads a `.forma` file and prints machine-readable task metadata
+for editor integrations, package review, and quick inspection:
+
+```bash
+forma outline examples/review_diff.forma
+```
+
+The output includes each task name, intent, execution mode, input and output
+fields, named schemas, declared permissions, and verify rules.
 
 `forma generate` reads a `.forma` file and prints host-language bindings:
 

@@ -396,6 +396,40 @@ describe("forma cli", () => {
     expect(result.stdout).toContain("export interface ReviewDiffFinding");
   });
 
+  it("prints a task outline for a Forma file", async () => {
+    const result = await runCli(["outline", "../../examples/review_diff.forma"]);
+    const outline = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 0, stdout: expect.any(String), stderr: "" });
+    expect(outline).toEqual({
+      tasks: [
+        {
+          name: "review_diff",
+          intent: "Review a code diff and produce structured review metadata",
+          mode: "agent",
+          input: {
+            diff: { type: "Text", array: false, optional: false },
+            max_findings: { type: "Number", array: false, optional: true },
+          },
+          output: {
+            summary: { type: "Text", array: false, optional: false },
+            findings: { type: "Finding", array: true, optional: false },
+            clean: { type: "Boolean", array: false, optional: false },
+          },
+          schemas: {
+            Finding: {
+              path: { type: "Text", array: false, optional: false },
+              line: { type: "Number", array: false, optional: true },
+              message: { type: "Text", array: false, optional: false },
+            },
+          },
+          permissions: ["read", "search", "test"],
+          verify: [],
+        },
+      ],
+    });
+  });
+
   it("generates Python bindings from a Forma file", async () => {
     const result = await runCli(["generate", "../../examples/review_diff.forma", "--target", "python"]);
 

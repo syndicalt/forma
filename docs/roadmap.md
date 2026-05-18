@@ -58,6 +58,8 @@ The current MVP provides:
 - Generated Python dataclasses are ordered for nested structured object
   references.
 - CLI binding generation for TypeScript and Python.
+- CLI task outline output for inspecting task names, modes, fields, schemas,
+  permissions, and verify rules.
 - CLI evaluation reports for shared conformance fixtures, including output,
   trace, verification, error checks, provider metadata, and timing.
 - CLI regression comparison across saved eval reports and eval report suites.

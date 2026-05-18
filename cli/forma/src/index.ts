@@ -28,7 +28,7 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock" && command !== "package-review")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "outline" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock" && command !== "package-review")) {
     return usage();
   }
 
@@ -65,6 +65,10 @@ export async function runCli(args: string[]): Promise<CliResult> {
 
     if (command === "generate") {
       return generateBindings(source, rest);
+    }
+
+    if (command === "outline") {
+      return outlineSource(source);
     }
 
     if (command === "check") {
@@ -109,7 +113,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|outline|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]\n" };
 }
 
 interface FormaPackageManifest {
@@ -1167,6 +1171,26 @@ async function generateBindings(source: string, args: string[]): Promise<CliResu
     return { exitCode: 0, stdout: "", stderr: "" };
   }
   return { exitCode: 0, stdout: generated, stderr: "" };
+}
+
+function outlineSource(source: string): CliResult {
+  const program = parseForma(source);
+  return {
+    exitCode: 0,
+    stdout: `${JSON.stringify({
+      tasks: program.tasks.map((task) => ({
+        name: task.name,
+        intent: task.intent,
+        mode: task.agentInstruction ? "agent" : "compute",
+        input: task.input,
+        output: task.output,
+        schemas: task.schemas,
+        permissions: task.permissions,
+        verify: task.verify,
+      })),
+    }, null, 2)}\n`,
+    stderr: "",
+  };
 }
 
 interface EvalReport {
