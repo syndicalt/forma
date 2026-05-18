@@ -420,6 +420,8 @@ The current MVP provides:
   summaries.
 - First-use audit now says fallback evidence belongs after local usefulness
   proof.
+- Testing guide now says fallback route labels should match diagnostics and
+  eval summaries.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -982,12 +984,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add testing-guide wording that fallback route labels should
-   match diagnostics and eval summaries.
-2. Product clarity: add provider-adapter wording that fallback route labels
+1. Product clarity: add provider-adapter wording that fallback route labels
    should not encode secrets.
-3. Product clarity: add runtime-result wording that fallback route labels should
+2. Product clarity: add runtime-result wording that fallback route labels should
    be logged with failed validation results.
+3. Product clarity: add package-consumer troubleshooting wording that fallback
+   route labels should be preserved across retries.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
