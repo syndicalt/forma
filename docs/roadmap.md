@@ -338,6 +338,8 @@ The current MVP provides:
   `.forma` is the source format.
 - Why-Forma now says the reusable package is the adoption unit, not the prompt
   file by itself.
+- Documentation index now tells readers to evaluate Forma as a reusable agent
+  package workflow before adopting package locks.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -869,12 +871,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add docs index wording that Forma should be evaluated as a
-   reusable agent package workflow before adopting package locks.
-2. Product clarity: add quickstart wording that package locks are evidence for
+1. Product clarity: add quickstart wording that package locks are evidence for
    reusable package adoption, not proof that every local task belongs in Forma.
-3. Product clarity: add package-consumer wording that application teams should
+2. Product clarity: add package-consumer wording that application teams should
    consume reviewed releases instead of copying package internals.
+3. Product clarity: add CLI docs wording that package-init is for reusable task
+   packages, not local prompt extraction.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
