@@ -69,6 +69,9 @@ reports `missingMigrationParityProofCommand`, restore the reported
 `package-review --proof-command` command to README and CI so release review
 continues to run the before/after proof.
 `proof:release` expands to `node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration && corepack pnpm projects:check"`.
+For release-proof failures, use `docs/guides/product-proof.md#verification` to
+separate migration parity drift from checked clean-project drift, and
+`docs/packages/cli.md#package-review-output` to read the `proof-command` row.
 
 If `forma run` fails on an agent task without a provider, that is expected for
 the default CLI path. Agent tasks require an explicit host-provided provider.
