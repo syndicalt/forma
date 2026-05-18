@@ -2675,6 +2675,7 @@ function scaffoldProjectReadme(projectName: string, taskName: string, profile: P
 
 This project is a minimal Forma host project for deciding whether a durable
 agent task contract is better than an inline prompt plus local schemas.
+Treat this scaffold as a product test, not an adoption commitment.
 
 ## Five-Minute Usefulness Path
 

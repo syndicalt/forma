@@ -2461,6 +2461,7 @@ describe("forma cli", () => {
     const readme = await readFile(join(dir, "README.md"), "utf8");
     expect(readme).toContain("Five-Minute Usefulness Path");
     expect(readme).toContain("smallest useful Forma boundary");
+    expect(readme).toContain("product test, not an adoption commitment");
     expect(readme).toContain("Do not move to reviewed packages");
     expect(readme).toContain("inline prompt plus local schemas");
     expect(readme).toContain("before package-review or package locks");

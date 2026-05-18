@@ -235,6 +235,9 @@ The current MVP provides:
 - Provider-adapter docs now state that operational keys, model choice, routing,
   and retries live in host code, keeping deployment policy separate from the
   reviewed task contract.
+- Generated minimal-project READMEs now call the scaffold a product test, not
+  an adoption commitment, before users graduate into checked or package-lock
+  scaffolds.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -766,12 +769,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add generated minimal-project README wording that names the
-   same product-test decision before adopting checked scaffolds.
-2. Product clarity: add docs index routing that sends skeptical users directly
+1. Product clarity: add docs index routing that sends skeptical users directly
    to the first-use audit and migration parity proof before package review.
-3. Product clarity: add runtime-result docs wording that explains validation
+2. Product clarity: add runtime-result docs wording that explains validation
    failures as the guard between model output and host code.
+3. Product clarity: add generated checked-project README wording that tells
+   users to keep checked CI only when it guards real application dependencies.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
