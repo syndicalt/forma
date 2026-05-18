@@ -31,9 +31,10 @@ Run these checks before publishing or consuming a changed package:
 forma package-review review_diff.forma.pkg.json
 forma package-check review_diff.forma.pkg.json
 forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
-npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts
+npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts
 python review_diff_decision_test.py
 python tool_permission_workflow_test.py
+python review_diff_contract_test.py
 forma eval-suite forma.eval.json --summary > candidate.json
 forma package-review review_diff.forma.pkg.json --baseline baseline.json
 forma compare baseline.json candidate.json --fail-on breaking,environment

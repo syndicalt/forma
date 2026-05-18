@@ -693,15 +693,16 @@ describe("forma cli", () => {
         expect.objectContaining({
           name: "tests",
           passed: true,
-          total: 4,
+          total: 6,
           runtimes: ["typescript", "python"],
           commands: [
-            "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts",
+            "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts",
             "python review_diff_decision_test.py",
             "python tool_permission_workflow_test.py",
+            "python review_diff_contract_test.py",
           ],
         }),
-        expect.objectContaining({ name: "publish-bundle", passed: true, total: 29 }),
+        expect.objectContaining({ name: "publish-bundle", passed: true, total: 31 }),
       ]),
     });
   });
@@ -1549,7 +1550,9 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("provider_profile_from_file");
     expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("provider_from_profile(provider_profile)");
     expect(await readFile(join(dir, "review_diff_contract", "index.ts"), "utf8")).toContain("agentFromPackageLock");
+    expect(await readFile(join(dir, "review_diff_contract", "index.ts"), "utf8")).toContain("provider?: ModelProvider");
     expect(await readFile(join(dir, "review_diff_contract", "__init__.py"), "utf8")).toContain("agent_from_package_lock");
+    expect(await readFile(join(dir, "review_diff_contract", "__init__.py"), "utf8")).toContain("provider=None");
     expect(manifest.examples).toEqual(expect.arrayContaining([
       { runtime: "typescript", path: "review_diff_contract/index.ts" },
       { runtime: "python", path: "review_diff_contract/__init__.py" },
@@ -1559,8 +1562,12 @@ describe("forma cli", () => {
       { runtime: "python", path: "review_diff_contract_test.py" },
     ]));
     expect(await readFile(join(dir, "review_diff_contract.test.ts"), "utf8")).toContain("reviewDiffAgent");
+    expect(await readFile(join(dir, "review_diff_contract.test.ts"), "utf8")).toContain("StaticProvider");
+    expect(await readFile(join(dir, "review_diff_contract.test.ts"), "utf8")).toContain("provider override");
     expect(await readFile(join(dir, "review_diff_contract.test.ts"), "utf8")).toContain("review_diff_contract/index.js");
     expect(await readFile(join(dir, "review_diff_contract_test.py"), "utf8")).toContain("review_diff_agent");
+    expect(await readFile(join(dir, "review_diff_contract_test.py"), "utf8")).toContain("StaticProvider");
+    expect(await readFile(join(dir, "review_diff_contract_test.py"), "utf8")).toContain("provider_override");
     expect(await readFile(join(dir, "review_diff_contract_test.py"), "utf8")).toContain("review_diff_contract");
     const readme = await readFile(join(dir, "README.md"), "utf8");
     expect(readme).toContain("forma package-review review_diff.forma.pkg.json");

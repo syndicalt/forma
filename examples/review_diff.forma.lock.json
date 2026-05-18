@@ -4,7 +4,7 @@
     "name": "examples/review-diff",
     "version": "0.1.0",
     "manifest": "review_diff.forma.pkg.json",
-    "manifestSha256": "42fcf78d4ef7f1fc3f4452ce15a9f86a278a7287a6dcc53c458c0b1968735d04"
+    "manifestSha256": "943b91b0eca3ae30abb989c765c2c2cad9da5ea5a483eaf9db8ccad6254b543b"
   },
   "tasks": [
     {
@@ -95,12 +95,12 @@
     {
       "runtime": "typescript",
       "path": "review_diff_contract/index.ts",
-      "sha256": "4f708689cf10aa5a08dd4473263c113b12f4cc4f379beed12e4dfc90ddfd0b66"
+      "sha256": "bb4391e98ee5319e68901f78dc246cca3bb0f1f25efc6e808cee7c61966412fe"
     },
     {
       "runtime": "python",
       "path": "review_diff_contract/__init__.py",
-      "sha256": "f6200fca5b1b96f7e89129735f306748311541cba702987a961df689daed8473"
+      "sha256": "fc2a56fff17c48c0f26d6ae3bb8260d8668334968395593878a1b7115bf6e396"
     }
   ],
   "tests": [
@@ -123,20 +123,30 @@
       "runtime": "python",
       "path": "tool_permission_workflow_test.py",
       "sha256": "4abd3e9b0fd6b6b5ec86bafd4858fdd3a631cd8250ba0a77f450a6c10bf6dcae"
+    },
+    {
+      "runtime": "typescript",
+      "path": "review_diff_contract.test.ts",
+      "sha256": "d3acaa6dd652877d98d33b1477bd2c430bbe368d5559511745fc81aa750f41a7"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_contract_test.py",
+      "sha256": "7cefed1df5dbe91228b51902913e6d7911b6aaa59bae2e8ab04773248d6131f2"
     }
   ],
   "releaseFiles": [
     {
       "path": "README.md",
-      "sha256": "cadccf79e36d5dd307e1667193b908f43991b27a8843718da60aef42c3e9b5b0"
+      "sha256": "3811aaef4f5ba98ebfeae9e2a1508cfd3d070a198ca5283c11fbc903d76b7b7e"
     },
     {
       "path": ".github/workflows/forma-package.yml",
-      "sha256": "f33ad1dd836643bd9e1f6c3f44bc76ccf9ac419b08a2937df1df60ad53f353ad"
+      "sha256": "84d7cf72f0db0d7f55c8e826e57c35c25891293e3b2e14dca159a020d4118e5a"
     },
     {
       "path": ".github/workflows/forma-publish.yml",
-      "sha256": "efd28d54336b418e90641fdcf1557745618e2afc70c244f9ec5f76832515cfdf"
+      "sha256": "093fa4b61c833d622f0fabc536728bd0b64c1ca12df14a204cd6f1b470c48ef9"
     }
   ]
 }

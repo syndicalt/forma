@@ -90,6 +90,14 @@
     {
       "runtime": "python",
       "path": "tool_permission_workflow_test.py"
+    },
+    {
+      "runtime": "typescript",
+      "path": "review_diff_contract.test.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_contract_test.py"
     }
   ],
   "releaseFiles": [

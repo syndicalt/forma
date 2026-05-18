@@ -271,6 +271,9 @@ The current MVP provides:
   routing, model choice, and test doubles.
 - Package review fails generated READMEs that omit explicit-provider override
   guidance and reports `missingGuidance` in the README row.
+- Generated lockfile consumer smoke tests pass explicit provider overrides in
+  TypeScript and Python, and the checked review-diff package includes matching
+  smoke tests in its manifest, README, CI workflow, and package lock.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -401,8 +404,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Runtime embedding clarity: add lockfile consumer smoke tests that pass
-   explicit provider overrides in TypeScript and Python.
+3. Runtime embedding clarity: add package-review gates that fail package tests
+   which omit explicit provider override smoke coverage.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

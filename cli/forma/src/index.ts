@@ -607,8 +607,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, typeScriptContract), scaffoldTypeScriptContractModule(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonContract), scaffoldPythonContractModule(taskName, kind, schema), "utf8");
   const providerProfile = scaffoldProviderProfile(args);
-  await writeFile(resolve(path, typeScriptContractTest), scaffoldTypeScriptContractTest(taskName, providerProfile.apiKeyEnv), "utf8");
-  await writeFile(resolve(path, pythonContractTest), scaffoldPythonContractTest(taskName, providerProfile.apiKeyEnv), "utf8");
+  await writeFile(resolve(path, typeScriptContractTest), scaffoldTypeScriptContractTest(taskName, kind, providerProfile.apiKeyEnv, schema), "utf8");
+  await writeFile(resolve(path, pythonContractTest), scaffoldPythonContractTest(taskName, kind, providerProfile.apiKeyEnv, schema), "utf8");
   await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(providerProfile, null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind, schema), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
@@ -1510,21 +1510,22 @@ function scaffoldTypeScriptContractModule(taskName: string, kind: ScaffoldKind, 
     scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
   ])), "");
   return `import { fileURLToPath } from "node:url";
-import { agentFromPackageLock } from "@forma-lang/forma";
+import { agentFromPackageLock, type ModelProvider } from "@forma-lang/forma";
 import { assert${pascalName}Output, type ${inputType}, type ${pascalName}Output } from "../${taskName}.forma.js";
 
 const lockFile = fileURLToPath(new URL("../${taskName}.forma.lock.json", import.meta.url));
 const exampleInput: ${inputType} = ${exampleInput};
 
-export function ${toCamelCase(taskName)}Agent() {
+export function ${toCamelCase(taskName)}Agent(provider?: ModelProvider) {
   return agentFromPackageLock({
     lockFile,
     task: "${taskName}",
+    ...(provider ? { provider } : {}),
   });
 }
 
-export async function run${pascalName}(input: ${inputType} = exampleInput): Promise<${pascalName}Output> {
-  const result = await ${toCamelCase(taskName)}Agent().run({ ...input });
+export async function run${pascalName}(input: ${inputType} = exampleInput, provider?: ModelProvider): Promise<${pascalName}Output> {
+  const result = await ${toCamelCase(taskName)}Agent(provider).run({ ...input });
   if (!result.ok) {
     throw new Error(result.error ?? "Forma ${taskName} failed");
   }
@@ -1536,11 +1537,19 @@ export { assert${pascalName}Output } from "../${taskName}.forma.js";
 `;
 }
 
-function scaffoldTypeScriptContractTest(taskName: string, apiKeyEnv?: string): string {
+function scaffoldTypeScriptContractTest(taskName: string, kind: ScaffoldKind, apiKeyEnv?: string, schema?: ScaffoldSchema): string {
+  const pascalName = toPascalCase(taskName);
   const camelName = toCamelCase(taskName);
   const envName = apiKeyEnv ?? "OPENAI_API_KEY";
+  const providerOutput = renderTypeScriptObject(Object.fromEntries(effectiveOutputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "");
   return `import { expect, it } from "vitest";
-import { ${camelName}Agent } from "./${taskName}_contract/index.js";
+import { StaticProvider } from "@forma-lang/forma";
+import { ${camelName}Agent, run${pascalName} } from "./${taskName}_contract/index.js";
+
+const providerOutput = ${providerOutput};
 
 it("loads the reviewed package lock agent", () => {
   const previousKey = process.env["${envName}"];
@@ -1554,6 +1563,11 @@ it("loads the reviewed package lock agent", () => {
       process.env["${envName}"] = previousKey;
     }
   }
+});
+
+it("runs the reviewed package lock agent with an explicit provider override", async () => {
+  const output = await run${pascalName}(undefined, new StaticProvider(providerOutput));
+  expect(output).toBeDefined();
 });
 `;
 }
@@ -1774,12 +1788,12 @@ _LOCK_FILE = Path(__file__).resolve().parent.parent / "${taskName}.forma.lock.js
 example_input = ${inputType}.from_dict(${exampleInput})
 
 
-def ${taskName}_agent():
-    return agent_from_package_lock(lock_file=_LOCK_FILE, task="${taskName}")
+def ${taskName}_agent(provider=None):
+    return agent_from_package_lock(lock_file=_LOCK_FILE, task="${taskName}", provider=provider)
 
 
-def run_${taskName}(input: ${inputType} = example_input) -> ${pascalName}Output:
-    result = ${taskName}_agent().run(asdict(input))
+def run_${taskName}(input: ${inputType} = example_input, provider=None) -> ${pascalName}Output:
+    result = ${taskName}_agent(provider=provider).run(asdict(input))
     if not result.ok:
         raise RuntimeError(result.error or "Forma ${taskName} failed")
     return assert_${taskName}_output(result.output)
@@ -1795,11 +1809,19 @@ __all__ = [
 `;
 }
 
-function scaffoldPythonContractTest(taskName: string, apiKeyEnv?: string): string {
+function scaffoldPythonContractTest(taskName: string, kind: ScaffoldKind, apiKeyEnv?: string, schema?: ScaffoldSchema): string {
   const envName = apiKeyEnv ?? "OPENAI_API_KEY";
+  const providerOutput = renderPythonObject(Object.fromEntries(effectiveOutputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "");
   return `import os
 
-from ${taskName}_contract import ${taskName}_agent
+from forma import StaticProvider
+from ${taskName}_contract import run_${taskName}, ${taskName}_agent
+
+
+provider_output = ${providerOutput}
 
 
 def test_loads_reviewed_package_lock_agent():
@@ -1814,8 +1836,14 @@ def test_loads_reviewed_package_lock_agent():
             os.environ["${envName}"] = previous_key
 
 
+def test_runs_reviewed_package_lock_agent_with_explicit_provider_override():
+    output = run_${taskName}(provider=StaticProvider(provider_output))
+    assert output is not None
+
+
 if __name__ == "__main__":
     test_loads_reviewed_package_lock_agent()
+    test_runs_reviewed_package_lock_agent_with_explicit_provider_override()
 `;
 }
 
@@ -2061,6 +2089,9 @@ function renderPythonValue(value: FormaValue, indent: string): string {
   if (value && typeof value === "object") {
     return renderPythonObject(value as Record<string, FormaValue>, indent);
   }
+  if (value === true) return "True";
+  if (value === false) return "False";
+  if (value === null) return "None";
   return JSON.stringify(value);
 }
 
