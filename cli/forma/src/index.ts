@@ -2434,6 +2434,12 @@ forma run ${taskName}.forma --task ${taskName} --input '{"diff":"diff --git a/sr
 \`.github/workflows/forma-project.yml\` runs \`forma project-check .\`, the
 TypeScript compiler, Python bytecode compilation, and both generated
 \`StaticProvider\` smoke tests.
+
+Use the JSON output in CI when you need machine-readable check rows:
+
+\`\`\`bash
+forma project-check . --json
+\`\`\`
 `;
 }
 

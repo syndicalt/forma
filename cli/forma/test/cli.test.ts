@@ -2219,6 +2219,8 @@ describe("forma cli", () => {
     const readme = await readFile(join(dir, "README.md"), "utf8");
     expect(readme).toContain("export REVIEW_MODEL_KEY=");
     expect(readme).toContain("forma project-check .");
+    expect(readme).toContain("forma project-check . --json");
+    expect(readme).toContain("Use the JSON output in CI when you need machine-readable check rows");
     expect(readme).toContain("pnpm run smoke:ts");
     expect(readme).toContain("python test/review_diff_agent_smoke.py");
     expect(readme).toContain("forma run review_diff.forma --task review_diff");
