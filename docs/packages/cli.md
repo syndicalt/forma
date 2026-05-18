@@ -194,6 +194,19 @@ For example, the `tests` row includes:
 }
 ```
 
+If a package declares tests but the README or CI workflow omits one of those
+commands, the failing row reports a `missingCommands` array with the exact text
+to add back:
+
+```json
+{
+  "name": "ci-workflow",
+  "passed": false,
+  "total": 6,
+  "missingCommands": ["npx vitest run tool_assisted_repair_plan.test.ts"]
+}
+```
+
 `forma package-init` scaffolds a starter package directory with a `.forma` task,
 eval fixture, eval suite, package manifest, package lockfile, generated
 TypeScript/Python bindings, host examples, importable contract modules, and a

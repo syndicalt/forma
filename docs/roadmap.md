@@ -218,6 +218,8 @@ The current MVP provides:
   `tests` row so consumers can copy the verified test plan.
 - Package docs include representative `package-review` JSON output so users can
   see the reviewed artifact checklist before running the CLI.
+- Package docs include package-review failure examples for missing README and
+  CI test commands, and CLI tests cover those `missingCommands` diagnostics.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -348,8 +350,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add package-review failure examples for missing test
-   commands so users can fix broken package CI quickly.
+3. Coding workflow depth: add docs and examples for package-review baseline
+   failures so users can interpret release regression gates.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

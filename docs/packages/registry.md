@@ -254,6 +254,30 @@ artifact boundaries a consumer will depend on: lockfile verification,
 secret-free provider configuration, generated bindings, host examples, pinned
 tests, release documentation, CI, publish bundle contents, and eval coverage.
 
+When package test commands are missing from README or CI, the failing row points
+at the exact command that needs to be restored:
+
+```json
+{
+  "name": "readme",
+  "passed": false,
+  "total": 8,
+  "missingCommands": ["python tool_assisted_repair_plan_test.py"]
+}
+```
+
+```json
+{
+  "name": "ci-workflow",
+  "passed": false,
+  "total": 6,
+  "missingCommands": ["npx vitest run tool_assisted_repair_plan.test.ts"]
+}
+```
+
+Use the `tests.commands` row from the same `package-review` output as the
+source of truth when repairing those README or workflow entries.
+
 ## Review
 
 Before publishing a package version, run the eval suite and compare it with the

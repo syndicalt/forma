@@ -103,6 +103,9 @@ references every reviewed artifact path before building the release bundle.
 Provider profile review fails if the profile embeds an `apiKey`; agent task
 packages should include a provider profile that uses `apiKeyEnv`, and OpenAI
 profiles fail review when that key environment variable is missing.
+When README or CI package test commands drift, the failing `readme` or
+`ci-workflow` row reports `missingCommands` with the exact command text to
+restore.
 `examples:check` should finish without output. A live provider run requires
 `OPENAI_API_KEY`; without it, the failure is expected and confirms that
 credentials stay in host configuration instead of the `.forma` contract.

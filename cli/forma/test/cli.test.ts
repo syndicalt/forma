@@ -1221,6 +1221,29 @@ describe("forma cli", () => {
     });
   });
 
+  it("reports missing README package test commands", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-readme-tests-"));
+    const manifestPath = join(dir, "tool_assisted_repair.forma.pkg.json");
+    const lockPath = join(dir, "tool_assisted_repair.forma.lock.json");
+    const readmePath = join(dir, "README.md");
+    await runCli(["package-init", dir, "--name", "acme/tool-repair", "--task", "tool_assisted_repair", "--kind", "tool"]);
+    const readme = await readFile(readmePath, "utf8");
+    await writeFile(readmePath, readme.replace("python tool_assisted_repair_plan_test.py", "echo run python package tests later"));
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "readme",
+      passed: false,
+      total: 8,
+      missingCommands: ["python tool_assisted_repair_plan_test.py"],
+    });
+  });
+
   it("fails package review when the CI workflow omits required package checks", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-ci-workflow-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");
@@ -1241,6 +1264,29 @@ describe("forma cli", () => {
       passed: false,
       total: 4,
       missingCommands: ["forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check"],
+    });
+  });
+
+  it("reports missing CI package test commands", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-ci-test-commands-"));
+    const manifestPath = join(dir, "tool_assisted_repair.forma.pkg.json");
+    const lockPath = join(dir, "tool_assisted_repair.forma.lock.json");
+    const workflowPath = join(dir, ".github", "workflows", "forma-package.yml");
+    await runCli(["package-init", dir, "--name", "acme/tool-repair", "--task", "tool_assisted_repair", "--kind", "tool"]);
+    const workflow = await readFile(workflowPath, "utf8");
+    await writeFile(workflowPath, workflow.replace("npx vitest run tool_assisted_repair_plan.test.ts", "echo run ts package tests later"));
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "ci-workflow",
+      passed: false,
+      total: 6,
+      missingCommands: ["npx vitest run tool_assisted_repair_plan.test.ts"],
     });
   });
 
