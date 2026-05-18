@@ -9,6 +9,11 @@ deployment.
 
 ## Start Here
 
+If you are skeptical, start with `docs/guides/first-use-audit.md` and
+`docs/guides/product-proof.md#migration-parity` before package review. Those
+paths compare Forma against inline prompt plus local schemas and show the
+before/after proof without asking you to adopt package locks first.
+
 Start with the product proof when you want to see the current coding-agent
 contract value end to end from a clean checkout:
 
