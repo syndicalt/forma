@@ -70,6 +70,13 @@ Python virtual environment, and runs the generated TypeScript and Python
 changes could break a project that installs Forma by package name instead of
 using repo path aliases.
 
+Use this installed-project smoke CI step when a workflow needs focused package
+install coverage without running the full release proof:
+
+```yaml
+- run: corepack pnpm projects:installed-smoke
+```
+
 Run the focused migration proof when changing the inline-to-Forma review
 workflow, package review gates, or product proof docs:
 

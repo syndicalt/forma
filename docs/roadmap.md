@@ -500,6 +500,8 @@ The current MVP provides:
 - Testing docs explain that `projects:installed-smoke` verifies clean generated
   projects against installed `@forma-lang/forma` and `forma-lang` packages
   instead of only repo path aliases.
+- Testing docs include an optional installed-project smoke CI step for workflows
+  that need focused package-install coverage without the full release proof.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -627,10 +629,10 @@ The next three implementation slices should be:
 
 1. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-2. Clean-project onboarding: add an optional CI workflow example for
-   `projects:installed-smoke` once the project gate runtime remains stable.
-3. Product clarity: add docs-check coverage that keeps installed-project smoke
-   guidance tied to package-install checks and path-alias checks.
+2. Product clarity: add docs-check coverage that keeps the optional
+   installed-project smoke CI step visible in the verification guide.
+3. Registry and versioning: add installed-package smoke tests once release
+   packaging is available.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
