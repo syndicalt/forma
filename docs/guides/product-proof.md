@@ -165,6 +165,9 @@ Route-label cleanup must keep baseline and candidate artifacts comparable. When
 renaming or redacting a route label, update the paired baseline and candidate
 summaries together so reviewers can compare the same provider path before and
 after cleanup.
+Route-label cleanup should be reviewed with eval summaries, not alone. Treat a
+cleaner label as evidence hygiene; accept the change only beside the baseline
+and candidate eval summaries that prove task behavior stayed comparable.
 Fallback baselines should identify the model route under review. Include the
 provider, model, endpoint or route label, and fallback policy in baseline and
 candidate eval summaries so reviewers know which deployment path changed.
