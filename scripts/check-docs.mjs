@@ -320,6 +320,7 @@ function validateInstalledPackageSmokeScript() {
   for (const requiredTerm of [
     "installedPackageSmokes",
     "packageKind",
+    "reviewed package-lock project consumer",
     "examples/function_repair",
     "repair_function.forma.pkg.json",
     "repair_function.forma.lock.json",

@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { execFile } from "node:child_process";
@@ -44,18 +44,29 @@ async function createBundle({ sourceDir, files, bundlePath }) {
 }
 
 async function installTypeScriptConsumer(packageDir, runtimeTarball) {
-  await writeFile(join(packageDir, "package.json"), `${JSON.stringify({
+  const packageJsonPath = join(packageDir, "package.json");
+  let packageJson = {
     private: true,
     type: "module",
-    dependencies: {
-      "@forma-lang/forma": `file:${runtimeTarball}`,
-    },
-    devDependencies: {
-      "@types/node": "^22.15.18",
-      typescript: "^5.8.3",
-      vitest: "^3.2.4",
-    },
-  }, null, 2)}\n`, "utf8");
+  };
+  try {
+    packageJson = JSON.parse(await readFile(packageJsonPath, "utf8"));
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      throw error;
+    }
+  }
+  packageJson.dependencies = {
+    ...packageJson.dependencies,
+    "@forma-lang/forma": `file:${runtimeTarball}`,
+  };
+  packageJson.devDependencies = {
+    ...packageJson.devDependencies,
+    "@types/node": packageJson.devDependencies?.["@types/node"] ?? "^22.15.18",
+    typescript: packageJson.devDependencies?.typescript ?? "^5.8.3",
+    vitest: packageJson.devDependencies?.vitest ?? "^3.2.4",
+  };
+  await writeFile(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, "utf8");
 
   await run("corepack", ["pnpm", "install", "--config.dangerously-allow-all-builds=true"], { cwd: packageDir });
 }
@@ -134,6 +145,48 @@ const installedPackageSmokes = [
     prepare: prepareFunctionRepairSmoke,
     typeScriptCommand: ["corepack", ["pnpm", "exec", "vitest", "run", "repair_function_installed.test.ts"]],
     pythonCommand: ["repair_function_installed_smoke.py"],
+  },
+  {
+    packageKind: "reviewed package-lock project consumer",
+    packageDir: "review-diff-lock-project-package",
+    bundleName: "review_diff.lock-project-package.tgz",
+    sourceDir: "examples",
+    files: [
+      "review_diff.forma.pkg.json",
+      "review_diff.forma.lock.json",
+      "review_diff.forma",
+      "forma.eval.json",
+      "forma.provider.json",
+      "review_diff.forma.ts",
+      "review_diff_forma.py",
+      "review_diff_package.ts",
+      "review_diff_package.py",
+      "tool_permission_workflow.ts",
+      "tool_permission_workflow.py",
+      "tool_permission_plan.ts",
+      "tool_permission_plan.py",
+      "review_diff_lock_consumer.ts",
+      "review_diff_lock_consumer.py",
+      "review_diff_decision.ts",
+      "review_diff_decision.py",
+      "review_diff_inline.ts",
+      "review_diff_inline.py",
+      "review_diff_contract",
+      "review_diff_decision.test.ts",
+      "review_diff_decision_test.py",
+      "tool_permission_workflow.test.ts",
+      "tool_permission_workflow_test.py",
+      "review_diff_contract.test.ts",
+      "review_diff_contract_test.py",
+      "review_diff_migration.test.ts",
+      "review_diff_migration_test.py",
+      "README.md",
+      ".github/workflows/forma-package.yml",
+      ".github/workflows/forma-publish.yml",
+    ],
+    prepare: preparePackageLockProjectSmoke,
+    typeScriptCommand: ["corepack", ["pnpm", "run", "smoke:lock:ts"]],
+    pythonCommand: ["test/review_diff_package_lock_smoke.py"],
   },
 ];
 
@@ -249,6 +302,22 @@ assert "return total - discount" in files["src/billing.py"]
 `, "utf8");
 }
 
+async function preparePackageLockProjectSmoke(packageDir) {
+  const projectDir = join(packageDir, "review-diff-lock-project");
+  await run("node", [
+    resolve(repoRoot, "cli/forma/dist/index.js"),
+    "project-init",
+    projectDir,
+    "--name",
+    "review-diff-lock-project",
+    "--task",
+    "review_diff",
+    "--package-lock",
+    join(packageDir, "review_diff.forma.lock.json"),
+  ]);
+  return { consumerDir: projectDir };
+}
+
 async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
   process.stdout.write(`installed package smoke: ${smoke.packageKind}\n`);
   const packageDir = join(workDir, smoke.packageDir);
@@ -261,20 +330,24 @@ async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
   });
   await run("tar", ["-xzf", bundlePath, "-C", packageDir]);
 
+  let consumerDir = packageDir;
   if (smoke.prepare) {
-    await smoke.prepare(packageDir);
+    const prepared = await smoke.prepare(packageDir);
+    if (prepared?.consumerDir) {
+      consumerDir = prepared.consumerDir;
+    }
   }
 
   const [typeScriptCommand, typeScriptArgs] = smoke.typeScriptCommand;
-  await installTypeScriptConsumer(packageDir, runtimeTarball);
-  await run(typeScriptCommand, typeScriptArgs, { cwd: packageDir });
+  await installTypeScriptConsumer(consumerDir, runtimeTarball);
+  await run(typeScriptCommand, typeScriptArgs, { cwd: consumerDir });
 
-  const venvPython = await installPythonConsumer(packageDir);
+  const venvPython = await installPythonConsumer(consumerDir);
   await run(venvPython, smoke.pythonCommand, {
-    cwd: packageDir,
+    cwd: consumerDir,
     env: {
       ...process.env,
-      PYTHONPATH: packageDir,
+      PYTHONPATH: consumerDir,
     },
   });
   process.stdout.write(`installed package smoke ok: ${smoke.packageKind}\n`);
@@ -287,6 +360,7 @@ async function main() {
     await mkdir(tarballDir, { recursive: true });
 
     await run("corepack", ["pnpm", "--filter", "@forma-lang/forma", "build"]);
+    await run("corepack", ["pnpm", "--filter", "@forma-lang/cli", "build"]);
     const runtimeTarball = await npmPackTypeScriptRuntime(tarballDir);
 
     for (const smoke of installedPackageSmokes) {
