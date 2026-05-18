@@ -135,7 +135,7 @@ const requiredTerms = {
     "docs/guides/quickstart.md#reviewed-package-lock-projects",
     "docs/guides/product-proof.md#verification",
   ],
-  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "projects:installed-smoke", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "package-install checks", "path-alias checks", "installed-project smoke CI step", "installed-package smoke CI step", "@forma-lang/forma", "forma-lang", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "review_diff_migration.test.ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "forma-project.yml", "missingCommands"],
+  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "projects:installed-smoke", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "package-install checks", "path-alias checks", "installed-project smoke CI step", "installed-package smoke CI step", "@forma-lang/forma", "forma-lang", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "review_diff_migration.test.ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "forma-project.yml", "missingCommands", "packageKind"],
   "docs/guides/migrating-from-inline-prompts.md": [
     "inline prompt",
     ".forma",
@@ -318,6 +318,7 @@ function validateInstalledPackageSmokeScript() {
   const script = readFileSync("scripts/installed-package-smoke.mjs", "utf8");
   for (const requiredTerm of [
     "installedPackageSmokes",
+    "packageKind",
     "examples/function_repair",
     "repair_function.forma.pkg.json",
     "repair_function.forma.lock.json",

@@ -122,7 +122,9 @@ tools through installed runtimes. Use it when changes affect release bundle
 contents, package locks, tool permissions, or `agentFromPackageLock` /
 `agent_from_package_lock` consumers. The script keeps package kinds in an
 `installedPackageSmokes` matrix so new release-bundle shapes share the same
-install, venv, and smoke runner.
+install, venv, and smoke runner. Each matrix entry has a `packageKind` label
+printed before and after the smoke run so release proof logs identify the exact
+bundle that failed.
 
 Use this installed-package smoke CI step when a workflow needs focused
 release-bundle coverage without running the full release proof:

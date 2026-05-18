@@ -71,6 +71,7 @@ async function installPythonConsumer(packageDir) {
 
 const installedPackageSmokes = [
   {
+    packageKind: "review-diff package-lock consumer",
     packageDir: "review-diff-package",
     bundleName: "review_diff.forma-package.tgz",
     sourceDir: "examples",
@@ -111,6 +112,7 @@ const installedPackageSmokes = [
     pythonCommand: ["review_diff_contract_test.py"],
   },
   {
+    packageKind: "function-repair tool package",
     packageDir: "function-repair-package",
     bundleName: "repair_function.forma-package.tgz",
     sourceDir: "examples/function_repair",
@@ -248,6 +250,7 @@ assert "return total - discount" in files["src/billing.py"]
 }
 
 async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
+  process.stdout.write(`installed package smoke: ${smoke.packageKind}\n`);
   const packageDir = join(workDir, smoke.packageDir);
   const bundlePath = join(workDir, smoke.bundleName);
   await mkdir(packageDir, { recursive: true });
@@ -274,6 +277,7 @@ async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
       PYTHONPATH: packageDir,
     },
   });
+  process.stdout.write(`installed package smoke ok: ${smoke.packageKind}\n`);
 }
 
 async function main() {

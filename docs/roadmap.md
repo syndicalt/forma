@@ -513,6 +513,9 @@ The current MVP provides:
 - The installed-package smoke script now uses an `installedPackageSmokes` matrix
   so additional package kinds share bundle extraction, package install, Python
   venv setup, and smoke execution.
+- Each installed-package smoke matrix row reports a `packageKind` label before
+  and after it runs, so release-proof logs point to the exact package bundle
+  under test.
 - `proof:release` now runs `packages:installed-smoke` after migration and
   project checks, so release proof covers installed package-lock consumers.
 - Verification and registry docs explain `packages:installed-smoke` as the
@@ -651,13 +654,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: make the installed-package smoke matrix report the
-   package kind currently running so release-proof failures point to the exact
-   bundle.
-2. Product clarity: add docs-check coverage for installed-package smoke
+1. Product clarity: add docs-check coverage for installed-package smoke
    recovery guidance in package-review proof output.
-3. Registry and versioning: add a third installed package kind that exercises a
+2. Registry and versioning: add a third installed package kind that exercises a
    generated project consuming a reviewed package lock.
+3. Registry and versioning: include package-kind labels in package-review
+   recovery guidance when installed-package smoke fails.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
