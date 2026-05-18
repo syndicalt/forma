@@ -42,6 +42,10 @@ Fallback route labels should be stable in logs and eval artifacts. Use the same
 human-readable route label for adapter logs, saved diagnostics, and eval
 summaries so reviewers can compare fallback behavior without reverse-engineering
 deployment-specific provider settings.
+Fallback route labels should not encode secrets. Name the provider path with a
+stable deployment label, region, or reviewed profile name instead of embedding
+API keys, account identifiers, customer names, or secret-manager paths in logs
+or eval artifacts.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the

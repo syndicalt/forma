@@ -422,6 +422,8 @@ The current MVP provides:
   proof.
 - Testing guide now says fallback route labels should match diagnostics and
   eval summaries.
+- Provider-adapter docs now say fallback route labels should not encode
+  secrets.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -984,12 +986,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-adapter wording that fallback route labels
-   should not encode secrets.
-2. Product clarity: add runtime-result wording that fallback route labels should
+1. Product clarity: add runtime-result wording that fallback route labels should
    be logged with failed validation results.
-3. Product clarity: add package-consumer troubleshooting wording that fallback
+2. Product clarity: add package-consumer troubleshooting wording that fallback
    route labels should be preserved across retries.
+3. Product clarity: add product-proof wording that fallback route labels should
+   be compared without exposing deployment secrets.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
