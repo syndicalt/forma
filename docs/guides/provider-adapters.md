@@ -81,6 +81,10 @@ Cleaned-up route labels should preserve override audit lookup keys. When a host
 override renames a route, keep override logs and adapter configuration
 searchable by the original override key, then attach the cleaned-up label as
 display metadata.
+Cleaned-up route labels should preserve provider audit lookup keys. Keep
+provider-profile notes, adapter logs, retry evidence, and reviewed defaults
+searchable by the original provider route key, then add the cleaned-up label as
+metadata after ownership and review boundaries are clear.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the
