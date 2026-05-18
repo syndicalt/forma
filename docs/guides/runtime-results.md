@@ -103,6 +103,10 @@ Cleaned-up route labels should preserve validation audit lookup keys. Keep
 validation failures, diagnostics, verification records, and retry notes
 searchable by the original validation route key, then attach the cleaned-up
 label as runtime audit metadata.
+Cleaned-up route labels should preserve failed validation audit lookup keys.
+Keep failed validation results, diagnostics, verification failures, and retry
+records searchable by the original failed-validation route key, then attach the
+cleaned-up label after the failed result is saved.
 Cleaned-up route labels should preserve diagnostics audit lookup keys. Keep
 diagnostic messages, verification failures, failed results, and support notes
 searchable by the original diagnostics route key, then attach the cleaned-up
