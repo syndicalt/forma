@@ -49,6 +49,14 @@ interface FormaPackageLock {
     output?: string;
     sha256?: string;
   }>;
+  examples?: Array<{
+    path?: string;
+    sha256?: string;
+  }>;
+  releaseFiles?: Array<{
+    path?: string;
+    sha256?: string;
+  }>;
 }
 
 export function agent(options: FormaAgentOptions): FormaAgent {
@@ -113,6 +121,16 @@ function verifyPackageLockArtifacts(lock: FormaPackageLock, lockDir: string): vo
   for (const binding of lock.bindings ?? []) {
     if (binding.output && binding.sha256) {
       verifyPackageLockHash(join(lockDir, binding.output), binding.sha256, "generated binding");
+    }
+  }
+  for (const example of lock.examples ?? []) {
+    if (example.path && example.sha256) {
+      verifyPackageLockHash(join(lockDir, example.path), example.sha256, "host example");
+    }
+  }
+  for (const releaseFile of lock.releaseFiles ?? []) {
+    if (releaseFile.path && releaseFile.sha256) {
+      verifyPackageLockHash(join(lockDir, releaseFile.path), releaseFile.sha256, "release file");
     }
   }
 }

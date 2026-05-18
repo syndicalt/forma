@@ -248,6 +248,69 @@ describe("FormaRuntime", () => {
     })).toThrow("generated binding does not match reviewed package lock");
   });
 
+  it("rejects package lock agents when a host example drifts", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-agent-lock-example-drift-"));
+    const sourcePath = join(dir, "task.forma");
+    const examplePath = join(dir, "task_package.ts");
+    const lockPath = join(dir, "task.forma.lock.json");
+    await writeFile(sourcePath, agentSource);
+    await writeFile(examplePath, "export const changed = true;\n");
+    await writeFile(lockPath, JSON.stringify({
+      formaPackageLock: 1,
+      tasks: [
+        {
+          name: "greet_user_warmly",
+          source: "task.forma",
+          sourceSha256: createHash("sha256").update(agentSource).digest("hex"),
+        },
+      ],
+      examples: [
+        {
+          language: "typescript",
+          path: "task_package.ts",
+          sha256: "0".repeat(64),
+        },
+      ],
+    }));
+
+    expect(() => agentFromPackageLock({
+      lockFile: lockPath,
+      task: "greet_user_warmly",
+      provider: new StaticProvider({ message: "unused" }),
+    })).toThrow("host example does not match reviewed package lock");
+  });
+
+  it("rejects package lock agents when a release file drifts", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-agent-lock-release-drift-"));
+    const sourcePath = join(dir, "task.forma");
+    const readmePath = join(dir, "README.md");
+    const lockPath = join(dir, "task.forma.lock.json");
+    await writeFile(sourcePath, agentSource);
+    await writeFile(readmePath, "# Changed package docs\n");
+    await writeFile(lockPath, JSON.stringify({
+      formaPackageLock: 1,
+      tasks: [
+        {
+          name: "greet_user_warmly",
+          source: "task.forma",
+          sourceSha256: createHash("sha256").update(agentSource).digest("hex"),
+        },
+      ],
+      releaseFiles: [
+        {
+          path: "README.md",
+          sha256: "0".repeat(64),
+        },
+      ],
+    }));
+
+    expect(() => agentFromPackageLock({
+      lockFile: lockPath,
+      task: "greet_user_warmly",
+      provider: new StaticProvider({ message: "unused" }),
+    })).toThrow("release file does not match reviewed package lock");
+  });
+
   it("embeds a named source task through the agent facade", async () => {
     const greet = agent({
       source: agentSource,

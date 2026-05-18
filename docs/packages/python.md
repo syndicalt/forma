@@ -105,9 +105,10 @@ result = review_diff.run({"diff": diff, "max_findings": 5})
 ```
 
 Use `agent_from_package_lock(...)` when consuming a reviewed Forma package. It
-reads the lockfile, verifies the pinned task source, generated binding, and
-provider profile hashes, loads the reviewed provider profile when no provider
-override is supplied, and returns the same agent facade:
+reads the lockfile, verifies the pinned task source, generated bindings,
+provider profile, host examples, and release files, loads the reviewed provider
+profile when no provider override is supplied, and returns the same agent
+facade:
 
 ```python
 review_diff = agent_from_package_lock(

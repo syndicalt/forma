@@ -283,6 +283,87 @@ def test_rejects_package_lock_agents_when_generated_binding_drifts(tmp_path: Pat
         raise AssertionError("expected generated binding drift to fail")
 
 
+def test_rejects_package_lock_agents_when_host_example_drifts(tmp_path: Path):
+    source_path = tmp_path / "task.forma"
+    example_path = tmp_path / "task_package.py"
+    lock_path = tmp_path / "task.forma.lock.json"
+    source_path.write_text(AGENT_SOURCE, encoding="utf8")
+    example_path.write_text("changed = True\n", encoding="utf8")
+    lock_path.write_text(
+        json.dumps(
+            {
+                "formaPackageLock": 1,
+                "tasks": [
+                    {
+                        "name": "greet_user_warmly",
+                        "source": "task.forma",
+                        "sourceSha256": hashlib.sha256(AGENT_SOURCE.encode("utf8")).hexdigest(),
+                    }
+                ],
+                "examples": [
+                    {
+                        "language": "python",
+                        "path": "task_package.py",
+                        "sha256": "0" * 64,
+                    }
+                ],
+            }
+        ),
+        encoding="utf8",
+    )
+
+    try:
+        agent_from_package_lock(
+            lock_file=lock_path,
+            task="greet_user_warmly",
+            provider=StaticProvider({"message": "unused"}),
+        )
+    except ValueError as error:
+        assert "host example does not match reviewed package lock" in str(error)
+    else:
+        raise AssertionError("expected host example drift to fail")
+
+
+def test_rejects_package_lock_agents_when_release_file_drifts(tmp_path: Path):
+    source_path = tmp_path / "task.forma"
+    readme_path = tmp_path / "README.md"
+    lock_path = tmp_path / "task.forma.lock.json"
+    source_path.write_text(AGENT_SOURCE, encoding="utf8")
+    readme_path.write_text("# Changed package docs\n", encoding="utf8")
+    lock_path.write_text(
+        json.dumps(
+            {
+                "formaPackageLock": 1,
+                "tasks": [
+                    {
+                        "name": "greet_user_warmly",
+                        "source": "task.forma",
+                        "sourceSha256": hashlib.sha256(AGENT_SOURCE.encode("utf8")).hexdigest(),
+                    }
+                ],
+                "releaseFiles": [
+                    {
+                        "path": "README.md",
+                        "sha256": "0" * 64,
+                    }
+                ],
+            }
+        ),
+        encoding="utf8",
+    )
+
+    try:
+        agent_from_package_lock(
+            lock_file=lock_path,
+            task="greet_user_warmly",
+            provider=StaticProvider({"message": "unused"}),
+        )
+    except ValueError as error:
+        assert "release file does not match reviewed package lock" in str(error)
+    else:
+        raise AssertionError("expected release file drift to fail")
+
+
 def test_embeds_named_source_task_through_agent_facade():
     greet = agent(
         source=AGENT_SOURCE,

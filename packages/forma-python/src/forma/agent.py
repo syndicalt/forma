@@ -98,6 +98,12 @@ def _verify_package_lock_artifacts(lock: dict[str, Any], lock_dir: Path) -> None
     for binding in lock.get("bindings", []):
         if binding.get("output") and binding.get("sha256"):
             _verify_package_lock_hash(lock_dir / binding["output"], binding["sha256"], "generated binding")
+    for example in lock.get("examples", []):
+        if example.get("path") and example.get("sha256"):
+            _verify_package_lock_hash(lock_dir / example["path"], example["sha256"], "host example")
+    for release_file in lock.get("releaseFiles", []):
+        if release_file.get("path") and release_file.get("sha256"):
+            _verify_package_lock_hash(lock_dir / release_file["path"], release_file["sha256"], "release file")
 
 
 def _verify_package_lock_hash(path: Path, expected_sha256: str, artifact_name: str) -> None:

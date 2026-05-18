@@ -170,12 +170,12 @@ The current MVP provides:
   packages.
 - Checked-in TypeScript and Python consumer examples depend on
   `examples/review_diff.forma.lock.json` by verifying pinned task source,
-  generated binding, and provider profile hashes before constructing
-  `agent(...)`.
+  generated binding, provider profile, host example, and release file hashes
+  before constructing `agent(...)`.
 - TypeScript `agentFromPackageLock(...)` and Python
   `agent_from_package_lock(...)` load reviewed package locks, verify pinned task
-  source, generated binding, and provider profile hashes, and return the
-  standard agent facade.
+  source, generated binding, provider profile, host example, and release file
+  hashes, and return the standard agent facade.
 - Checked-in importable TypeScript and Python contract entrypoints expose the
   reviewed `review_diff` package through stable module layouts.
 - `forma package-init` scaffolds importable TypeScript and Python contract
@@ -326,10 +326,12 @@ The next three implementation slices should be:
 1. Clean-project onboarding: add installed-project smoke tests for the
    published TypeScript and Python package names once release packaging is
    available.
-2. Runtime ergonomics: add package-lock verification for host examples and
-   release files in the public lock helpers.
-3. Registry and versioning: add installed-package smoke tests once release
+2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
+3. Product proof: make the `review_diff` package the first end-to-end
+   narrative in the README and docs, showing the reviewed `.forma` contract,
+   generated bindings, provider profile, lockfile, evals, and TS/Python
+   embedding as one agent-coding interface.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
