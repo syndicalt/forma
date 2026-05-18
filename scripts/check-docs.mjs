@@ -29,6 +29,7 @@ const required = [
   "docs/packages/registry.md",
   "packages/forma-core/schema/package.schema.json",
   "packages/forma-core/schema/package-lock.schema.json",
+  "examples/README.md",
   "examples/review_diff.forma.pkg.json",
   "examples/review_diff.forma.lock.json",
   "examples/function_repair/repair_function.forma.pkg.json",
@@ -116,6 +117,7 @@ const requiredTerms = {
   ],
   "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification"],
   "docs/language/limitations.md": ["MVP", "named task", "provider"],
+  "examples/README.md": ["proof:release", "corepack pnpm proof:release", "projects:check"],
 };
 
 const scanRoots = [
