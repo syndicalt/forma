@@ -2558,6 +2558,10 @@ describe("forma cli", () => {
     expect(readme).toContain("Reviewed Package Lock");
     expect(readme).toContain("This is the reviewed package-lock host-project scaffold");
     expect(readme).toContain("consumes pinned package artifacts");
+    expect(readme).toContain("This extra scaffold is worth it when");
+    expect(readme).toContain("multiple applications or repositories");
+    expect(readme).toContain("depend on the same reviewed task");
+    expect(readme).toContain("provider profile, generated bindings, examples, tests, and release artifacts");
     expect(readme).toContain("Use `forma project-init --minimal`");
     expect(readme).toContain("Use default `forma project-init`");
     expect(readme).toContain("docs/packages/cli.md#project-init");

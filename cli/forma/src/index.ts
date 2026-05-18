@@ -2772,6 +2772,12 @@ the reviewed package lock with explicit \`StaticProvider\` test doubles.
 This is the reviewed package-lock host-project scaffold.
 It consumes pinned package artifacts after package review.
 
+This extra scaffold is worth it when multiple applications or repositories
+depend on the same reviewed task, when application releases should fail on
+drift in the provider profile, generated bindings, examples, tests, and release artifacts,
+or when a consumer should prove it can load exactly the reviewed package lock
+before deployment.
+
 The host still owns provider keys, model selection, retries, logging, and
 deployment policy.
 
