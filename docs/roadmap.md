@@ -470,6 +470,8 @@ The current MVP provides:
   first-use comparison.
 - Package-consumer quickstart now says cleaned-up route labels should not
   require lock regeneration.
+- Product-proof docs now say cleaned-up route labels need before-and-after
+  review context.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1032,12 +1034,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add product-proof wording that cleaned-up route labels need
-   before-and-after review context.
-2. Product clarity: add provider-adapter wording that cleaned-up route labels
+1. Product clarity: add provider-adapter wording that cleaned-up route labels
    should stay decoupled from model selection.
-3. Product clarity: add testing-guide wording that cleaned-up route labels
+2. Product clarity: add testing-guide wording that cleaned-up route labels
    should appear in proof notes when names change.
+3. Product clarity: add runtime-result wording that cleaned-up route labels
+   should not overwrite trace route evidence.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
