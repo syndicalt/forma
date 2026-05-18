@@ -210,6 +210,8 @@ The current MVP provides:
   project-check, TypeScript compile, Python compile, or smoke-test commands.
 - `forma project-check` reports missing clean-project workflow proof commands
   with a restore hint for `.github/workflows/forma-project.yml`.
+- `forma project-check --json` emits structured clean-project check rows for
+  CI and docs, including `missingCommands` for workflow proof drift.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -506,9 +508,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add JSON or structured project-check output so generated
-   clean-project failures can be surfaced in CI and docs without parsing
-   stderr text.
+3. Product proof: add clean-project JSON output examples to the CLI docs so
+   users can see passing and failing project-check reports before running the
+   command.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

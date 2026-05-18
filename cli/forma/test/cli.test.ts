@@ -2367,6 +2367,74 @@ describe("forma cli", () => {
     expect(result.stderr).toContain("restore the generated project workflow");
   });
 
+  it("prints structured project-check output as JSON", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-json-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+
+    const result = await runCli(["project-check", dir, "--json"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(JSON.parse(result.stdout)).toEqual({
+      passed: true,
+      project: {
+        name: "review-diff-agent",
+        task: "review_diff",
+        manifest: "forma.project.json",
+      },
+      checks: expect.arrayContaining([
+        expect.objectContaining({ name: "bindings", passed: true, targets: ["typescript", "python"] }),
+        expect.objectContaining({ name: "entrypoints", passed: true, runtimes: ["typescript", "python"] }),
+        expect.objectContaining({ name: "smoke-tests", passed: true, runtimes: ["typescript", "python"] }),
+        expect.objectContaining({ name: "ci-workflow", passed: true, path: ".github/workflows/forma-project.yml" }),
+      ]),
+    });
+  });
+
+  it("prints structured project-check workflow failures as JSON", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-json-failure-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    const workflowPath = join(dir, ".github", "workflows", "forma-project.yml");
+    const workflow = await readFile(workflowPath, "utf8");
+    await writeFile(workflowPath, workflow.replace("      - run: pnpm run smoke:ts\n", ""));
+
+    const result = await runCli(["project-check", dir, "--json"]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toBe("");
+    expect(JSON.parse(result.stdout)).toMatchObject({
+      passed: false,
+      project: {
+        name: "review-diff-agent",
+        task: "review_diff",
+        manifest: "forma.project.json",
+      },
+      checks: [
+        {
+          name: "ci-workflow",
+          passed: false,
+          path: ".github/workflows/forma-project.yml",
+          missingCommands: ["pnpm run smoke:ts"],
+          guidance: "restore the generated project workflow",
+        },
+      ],
+    });
+  });
+
   it("evaluates a deterministic conformance fixture as JSON", async () => {
     const result = await runCli(["eval", "../../packages/forma-core/conformance/greet_user.json"]);
     expect(result.exitCode).toBe(0);

@@ -39,7 +39,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
     }
 
     if (command === "project-check") {
-      return await checkProject(path);
+      return await checkProject(path, rest);
     }
 
     if (command === "package-init") {
@@ -180,6 +180,15 @@ interface FormaProjectManifest {
     command?: string;
   }>;
   ciWorkflow?: string;
+}
+
+class ProjectCheckError extends Error {
+  constructor(
+    message: string,
+    readonly check: Record<string, unknown>,
+  ) {
+    super(message);
+  }
 }
 
 const requiredPackageReleaseFiles = [
@@ -867,12 +876,72 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
 
-async function checkProject(path: string): Promise<CliResult> {
+async function checkProject(path: string, args: string[] = []): Promise<CliResult> {
   const manifestPath = path.endsWith(".json") ? path : resolve(path, "forma.project.json");
   const manifestDir = dirname(manifestPath);
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as FormaProjectManifest;
-  await validateProjectManifest(manifest, manifestDir);
+  const json = args.includes("--json");
+  try {
+    await validateProjectManifest(manifest, manifestDir);
+  } catch (error) {
+    if (json) {
+      const check = error instanceof ProjectCheckError
+        ? error.check
+        : { name: "project", passed: false, error: error instanceof Error ? error.message : String(error) };
+      return {
+        exitCode: 1,
+        stdout: `${JSON.stringify(projectCheckReport(manifest, manifestPath, false, [check]), null, 2)}\n`,
+        stderr: "",
+      };
+    }
+    throw error;
+  }
+  if (json) {
+    return {
+      exitCode: 0,
+      stdout: `${JSON.stringify(projectCheckReport(manifest, manifestPath, true), null, 2)}\n`,
+      stderr: "",
+    };
+  }
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
+}
+
+function projectCheckReport(
+  manifest: FormaProjectManifest,
+  manifestPath: string,
+  passed: boolean,
+  checks?: Array<Record<string, unknown>>,
+): Record<string, unknown> {
+  return {
+    passed,
+    project: {
+      name: manifest.name,
+      task: manifest.task,
+      manifest: relative(dirname(manifestPath), manifestPath),
+    },
+    checks: checks ?? [
+      {
+        name: "bindings",
+        passed: true,
+        targets: (manifest.bindings ?? []).map((binding) => binding.target).filter(Boolean),
+      },
+      {
+        name: "entrypoints",
+        passed: true,
+        runtimes: (manifest.entrypoints ?? []).map((entrypoint) => entrypoint.runtime).filter(Boolean),
+      },
+      {
+        name: "smoke-tests",
+        passed: true,
+        runtimes: (manifest.smokeTests ?? []).map((test) => test.runtime).filter(Boolean),
+      },
+      {
+        name: "ci-workflow",
+        passed: true,
+        path: manifest.ciWorkflow,
+      },
+    ],
+  };
 }
 
 async function validateProjectManifest(manifest: FormaProjectManifest, manifestDir: string): Promise<void> {
@@ -978,7 +1047,16 @@ async function validateProjectManifest(manifest: FormaProjectManifest, manifestD
   ].filter(Boolean);
   const missingWorkflowCommands = requiredWorkflowCommands.filter((command) => !workflow.includes(command));
   if (missingWorkflowCommands.length > 0) {
-    throw new Error(`project workflow ${manifest.ciWorkflow} is missing proof commands: ${missingWorkflowCommands.join(", ")}; restore the generated project workflow`);
+    throw new ProjectCheckError(
+      `project workflow ${manifest.ciWorkflow} is missing proof commands: ${missingWorkflowCommands.join(", ")}; restore the generated project workflow`,
+      {
+        name: "ci-workflow",
+        passed: false,
+        path: manifest.ciWorkflow,
+        missingCommands: missingWorkflowCommands,
+        guidance: "restore the generated project workflow",
+      },
+    );
   }
 }
 

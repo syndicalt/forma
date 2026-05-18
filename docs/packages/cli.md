@@ -723,6 +723,18 @@ missing proof commands, restore the generated project workflow entries for
 `forma project-check .`, `pnpm run check`, Python bytecode compilation,
 `pnpm run smoke:ts`, and `python test/review_diff_agent_smoke.py`.
 
+Use `project-check --json` when CI needs a structured result instead of stderr
+text:
+
+```bash
+forma project-check ./review-diff-agent --json
+```
+
+The JSON output includes `passed`, project metadata, and check rows such as
+`bindings`, `entrypoints`, `smoke-tests`, and `ci-workflow`. Workflow failures
+include `missingCommands` and the `restore the generated project workflow`
+guidance string.
+
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
 runs the named task, compares `ok`, `output`, `trace`, `verification`, and
 `error`, and prints a JSON evaluation report:
