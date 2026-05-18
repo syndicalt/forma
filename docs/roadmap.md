@@ -198,6 +198,10 @@ The current MVP provides:
 - `forma project-check` verifies scaffolded host projects by checking the
   project manifest, agent task, provider profile, generated TypeScript/Python
   bindings, and runtime entrypoints.
+- The README and documentation index now lead with the `review_diff` product
+  proof: reviewed `.forma` contract, generated bindings, provider profile,
+  lockfile, eval suite, package review, and TypeScript/Python embedding as one
+  agent-coding interface.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -328,10 +332,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: make the `review_diff` package the first end-to-end
-   narrative in the README and docs, showing the reviewed `.forma` contract,
-   generated bindings, provider profile, lockfile, evals, and TS/Python
-   embedding as one agent-coding interface.
+3. Coding workflow depth: extend the reviewed package proof from `review_diff`
+   metadata into a host workflow that consumes structured findings to drive
+   typed review decisions in both TypeScript and Python.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

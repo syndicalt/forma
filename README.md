@@ -24,26 +24,41 @@ The project ships a real `.forma` language package:
 - TypeScript CLI
 - complete documentation for shipped behavior
 
-## Quickstart
+## Product Proof
 
-Install dependencies, run checks, build the runtime and CLI, then run the
-deterministic greeting example:
+The concrete proof is `examples/review_diff.forma`: one reviewed coding-agent
+contract that TypeScript and Python programs consume through generated
+bindings, provider profiles, package locks, evals, and runtime validation.
+Build the repo, then inspect and verify that package:
 
 ```bash
 corepack pnpm install
-corepack pnpm check
-corepack pnpm test
-corepack pnpm docs:check
-python -m pytest packages/forma-python/tests -q
 corepack pnpm build
+node cli/forma/dist/index.js outline examples/review_diff.forma
+node cli/forma/dist/index.js generate examples/review_diff.forma --target typescript --output examples/review_diff.forma.ts --check
+node cli/forma/dist/index.js generate examples/review_diff.forma --target python --output examples/review_diff_forma.py --check
+corepack pnpm examples:check
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
+node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
+```
+
+`package-review` checks the manifest, lockfile, compatibility policy, provider
+profile, generated TypeScript and Python bindings, host examples, release
+files, README, CI workflow, publish bundle, eval coverage, and eval suite.
+Consumers can then load the reviewed lock with `agentFromPackageLock(...)` or
+`agent_from_package_lock(...)` and get the same `run(input)` facade as a direct
+`agent(...)` call.
+
+For a minimal deterministic smoke test, run:
+
+```bash
 node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name":"Sam"}'
 ```
 
-Expected CLI output:
+Expected output is `{"message":"Hello, Sam!"}`.
 
-```text
-{"message":"Hello, Sam!"}
-```
+Read `docs/guides/product-proof.md` for the full proof path and
+`docs/guides/why-forma.md` for the product problem.
 
 ## Repository Layout
 
@@ -60,9 +75,9 @@ Expected CLI output:
 
 Start with `docs/index.md`. Practical guides are in `docs/guides/`, language
 reference material is in `docs/language/`, and host package docs are in
-`docs/packages/`. Read `docs/guides/why-forma.md` for the product problem and
-the `review_diff` coding-agent workflow. The product roadmap is in
-`docs/roadmap.md`.
+`docs/packages/`. Read `docs/guides/product-proof.md` for the reviewed
+`review_diff` package workflow and `docs/guides/why-forma.md` for the product
+problem. The product roadmap is in `docs/roadmap.md`.
 
 ## Embedding Shape
 

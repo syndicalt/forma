@@ -7,17 +7,19 @@ model provider, provider key, model choice, logging, retries, and deployment.
 
 ## Start Here
 
-Use the quickstart when you want to run the current MVP end to end from a clean
-checkout:
+Start with the product proof when you want to see the current coding-agent
+contract value end to end from a clean checkout:
 
 ```bash
 corepack pnpm install
-corepack pnpm check
-corepack pnpm test
 corepack pnpm build
-node cli/forma/dist/index.js run examples/greet_user.forma --input '{"user_name":"Sam"}'
+node cli/forma/dist/index.js outline examples/review_diff.forma
+corepack pnpm examples:check
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
+node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
+Read `docs/guides/product-proof.md` for the full reviewed package path.
 Read `docs/guides/quickstart.md` for the full setup path and expected outputs.
 Read `docs/guides/why-forma.md` for the concrete product problem and the
 `review_diff` coding-agent workflow.
