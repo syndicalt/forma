@@ -676,6 +676,14 @@ host entrypoints under `src/`, `package.json`, `tsconfig.json`,
 `pyproject.toml`, and a README. Use it when the goal is to run a task from an
 application, not to publish a versioned task package:
 
+Which project-init scaffold should I use?
+
+| Situation | Command | Use when |
+| --- | --- | --- |
+| local to one application | `forma project-init ./review-diff-agent-minimal --name review-diff-agent-minimal --task review_diff --minimal` | You are deciding whether a `.forma` contract is useful before adding CI or package review |
+| checked in CI | `forma project-init ./review-diff-agent --name review-diff-agent --task review_diff` | The host project should run `project-check`, generated smoke tests, and a workflow gate |
+| consuming a reviewed package | `forma project-init ./review-diff-agent --name review-diff-agent --task review_diff --package-lock ../review_diff.forma.lock.json` | The app should prove it can load a reviewed package lock with `agentFromPackageLock(...)` and `agent_from_package_lock(...)` |
+
 ```bash
 forma project-init ./review-diff-agent \
   --name review-diff-agent \

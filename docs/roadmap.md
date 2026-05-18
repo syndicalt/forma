@@ -464,6 +464,9 @@ The current MVP provides:
   `project-init --minimal`, default `project-init`, or
   `project-init --package-lock` based on whether the task is local to one
   application, checked in CI, or consuming a reviewed package.
+- CLI docs mirror the scaffold decision table beside `project-init`, so package
+  docs and README route users through the same minimal, checked, and reviewed
+  package-lock project choices.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -594,8 +597,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add a short CLI docs decision table beside `project-init`
-   so the package docs mirror the README scaffold routing.
+3. Product clarity: add the scaffold choice summary to the documentation index
+   so first-read docs route users to the same minimal, checked, or reviewed
+   package-lock project path.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
