@@ -689,8 +689,8 @@ describe("forma cli", () => {
       },
       checks: expect.arrayContaining([
         expect.objectContaining({ name: "package-lock", passed: true }),
-        expect.objectContaining({ name: "examples", passed: true, total: 6, runtimes: ["typescript", "python"] }),
-        expect.objectContaining({ name: "publish-bundle", passed: true, total: 19 }),
+        expect.objectContaining({ name: "examples", passed: true, total: 8, runtimes: ["typescript", "python"] }),
+        expect.objectContaining({ name: "publish-bundle", passed: true, total: 21 }),
       ]),
     });
   });

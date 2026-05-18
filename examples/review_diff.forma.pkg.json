@@ -48,6 +48,14 @@
     {
       "runtime": "python",
       "path": "review_diff_lock_consumer.py"
+    },
+    {
+      "runtime": "typescript",
+      "path": "review_diff_contract/index.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_contract/__init__.py"
     }
   ],
   "releaseFiles": [

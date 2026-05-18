@@ -176,6 +176,10 @@ Python through `agentFromPackageLock(...)` and `agent_from_package_lock(...)`.
 Those helpers read the lockfile, check the pinned task source hash, load the
 reviewed provider profile, and construct `agent(...)` only after the artifact
 matches the reviewed lock.
+The importable package entrypoints `examples/review_diff_contract/index.ts` and
+`examples/review_diff_contract/__init__.py` wrap those helpers behind stable
+TypeScript and Python module names so consumers can depend on the reviewed
+contract without copying loose example files into their application.
 
 ## Review
 
