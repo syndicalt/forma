@@ -200,6 +200,10 @@ same provider path across the rename.
 Cleaned-up route labels should preserve release proof lookup keys. Keep the
 release proof bundle, proof notes, and saved summaries searchable by the
 original route key, then add the cleaned-up label as review metadata.
+Cleaned-up route labels should preserve release audit lookup keys. Keep release
+proof artifacts, uploaded summaries, CI notes, and package-review evidence
+searchable by the original release route key, then attach the cleaned-up label
+as audit metadata after proof acceptance.
 Route-label cleanup should leave installed smoke labels traceable. When cleanup
 changes the displayed route name, keep the prior label beside the cleaned-up
 label in installed smoke summaries so reviewers can follow the same deployment
