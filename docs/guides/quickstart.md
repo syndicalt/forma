@@ -123,6 +123,14 @@ The minimal scaffold writes the `.forma` task, `forma.provider.json`, generated
 TypeScript and Python bindings, and direct `agent(...)` entrypoints. It skips
 `forma.project.json`, generated smoke tests, and `.github/workflows` so the
 first project stays focused on the contract boundary before package-review or package locks.
+It still includes local `StaticProvider` smoke commands so you can run the
+entrypoints without a model key:
+
+```bash
+cd review-diff-agent-minimal
+pnpm run smoke:local:ts
+python test/review_diff_local_smoke.py
+```
 
 ## Verification
 

@@ -55,7 +55,7 @@ async function compileMinimalGeneratedProject(dir: string): Promise<void> {
       types: ["node"],
       skipLibCheck: true,
     },
-    include: [join(dir, "src", "*.ts")],
+    include: [join(dir, "src", "*.ts"), join(dir, "test", "*.ts")],
   }, null, 2));
   await execFileAsync(resolve(repoRoot, "node_modules/.bin/tsc"), ["-p", tsconfig], { cwd: repoRoot });
   await execFileAsync("python", [
@@ -63,6 +63,7 @@ async function compileMinimalGeneratedProject(dir: string): Promise<void> {
     "py_compile",
     join(dir, "src", "review_diff_forma.py"),
     join(dir, "src", "review_diff_agent.py"),
+    join(dir, "test", "review_diff_local_smoke.py"),
   ]);
 }
 
@@ -2321,11 +2322,47 @@ describe("forma cli", () => {
     expect(readme).toContain("before package-review or package locks");
     expect(readme).toContain("src/review_diff_agent.ts");
     expect(readme).toContain("src/review_diff_agent.py");
+    expect(readme).toContain("pnpm run smoke:local:ts");
+    expect(readme).toContain("python test/review_diff_local_smoke.py");
+    const packageJson = await readFile(join(dir, "package.json"), "utf8");
+    expect(packageJson).toContain("\"smoke:local:ts\"");
+    const typeScriptSmoke = await readFile(join(dir, "test", "review_diff_local_smoke.ts"), "utf8");
+    expect(typeScriptSmoke).toContain("StaticProvider");
+    expect(typeScriptSmoke).toContain("runReviewDiff");
+    const pythonSmoke = await readFile(join(dir, "test", "review_diff_local_smoke.py"), "utf8");
+    expect(pythonSmoke).toContain("StaticProvider");
+    expect(pythonSmoke).toContain("run_review_diff");
     expect(await pathExists(join(dir, "forma.project.json"))).toBe(false);
     expect(await pathExists(join(dir, "test", "review_diff_agent_smoke.ts"))).toBe(false);
     expect(await pathExists(join(dir, ".github", "workflows", "forma-project.yml"))).toBe(false);
 
     await compileMinimalGeneratedProject(dir);
+    await mkdir(join(dir, "node_modules", "@forma-lang"), { recursive: true });
+    await symlink(resolve(repoRoot, "packages/forma-typescript"), join(dir, "node_modules", "@forma-lang", "forma"), "dir");
+    const runtimeTsconfig = join(dir, "tsconfig.runtime.json");
+    await writeFile(runtimeTsconfig, JSON.stringify({
+      compilerOptions: {
+        target: "ES2022",
+        module: "NodeNext",
+        moduleResolution: "NodeNext",
+        strict: true,
+        outDir: "dist",
+        typeRoots: [resolve(repoRoot, "packages/forma-typescript/node_modules/@types")],
+        types: ["node"],
+        skipLibCheck: true,
+      },
+      include: ["src/**/*.ts", "test/**/*.ts"],
+    }, null, 2));
+    await execFileAsync(resolve(repoRoot, "node_modules/.bin/tsc"), ["-p", runtimeTsconfig], { cwd: dir });
+    await cp(join(dir, "review_diff.forma"), join(dir, "dist", "review_diff.forma"));
+    await cp(join(dir, "forma.provider.json"), join(dir, "dist", "forma.provider.json"));
+    await execFileAsync("node", [join(dir, "dist", "test", "review_diff_local_smoke.js")], { cwd: dir });
+    await execFileAsync("python", [join(dir, "test", "review_diff_local_smoke.py")], {
+      env: {
+        ...process.env,
+        PYTHONPATH: `${join(dir, "src")}:${resolve(repoRoot, "packages/forma-python/src")}`,
+      },
+    });
   });
 
   it("scaffolds package-lock smoke tests when a reviewed lock is provided", async () => {

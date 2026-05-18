@@ -686,8 +686,8 @@ forma project-init ./review-diff-agent \
 
 Use `--minimal` for the first five-minute usefulness path. It writes the task,
 provider profile, generated TypeScript and Python bindings, host entrypoints,
-runtime package manifests, and a README, but skips `forma.project.json`,
-generated smoke tests, and `.github/workflows/forma-project.yml`:
+runtime package manifests, local `StaticProvider` smoke files, and a README,
+but skips `forma.project.json` and `.github/workflows/forma-project.yml`:
 
 ```bash
 forma project-init ./review-diff-agent-minimal \
@@ -697,7 +697,14 @@ forma project-init ./review-diff-agent-minimal \
 ```
 
 Use the default scaffold when you are ready for `forma project-check`, checked
-smoke tests, and generated CI workflow proof commands.
+CI workflow proof commands, and manifest-enforced smoke tests. The minimal
+scaffold still gives you no-key local checks:
+
+```bash
+cd review-diff-agent-minimal
+pnpm run smoke:local:ts
+python test/review_diff_local_smoke.py
+```
 
 When a reviewed package lock is already available, pass it to the scaffold so
 the generated project also proves the reviewed package consumer path:

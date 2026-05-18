@@ -453,6 +453,10 @@ The current MVP provides:
   clean host project by writing the task, provider profile, generated
   TypeScript/Python bindings, and direct `agent(...)` entrypoints before
   project-check, CI workflow, package-review, or package-lock surfaces.
+- Minimal project scaffolds include local TypeScript and Python
+  `StaticProvider` smoke commands (`smoke:local:ts` and
+  `review_diff_local_smoke.py`) so the first generated project is runnable
+  without a real provider key.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -583,9 +587,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: make the generated minimal scaffold runnable without a real
-   provider key by adding an optional local `StaticProvider` smoke command that
-   does not pull in the full checked-project workflow.
+3. Product clarity: add docs and CLI output that explain when to choose
+   `project-init --minimal`, default `project-init`, or
+   `project-init --package-lock`.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

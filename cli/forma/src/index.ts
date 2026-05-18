@@ -840,6 +840,8 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   const pythonAgent = `src/${taskName}_agent.py`;
   const typeScriptSmoke = `test/${taskName}_agent_smoke.ts`;
   const pythonSmoke = `test/${taskName}_agent_smoke.py`;
+  const typeScriptMinimalSmoke = `test/${taskName}_local_smoke.ts`;
+  const pythonMinimalSmoke = `test/${taskName}_local_smoke.py`;
   const packageLock = optionValue(args, "--package-lock");
   if (minimal && packageLock) {
     throw new Error("--minimal cannot be combined with --package-lock");
@@ -882,7 +884,10 @@ async function initializeProject(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
   await writeFile(resolve(path, typeScriptAgent), scaffoldProjectTypeScriptAgent(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonAgent), scaffoldProjectPythonAgent(taskName, kind, schema), "utf8");
-  if (!minimal) {
+  if (minimal) {
+    await writeFile(resolve(path, typeScriptMinimalSmoke), scaffoldProjectTypeScriptSmokeTest(taskName, kind, schema), "utf8");
+    await writeFile(resolve(path, pythonMinimalSmoke), scaffoldProjectPythonSmokeTest(taskName, kind, schema), "utf8");
+  } else {
     await writeFile(resolve(path, typeScriptSmoke), scaffoldProjectTypeScriptSmokeTest(taskName, kind, schema), "utf8");
     await writeFile(resolve(path, pythonSmoke), scaffoldProjectPythonSmokeTest(taskName, kind, schema), "utf8");
   }
@@ -2476,7 +2481,7 @@ function scaffoldProjectPackageJson(projectName: string, taskName: string, inclu
       generate: `forma generate ${taskName}.forma --target typescript --output src/${taskName}.forma.ts`,
       check: "tsc --noEmit",
       "run:ts": `tsx src/${taskName}_agent.ts`,
-      ...(minimal ? {} : { "smoke:ts": `tsx test/${taskName}_agent_smoke.ts` }),
+      ...(minimal ? { "smoke:local:ts": `tsx test/${taskName}_local_smoke.ts` } : { "smoke:ts": `tsx test/${taskName}_agent_smoke.ts` }),
       ...(includePackageLockSmoke ? { "smoke:lock:ts": `tsx test/${taskName}_package_lock_smoke.ts` } : {}),
     },
     dependencies: {
@@ -2533,6 +2538,8 @@ Start with the generated contract before package-review or package locks:
 pnpm install
 python -m pip install -e .
 pnpm run check
+pnpm run smoke:local:ts
+python test/${taskName}_local_smoke.py
 \`\`\`
 
 The task contract lives in \`${taskName}.forma\`. It owns the input fields,
@@ -2564,6 +2571,13 @@ and validates the result with the generated output validator.
 pnpm run run:ts
 \`\`\`
 
+\`test/${taskName}_local_smoke.ts\` runs the same entrypoint with
+\`StaticProvider\`, so local verification does not need a model key:
+
+\`\`\`bash
+pnpm run smoke:local:ts
+\`\`\`
+
 ## Python
 
 \`src/${taskName}_agent.py\` uses the same \`${taskName}.forma\` contract,
@@ -2571,6 +2585,12 @@ provider profile, and generated output validator from Python:
 
 \`\`\`bash
 python src/${taskName}_agent.py
+\`\`\`
+
+\`test/${taskName}_local_smoke.py\` is the matching no-key Python smoke path:
+
+\`\`\`bash
+python test/${taskName}_local_smoke.py
 \`\`\`
 
 Add \`forma project-check\`, smoke tests, CI workflow checks, package-review,
