@@ -41,8 +41,11 @@ The call shape above matches `packages/forma-typescript/test/runtime.test.ts`.
 - `F4001`: provider requested an undeclared permission.
 - `F4002`: provider requested a host tool that is not configured.
 
-`F2001` and `F2002` are produced by the TypeScript and Python validators.
-`F3002` is used when an agent task is run without an explicit provider.
+`F2001`, `F2002`, and `F2003` are produced by the TypeScript and Python
+validators. Validation diagnostics use the parsed task source span when one is
+available, so duplicate names and missing behavior point at the task declaration
+instead of a generic file position. `F3002` is used when an agent task is run
+without an explicit provider.
 
 ## Diagnostic Shape
 

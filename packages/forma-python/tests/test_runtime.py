@@ -496,6 +496,8 @@ def test_fails_validation_for_duplicate_task_names():
     assert result.error == "validation failed"
     assert result.diagnostics[0]["code"] == "F2003"
     assert result.diagnostics[0]["message"] == "duplicate task name 'greet_user'"
+    assert result.diagnostics[0]["start"] == {"line": 23, "column": 1}
+    assert result.diagnostics[0]["end"] == {"line": 43, "column": 2}
 
 
 def test_fails_when_provider_output_does_not_satisfy_task_output_contract():

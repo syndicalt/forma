@@ -518,6 +518,8 @@ describe("FormaRuntime", () => {
       expect.objectContaining({
         code: "F2003",
         message: "duplicate task name 'greet_user'",
+        start: { line: 23, column: 1 },
+        end: { line: 43, column: 2 },
       }),
     ]);
   });
