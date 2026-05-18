@@ -38,6 +38,10 @@ should inherit the same package default.
 Fallback eval evidence belongs outside provider profile changes. Keep baseline
 comparison artifacts and route-specific eval results with the review evidence;
 change the provider profile only when the reviewed default itself should move.
+Fallback route labels should be stable in logs and eval artifacts. Use the same
+human-readable route label for adapter logs, saved diagnostics, and eval
+summaries so reviewers can compare fallback behavior without reverse-engineering
+deployment-specific provider settings.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the
