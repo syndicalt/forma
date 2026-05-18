@@ -107,6 +107,10 @@ Cleaned-up route labels should not change installed contract fixture ownership.
 Keep installed contract tests, fixture inputs, and expected outputs
 owned by the reviewed package release while the consuming application records
 route-label cleanup in provider configuration or smoke evidence.
+Cleaned-up route labels should preserve installed audit lookup keys. Keep
+installed smoke evidence, contract-test output, and package-lock notes
+searchable by the original installed route key, then add the cleaned-up label as
+consumer-owned audit metadata.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
