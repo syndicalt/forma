@@ -1230,6 +1230,24 @@ environment setting values that changed.
 }
 \`\`\`
 
+\`\`\`json
+{
+  "name": "compare",
+  "passed": false,
+  "failedOn": ["breaking"],
+  "contractChanges": ["${taskName}:output"],
+  "changes": [
+    {
+      "kind": "contract",
+      "name": "${taskName}",
+      "field": "output",
+      "severity": "breaking",
+      "details": { "removed": ["legacy_required_field"] }
+    }
+  ]
+}
+\`\`\`
+
 Commit the package manifest, lockfile, \`.forma\` source, eval suite, provider
 profile, generated bindings, and host examples together so TypeScript and Python
 consumers review the same contract.
