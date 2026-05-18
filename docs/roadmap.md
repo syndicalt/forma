@@ -326,6 +326,8 @@ The current MVP provides:
   failed package-lock smoke runs.
 - Runtime semantics now says traces are host workflow evidence, not just debug
   output.
+- CLI docs now say `project-check --json` is for application CI dashboards, not
+  package release dashboards.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -857,12 +859,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add CLI docs wording that `project-check --json` is for
-   application CI dashboards, not package release dashboards.
-2. Product clarity: add package-consumer quickstart wording that reviewed
+1. Product clarity: add package-consumer quickstart wording that reviewed
    package locks should be updated by package owners, not consumers.
-3. Product clarity: add package-consumer troubleshooting wording that
+2. Product clarity: add package-consumer troubleshooting wording that
    application CI should preserve package-lock smoke evidence before retrying.
+3. Product clarity: add provider-adapter docs wording that provider profiles
+   are shared defaults, while host overrides are deployment decisions.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

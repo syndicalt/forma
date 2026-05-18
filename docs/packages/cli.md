@@ -879,6 +879,15 @@ text:
 forma project-check ./review-diff-agent --json
 ```
 
+Use this boundary clearly: project-check --json is for application CI dashboards,
+not package release dashboards. It reports whether a generated host project
+still has current
+bindings, entrypoints, smoke tests, package-lock smoke tests, and workflow
+commands. Package release dashboards should use `package-review`,
+`package-lock --check --json`, and `eval-suite --summary` because those commands
+cover reviewed package artifacts, package locks, compatibility, evals, and
+release files.
+
 The JSON output includes `passed`, project metadata, and check rows such as
 `bindings`, `entrypoints`, `smoke-tests`, `package-lock-smoke-tests`, and
 `ci-workflow`. The package-lock row distinguishes reviewed package-lock
