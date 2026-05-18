@@ -131,6 +131,10 @@ Cleaned-up route labels should preserve release-adoption audit lookup keys.
 Keep reviewed release choices, adoption notes, lock-update evidence, and
 consumer smoke results searchable by the original release-adoption route key,
 then attach the cleaned-up label after the reviewed release is adopted.
+Cleaned-up route labels should preserve lock-update audit lookup keys. Keep
+lock-update requests, stale-lock reports, reviewed release notes, and consumer
+smoke evidence searchable by the original lock-update route key, then attach
+the cleaned-up label after the reviewed lock update is accepted.
 Package owners update reviewed locks. Consumers should request or adopt a new
 reviewed package release instead of regenerating a stale lock inside an
 application repository, because the lock records package-owned artifacts such as
