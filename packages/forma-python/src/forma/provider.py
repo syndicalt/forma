@@ -53,6 +53,34 @@ class StaticProvider:
         return self.output
 
 
+class RecordingProvider:
+    def __init__(self, outputs: list[dict[str, FormaValue]]) -> None:
+        self.outputs = list(outputs)
+        self.requests: list[dict[str, object]] = []
+
+    def run_agent(
+        self,
+        instruction: str,
+        values: dict[str, FormaValue],
+        permissions: list[str],
+        tools: PermissionTools,
+        output: dict[str, dict[str, object]] | None = None,
+        schemas: dict[str, dict[str, dict[str, object]]] | None = None,
+    ) -> dict[str, FormaValue]:
+        self.requests.append(
+            {
+                "instruction": instruction,
+                "values": dict(values),
+                "permissions": list(permissions),
+                "output": dict(output or {}),
+                "schemas": dict(schemas or {}),
+            }
+        )
+        if not self.outputs:
+            raise ValueError("F5003: recording provider has no fixture output")
+        return self.outputs.pop(0)
+
+
 Transport = Callable[[str, dict[str, object], dict[str, str]], dict[str, object]]
 
 

@@ -4,10 +4,11 @@
 
 Forma separates task contracts from model execution. An `agent` block declares
 the instruction, but the host runtime needs an explicit provider to produce
-output. The MVP includes `StaticProvider` for deterministic tests and examples.
-Provider credentials and model names belong in host application code, not in the
-`.forma` file. A Forma task describes what should be done; the provider adapter
-decides which model service to call and how to authenticate.
+output. The MVP includes `StaticProvider` for deterministic examples and
+`RecordingProvider` for host integration tests that need to inspect provider
+requests. Provider credentials and model names belong in host application code,
+not in the `.forma` file. A Forma task describes what should be done; the
+provider adapter decides which model service to call and how to authenticate.
 
 ## Steps
 
@@ -217,6 +218,25 @@ python -m pytest packages/forma-python/tests/test_runtime.py -q
 
 Use `StaticProvider` for deterministic tests. Real provider adapters should
 return values that satisfy the task `output` block and `verify` expressions.
+Use `RecordingProvider` when a host test needs both fixture outputs and a record
+of the instruction, input values, permissions, and output contract sent to the
+provider.
+
+```typescript
+const provider = new RecordingProvider([{ summary: "No issues.", findings: [], clean: true }]);
+const reviewDiff = agent({ file: "examples/review_diff.forma", task: "review_diff", provider });
+
+await reviewDiff.run({ diff });
+expect(provider.requests[0]?.permissions).toContain("read");
+```
+
+```python
+provider = RecordingProvider([{"summary": "No issues.", "findings": [], "clean": True}])
+review_diff = agent(file="examples/review_diff.forma", task="review_diff", provider=provider)
+
+review_diff.run({"diff": diff})
+assert "read" in provider.requests[0]["permissions"]
+```
 
 ## HTTP JSON Provider
 

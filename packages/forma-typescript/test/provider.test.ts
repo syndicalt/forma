@@ -2,7 +2,78 @@ import { describe, expect, it } from "vitest";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { HttpJsonProvider, OpenAIResponsesProvider, providerFromProfile, providerProfileFromFile } from "../src/index.js";
+import { HttpJsonProvider, OpenAIResponsesProvider, RecordingProvider, providerFromProfile, providerProfileFromFile } from "../src/index.js";
+
+describe("RecordingProvider", () => {
+  it("returns queued fixture outputs and records agent requests", async () => {
+    const provider = new RecordingProvider([
+      { message: "First response." },
+      { message: "Second response." },
+    ]);
+    const tools = {
+      require() {},
+      readText: async () => "",
+      searchText: async () => [],
+      runTest: async () => ({ ok: true, output: "" }),
+      writeText: async () => ({ ok: true, output: "" }),
+    };
+
+    const first = await provider.runAgent({
+      instruction: "Write a greeting.",
+      values: { user_name: "Sam" },
+      permissions: ["read"],
+      output: { message: { type: "Text", array: false, optional: false } },
+      schemas: {},
+      tools,
+    });
+    const second = await provider.runAgent({
+      instruction: "Write a farewell.",
+      values: { user_name: "Ada" },
+      permissions: [],
+      output: { message: { type: "Text", array: false, optional: false } },
+      schemas: {},
+      tools,
+    });
+
+    expect(first).toEqual({ message: "First response." });
+    expect(second).toEqual({ message: "Second response." });
+    expect(provider.requests).toEqual([
+      {
+        instruction: "Write a greeting.",
+        values: { user_name: "Sam" },
+        permissions: ["read"],
+        output: { message: { type: "Text", array: false, optional: false } },
+        schemas: {},
+      },
+      {
+        instruction: "Write a farewell.",
+        values: { user_name: "Ada" },
+        permissions: [],
+        output: { message: { type: "Text", array: false, optional: false } },
+        schemas: {},
+      },
+    ]);
+  });
+
+  it("fails when no queued fixture output remains", async () => {
+    const provider = new RecordingProvider([]);
+
+    await expect(provider.runAgent({
+      instruction: "Write a greeting.",
+      values: {},
+      permissions: [],
+      output: {},
+      schemas: {},
+      tools: {
+        require() {},
+        readText: async () => "",
+        searchText: async () => [],
+        runTest: async () => ({ ok: true, output: "" }),
+        writeText: async () => ({ ok: true, output: "" }),
+      },
+    })).rejects.toThrow("F5003: recording provider has no fixture output");
+  });
+});
 
 describe("HttpJsonProvider", () => {
   it("posts agent inputs and returns structured output", async () => {

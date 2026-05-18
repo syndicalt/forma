@@ -5,8 +5,9 @@ Python runtime package for Forma task files.
 The package exposes `FormaRuntime` for executing Forma source, `ModelProvider`
 for custom adapters, `HttpJsonProvider` for HTTP JSON model endpoints,
 `OpenAIResponsesProvider` for OpenAI Responses API execution, and
-`StaticProvider` for deterministic tests of agent blocks. The current runtime
-supports the MVP task shape used by the shared conformance fixtures:
+`StaticProvider` and `RecordingProvider` for deterministic tests of agent
+blocks. The current runtime supports the MVP task shape used by the shared
+conformance fixtures:
 
 - deterministic `compute` blocks that produce a `message` from `user_name`
 - `verify` checks for `message.length > 0` and `message.words <= 12`
@@ -22,6 +23,9 @@ runtime = FormaRuntime(
 
 result = runtime.run_source(source, input={"user_name": "Sam"}, source_name="task.forma")
 ```
+
+Use `RecordingProvider` when tests need to assert which instruction, input,
+permissions, and output contract the runtime sent to the provider.
 
 `run_source` returns a `FormaResult` with `ok`, `output`, `trace`,
 `diagnostics`, `verification`, and `error` fields.

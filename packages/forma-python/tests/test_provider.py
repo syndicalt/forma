@@ -2,7 +2,59 @@ import json
 
 import pytest
 
-from forma import HttpJsonProvider, OpenAIResponsesProvider, provider_from_profile, provider_profile_from_file
+from forma import HttpJsonProvider, OpenAIResponsesProvider, RecordingProvider, provider_from_profile, provider_profile_from_file
+
+
+def test_recording_provider_returns_queued_fixture_outputs_and_records_agent_requests():
+    provider = RecordingProvider(
+        [
+            {"message": "First response."},
+            {"message": "Second response."},
+        ]
+    )
+
+    first = provider.run_agent(
+        "Write a greeting.",
+        {"user_name": "Sam"},
+        ["read"],
+        tools=None,
+        output={"message": {"type": "Text", "array": False, "optional": False}},
+        schemas={},
+    )
+    second = provider.run_agent(
+        "Write a farewell.",
+        {"user_name": "Ada"},
+        [],
+        tools=None,
+        output={"message": {"type": "Text", "array": False, "optional": False}},
+        schemas={},
+    )
+
+    assert first == {"message": "First response."}
+    assert second == {"message": "Second response."}
+    assert provider.requests == [
+        {
+            "instruction": "Write a greeting.",
+            "values": {"user_name": "Sam"},
+            "permissions": ["read"],
+            "output": {"message": {"type": "Text", "array": False, "optional": False}},
+            "schemas": {},
+        },
+        {
+            "instruction": "Write a farewell.",
+            "values": {"user_name": "Ada"},
+            "permissions": [],
+            "output": {"message": {"type": "Text", "array": False, "optional": False}},
+            "schemas": {},
+        },
+    ]
+
+
+def test_recording_provider_fails_when_no_queued_fixture_output_remains():
+    provider = RecordingProvider([])
+
+    with pytest.raises(ValueError, match="F5003: recording provider has no fixture output"):
+        provider.run_agent("Write a greeting.", {}, [], tools=None)
 
 
 def test_http_json_provider_posts_agent_inputs_and_returns_structured_output():

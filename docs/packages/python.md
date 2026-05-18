@@ -2,9 +2,10 @@
 
 The Python runtime package is `forma-lang`, with source under
 `packages/forma-python/src/forma`. It exports `agent`, `FormaRuntime`,
-`StaticProvider`, `HttpJsonProvider`, `OpenAIResponsesProvider`,
-`provider_profile_from_file`, and `provider_from_profile` from `forma`. It also
-exports `ModelProvider` for typing custom adapters.
+`StaticProvider`, `RecordingProvider`, `HttpJsonProvider`,
+`OpenAIResponsesProvider`, `provider_profile_from_file`, and
+`provider_from_profile` from `forma`. It also exports `ModelProvider` for
+typing custom adapters.
 `FormaRuntime.run_source` accepts source text, an input dictionary, and a source
 name, then returns a `FormaResult` dataclass.
 
@@ -131,6 +132,18 @@ runtime = FormaRuntime(
         timeout_ms=30000,
     )
 )
+```
+
+`RecordingProvider` is for host integration tests. It returns queued fixture
+outputs and records each agent request without calling a model service:
+
+```python
+provider = RecordingProvider([{"summary": "No issues.", "findings": [], "clean": True}])
+review_diff = agent(file="examples/review_diff.forma", task="review_diff", provider=provider)
+
+review_diff.run({"diff": diff})
+
+print(provider.requests[0]["instruction"])
 ```
 
 ## Generated Bindings

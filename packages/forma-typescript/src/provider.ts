@@ -28,6 +28,45 @@ export class StaticProvider implements ModelProvider {
   }
 }
 
+export interface RecordingProviderRequest {
+  instruction: string;
+  values: Record<string, FormaValue>;
+  permissions: string[];
+  output: Record<string, FormaField>;
+  schemas: Record<string, Record<string, FormaField>>;
+}
+
+export class RecordingProvider implements ModelProvider {
+  readonly requests: RecordingProviderRequest[] = [];
+  private readonly outputs: Array<Record<string, FormaValue>>;
+
+  constructor(outputs: Array<Record<string, FormaValue>>) {
+    this.outputs = [...outputs];
+  }
+
+  async runAgent(input: {
+    instruction: string;
+    values: Record<string, FormaValue>;
+    permissions: string[];
+    output: Record<string, FormaField>;
+    schemas: Record<string, Record<string, FormaField>>;
+    tools: PermissionTools;
+  }): Promise<Record<string, FormaValue>> {
+    this.requests.push({
+      instruction: input.instruction,
+      values: { ...input.values },
+      permissions: [...input.permissions],
+      output: { ...input.output },
+      schemas: { ...input.schemas },
+    });
+    const output = this.outputs.shift();
+    if (!output) {
+      throw new Error("F5003: recording provider has no fixture output");
+    }
+    return output;
+  }
+}
+
 type FetchLike = (
   url: string,
   init: {

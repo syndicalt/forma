@@ -2,8 +2,9 @@
 
 The TypeScript runtime package is `@forma-lang/forma`, with source under
 `packages/forma-typescript/src`. It exports `agent`, `FormaRuntime`,
-`StaticProvider`, `HttpJsonProvider`, `OpenAIResponsesProvider`, `parseForma`,
-`providerProfileFromFile`, `providerFromProfile`, binding generators,
+`StaticProvider`, `RecordingProvider`, `HttpJsonProvider`,
+`OpenAIResponsesProvider`, `parseForma`, `providerProfileFromFile`,
+`providerFromProfile`, binding generators,
 `ModelProvider`, and public result and AST types from `src/index.ts`.
 
 ## Deterministic Runtime
@@ -133,6 +134,18 @@ const runtime = new FormaRuntime({
     timeoutMs: 30000,
   }),
 });
+```
+
+`RecordingProvider` is for host integration tests. It returns queued fixture
+outputs and records each agent request without calling a model service:
+
+```ts
+const provider = new RecordingProvider([{ summary: "No issues.", findings: [], clean: true }]);
+const reviewDiff = agent({ file: "examples/review_diff.forma", task: "review_diff", provider });
+
+await reviewDiff.run({ diff });
+
+console.log(provider.requests[0].instruction);
 ```
 
 ## Generated Bindings
