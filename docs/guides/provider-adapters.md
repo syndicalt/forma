@@ -47,6 +47,10 @@ Fallback reruns should preserve traces across attempts. Keep the original trace
 entries next to the replacement result so host owners can see whether the
 retry changed provider behavior, permissions, tool calls, routing, or only the
 model name.
+Fallback comparisons should happen after validation, not before. Let each
+provider attempt return through the same Forma validation boundary, then
+compare the failed and replacement `FormaResult` records instead of comparing
+raw provider payloads.
 
 ## Steps
 
