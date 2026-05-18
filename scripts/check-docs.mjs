@@ -90,6 +90,7 @@ const requiredTerms = {
     "TypeScript",
     "Python",
     "missingMigrationParityTests",
+    "docs/guides/package-consumer-quickstart.md#missingmigrationparitytests",
   ],
   "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "tree-sitter test", "pytest", "vitest"],
   "docs/guides/migrating-from-inline-prompts.md": ["inline prompt", ".forma", "agent(...)", "apiKeyEnv", "package-review"],

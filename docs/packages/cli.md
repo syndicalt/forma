@@ -380,6 +380,18 @@ before/after migration proof drifted out of the package docs or CI workflow:
 
 ```json
 {
+  "name": "readme",
+  "passed": false,
+  "total": 11,
+  "missingCommands": [
+    "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts"
+  ],
+  "missingMigrationParityTests": ["review_diff_migration.test.ts"]
+}
+```
+
+```json
+{
   "name": "ci-workflow",
   "passed": false,
   "total": 9,

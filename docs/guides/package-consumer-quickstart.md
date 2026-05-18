@@ -303,6 +303,9 @@ or test doubles.
 
 ### missingMigrationParityTests
 
+Generated package READMEs link directly to this section as
+`docs/guides/package-consumer-quickstart.md#missingmigrationparitytests`.
+
 If the `readme`, `ci-workflow`, or `publish-bundle` row reports
 `missingMigrationParityTests`, the package still declares migration parity
 fixtures but the before/after proof drifted out of one reviewed release

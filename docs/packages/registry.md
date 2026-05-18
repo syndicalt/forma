@@ -321,6 +321,39 @@ source of truth when repairing those README or workflow entries.
 For migration parity drift, restore every path listed in
 `missingMigrationParityTests`, then regenerate the package lock so the README or
 workflow hash is reviewed with the manifest.
+
+```json
+{
+  "name": "readme",
+  "passed": false,
+  "total": 11,
+  "missingCommands": [
+    "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts"
+  ],
+  "missingMigrationParityTests": ["review_diff_migration.test.ts"]
+}
+```
+
+```json
+{
+  "name": "ci-workflow",
+  "passed": false,
+  "total": 9,
+  "missingCommands": ["python review_diff_migration_test.py"],
+  "missingMigrationParityTests": ["review_diff_migration_test.py"]
+}
+```
+
+```json
+{
+  "name": "publish-bundle",
+  "passed": false,
+  "total": 35,
+  "missingPaths": ["review_diff_migration_test.py"],
+  "missingMigrationParityTests": ["review_diff_migration_test.py"]
+}
+```
+
 When a package declares tests, keep the generated TypeScript and Python
 lockfile consumer smoke tests in that manifest too. If they are removed, the
 `tests` row reports `missingProviderOverrideTests`. The package consumer
