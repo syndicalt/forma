@@ -54,17 +54,21 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm check
 corepack pnpm test
 corepack pnpm examples:check
+corepack pnpm projects:check
 corepack pnpm docs:check
 python -m pytest packages/forma-python/tests -q
 corepack pnpm build
-node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
+corepack pnpm proof:release
 ```
 
-The final command runs the reviewed package checklist and executes the migration
-parity proof as a blocking `proof-command` row. If package review reports
-`missingMigrationParityProofCommand`, restore the reported
+The final command runs the reviewed package checklist and executes
+`proof:migration && projects:check` as a blocking `proof-command` row. It fails
+release verification when the inline migration parity proof drifts or the
+checked clean-project fixture stops passing `project-check`. If package review
+reports `missingMigrationParityProofCommand`, restore the reported
 `package-review --proof-command` command to README and CI so release review
 continues to run the before/after proof.
+`proof:release` expands to `node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration && corepack pnpm projects:check"`.
 
 If `forma run` fails on an agent task without a provider, that is expected for
 the default CLI path. Agent tasks require an explicit host-provided provider.

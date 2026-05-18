@@ -242,6 +242,8 @@ The current MVP provides:
   clean-project workflow drift.
 - CLI and registry docs explain the same `proof:release` failure split for
   users reading `package-review --proof-command` output.
+- Quickstart release verification uses `proof:release`, so first-run checks
+  exercise both migration parity and the checked clean-project fixture.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -538,8 +540,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add `proof:release` to quickstart release verification so the
-   first-run path uses the same combined migration and clean-project gate as CI.
+3. Product proof: add a short release-proof troubleshooting link from
+   quickstart to the deeper product proof and package docs.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
