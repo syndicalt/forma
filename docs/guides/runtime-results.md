@@ -57,6 +57,9 @@ First check that the host selected the intended task, loaded the current
 generated bindings, passed the expected provider profile, and did not discard
 `diagnostics`, `verification`, or `error`; only then tune the model instruction
 or adapter response.
+Log `error` with diagnostics before retrying the model. A retry that drops
+`diagnostics`, `verification.failures`, or trace entries loses the evidence
+needed to distinguish provider behavior from host integration drift.
 
 ## Verification
 

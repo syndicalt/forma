@@ -316,6 +316,8 @@ The current MVP provides:
   it is a host application problem.
 - Package-consumer quickstart now says lockfile consumption is for shared
   ownership, not local cleanup.
+- Runtime-result docs now tell hosts to log `error` with diagnostics before
+  retrying the model so validation evidence is preserved.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -847,12 +849,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add runtime-result docs wording that `error` should be
-   logged with diagnostics before retrying the model.
-2. Product clarity: add provider-adapter docs wording that host retries should
+1. Product clarity: add provider-adapter docs wording that host retries should
    wrap `agent.run(...)`, not the `.forma` contract.
-3. Product clarity: add testing guide wording that `projects:check` protects
+2. Product clarity: add testing guide wording that `projects:check` protects
    application-owned contracts before package review.
+3. Product clarity: add package-consumer troubleshooting wording that
+   diagnostics should be kept with failed package-lock smoke runs.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
