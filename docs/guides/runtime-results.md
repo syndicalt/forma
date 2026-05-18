@@ -82,6 +82,10 @@ Cleaned-up route labels should preserve original failure context. Store the
 pre-cleanup label, cleaned-up label, failed provider response, and retry result
 together so later readers can reconstruct the failure path without exposing
 deployment secrets.
+Cleaned-up route labels should not overwrite trace route evidence. Add the
+cleaned-up label beside the trace entry that recorded the original provider
+route so reviewers can follow the exact runtime path without treating a
+post-run display name as the source evidence.
 Route-label evidence should not be copied into model output. Keep provider
 route labels in logs, traces, diagnostics, or host-owned retry records instead
 of asking the model to echo deployment evidence inside task output fields.
