@@ -61,6 +61,10 @@ node cli/forma/dist/index.js generate examples/review_diff.forma --target python
 The `.forma` file owns the durable task boundary: input fields, output fields,
 instructions, permissions, and verification rules. The host program still owns
 the provider key, model selection, retries, logging, and application workflow.
+Retries and routing are host workflow concerns after local contract proof. Add
+fallback models, regional routing, retry budgets, and request logging only
+after the local `StaticProvider` smoke path proves the contract makes host code
+clearer than an inline prompt plus local schemas.
 That means TypeScript embedding is just a provider plus the named task:
 
 ```ts
