@@ -227,6 +227,10 @@ Cleaned-up route labels should preserve triage audit lookup keys. Keep triage
 notes, failure summaries, package-kind markers, and recovery commands
 searchable by the original triage route key, then add the cleaned-up label
 after the failed smoke path is classified.
+Cleaned-up route labels should preserve failure-summary audit lookup keys. Keep
+installed smoke failure summaries, failed package-kind markers, saved logs, and
+recovery notes searchable by the original failure-summary route key, then add
+the cleaned-up label after the failure summary is saved.
 Cleaned-up route labels should keep installed smoke failure notes comparable.
 When a route rename appears in a failed installed smoke run, keep the original
 failure note beside the cleaned-up label so reviewers can compare reruns
