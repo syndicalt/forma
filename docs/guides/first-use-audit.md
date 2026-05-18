@@ -33,6 +33,9 @@ needs pinned package artifacts from a reviewed contract.
 Fallback models are not part of the usefulness proof. First prove the Forma
 contract removes duplicated schema and prompt code with local smoke tests; add
 provider failover only after that contract is worth keeping.
+Fallback comparisons belong after host-code simplification proof. Compare
+failed and replacement model results only after the minimal or checked path has
+already shown that generated bindings and validation improve the host code.
 
 ## Steps
 
