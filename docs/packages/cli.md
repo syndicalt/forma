@@ -383,7 +383,9 @@ README also explains how to inspect the `compare` row from
 that compact guidance back to the package-review output examples above instead
 of duplicating the full JSON blocks in every generated package. It also
 writes `.github/workflows/forma-package.yml` as a GitHub Actions starting point
-for package checks. It also writes
+for package checks. Generated package and publish workflows include a failure
+step that points maintainers to the package-consumer troubleshooting guide for
+lockfile, provider profile, and smoke-test failures. It also writes
 `.github/workflows/forma-publish.yml`, which reviews the package, builds a
 versioned `.tgz` bundle, uploads the bundle and candidate eval summary as
 workflow artifacts, and uploads those assets to a GitHub Release when a matching

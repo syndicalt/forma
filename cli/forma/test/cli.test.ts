@@ -1490,12 +1490,14 @@ describe("forma cli", () => {
     expect(readme).toContain("docs/guides/package-consumer-quickstart.md#troubleshooting");
     expect(readme).not.toContain('"kind": "setting"');
     expect(readme).not.toContain('"kind": "contract"');
-    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
-    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
-    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("npx vitest run review_diff_contract.test.ts");
-    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("python review_diff_contract_test.py");
-    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");
-    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
+    const packageWorkflow = await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8");
+    expect(packageWorkflow).toContain("forma package-check review_diff.forma.pkg.json");
+    expect(packageWorkflow).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
+    expect(packageWorkflow).toContain("npx vitest run review_diff_contract.test.ts");
+    expect(packageWorkflow).toContain("python review_diff_contract_test.py");
+    expect(packageWorkflow).toContain("forma package-review review_diff.forma.pkg.json");
+    expect(packageWorkflow).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
+    expect(packageWorkflow).toContain("docs/guides/package-consumer-quickstart.md#troubleshooting");
     const publishWorkflow = await readFile(join(dir, ".github", "workflows", "forma-publish.yml"), "utf8");
     expect(publishWorkflow).toContain("name: Publish Forma package");
     expect(publishWorkflow).toContain("forma package-review review_diff.forma.pkg.json");
@@ -1504,6 +1506,7 @@ describe("forma cli", () => {
     expect(publishWorkflow).toContain("review_diff_contract/__init__.py");
     expect(publishWorkflow).toContain("review_diff_contract.test.ts");
     expect(publishWorkflow).toContain("review_diff_contract_test.py");
+    expect(publishWorkflow).toContain("docs/guides/package-consumer-quickstart.md#troubleshooting");
     expect(publishWorkflow).toContain("gh release create \"$GITHUB_REF_NAME\"");
     expect(publishWorkflow).toContain("gh release upload \"$GITHUB_REF_NAME\" dist/review_diff.forma-package.tgz candidate.json");
     expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({

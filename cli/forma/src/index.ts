@@ -1241,6 +1241,7 @@ function scaffoldPackageWorkflow(
   tests?: Array<{ runtime: "typescript" | "python"; path: string }>,
 ): string {
   const testSteps = packageTestWorkflowSteps(packageTestCommands(tests));
+  const troubleshootingPath = "docs/guides/package-consumer-quickstart.md#troubleshooting";
   return `name: Forma package
 
 on:
@@ -1269,6 +1270,9 @@ ${testSteps}\
         run: forma eval-suite ${evalSuite} --summary > candidate.json
       - name: Review package
         run: forma package-review ${manifestFile}
+      - name: Troubleshoot package failures
+        if: failure()
+        run: echo "See ${troubleshootingPath}"
       - uses: actions/upload-artifact@v4
         with:
           name: forma-candidate
@@ -1302,6 +1306,7 @@ function scaffoldPackagePublishWorkflow(options: {
   readmeFile: string;
 }): string {
   const bundleFile = `dist/${options.taskName}.forma-package.tgz`;
+  const troubleshootingPath = "docs/guides/package-consumer-quickstart.md#troubleshooting";
   const bundleInputs = [
     options.manifestFile,
     options.lockFile,
@@ -1365,6 +1370,9 @@ jobs:
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \\
             gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Forma package ${options.packageName}"
           gh release upload "$GITHUB_REF_NAME" ${bundleFile} candidate.json --clobber
+      - name: Troubleshoot package failures
+        if: failure()
+        run: echo "See ${troubleshootingPath}"
 `;
 }
 
