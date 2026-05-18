@@ -191,8 +191,9 @@ Providers call `tools.readText("README.md")` in TypeScript or
 `tools.search_text("FormaRuntime")` in Python. Providers call
 `tools.runTest("pnpm test")` in TypeScript or `tools.run_test("pytest")` in
 Python. Providers call `tools.writeText(path, content)` in TypeScript or
-`tools.write_text(path, content)` in Python. The runtime records each tool call
-in `trace`.
+`tools.write_text(path, content)` in Python. The runtime records successful
+tool calls in `trace` as `tool` entries and host-denied or failing configured
+tool calls as `tool_failed` entries.
 
 The package examples include a complete tool workflow:
 
@@ -327,7 +328,8 @@ Tool calls still pass through the task permission gate and fail if the host did
 not configure that tool. In the CLI host for `forma run`, `forma eval`, and
 `forma eval-suite`, file tools are scoped to `--workspace` and out-of-workspace
 paths are returned as failed tool results. Test tools can also be restricted
-with exact `--allow-test-command` values.
+with exact `--allow-test-command` values. These host decisions are reflected in
+runtime traces as `tool_failed` entries with details such as `read:../secret`.
 
 The CLI can reuse the same provider settings through a profile file:
 

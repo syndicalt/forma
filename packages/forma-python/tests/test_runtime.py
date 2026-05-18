@@ -304,6 +304,31 @@ def test_denies_read_tool_calls_when_read_permission_is_undeclared():
     assert {"step": "permission_denied", "detail": "read"} in result.trace
 
 
+def test_traces_failed_host_read_tool_decisions():
+    class ToolUsingProvider:
+        def run_agent(self, instruction, values, permissions, tools):
+            tools.read_text("../secret.txt")
+            return {"message": "unreachable"}
+
+    def deny_read(path):
+        raise RuntimeError(f"path is outside workspace: {path}")
+
+    runtime = FormaRuntime(
+        model_provider=ToolUsingProvider(),
+        tools={"read_text": deny_read},
+    )
+    result = runtime.run_task(
+        AGENT_SOURCE,
+        "greet_user_warmly",
+        input={"user_name": "Sam"},
+        source_name="agent.forma",
+    )
+
+    assert result.ok is False
+    assert result.error == "path is outside workspace: ../secret.txt"
+    assert {"step": "tool_failed", "detail": "read:../secret.txt"} in result.trace
+
+
 def test_maps_provider_search_tool_calls_to_host_search_text_hooks():
     class ToolUsingProvider:
         def run_agent(self, instruction, values, permissions, tools):

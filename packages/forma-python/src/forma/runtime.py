@@ -128,34 +128,54 @@ class _PermissionTools:
         self.require("read")
         read_text = self.tools.get("read_text")
         if not callable(read_text):
+            self.trace.append({"step": "tool_failed", "detail": f"read:{path}"})
             raise ValueError("F4002: read tool is not configured")
-        content = read_text(path)
-        self.trace.append({"step": "tool", "detail": f"read:{path}"})
-        return str(content)
+        try:
+            content = read_text(path)
+            self.trace.append({"step": "tool", "detail": f"read:{path}"})
+            return str(content)
+        except Exception:
+            self.trace.append({"step": "tool_failed", "detail": f"read:{path}"})
+            raise
 
     def search_text(self, query: str) -> list[str]:
         self.require("search")
         search_text = self.tools.get("search_text")
         if not callable(search_text):
+            self.trace.append({"step": "tool_failed", "detail": f"search:{query}"})
             raise ValueError("F4002: search tool is not configured")
-        matches = search_text(query)
-        self.trace.append({"step": "tool", "detail": f"search:{query}"})
-        return [str(match) for match in matches]
+        try:
+            matches = search_text(query)
+            self.trace.append({"step": "tool", "detail": f"search:{query}"})
+            return [str(match) for match in matches]
+        except Exception:
+            self.trace.append({"step": "tool_failed", "detail": f"search:{query}"})
+            raise
 
     def run_test(self, command: str) -> dict[str, object]:
         self.require("test")
         run_test = self.tools.get("run_test")
         if not callable(run_test):
+            self.trace.append({"step": "tool_failed", "detail": f"test:{command}"})
             raise ValueError("F4002: test tool is not configured")
-        result = run_test(command)
-        self.trace.append({"step": "tool", "detail": f"test:{command}"})
-        return dict(result)
+        try:
+            result = run_test(command)
+            self.trace.append({"step": "tool", "detail": f"test:{command}"})
+            return dict(result)
+        except Exception:
+            self.trace.append({"step": "tool_failed", "detail": f"test:{command}"})
+            raise
 
     def write_text(self, path: str, content: str) -> dict[str, object]:
         self.require("edit")
         write_text = self.tools.get("write_text")
         if not callable(write_text):
+            self.trace.append({"step": "tool_failed", "detail": f"edit:{path}"})
             raise ValueError("F4002: edit tool is not configured")
-        result = write_text(path, content)
-        self.trace.append({"step": "tool", "detail": f"edit:{path}"})
-        return dict(result)
+        try:
+            result = write_text(path, content)
+            self.trace.append({"step": "tool", "detail": f"edit:{path}"})
+            return dict(result)
+        except Exception:
+            self.trace.append({"step": "tool_failed", "detail": f"edit:{path}"})
+            raise

@@ -120,38 +120,62 @@ export class FormaRuntime {
       async readText(path: string): Promise<string> {
         tools.require("read");
         if (!runtimeTools.readText) {
+          trace.push({ step: "tool_failed", detail: `read:${path}` });
           throw new Error("F4002: read tool is not configured");
         }
-        const content = await runtimeTools.readText(path);
-        trace.push({ step: "tool", detail: `read:${path}` });
-        return content;
+        try {
+          const content = await runtimeTools.readText(path);
+          trace.push({ step: "tool", detail: `read:${path}` });
+          return content;
+        } catch (error) {
+          trace.push({ step: "tool_failed", detail: `read:${path}` });
+          throw error;
+        }
       },
       async searchText(query: string): Promise<string[]> {
         tools.require("search");
         if (!runtimeTools.searchText) {
+          trace.push({ step: "tool_failed", detail: `search:${query}` });
           throw new Error("F4002: search tool is not configured");
         }
-        const matches = await runtimeTools.searchText(query);
-        trace.push({ step: "tool", detail: `search:${query}` });
-        return matches;
+        try {
+          const matches = await runtimeTools.searchText(query);
+          trace.push({ step: "tool", detail: `search:${query}` });
+          return matches;
+        } catch (error) {
+          trace.push({ step: "tool_failed", detail: `search:${query}` });
+          throw error;
+        }
       },
       async runTest(command: string): Promise<{ ok: boolean; output: string }> {
         tools.require("test");
         if (!runtimeTools.runTest) {
+          trace.push({ step: "tool_failed", detail: `test:${command}` });
           throw new Error("F4002: test tool is not configured");
         }
-        const result = await runtimeTools.runTest(command);
-        trace.push({ step: "tool", detail: `test:${command}` });
-        return result;
+        try {
+          const result = await runtimeTools.runTest(command);
+          trace.push({ step: "tool", detail: `test:${command}` });
+          return result;
+        } catch (error) {
+          trace.push({ step: "tool_failed", detail: `test:${command}` });
+          throw error;
+        }
       },
       async writeText(path: string, content: string): Promise<{ ok: boolean; output: string }> {
         tools.require("edit");
         if (!runtimeTools.writeText) {
+          trace.push({ step: "tool_failed", detail: `edit:${path}` });
           throw new Error("F4002: edit tool is not configured");
         }
-        const result = await runtimeTools.writeText(path, content);
-        trace.push({ step: "tool", detail: `edit:${path}` });
-        return result;
+        try {
+          const result = await runtimeTools.writeText(path, content);
+          trace.push({ step: "tool", detail: `edit:${path}` });
+          return result;
+        } catch (error) {
+          trace.push({ step: "tool_failed", detail: `edit:${path}` });
+          throw error;
+        }
       },
     };
     return this.options.modelProvider.runAgent({ instruction, values, permissions, output, schemas, tools });

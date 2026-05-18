@@ -96,6 +96,8 @@ The current MVP provides:
   `--allow-test-command`.
 - CLI eval and eval-suite use the same workspace-scoped host tool flags as run,
   so provider-backed evaluation can exercise coding-agent tool workflows.
+- Runtime traces include `tool_failed` entries when configured host tools deny
+  or fail provider-requested read, search, test, or edit calls.
 - Python generated bindings include recursive `from_dict` constructors and
   `assert_<task>_output` validators for runtime output dictionaries and nested
   schema dataclasses.

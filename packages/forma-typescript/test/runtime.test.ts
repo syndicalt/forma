@@ -310,6 +310,31 @@ describe("FormaRuntime", () => {
     expect(result.trace).toContainEqual({ step: "permission_denied", detail: "read" });
   });
 
+  it("traces failed host read tool decisions", async () => {
+    const runtime = new FormaRuntime({
+      tools: {
+        async readText() {
+          throw new Error("path is outside workspace: ../secret.txt");
+        },
+      },
+      modelProvider: {
+        async runAgent(input) {
+          await input.tools.readText("../secret.txt");
+          return { message: "unreachable" };
+        },
+      },
+    });
+
+    const result = await runtime.runTask(agentSource, "greet_user_warmly", {
+      input: { user_name: "Sam" },
+      sourceName: "agent.forma",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("path is outside workspace: ../secret.txt");
+    expect(result.trace).toContainEqual({ step: "tool_failed", detail: "read:../secret.txt" });
+  });
+
   it("maps provider search tool calls to host searchText hooks", async () => {
     const runtime = new FormaRuntime({
       tools: {
