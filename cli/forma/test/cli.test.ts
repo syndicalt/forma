@@ -425,6 +425,10 @@ describe("forma cli", () => {
           },
           permissions: ["read", "search", "test"],
           verify: [],
+          sourceSpan: {
+            start: { line: 1, column: 1 },
+            end: { line: 34, column: 2 },
+          },
         },
       ],
     });

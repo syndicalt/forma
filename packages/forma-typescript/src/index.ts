@@ -6,4 +6,4 @@ export { FormaRuntime } from "./runtime.js";
 export type { ToolHost } from "./runtime.js";
 export { HttpJsonProvider, OpenAIResponsesProvider, RecordingProvider, StaticProvider, providerFromProfile, providerProfileFromFile } from "./provider.js";
 export type { HttpJsonProviderOptions, ModelProvider, OpenAIResponsesProviderOptions, PermissionTools, ProviderProfile, ProviderProfileOptions, ProviderResponseFormat, RecordingProviderRequest } from "./provider.js";
-export type { FormaDiagnostic, FormaField, FormaProgram, FormaResult, FormaTask, FormaValue } from "./types.js";
+export type { FormaDiagnostic, FormaField, FormaProgram, FormaResult, FormaSourcePosition, FormaSourceSpan, FormaTask, FormaValue } from "./types.js";

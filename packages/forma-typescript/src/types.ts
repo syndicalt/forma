@@ -15,6 +15,16 @@ export interface FormaField {
   array: boolean;
 }
 
+export interface FormaSourcePosition {
+  line: number;
+  column: number;
+}
+
+export interface FormaSourceSpan {
+  start: FormaSourcePosition;
+  end: FormaSourcePosition;
+}
+
 export interface FormaTask {
   name: string;
   intent: string;
@@ -26,6 +36,7 @@ export interface FormaTask {
   permissions: string[];
   constraints: string[];
   verify: string[];
+  sourceSpan?: FormaSourceSpan;
 }
 
 export interface FormaProgram {

@@ -74,7 +74,8 @@ forma outline examples/review_diff.forma
 ```
 
 The output includes each task name, intent, execution mode, input and output
-fields, named schemas, declared permissions, and verify rules.
+fields, named schemas, declared permissions, verify rules, and task source
+span.
 
 `forma generate` reads a `.forma` file and prints host-language bindings:
 

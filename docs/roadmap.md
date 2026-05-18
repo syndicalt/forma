@@ -60,6 +60,8 @@ The current MVP provides:
 - CLI binding generation for TypeScript and Python.
 - CLI task outline output for inspecting task names, modes, fields, schemas,
   permissions, and verify rules.
+- TypeScript and Python parsers record task source spans for editor-facing
+  outline and diagnostics work.
 - CLI evaluation reports for shared conformance fixtures, including output,
   trace, verification, error checks, provider metadata, and timing.
 - CLI regression comparison across saved eval reports and eval report suites.

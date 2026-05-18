@@ -16,6 +16,7 @@ class FormaTask:
     constraints: list[str] = field(default_factory=list)
     verify: list[str] = field(default_factory=list)
     agent_instruction: str | None = None
+    source_span: dict[str, dict[str, int]] | None = None
 
 
 @dataclass(frozen=True)

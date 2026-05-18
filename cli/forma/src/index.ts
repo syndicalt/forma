@@ -1187,6 +1187,7 @@ function outlineSource(source: string): CliResult {
         schemas: task.schemas,
         permissions: task.permissions,
         verify: task.verify,
+        sourceSpan: task.sourceSpan,
       })),
     }, null, 2)}\n`,
     stderr: "",

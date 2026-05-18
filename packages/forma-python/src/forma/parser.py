@@ -18,11 +18,20 @@ def _tasks(source: str) -> list[FormaTask]:
         if close_brace == -1:
             raise ValueError("F0001: expected task declaration")
         body = source[open_brace + 1 : close_brace]
-        tasks.append(_task(match.group(1), body))
+        tasks.append(
+            _task(
+                match.group(1),
+                body,
+                {
+                    "start": _position_at(source, match.start()),
+                    "end": _position_at(source, close_brace + 1),
+                },
+            )
+        )
     return tasks
 
 
-def _task(name: str, body: str) -> FormaTask:
+def _task(name: str, body: str, source_span: dict[str, dict[str, int]]) -> FormaTask:
     agent = _block(body, "agent", required=False)
     parsed_input = _field_block(_block(body, "input"))
     parsed_output = _field_block(_block(body, "output"))
@@ -37,6 +46,7 @@ def _task(name: str, body: str) -> FormaTask:
         constraints=_lines(_block(body, "constraints", required=False)),
         verify=_lines(_block(body, "verify", required=False)),
         agent_instruction=_instruction(agent) if agent else None,
+        source_span=source_span,
     )
 
 
@@ -51,6 +61,13 @@ def _matching_brace(source: str, open_brace: int) -> int:
             if depth == 0:
                 return index
     return -1
+
+
+def _position_at(source: str, index: int) -> dict[str, int]:
+    before = source[:index]
+    line = before.count("\n") + 1
+    last_newline = before.rfind("\n")
+    return {"line": line, "column": index - last_newline}
 
 
 def _intent(body: str) -> str:

@@ -23,13 +23,16 @@ function parseTasks(source: string): FormaTask[] {
       throw new Error("F0001: expected task declaration");
     }
     const body = source.slice(openBrace + 1, closeBrace);
-    tasks.push(parseTask(name, body));
+    tasks.push(parseTask(name, body, {
+      start: positionAt(source, match.index),
+      end: positionAt(source, closeBrace + 1),
+    }));
     taskStart.lastIndex = closeBrace + 1;
   }
   return tasks;
 }
 
-function parseTask(name: string | undefined, body: string): FormaTask {
+function parseTask(name: string | undefined, body: string, sourceSpan: NonNullable<FormaTask["sourceSpan"]>): FormaTask {
   if (!name || !body) {
     throw new Error("F0001: expected task declaration");
   }
@@ -47,6 +50,7 @@ function parseTask(name: string | undefined, body: string): FormaTask {
     permissions: lines(extractBlock(body, "permissions", false)),
     constraints: lines(extractBlock(body, "constraints", false)),
     verify: lines(extractBlock(body, "verify", false)),
+    sourceSpan,
   };
 
   const agent = extractBlock(body, "agent", false);
@@ -55,6 +59,13 @@ function parseTask(name: string | undefined, body: string): FormaTask {
   }
 
   return task;
+}
+
+function positionAt(source: string, index: number): { line: number; column: number } {
+  const before = source.slice(0, index);
+  const line = before.split("\n").length;
+  const lastNewline = before.lastIndexOf("\n");
+  return { line, column: index - lastNewline };
 }
 
 function findMatchingBrace(source: string, openBrace: number): number {

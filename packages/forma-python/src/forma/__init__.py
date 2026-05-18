@@ -1,5 +1,6 @@
 from .agent import FormaAgent, agent
 from .bindings import generate_pydantic_bindings, generate_python_bindings
+from .parser import parse_forma
 from .provider import (
     HttpJsonProvider,
     ModelProvider,
@@ -29,6 +30,7 @@ __all__ = [
     "agent",
     "generate_pydantic_bindings",
     "generate_python_bindings",
+    "parse_forma",
     "provider_from_profile",
     "provider_profile_from_file",
 ]
