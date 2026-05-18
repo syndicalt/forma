@@ -40,7 +40,7 @@ const required = [
 
 const requiredTerms = {
   "README.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "review_diff_package_lock", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "Which Scaffold Should I Use?", "project-init --minimal", "default project-init", "project-init --package-lock", "local to one application", "checked in CI", "consuming a reviewed package"],
-  "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md", "five-minute usefulness path", "inline prompt plus local schemas"],
+  "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md", "five-minute usefulness path", "inline prompt plus local schemas", "project-init --minimal", "default project-init", "project-init --package-lock", "local first-use task", "checked host project", "reviewed package-lock project"],
   "docs/language/diagnostics.md": [
     "F0001",
     "F1001",

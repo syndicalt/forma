@@ -50,6 +50,11 @@ plus local schemas, move the durable contract into `.forma`, generate
 TypeScript and Python bindings, and embed the task with `agent(...)`.
 Use `forma project-init` when you want a clean TypeScript and Python host
 project with provider profile, generated bindings, and `agent(...)` entrypoints.
+Use `project-init --minimal` for a local first-use task before CI and package
+review. Use default project-init for a checked host project with
+`project-check`, generated smoke tests, and workflow proof commands. Use
+`project-init --package-lock` for a reviewed package-lock project that proves
+the host can load a reviewed package lock.
 Use `forma project-check` to verify that scaffolded host projects still have
 current bindings, provider profiles, and runtime entrypoints.
 Use `project-check --json` when CI needs machine-readable clean-project check
