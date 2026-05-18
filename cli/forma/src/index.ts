@@ -1256,6 +1256,8 @@ when a host application needs custom retries, logging, routing, model choice, or
 test doubles. See package consumer troubleshooting at
 ${packageTroubleshootingGuidance} when lockfile checks,
 provider profiles, or generated smoke tests fail.
+
+If package review reports \`missingProviderOverrideTests\`, restore the generated TypeScript and Python lockfile smoke tests. Keep them in the manifest \`tests\` array, add their commands back to README and CI, include them in the publish bundle, and regenerate the package lock.
 `;
 }
 

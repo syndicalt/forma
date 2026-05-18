@@ -138,7 +138,7 @@
   "releaseFiles": [
     {
       "path": "README.md",
-      "sha256": "3811aaef4f5ba98ebfeae9e2a1508cfd3d070a198ca5283c11fbc903d76b7b7e"
+      "sha256": "fc21bf9511f3d80982b0da573157e2f68d5d07877593d8d3645d6b409dc20530"
     },
     {
       "path": ".github/workflows/forma-package.yml",

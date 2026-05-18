@@ -1616,6 +1616,9 @@ describe("forma cli", () => {
     expect(readme).toContain("provider keys and model defaults");
     expect(readme).toContain("docs/guides/package-consumer-quickstart.md#what-the-helper-calls");
     expect(readme).toContain("docs/guides/package-consumer-quickstart.md#explicit-provider-overrides");
+    expect(readme).toContain("missingProviderOverrideTests");
+    expect(readme).toContain("restore the generated TypeScript and Python lockfile smoke tests");
+    expect(readme).toContain("regenerate the package lock");
     expect(readme).not.toContain('"kind": "setting"');
     expect(readme).not.toContain('"kind": "contract"');
     const packageWorkflow = await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8");

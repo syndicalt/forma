@@ -279,6 +279,9 @@ The current MVP provides:
 - Package consumer troubleshooting explains how to restore
   `missingProviderOverrideTests` failures across manifest tests, README
   commands, CI commands, publish bundle paths, and lockfile regeneration.
+- Generated package READMEs explain how to restore
+  `missingProviderOverrideTests` failures and the checked example package locks
+  include that guidance.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -409,8 +412,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Runtime embedding clarity: add generated README guidance for restoring
-   `missingProviderOverrideTests` failures.
+3. Runtime embedding clarity: add package-review gates that require generated
+   READMEs to retain `missingProviderOverrideTests` recovery guidance.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
