@@ -27,7 +27,7 @@ export interface CliResult {
 
 export async function runCli(args: string[]): Promise<CliResult> {
   const [command, path, ...rest] = args;
-  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock")) {
+  if (!command || !path || (command !== "check" && command !== "run" && command !== "eval" && command !== "eval-suite" && command !== "compare" && command !== "generate" && command !== "package-check" && command !== "package-init" && command !== "package-lock" && command !== "package-review")) {
     return usage();
   }
 
@@ -42,6 +42,10 @@ export async function runCli(args: string[]): Promise<CliResult> {
 
     if (command === "package-lock") {
       return await lockPackageManifest(path, rest);
+    }
+
+    if (command === "package-review") {
+      return await reviewPackageManifest(path);
     }
 
     if (command === "compare") {
@@ -104,7 +108,7 @@ export async function runCli(args: string[]): Promise<CliResult> {
 }
 
 function usage(): CliResult {
-  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock> <path> [--input JSON]\n" };
+  return { exitCode: 2, stdout: "", stderr: "usage: forma <check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]\n" };
 }
 
 interface FormaPackageManifest {
@@ -157,6 +161,46 @@ async function lockPackageManifest(path: string, args: string[]): Promise<CliRes
     return { exitCode: 0, stdout: "ok\n", stderr: "" };
   }
   return { exitCode: 0, stdout: serialized, stderr: "" };
+}
+
+async function reviewPackageManifest(path: string): Promise<CliResult> {
+  const manifest = JSON.parse(await readFile(path, "utf8")) as FormaPackageManifest;
+  const manifestDir = dirname(path);
+  await validatePackageManifest(manifest, manifestDir);
+  const lockPath = packageLockPath(path);
+  const expectedLock = `${JSON.stringify(await createPackageLock(path, manifest, manifestDir), null, 2)}\n`;
+  const currentLock = await readFile(lockPath, "utf8");
+  if (currentLock !== expectedLock) {
+    throw new Error(`package lock is out of date: ${lockPath}`);
+  }
+  const suiteResult = await evaluateSuite(resolve(manifestDir, manifest.evalSuite ?? ""), ["--summary"]);
+  if (suiteResult.exitCode !== 0) {
+    return { exitCode: 1, stdout: "", stderr: suiteResult.stderr || "eval suite failed\n" };
+  }
+  const suite = JSON.parse(suiteResult.stdout) as { summary?: { total?: number; failed?: number } };
+  return {
+    exitCode: 0,
+    stdout: `${JSON.stringify({
+      passed: true,
+      package: {
+        name: manifest.name,
+        version: manifest.version,
+        manifest: path,
+      },
+      checks: [
+        { name: "package-check", passed: true },
+        { name: "package-lock", passed: true, path: lockPath },
+        { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
+      ],
+    }, null, 2)}\n`,
+    stderr: "",
+  };
+}
+
+function packageLockPath(manifestPath: string): string {
+  return manifestPath.endsWith(".pkg.json")
+    ? manifestPath.slice(0, -".pkg.json".length) + ".lock.json"
+    : `${manifestPath}.lock.json`;
 }
 
 async function initializePackage(path: string, args: string[]): Promise<CliResult> {
@@ -558,6 +602,7 @@ locked artifact set.
 Run these checks before publishing or consuming a changed package:
 
 \`\`\`bash
+forma package-review ${manifestFile}
 forma package-check ${manifestFile}
 forma package-lock ${manifestFile} --output ${lockFile} --check
 forma eval-suite ${evalSuite} --summary > candidate.json
@@ -596,6 +641,8 @@ jobs:
         run: forma package-lock ${manifestFile} --output ${lockFile} --check
       - name: Run eval suite
         run: forma eval-suite ${evalSuite} --summary > candidate.json
+      - name: Review package
+        run: forma package-review ${manifestFile}
       - uses: actions/upload-artifact@v4
         with:
           name: forma-candidate

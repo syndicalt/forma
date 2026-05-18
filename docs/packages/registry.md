@@ -26,6 +26,7 @@ forma package-check ./review-diff-package/review_diff.forma.pkg.json
 forma package-lock ./review-diff-package/review_diff.forma.pkg.json \
   --output ./review-diff-package/review_diff.forma.lock.json \
   --check
+forma package-review ./review-diff-package/review_diff.forma.pkg.json
 ```
 
 Scaffolded packages include `forma.provider.json` so runtime configuration is a
@@ -46,7 +47,9 @@ The scaffolded `README.md` includes the package-check, package-lock, eval-suite,
 and compare commands that should run before publishing or consuming a changed
 package. The scaffolded `.github/workflows/forma-package.yml` runs the package
 check, lock check, and eval-suite summary in GitHub Actions and uploads the
-candidate eval artifact.
+candidate eval artifact. It also runs `forma package-review`, which combines
+manifest validation, lockfile verification, and eval-suite execution into one
+machine-readable publishing checklist.
 
 ```json
 {
@@ -150,6 +153,7 @@ array before approving a version bump.
 
 Publishing checklist:
 
+- Run `forma package-review` against the manifest.
 - Run `forma package-check` against the manifest.
 - Run `forma package-lock --check` against the checked-in lockfile.
 - Run the package eval suite and archive the summary artifact.

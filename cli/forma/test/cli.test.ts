@@ -654,6 +654,30 @@ describe("forma cli", () => {
     });
   });
 
+  it("reviews a package with manifest, lockfile, and eval-suite checks", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 0, stdout: expect.any(String), stderr: "" });
+    expect(review).toEqual({
+      passed: true,
+      package: {
+        name: "acme/review-diff",
+        version: "0.1.0",
+        manifest: manifestPath,
+      },
+      checks: [
+        { name: "package-check", passed: true },
+        { name: "package-lock", passed: true, path: join(dir, "review_diff.forma.lock.json") },
+        { name: "eval-suite", passed: true, total: 1, failed: 0 },
+      ],
+    });
+  });
+
   it("scaffolds a package with task source, evals, bindings, and examples", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-init-"));
     const result = await runCli([
@@ -691,12 +715,14 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("providerFromProfile(providerProfile)");
     expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("provider_profile_from_file");
     expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("provider_from_profile(provider_profile)");
+    expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma compare baseline.json candidate.json --fail-on breaking,environment");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
+    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
     expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({
       fixtures: ["review_diff.eval.json"],

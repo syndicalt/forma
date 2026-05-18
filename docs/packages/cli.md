@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock> <path> [--input JSON]
+forma <check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -62,7 +62,7 @@ diagnostics, verification, and runtime trace entries such as `tool` and
 `tool_failed`, instead of only printing the task output object.
 
 Invalid usage exits with code 2 and prints `usage: forma
-<check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock> <path> [--input JSON]`.
+<check|run|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review> <path> [--input JSON]`.
 These behaviors are covered by `cli/forma/test/cli.test.ts`.
 
 `forma generate` reads a `.forma` file and prints host-language bindings:
@@ -98,6 +98,14 @@ artifact drifts:
 ```bash
 forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json
 forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check
+```
+
+`forma package-review` runs the publish-review checklist for a package: manifest
+validation, adjacent lockfile verification, and eval suite summary. It prints a
+machine-readable checklist result:
+
+```bash
+forma package-review examples/review_diff.forma.pkg.json
 ```
 
 `forma package-init` scaffolds a starter package directory with a `.forma` task,
@@ -147,6 +155,7 @@ forma package-check ./review-diff-package/review_diff.forma.pkg.json
 forma package-lock ./review-diff-package/review_diff.forma.pkg.json \
   --output ./review-diff-package/review_diff.forma.lock.json \
   --check
+forma package-review ./review-diff-package/review_diff.forma.pkg.json
 ```
 
 The default generated provider profile is:
