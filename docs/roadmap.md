@@ -180,6 +180,9 @@ The current MVP provides:
   of changed bindings, examples, tests, release files, or package metadata.
 - Generated package READMEs now tell maintainers to write artifact group release
   notes when `package-lock --check --json` reports `changedArtifactGroups`.
+- CLI docs now show a concrete stale `package-lock --check --json` report with
+  a changed `bindings` artifact group so reviewers can recognize the machine
+  readable report shape before regenerating locks.
 - Registry docs now include CI guidance for archiving stale
   `package-lock --check --json` reports as `stale-package-lock-report.json`
   with `actions/upload-artifact`, so reviewers can inspect
@@ -706,11 +709,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add a short package-lock JSON report example to CLI docs.
-2. Registry and versioning: scaffold stale package-lock report upload guidance
+1. Registry and versioning: scaffold stale package-lock report upload guidance
    into generated package workflows.
-3. Registry and versioning: require generated package workflows to preserve
+2. Registry and versioning: require generated package workflows to preserve
    artifact group release-note guidance.
+3. Product clarity: add a first-use before/after audit that states when Forma is
+   not worth using versus inline prompts plus local schemas.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

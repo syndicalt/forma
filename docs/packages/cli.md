@@ -146,6 +146,27 @@ added, removed, or changed paths for groups such as `bindings`, `examples`,
 `tests`, and `releaseFiles`, so reviewers can see which reviewed artifact group
 changed before regenerating the lock.
 
+For example, a stale generated binding appears in the JSON report as a changed
+artifact group:
+
+```json
+{
+  "ok": false,
+  "changedArtifactGroups": [
+    {
+      "group": "bindings",
+      "changed": [
+        {
+          "path": "generated/review_diff.forma.ts",
+          "expectedHash": "sha256:old",
+          "actualHash": "sha256:new"
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## Release Runtime Flow
 
 For a publishable agent package, the CLI ties three runtime-facing artifacts
