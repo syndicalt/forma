@@ -211,6 +211,39 @@ const installedPackageSmokes = [
   },
 ];
 
+function smokeCommand(command) {
+  return command.join(" ");
+}
+
+function smokePackageSummary(smoke, workDir, consumerDir, passed) {
+  const [typeScriptCommand, typeScriptArgs] = smoke.typeScriptCommand;
+  return {
+    packageKind: smoke.packageKind,
+    bundleName: smoke.bundleName,
+    packageDir: smoke.packageDir,
+    consumerDir: consumerDir ? relative(workDir, consumerDir) : smoke.packageDir,
+    expectedArtifacts: smoke.expectedArtifacts,
+    typeScriptCommand: smokeCommand([typeScriptCommand, ...typeScriptArgs]),
+    pythonCommand: smokeCommand(smoke.pythonCommand),
+    passed,
+  };
+}
+
+function errorMessage(error) {
+  return error?.message ?? String(error);
+}
+
+function installedPackageSmokeFailureSummary({ smoke, workDir, packages, error }) {
+  return {
+    passed: false,
+    total: installedPackageSmokes.length,
+    completed: packages.length,
+    failedPackage: smokePackageSummary(smoke, workDir, undefined, false),
+    packages,
+    error: errorMessage(error),
+  };
+}
+
 async function prepareFunctionRepairSmoke(packageDir) {
   await writeFile(join(packageDir, "repair_function_installed.test.ts"), `import { expect, it } from "vitest";
 import { agentFromPackageLock, type FormaValue, type ModelProvider, type PermissionTools } from "@forma-lang/forma";
@@ -341,6 +374,9 @@ async function preparePackageLockProjectSmoke(packageDir) {
 
 async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
   process.stdout.write(`installed package smoke: ${smoke.packageKind}\n`);
+  if (process.env.FORMA_INSTALLED_PACKAGE_SMOKE_FAIL_KIND === smoke.packageKind) {
+    throw new Error(`injected installed package smoke failure: ${smoke.packageKind}`);
+  }
   const packageDir = join(workDir, smoke.packageDir);
   const bundlePath = join(workDir, smoke.bundleName);
   await mkdir(packageDir, { recursive: true });
@@ -372,16 +408,7 @@ async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
     },
   });
   process.stdout.write(`installed package smoke ok: ${smoke.packageKind}\n`);
-  return {
-    packageKind: smoke.packageKind,
-    bundleName: smoke.bundleName,
-    packageDir: smoke.packageDir,
-    consumerDir: relative(workDir, consumerDir),
-    expectedArtifacts: smoke.expectedArtifacts,
-    typeScriptCommand: [typeScriptCommand, ...typeScriptArgs].join(" "),
-    pythonCommand: smoke.pythonCommand.join(" "),
-    passed: true,
-  };
+  return smokePackageSummary(smoke, workDir, consumerDir, true);
 }
 
 async function main() {
@@ -396,7 +423,18 @@ async function main() {
 
     const packages = [];
     for (const smoke of installedPackageSmokes) {
-      packages.push(await smokeInstalledPackage({ smoke, workDir, runtimeTarball }));
+      try {
+        packages.push(await smokeInstalledPackage({ smoke, workDir, runtimeTarball }));
+      } catch (error) {
+        const failureSummary = installedPackageSmokeFailureSummary({
+          smoke,
+          workDir,
+          packages,
+          error,
+        });
+        process.stdout.write(`${JSON.stringify({ installedPackageSmokeFailureSummary: failureSummary })}\n`);
+        throw error;
+      }
     }
 
     const installedPackageSmokeSummary = {

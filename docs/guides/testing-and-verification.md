@@ -126,10 +126,13 @@ bundle contents, package locks, tool permissions, or `agentFromPackageLock` /
 `installedPackageSmokes` matrix so new release-bundle shapes share the same
 install, venv, and smoke runner. Each matrix entry has a `packageKind` label
 printed before and after the smoke run so release proof logs identify the exact
-bundle that failed. The final output also includes a compact
+bundle that failed. Successful runs end with a compact
 `installedPackageSmokeSummary` JSON line with the package kind, bundle, consumer
 directory, expected artifact categories, and TypeScript/Python smoke commands
-for CI log parsers.
+for CI log parsers. Failed runs emit an
+`installedPackageSmokeFailureSummary` JSON line before temporary cleanup, with
+the failed package kind, completed package rows, expected artifact categories,
+and error message.
 
 Use this installed-package smoke CI step when a workflow needs focused
 release-bundle coverage without running the full release proof:
