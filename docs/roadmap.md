@@ -273,6 +273,9 @@ The current MVP provides:
   cross-runtime review, generated bindings, or downstream locks.
 - First-use audit now defines the stop condition for teams that do not need a
   cross-language contract, shared output review, or downstream package lock.
+- Why-Forma guide now names the minimum useful contract boundary before
+  packaging: reviewable instructions, declared inputs and outputs, runtime
+  validation, and a host smoke path that beats duplicated local schemas.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -804,12 +807,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add why-forma wording that names the minimum useful
-   contract boundary before packaging.
-2. Product clarity: add README wording that names local-only tasks as a valid
+1. Product clarity: add README wording that names local-only tasks as a valid
    non-adoption outcome after the first-use path.
-3. Product clarity: add quickstart wording that tells users what evidence
+2. Product clarity: add quickstart wording that tells users what evidence
    justifies moving from minimal to checked scaffold.
+3. Product clarity: add provider-adapter wording that distinguishes local smoke
+   providers from production provider adapters.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

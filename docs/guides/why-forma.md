@@ -157,6 +157,12 @@ interfaces: typed inputs, typed outputs, generated host bindings, package
 locks, CI smoke tests, provider profile review, eval reports, and compatibility
 checks.
 
+The minimum useful contract boundary before packaging is a task that has
+reviewable instructions, declared inputs, declared outputs, runtime validation,
+and at least one host smoke path that proves the generated binding is simpler
+than duplicated local schemas. If that boundary is not useful in one
+application, packaging only adds release ceremony.
+
 The useful artifact is not only the `.forma` file. It is the set:
 
 - `examples/review_diff.forma` for the contract
