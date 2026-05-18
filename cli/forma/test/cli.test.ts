@@ -720,9 +720,28 @@ describe("forma cli", () => {
       checks: [
         { name: "package-check", passed: true },
         { name: "package-lock", passed: true, path: join(dir, "review_diff.forma.lock.json") },
+        { name: "examples", passed: true, total: 2, runtimes: ["typescript", "python"] },
         { name: "eval-suite", passed: true, total: 1, failed: 0 },
       ],
     });
+  });
+
+  it("fails package review when host examples are missing", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-no-examples-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    delete manifest.examples;
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({ name: "examples", passed: false, total: 0, runtimes: [] });
   });
 
   it("reviews a package against a baseline eval artifact", async () => {

@@ -117,11 +117,13 @@ forma package-lock examples/review_diff.forma.pkg.json --output examples/review_
 ```
 
 `forma package-review` runs the publish-review checklist for a package:
-manifest validation, adjacent lockfile verification, and eval suite summary. It
-prints a machine-readable checklist result. Add `--baseline baseline.json` to
-compare the candidate eval suite against a previous release artifact; baseline
-comparisons default to `--fail-on breaking,environment` unless you pass a
-different `--fail-on` severity list:
+manifest validation, adjacent lockfile verification, host example presence, and
+eval suite summary. It prints a machine-readable checklist result. The review
+fails when a publishable package does not include TypeScript or Python host
+examples. Add `--baseline baseline.json` to compare the candidate eval suite
+against a previous release artifact; baseline comparisons default to
+`--fail-on breaking,environment` unless you pass a different `--fail-on`
+severity list:
 
 ```bash
 forma package-review examples/review_diff.forma.pkg.json

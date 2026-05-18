@@ -183,12 +183,14 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     return { exitCode: 1, stdout: "", stderr: suiteResult.stderr || "eval suite failed\n" };
   }
   const suite = JSON.parse(suiteResult.stdout) as EvalSuiteArtifact;
+  const examplesCheck = packageExamplesCheck(manifest);
   const checks: Array<Record<string, unknown>> = [
     { name: "package-check", passed: true },
     { name: "package-lock", passed: true, path: lockPath },
+    examplesCheck,
     { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
   ];
-  let passed = true;
+  let passed = examplesCheck.passed === true;
   const baselinePath = optionValue(args, "--baseline");
   if (baselinePath) {
     const failOnArgs = optionValue(args, "--fail-on") ? args : [...args, "--fail-on", "breaking,environment"];
@@ -220,6 +222,16 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
       checks,
     }, null, 2)}\n`,
     stderr: "",
+  };
+}
+
+function packageExamplesCheck(manifest: FormaPackageManifest): Record<string, unknown> {
+  const examples = manifest.examples ?? [];
+  return {
+    name: "examples",
+    passed: examples.length > 0,
+    total: examples.length,
+    runtimes: Array.from(new Set(examples.map((example) => example.runtime))).filter(Boolean),
   };
 }
 

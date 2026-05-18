@@ -165,6 +165,8 @@ Publishing checklist:
 
 - Run `forma package-review` against the manifest, with `--baseline` when a
   previous release artifact is available.
+- Confirm the `examples` row in package-review lists the host runtimes included
+  in the package.
 - Run `forma package-check` against the manifest.
 - Run `forma package-lock --check` against the checked-in lockfile.
 - Run the package eval suite and archive the summary artifact.
