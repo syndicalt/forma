@@ -47,6 +47,11 @@ programs should check `ok` before using `output`; when `diagnostics`,
 `verification.failures`, or `error` are present, treat the model response as
 untrusted and keep the failure in the calling workflow instead of silently
 coercing it into application data.
+Treat failed validation as a host integration bug until proven to be model behavior.
+First check that the host selected the intended task, loaded the current
+generated bindings, passed the expected provider profile, and did not discard
+`diagnostics`, `verification`, or `error`; only then tune the model instruction
+or adapter response.
 
 ## Verification
 

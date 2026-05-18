@@ -290,6 +290,9 @@ The current MVP provides:
 - Package-init docs and generated package READMEs now call package scaffolds
   release candidates, not first-use proofs, and route first-use decisions back
   to minimal or checked host projects.
+- Runtime-results docs now tell hosts to treat failed validation as a host
+  integration bug until task selection, generated bindings, provider profile,
+  and result fields have been checked.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -821,12 +824,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add runtime-result docs wording that describes failed
-   validation as a host integration bug until proven to be model behavior.
-2. Product clarity: add CLI docs wording that package-review is a release gate,
+1. Product clarity: add CLI docs wording that package-review is a release gate,
    not a usefulness test.
-3. Product clarity: add package-consumer troubleshooting wording that says
+2. Product clarity: add package-consumer troubleshooting wording that says
    package-lock smoke failures usually mean a stale reviewed artifact set.
+3. Product clarity: add runtime-result docs examples that show TypeScript and
+   Python hosts branching on `ok` before reading `output`.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
