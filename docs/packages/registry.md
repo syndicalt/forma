@@ -74,6 +74,8 @@ host examples, any scaffolded follow-up planning helpers, and README, then
 uploads the bundle and candidate eval summary as workflow artifacts. On
 matching version tags, it uploads those assets to the GitHub Release so
 consumers can depend on the exact reviewed artifact set.
+When a manifest includes a `tests` section, package review reports the test
+artifact count and requires those files in the publish bundle.
 
 ```json
 {
@@ -215,6 +217,8 @@ Publishing checklist:
   `python`; missing targets fail the review.
 - Confirm the `examples` row in package-review lists both `typescript` and
   `python`; missing runtimes fail the review.
+- Confirm the `tests` row in package-review lists any checked host workflow
+  tests that ship with the package.
 - Confirm the `release-files` row in package-review lists `README.md`,
   `.github/workflows/forma-package.yml`, and
   `.github/workflows/forma-publish.yml`; missing paths fail the review.

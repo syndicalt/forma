@@ -59,6 +59,18 @@
         }
       }
     },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["runtime", "path"],
+        "additionalProperties": false,
+        "properties": {
+          "runtime": { "enum": ["typescript", "python"] },
+          "path": { "type": "string" }
+        }
+      }
+    },
     "releaseFiles": {
       "type": "array",
       "items": {

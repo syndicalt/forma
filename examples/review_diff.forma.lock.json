@@ -4,7 +4,7 @@
     "name": "examples/review-diff",
     "version": "0.1.0",
     "manifest": "review_diff.forma.pkg.json",
-    "manifestSha256": "2330c6af10f52debda521e51d20a9628cb46c199e3d1a2d5052267e0cb7506ca"
+    "manifestSha256": "42fcf78d4ef7f1fc3f4452ce15a9f86a278a7287a6dcc53c458c0b1968735d04"
   },
   "tasks": [
     {
@@ -103,6 +103,28 @@
       "sha256": "f6200fca5b1b96f7e89129735f306748311541cba702987a961df689daed8473"
     }
   ],
+  "tests": [
+    {
+      "runtime": "typescript",
+      "path": "review_diff_decision.test.ts",
+      "sha256": "1743ed7f3f7f2b45a1de66d707409b14b8e5c2fe395ab45081615e81205f419d"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_decision_test.py",
+      "sha256": "9c8f6786bc1663fa183804f7e5e64408902f8a22051d51f61b7b258745bc781a"
+    },
+    {
+      "runtime": "typescript",
+      "path": "tool_permission_workflow.test.ts",
+      "sha256": "584e936231fd0df69a5acb13a00af70c34391e1ca892038b42eeb10f0d38a31b"
+    },
+    {
+      "runtime": "python",
+      "path": "tool_permission_workflow_test.py",
+      "sha256": "4abd3e9b0fd6b6b5ec86bafd4858fdd3a631cd8250ba0a77f450a6c10bf6dcae"
+    }
+  ],
   "releaseFiles": [
     {
       "path": "README.md",
@@ -114,7 +136,7 @@
     },
     {
       "path": ".github/workflows/forma-publish.yml",
-      "sha256": "1aad7c68641e1d4b73e9a0bbf9b267624981258cbe4b90c357734ddfbebb5c70"
+      "sha256": "0f85bb82f1a9977d19f4180346ce0ffa27bf88ef0efaa10cafd90d0492cc725d"
     }
   ]
 }

@@ -100,6 +100,22 @@
         }
       }
     },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["runtime", "path", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "runtime": { "enum": ["typescript", "python"] },
+          "path": { "type": "string" },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
     "releaseFiles": {
       "type": "array",
       "items": {

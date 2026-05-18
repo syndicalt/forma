@@ -208,6 +208,9 @@ The current MVP provides:
 - TypeScript and Python tool-permission workflow helpers combine declared
   `read`, `search`, `test`, and `edit` permissions with typed follow-up
   decisions for host repair workflows.
+- Package manifests, package locks, and package review support checked
+  TypeScript/Python test artifacts, and `package-init --kind tool` scaffolds
+  follow-up helper tests for generated tool packages.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -338,8 +341,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add package-review coverage for scaffolded follow-up
-   helper tests so generated tool packages prove host workflow behavior.
+3. Coding workflow depth: verify lock-based consumers also check pinned package
+   test artifacts when a package lock includes them.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

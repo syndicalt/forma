@@ -148,6 +148,10 @@ interface FormaPackageManifest {
     runtime?: string;
     path?: string;
   }>;
+  tests?: Array<{
+    runtime?: string;
+    path?: string;
+  }>;
   releaseFiles?: Array<{
     path?: string;
   }>;
@@ -226,6 +230,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
   const providerProfileCheck = await packageProviderProfileCheck(manifest, manifestDir);
   const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
+  const testsCheck = packageTestsCheck(manifest);
   const releaseFilesCheck = packageReleaseFilesCheck(manifest);
   const readmeCheck = await packageReadmeCheck(path, manifest, manifestDir);
   const ciWorkflowCheck = await packageCiWorkflowCheck(path, manifest, manifestDir);
@@ -238,6 +243,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     providerProfileCheck,
     bindingsCheck,
     examplesCheck,
+    testsCheck,
     releaseFilesCheck,
     readmeCheck,
     ciWorkflowCheck,
@@ -249,6 +255,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     && providerProfileCheck.passed === true
     && bindingsCheck.passed === true
     && examplesCheck.passed === true
+    && testsCheck.passed === true
     && releaseFilesCheck.passed === true
     && readmeCheck.passed === true
     && ciWorkflowCheck.passed === true
@@ -395,6 +402,19 @@ function packageExamplesCheck(manifest: FormaPackageManifest): Record<string, un
   };
 }
 
+function packageTestsCheck(manifest: FormaPackageManifest): Record<string, unknown> {
+  const tests = manifest.tests ?? [];
+  const runtimes = Array.from(
+    new Set(tests.flatMap((test) => test.runtime === "typescript" || test.runtime === "python" ? [test.runtime] : [])),
+  );
+  return {
+    name: "tests",
+    passed: true,
+    total: tests.length,
+    runtimes,
+  };
+}
+
 function packageReleaseFilesCheck(manifest: FormaPackageManifest): Record<string, unknown> {
   const files = manifest.releaseFiles ?? [];
   const paths = Array.from(
@@ -489,6 +509,7 @@ async function packageBundlePaths(manifestPath: string, manifest: FormaPackageMa
     ...(manifest.providerProfile ? [manifest.providerProfile] : []),
     ...(manifest.bindings ?? []).flatMap((binding) => binding.output ? [binding.output] : []),
     ...(manifest.examples ?? []).flatMap((example) => example.path ? [example.path] : []),
+    ...(manifest.tests ?? []).flatMap((test) => test.path ? [test.path] : []),
     ...(manifest.releaseFiles ?? []).flatMap((file) => file.path ? [file.path] : []),
   ]));
 }
@@ -525,6 +546,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const pythonExample = `${taskName}_package.py`;
   const typeScriptPlan = `${taskName}_plan.ts`;
   const pythonPlan = `${taskName}_plan.py`;
+  const typeScriptPlanTest = `${taskName}_plan.test.ts`;
+  const pythonPlanTest = `${taskName}_plan_test.py`;
   const contractDir = `${taskName}_contract`;
   const typeScriptContract = `${contractDir}/index.ts`;
   const pythonContract = `${contractDir}/__init__.py`;
@@ -547,6 +570,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   if (kind === "tool") {
     await writeFile(resolve(path, typeScriptPlan), scaffoldToolTypeScriptPlan(), "utf8");
     await writeFile(resolve(path, pythonPlan), scaffoldToolPythonPlan(), "utf8");
+    await writeFile(resolve(path, typeScriptPlanTest), scaffoldToolTypeScriptPlanTest(taskName), "utf8");
+    await writeFile(resolve(path, pythonPlanTest), scaffoldToolPythonPlanTest(taskName), "utf8");
   }
   await mkdir(resolve(path, contractDir), { recursive: true });
   await writeFile(resolve(path, typeScriptContract), scaffoldTypeScriptContractModule(taskName, kind, schema), "utf8");
@@ -554,7 +579,13 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(scaffoldProviderProfile(args), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind, schema), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
-  const manifest = {
+  const packageTests = kind === "tool"
+    ? [
+        { runtime: "typescript", path: typeScriptPlanTest },
+        { runtime: "python", path: pythonPlanTest },
+      ]
+    : undefined;
+  const manifest = omitUndefined({
     formaPackage: 1,
     name: packageName,
     version: "0.1.0",
@@ -584,13 +615,14 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
       { runtime: "typescript", path: typeScriptContract },
       { runtime: "python", path: pythonContract },
     ],
+    tests: packageTests,
     releaseFiles: requiredPackageReleaseFiles.map((releasePath) => ({ path: releasePath })),
     compatibility: {
       breaking: ["input", "output", "schemas"],
       review: ["intent", "permissions", "verify", "sourceSha256", "bindings", "examples", "releaseFiles"],
       environment: ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"],
     },
-  };
+  }) as FormaPackageManifest;
   const manifestPath = resolve(path, manifestFile);
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   await writeFile(resolve(path, readmeFile), scaffoldPackageReadme(packageName, taskName, manifestFile, lockFile, evalSuite), "utf8");
@@ -612,6 +644,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
       typeScriptExample,
       pythonExample,
       extraExamples: kind === "tool" ? [typeScriptPlan, pythonPlan] : [],
+      extraTests: kind === "tool" ? [typeScriptPlanTest, pythonPlanTest] : [],
       typeScriptContract,
       pythonContract,
       readmeFile,
@@ -798,6 +831,11 @@ async function createPackageLock(path: string, manifest: FormaPackageManifest, m
       runtime: example.runtime,
       path: example.path,
       sha256: await hashFile(resolve(manifestDir, example.path ?? "")),
+    }))),
+    tests: manifest.tests === undefined ? undefined : await Promise.all(manifest.tests.map(async (test) => ({
+      runtime: test.runtime,
+      path: test.path,
+      sha256: await hashFile(resolve(manifestDir, test.path ?? "")),
     }))),
     releaseFiles: await Promise.all((manifest.releaseFiles ?? []).map(async (file) => ({
       path: file.path,
@@ -1197,6 +1235,7 @@ function scaffoldPackagePublishWorkflow(options: {
   typeScriptExample: string;
   pythonExample: string;
   extraExamples?: string[];
+  extraTests?: string[];
   typeScriptContract: string;
   pythonContract: string;
   readmeFile: string;
@@ -1214,6 +1253,7 @@ function scaffoldPackagePublishWorkflow(options: {
     options.typeScriptExample,
     options.pythonExample,
     ...(options.extraExamples ?? []),
+    ...(options.extraTests ?? []),
     options.typeScriptContract,
     options.pythonContract,
     options.readmeFile,
@@ -1493,6 +1533,29 @@ export function planRepairFollowup(output: ToolRepairOutput): ToolRepairFollowup
     summary: output.summary,
   };
 }
+`;
+}
+
+function scaffoldToolTypeScriptPlanTest(taskName: string): string {
+  return `import { describe, expect, it } from "vitest";
+import { planRepairFollowup, type ToolRepairOutput } from "./${taskName}_plan.js";
+
+describe("${taskName} follow-up planning", () => {
+  it("commits a verified repair", () => {
+    const output: ToolRepairOutput = {
+      summary: "Read src/example.ts, found 1 related matches, and ran pnpm test.",
+      searched: true,
+      test_passed: true,
+      edited: true,
+    };
+
+    expect(planRepairFollowup(output)).toEqual({
+      action: "commit_repair",
+      requiresHumanReview: false,
+      summary: output.summary,
+    });
+  });
+});
 `;
 }
 
@@ -1947,6 +2010,30 @@ def plan_repair_followup(output: ToolRepairOutput) -> dict[str, object]:
 `;
 }
 
+function scaffoldToolPythonPlanTest(taskName: string): string {
+  return `from ${taskName}_plan import plan_repair_followup
+
+
+def test_commits_verified_repair() -> None:
+    output = {
+        "summary": "Read src/example.py, found 1 related matches, and ran pytest.",
+        "searched": True,
+        "test_passed": True,
+        "edited": True,
+    }
+
+    assert plan_repair_followup(output) == {
+        "action": "commit_repair",
+        "requires_human_review": False,
+        "summary": output["summary"],
+    }
+
+
+if __name__ == "__main__":
+    test_commits_verified_repair()
+`;
+}
+
 function scaffoldFunctionRepairPythonExample(taskName: string): string {
   const pascalName = toPascalCase(taskName);
   return `from pathlib import Path
@@ -2073,6 +2160,18 @@ async function validatePackageManifest(manifest: FormaPackageManifest, manifestD
       }
       if (!example.path) throw new Error("example.path is required");
       await readFile(resolve(manifestDir, example.path));
+    }
+  }
+  if (manifest.tests !== undefined) {
+    if (!Array.isArray(manifest.tests)) {
+      throw new Error("tests must be an array");
+    }
+    for (const test of manifest.tests) {
+      if (test.runtime !== "typescript" && test.runtime !== "python") {
+        throw new Error("test.runtime must be typescript or python");
+      }
+      if (!test.path) throw new Error("test.path is required");
+      await readFile(resolve(manifestDir, test.path));
     }
   }
   if (manifest.releaseFiles !== undefined) {

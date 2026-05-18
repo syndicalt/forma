@@ -74,6 +74,24 @@
       "path": "review_diff_contract/__init__.py"
     }
   ],
+  "tests": [
+    {
+      "runtime": "typescript",
+      "path": "review_diff_decision.test.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_decision_test.py"
+    },
+    {
+      "runtime": "typescript",
+      "path": "tool_permission_workflow.test.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "tool_permission_workflow_test.py"
+    }
+  ],
   "releaseFiles": [
     {
       "path": "README.md"

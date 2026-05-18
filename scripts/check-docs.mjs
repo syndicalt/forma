@@ -283,6 +283,22 @@ function validatePackageManifest(path) {
       }
     }
   }
+  if (manifest.tests !== undefined) {
+    if (!Array.isArray(manifest.tests)) {
+      console.error(`${path}: tests must be an array`);
+      process.exit(1);
+    }
+    for (const test of manifest.tests) {
+      if (test.runtime !== "typescript" && test.runtime !== "python") {
+        console.error(`${path}: test.runtime must be typescript or python`);
+        process.exit(1);
+      }
+      if (typeof test.path !== "string" || !existsSync(resolve(manifestDir, test.path))) {
+        console.error(`${path}: test.path does not exist: ${test.path}`);
+        process.exit(1);
+      }
+    }
+  }
   if (manifest.releaseFiles !== undefined) {
     if (!Array.isArray(manifest.releaseFiles)) {
       console.error(`${path}: releaseFiles must be an array`);
@@ -375,6 +391,9 @@ function validatePackageLock(path) {
   }
   for (const example of lock.examples ?? []) {
     assertLockedHash(path, lockDir, example.path, example.sha256, "example");
+  }
+  for (const test of lock.tests ?? []) {
+    assertLockedHash(path, lockDir, test.path, test.sha256, "test");
   }
   for (const file of lock.releaseFiles ?? []) {
     assertLockedHash(path, lockDir, file.path, file.sha256, "release file");
