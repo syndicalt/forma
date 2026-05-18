@@ -183,6 +183,10 @@ The reusable package is the adoption unit, not the prompt file by itself. Adopt
 Forma when the package boundary gives consumers a reviewed contract, generated
 Python and TypeScript bindings, provider-profile defaults, package-lock drift
 checks, eval evidence, and smoke tests that move together.
+A package is useful only when the contract is consumed outside its authoring context.
+If the same application owns the task, provider profile, smoke tests, and
+release process, keep the contract local until another repository or deployment
+handoff needs the reviewed artifact set.
 Copying `.forma` files without bindings, evals, and locks is prompt sharing.
 That can still be useful for a local team, but it is not the reviewed package
 workflow Forma is designed to make durable across Python and TypeScript.

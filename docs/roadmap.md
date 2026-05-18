@@ -356,6 +356,8 @@ The current MVP provides:
   contracts are.
 - Why-Forma now says copying `.forma` files without bindings, evals, and locks
   is prompt sharing.
+- Why-Forma now says a package is useful only when the contract is consumed
+  outside its authoring context.
 - First-use audit now says to defer package review until one concrete consumer
   needs release artifacts.
 - Testing guide now says release proof validates reusable package readiness, not
@@ -895,12 +897,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add why-forma wording that the package is useful only when
-   the contract is consumed outside its authoring context.
-2. Product clarity: add quickstart wording that a package lock should follow a
+1. Product clarity: add quickstart wording that a package lock should follow a
    named consuming application, not generic adoption anxiety.
-3. Product clarity: add README wording that a local prompt extraction should
+2. Product clarity: add README wording that a local prompt extraction should
    stop at minimal or checked scaffolds until reuse is real.
+3. Product clarity: add CLI project-init wording that `--package-lock` is for
+   consuming a reviewed release, not proving the first task.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
