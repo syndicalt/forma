@@ -49,6 +49,15 @@ Consumers can then load the reviewed lock with `agentFromPackageLock(...)` or
 `agent_from_package_lock(...)` and get the same `run(input)` facade as a direct
 `agent(...)` call.
 
+### Migration Parity
+
+The fastest way to judge whether Forma is useful is the checked before/after
+path in `docs/guides/product-proof.md#migration-parity`.
+`examples/review_diff_inline.ts` and `examples/review_diff_inline.py` keep the
+old inline prompt boundary beside the reviewed Forma package, while the
+migration parity tests prove both paths produce the same host-facing review
+decision.
+
 For a minimal deterministic smoke test, run:
 
 ```bash

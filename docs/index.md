@@ -20,6 +20,9 @@ node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
 Read `docs/guides/product-proof.md` for the full reviewed package path.
+Read `docs/guides/product-proof.md#migration-parity` for the Migration Parity
+before/after proof that compares `review_diff_inline` fixtures with the
+reviewed Forma package decision.
 Read `docs/guides/quickstart.md` for the full setup path and expected outputs.
 Read `docs/guides/why-forma.md` for the concrete product problem and the
 `review_diff` coding-agent workflow.

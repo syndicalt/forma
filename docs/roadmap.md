@@ -318,6 +318,8 @@ The current MVP provides:
 - Product proof guide explains the checked migration parity fixtures, direct
   parity-test commands, package-review `migrationParityTests` rows, and
   `missingMigrationParityTests` troubleshooting flow.
+- README and docs index point new readers to the product proof migration parity
+  section and the checked `review_diff_inline` before/after fixtures.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -448,9 +450,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add README and docs index pointers to the product proof
-   migration-parity section so new readers can find the runnable before/after
-   proof from the top-level docs.
+3. Product proof: add a top-level command that runs the full before/after
+   migration parity proof without requiring readers to know the individual
+   TypeScript and Python test commands.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

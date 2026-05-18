@@ -35,6 +35,8 @@ const required = [
 ];
 
 const requiredTerms = {
+  "README.md": ["Migration Parity", "review_diff_inline"],
+  "docs/index.md": ["Migration Parity", "review_diff_inline"],
   "docs/language/diagnostics.md": [
     "F0001",
     "F1001",
