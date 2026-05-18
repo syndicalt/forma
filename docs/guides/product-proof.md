@@ -154,6 +154,10 @@ Fallback smoke evidence is not a substitute for eval coverage. Smoke output can
 show that a fallback route, provider override, or package-lock helper executed,
 but the `eval-suite` row is still the task-quality proof for reviewed model
 behavior.
+Fallback eval changes need baseline comparison, not smoke-only acceptance. When
+fallback policy changes model behavior, compare the candidate eval summary
+against the reviewed baseline before treating a successful smoke run as release
+evidence.
 When README or CI package test commands drift, the failing `readme` or
 `ci-workflow` row reports `missingCommands` with the exact command text to
 restore.
