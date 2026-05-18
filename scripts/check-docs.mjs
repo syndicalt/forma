@@ -27,6 +27,7 @@ const required = [
   "docs/packages/conformance.md",
   "docs/packages/contributing.md",
   "docs/packages/registry.md",
+  ".github/workflows/forma-release-proof.yml",
   "packages/forma-core/schema/package.schema.json",
   "packages/forma-core/schema/package-lock.schema.json",
   "examples/README.md",
@@ -118,6 +119,7 @@ const requiredTerms = {
   "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification"],
   "docs/language/limitations.md": ["MVP", "named task", "provider"],
   "examples/README.md": ["proof:release", "corepack pnpm proof:release", "projects:check"],
+  ".github/workflows/forma-release-proof.yml": ["proof:release", "corepack pnpm proof:release"],
 };
 
 const scanRoots = [

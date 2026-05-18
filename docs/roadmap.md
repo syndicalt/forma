@@ -235,6 +235,8 @@ The current MVP provides:
   `proof:migration && projects:check` as the blocking proof command.
 - The checked package README documents `proof:release`, so release proof docs
   and local package guidance share the same clean-project fixture gate.
+- `.github/workflows/forma-release-proof.yml` runs the top-level
+  `proof:release` gate on pull requests and pushes to `main`.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -531,8 +533,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add root workflow guidance or a top-level CI workflow for
-   `proof:release` so automated gates match the local release proof command.
+3. Product proof: add failure examples for the top-level `proof:release` gate
+   so contributors can distinguish migration parity failures from
+   clean-project fixture drift.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
