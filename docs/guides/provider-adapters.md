@@ -26,6 +26,7 @@ retry budgets, backoff, logging, and circuit-breaker policy in the host
 application or provider adapter so the reviewed task contract stays focused on
 inputs, outputs, permissions, and verification.
 Reviewed package profiles carry shared model defaults; host overrides carry deployment-specific routing and model choices.
+Provider profiles are shared defaults; host overrides are deployment decisions.
 Change the provider profile when every package consumer should inherit a new
 reviewed default. Pass an explicit provider when one host deployment needs
 different routing, retries, logging, or model selection without changing the
