@@ -185,6 +185,11 @@ Fallback route labels should match diagnostics and eval summaries. Use the same
 stable route label in the failed diagnostics, rerun smoke summary, baseline eval
 summary, and candidate eval summary so reviewers can trace which provider path
 produced each artifact.
+Fallback route labels should remain stable across installed smoke reruns. When
+rerunning `packages:installed-smoke` after a provider route change, keep the
+same redacted route label in the failed `installedPackageSmokeFailureSummary`
+and the replacement `installedPackageSmokeSummary` so reviewers can compare the
+same deployment path without reading secret-bearing configuration.
 
 ### Release Artifact Reading Guide
 

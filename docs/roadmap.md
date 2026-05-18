@@ -430,6 +430,8 @@ The current MVP provides:
   preserved across retries.
 - Product-proof docs now say fallback route labels should be compared without
   exposing deployment secrets.
+- Testing guide now says fallback route labels should remain stable across
+  installed smoke reruns.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -992,12 +994,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add testing-guide wording that fallback route labels should
-   remain stable across installed smoke reruns.
-2. Product clarity: add provider-adapter wording that fallback route labels
+1. Product clarity: add provider-adapter wording that fallback route labels
    should be reviewed before becoming shared defaults.
-3. Product clarity: add first-use audit wording that route-label reviews belong
+2. Product clarity: add first-use audit wording that route-label reviews belong
    after first-use proof.
+3. Product clarity: add runtime-result wording that route-label evidence should
+   not be copied into model output.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
