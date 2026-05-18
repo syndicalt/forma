@@ -183,6 +183,10 @@ Cleaned-up route labels should keep candidate diagnostics comparable. Store the
 candidate diagnostics with both the cleaned-up label and the original route key
 so reviewers can compare failure evidence across the rename without treating it
 as a new provider path.
+Cleaned-up route labels should preserve candidate audit lookup keys. Keep
+candidate summaries, candidate diagnostics, comparison notes, and reviewer
+comments searchable by the original candidate route key, then record the
+cleaned-up label as review metadata after candidate acceptance.
 Cleaned-up route labels should preserve eval artifact lookup keys. Keep
 baseline and candidate summaries addressable by the original route key, then
 attach the cleaned-up label as review metadata so historical eval artifacts
