@@ -101,7 +101,7 @@ const requiredTerms = {
     "forma-project.yml",
     "\"missingCommands\": [\"pnpm run smoke:ts\"]",
   ],
-  "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair", "missingMigrationParityProofCommand", "proof:release", "review_diff_migration.test.ts", "forma-project.yml"],
+  "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "missingMigrationParityProofCommand", "proof:release", "review_diff_migration.test.ts", "forma-project.yml"],
   "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run", "proof:release", "projects:check", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "project-init ./review-diff-agent-lock", "--package-lock examples/review_diff.forma.lock.json", "smoke:lock:ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "docs/packages/cli.md", "docs/guides/product-proof.md#verification", "docs/packages/cli.md#package-review-output", "Five-Minute Usefulness Path", "inline prompt plus local schemas", "assertReviewDiffOutput", "assert_review_diff_output", "before package locks", "--minimal", "before package-review or package locks", "smoke:local:ts", "review_diff_local_smoke.py", "StaticProvider", "default project-init", "checked host project", "reviewed package-lock project"],
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
@@ -132,7 +132,7 @@ const requiredTerms = {
     "docs/guides/quickstart.md#reviewed-package-lock-projects",
     "docs/guides/product-proof.md#verification",
   ],
-  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "projects:installed-smoke", "package-install checks", "path-alias checks", "installed-project smoke CI step", "@forma-lang/forma", "forma-lang", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "review_diff_migration.test.ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "forma-project.yml", "missingCommands"],
+  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "projects:installed-smoke", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "package-install checks", "path-alias checks", "installed-project smoke CI step", "@forma-lang/forma", "forma-lang", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "review_diff_migration.test.ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "forma-project.yml", "missingCommands"],
   "docs/guides/migrating-from-inline-prompts.md": [
     "inline prompt",
     ".forma",

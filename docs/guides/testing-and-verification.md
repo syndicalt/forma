@@ -92,14 +92,14 @@ exist, but README or CI no longer runs them through the blocking
 `package-review --proof-command` gate.
 
 Run the same proof through package review when you need the release checklist to
-fail if either the migration proof or checked clean-project fixture fails:
+fail if the migration proof, checked clean-project fixture, or installed package-lock consumers fail:
 
 ```bash
 corepack pnpm proof:release
-node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration && corepack pnpm projects:check"
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration && corepack pnpm projects:check && corepack pnpm packages:installed-smoke"
 ```
 
-Read the `proof-command` row to identify which half failed. If stdout stops at
+Read the `proof-command` row to identify which part failed. If stdout stops at
 `review_diff_migration.test.ts`, fix the TypeScript/Python migration parity
 fixtures before regenerating package locks. If stdout reaches
 `project-check examples/review-diff-agent --json` and the JSON row reports
@@ -111,6 +111,12 @@ restore the named reviewed package-lock smoke files before rerunning
 package-lock smoke commands, restore those commands in
 `.github/workflows/forma-project.yml`; the recovery hint is
 `restore the reviewed package-lock smoke tests`.
+
+`packages:installed-smoke` builds the checked review-diff release bundle,
+extracts it into a temporary consumer, installs the Forma runtimes by package
+name, and runs the reviewed TypeScript and Python lockfile smoke tests from the
+bundle. Use it when changes affect release bundle contents, package locks, or
+`agentFromPackageLock` / `agent_from_package_lock` consumers.
 
 Run CLI smoke tests after building:
 

@@ -93,6 +93,11 @@ or `agent_from_package_lock`. The generated release bundle includes
 `review_diff_contract.test.ts` and `review_diff_contract_test.py` style smoke
 tests so consumers can verify the lockfile-backed contract modules before
 running application code.
+Run `corepack pnpm packages:installed-smoke` before release when registry or
+bundle changes might affect installed package-lock consumers. That smoke builds
+the checked `review_diff` release bundle, extracts it into a temporary
+consumer, installs `@forma-lang/forma` and `forma-lang` by package name, and
+runs the TypeScript and Python lockfile smoke tests from the bundle.
 The checked `review_diff` package also includes
 `review_diff_migration.test.ts` and `review_diff_migration_test.py`, which keep
 an inline TypeScript/Python baseline beside the Forma package version and
