@@ -318,6 +318,8 @@ The current MVP provides:
   ownership, not local cleanup.
 - Runtime-result docs now tell hosts to log `error` with diagnostics before
   retrying the model so validation evidence is preserved.
+- Provider-adapter docs now say host retries should wrap `agent.run(...)`, not
+  the `.forma` contract, keeping retry policy in host code or adapters.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -849,12 +851,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-adapter docs wording that host retries should
-   wrap `agent.run(...)`, not the `.forma` contract.
-2. Product clarity: add testing guide wording that `projects:check` protects
+1. Product clarity: add testing guide wording that `projects:check` protects
    application-owned contracts before package review.
-3. Product clarity: add package-consumer troubleshooting wording that
+2. Product clarity: add package-consumer troubleshooting wording that
    diagnostics should be kept with failed package-lock smoke runs.
+3. Product clarity: add runtime-semantics wording that traces are evidence for
+   host workflow decisions, not just debug output.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

@@ -21,6 +21,10 @@ local schemas, a real model adapter will only add deployment complexity.
 Operational keys, model choice, routing, and retries live in host code so the
 application can keep deployment policy separate from the reviewed task
 contract.
+Host retries should wrap `agent.run(...)`, not the `.forma` contract. Keep
+retry budgets, backoff, logging, and circuit-breaker policy in the host
+application or provider adapter so the reviewed task contract stays focused on
+inputs, outputs, permissions, and verification.
 Reviewed package profiles carry shared model defaults; host overrides carry deployment-specific routing and model choices.
 Change the provider profile when every package consumer should inherit a new
 reviewed default. Pass an explicit provider when one host deployment needs
