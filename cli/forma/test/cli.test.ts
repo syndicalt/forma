@@ -724,6 +724,12 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
+    const publishWorkflow = await readFile(join(dir, ".github", "workflows", "forma-publish.yml"), "utf8");
+    expect(publishWorkflow).toContain("name: Publish Forma package");
+    expect(publishWorkflow).toContain("forma package-review review_diff.forma.pkg.json");
+    expect(publishWorkflow).toContain("tar -czf dist/review_diff.forma-package.tgz");
+    expect(publishWorkflow).toContain("gh release create \"$GITHUB_REF_NAME\"");
+    expect(publishWorkflow).toContain("gh release upload \"$GITHUB_REF_NAME\" dist/review_diff.forma-package.tgz candidate.json");
     expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({
       fixtures: ["review_diff.eval.json"],
     });

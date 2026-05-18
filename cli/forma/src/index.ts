@@ -228,6 +228,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const readmeFile = "README.md";
   const workflowDir = ".github/workflows";
   const workflowFile = "forma-package.yml";
+  const publishWorkflowFile = "forma-publish.yml";
   const schema = scaffoldSchema(args);
   const source = scaffoldSource(taskName, kind, schema);
   await writeFile(resolve(path, taskFile), source, "utf8");
@@ -273,6 +274,25 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, readmeFile), scaffoldPackageReadme(packageName, taskName, manifestFile, lockFile, evalSuite), "utf8");
   await mkdir(resolve(path, workflowDir), { recursive: true });
   await writeFile(resolve(path, workflowDir, workflowFile), scaffoldPackageWorkflow(packageName, manifestFile, lockFile, evalSuite), "utf8");
+  await writeFile(
+    resolve(path, workflowDir, publishWorkflowFile),
+    scaffoldPackagePublishWorkflow({
+      packageName,
+      taskName,
+      taskFile,
+      manifestFile,
+      lockFile,
+      evalFixture,
+      evalSuite,
+      providerProfileFile,
+      typeScriptBindings,
+      pythonBindings,
+      typeScriptExample,
+      pythonExample,
+      readmeFile,
+    }),
+    "utf8",
+  );
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
 
@@ -647,6 +667,82 @@ jobs:
         with:
           name: forma-candidate
           path: candidate.json
+`;
+}
+
+function scaffoldPackagePublishWorkflow(options: {
+  packageName: string;
+  taskName: string;
+  taskFile: string;
+  manifestFile: string;
+  lockFile: string;
+  evalFixture: string;
+  evalSuite: string;
+  providerProfileFile: string;
+  typeScriptBindings: string;
+  pythonBindings: string;
+  typeScriptExample: string;
+  pythonExample: string;
+  readmeFile: string;
+}): string {
+  const bundleFile = `dist/${options.taskName}.forma-package.tgz`;
+  const bundleInputs = [
+    options.manifestFile,
+    options.lockFile,
+    options.taskFile,
+    options.evalFixture,
+    options.evalSuite,
+    options.providerProfileFile,
+    options.typeScriptBindings,
+    options.pythonBindings,
+    options.typeScriptExample,
+    options.pythonExample,
+    options.readmeFile,
+  ].join(" ");
+  return `name: Publish Forma package
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "${options.taskName}-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-forma-package:
+    name: ${options.packageName}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Forma CLI
+        run: npm install --global @forma-lang/cli
+      - name: Review package
+        run: forma package-review ${options.manifestFile}
+      - name: Run eval suite
+        run: forma eval-suite ${options.evalSuite} --summary > candidate.json
+      - name: Build package bundle
+        run: |
+          mkdir -p dist
+          tar -czf ${bundleFile} ${bundleInputs}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forma-package
+          path: |
+            ${bundleFile}
+            candidate.json
+      - name: Publish GitHub release assets
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: \${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \\
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Forma package ${options.packageName}"
+          gh release upload "$GITHUB_REF_NAME" ${bundleFile} candidate.json --clobber
 `;
 }
 

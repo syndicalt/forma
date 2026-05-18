@@ -123,6 +123,8 @@ The current MVP provides:
   eval-suite, and compare commands for CI review.
 - Scaffolded packages include a GitHub Actions workflow that checks the
   manifest, lockfile, and eval-suite summary artifact.
+- Scaffolded packages include a GitHub Actions publishing workflow that builds
+  a reviewed `.tgz` package bundle and uploads release assets from version tags.
 - `forma package-review` runs a machine-readable package publishing checklist
   across manifest validation, lockfile verification, and eval-suite execution.
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,

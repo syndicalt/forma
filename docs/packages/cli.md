@@ -112,20 +112,23 @@ forma package-review examples/review_diff.forma.pkg.json
 eval fixture, eval suite, package manifest, package lockfile, generated
 TypeScript/Python bindings, host examples, and a package `README.md` with CI
 commands. It also writes `.github/workflows/forma-package.yml` as a GitHub
-Actions starting point for package checks. Use `--kind review` for the default code-review
-agent shape or `--kind tool` for a coding-agent shape that declares `read`,
-`search`, `test`, and `edit` permissions and generates host examples that call
-those tools. The scaffold also writes `forma.provider.json`; review-agent host
-examples load it to choose the provider, model, and API-key environment
-variable. Pass `--provider`, `--endpoint`, `--model`, `--api-key-env`,
-`--response-format`, `--temperature`, and `--timeout-ms` to generate a provider
-profile that matches the runtime you plan to use. Repeat `--input-field
-name:Type`, `--output-field name:Type`, and `--output-object Object.field:Type`
-to tailor the generated `.forma` input/output contract, bindings, and eval
-fixture. Field types use Forma syntax, including `?` for optional fields and
-`[]` for arrays. The generated TypeScript and Python examples import the
-generated input/output types and include an example input value that matches the
-customized contract:
+Actions starting point for package checks. It also writes
+`.github/workflows/forma-publish.yml`, which reviews the package, builds a
+versioned `.tgz` bundle, uploads the bundle and candidate eval summary as
+workflow artifacts, and uploads those assets to a GitHub Release when a matching
+tag is pushed. Use `--kind review` for the default code-review agent shape or
+`--kind tool` for a coding-agent shape that declares `read`, `search`, `test`,
+and `edit` permissions and generates host examples that call those tools. The
+scaffold also writes `forma.provider.json`; review-agent host examples load it
+to choose the provider, model, and API-key environment variable. Pass
+`--provider`, `--endpoint`, `--model`, `--api-key-env`, `--response-format`,
+`--temperature`, and `--timeout-ms` to generate a provider profile that matches
+the runtime you plan to use. Repeat `--input-field name:Type`, `--output-field
+name:Type`, and `--output-object Object.field:Type` to tailor the generated
+`.forma` input/output contract, bindings, and eval fixture. Field types use
+Forma syntax, including `?` for optional fields and `[]` for arrays. The
+generated TypeScript and Python examples import the generated input/output
+types and include an example input value that matches the customized contract:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff

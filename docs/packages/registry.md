@@ -51,6 +51,14 @@ candidate eval artifact. It also runs `forma package-review`, which combines
 manifest validation, lockfile verification, and eval-suite execution into one
 machine-readable publishing checklist.
 
+The scaffolded `.github/workflows/forma-publish.yml` automates the release
+artifact path for registry-style sharing. It runs `forma package-review`, writes
+`candidate.json`, builds a `.tgz` bundle containing the manifest, lockfile,
+`.forma` source, evals, provider profile, generated TypeScript/Python bindings,
+host examples, and README, then uploads the bundle and candidate eval summary
+as workflow artifacts. On matching version tags, it uploads those assets to the
+GitHub Release so consumers can depend on the exact reviewed artifact set.
+
 ```json
 {
   "formaPackage": 1,
@@ -161,6 +169,8 @@ Publishing checklist:
   `forma compare --fail-on breaking,environment`.
 - Publish the manifest, lockfile, `.forma` sources, eval suite, provider
   profile, generated TypeScript/Python bindings, and host examples together.
+- Use the scaffolded `forma-publish.yml` workflow when publishing release
+  assets from tags.
 
 ## Verification
 
