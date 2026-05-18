@@ -340,6 +340,8 @@ The current MVP provides:
   file by itself.
 - Documentation index now tells readers to evaluate Forma as a reusable agent
   package workflow before adopting package locks.
+- Quickstart now says package locks are evidence for reusable package adoption,
+  not proof that every local task belongs in Forma.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -871,12 +873,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add quickstart wording that package locks are evidence for
-   reusable package adoption, not proof that every local task belongs in Forma.
-2. Product clarity: add package-consumer wording that application teams should
+1. Product clarity: add package-consumer wording that application teams should
    consume reviewed releases instead of copying package internals.
-3. Product clarity: add CLI docs wording that package-init is for reusable task
+2. Product clarity: add CLI docs wording that package-init is for reusable task
    packages, not local prompt extraction.
+3. Product clarity: add README wording that minimal and checked projects are
+   valid stopping points, not failed adoption.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
