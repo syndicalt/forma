@@ -58,6 +58,12 @@ old inline prompt boundary beside the reviewed Forma package, while the
 migration parity tests prove both paths produce the same host-facing review
 decision.
 
+Run the proof directly with:
+
+```bash
+corepack pnpm proof:migration
+```
+
 For a minimal deterministic smoke test, run:
 
 ```bash

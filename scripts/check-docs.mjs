@@ -35,8 +35,8 @@ const required = [
 ];
 
 const requiredTerms = {
-  "README.md": ["Migration Parity", "review_diff_inline"],
-  "docs/index.md": ["Migration Parity", "review_diff_inline"],
+  "README.md": ["Migration Parity", "review_diff_inline", "proof:migration"],
+  "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration"],
   "docs/language/diagnostics.md": [
     "F0001",
     "F1001",
@@ -78,7 +78,7 @@ const requiredTerms = {
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
   "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],
-  "docs/guides/product-proof.md": ["review_diff", "examples:check", "package-review", "eval-suite", "review_diff_inline", "missingMigrationParityTests"],
+  "docs/guides/product-proof.md": ["review_diff", "examples:check", "package-review", "eval-suite", "review_diff_inline", "missingMigrationParityTests", "proof:migration"],
   "docs/guides/package-consumer-quickstart.md": [
     "agentFromPackageLock",
     "agent_from_package_lock",
@@ -180,6 +180,7 @@ validatePackageManifest("examples/review_diff.forma.pkg.json");
 validatePackageLock("examples/review_diff.forma.lock.json");
 validatePackageManifest("examples/function_repair/repair_function.forma.pkg.json");
 validatePackageLock("examples/function_repair/repair_function.forma.lock.json");
+validateRootPackageScripts();
 
 console.log("docs ok");
 
@@ -212,6 +213,24 @@ function scanFiles(paths) {
 
 function isAllowed(path, phrase) {
   return phraseAllowlist[path]?.has(phrase) ?? false;
+}
+
+function validateRootPackageScripts() {
+  const manifest = JSON.parse(readFileSync("package.json", "utf8"));
+  const migrationProof = manifest.scripts?.["proof:migration"];
+  if (typeof migrationProof !== "string") {
+    console.error("package.json: missing proof:migration script");
+    process.exit(1);
+  }
+  for (const requiredCommand of [
+    "vitest run --config examples/vitest.config.ts examples/review_diff_migration.test.ts",
+    "PYTHONPATH=examples python examples/review_diff_migration_test.py",
+  ]) {
+    if (!migrationProof.includes(requiredCommand)) {
+      console.error(`package.json: proof:migration missing ${requiredCommand}`);
+      process.exit(1);
+    }
+  }
 }
 
 function requiredHeadings(path) {

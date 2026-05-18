@@ -82,6 +82,12 @@ the same `approve` or `request_changes` result.
 Run the parity checks directly with:
 
 ```bash
+corepack pnpm proof:migration
+```
+
+That top-level command expands to the individual runtime checks:
+
+```bash
 npx vitest run --config examples/vitest.config.ts examples/review_diff_migration.test.ts
 PYTHONPATH=examples python examples/review_diff_migration_test.py
 ```
