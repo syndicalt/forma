@@ -52,6 +52,10 @@ that route name through the reviewed provider profile.
 Route labels should stay host-owned until reviewed. Treat route-label cleanup,
 renaming, and redaction as adapter or application configuration until the name
 has enough consumer evidence to become part of the reviewed package profile.
+Route-label cleanup should not mutate reviewed provider profiles. Rename or
+redact deployment labels in the host adapter first; update the shared provider
+profile only after review decides every consumer should inherit the cleaned-up
+route name.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the

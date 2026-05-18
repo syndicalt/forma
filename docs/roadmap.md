@@ -448,6 +448,8 @@ The current MVP provides:
   candidate artifacts comparable.
 - Provider-adapter docs now say route labels should stay host-owned until
   reviewed.
+- Provider-adapter docs now say route-label cleanup should not mutate reviewed
+  provider profiles.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1010,12 +1012,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-adapter wording that route-label cleanup should
-   not mutate reviewed provider profiles.
-2. Product clarity: add testing-guide wording that route-label cleanup should
+1. Product clarity: add testing-guide wording that route-label cleanup should
    preserve release proof comparability.
-3. Product clarity: add runtime-result wording that route-label cleanup should
+2. Product clarity: add runtime-result wording that route-label cleanup should
    preserve failed-result diagnostics.
+3. Product clarity: add first-use audit wording that route-label cleanup should
+   not create package-review prerequisites.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
