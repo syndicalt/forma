@@ -523,6 +523,9 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const pythonBindings = `${taskName}_forma.py`;
   const typeScriptExample = `${taskName}_package.ts`;
   const pythonExample = `${taskName}_package.py`;
+  const contractDir = `${taskName}_contract`;
+  const typeScriptContract = `${contractDir}/index.ts`;
+  const pythonContract = `${contractDir}/__init__.py`;
   const evalFixture = `${taskName}.eval.json`;
   const evalSuite = "forma.eval.json";
   const manifestFile = `${taskName}.forma.pkg.json`;
@@ -539,6 +542,9 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
   await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName, kind, schema), "utf8");
+  await mkdir(resolve(path, contractDir), { recursive: true });
+  await writeFile(resolve(path, typeScriptContract), scaffoldTypeScriptContractModule(taskName, kind, schema), "utf8");
+  await writeFile(resolve(path, pythonContract), scaffoldPythonContractModule(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(scaffoldProviderProfile(args), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind, schema), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
@@ -563,6 +569,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
     examples: [
       { runtime: "typescript", path: typeScriptExample },
       { runtime: "python", path: pythonExample },
+      { runtime: "typescript", path: typeScriptContract },
+      { runtime: "python", path: pythonContract },
     ],
     releaseFiles: requiredPackageReleaseFiles.map((releasePath) => ({ path: releasePath })),
     compatibility: {
@@ -591,6 +599,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
       pythonBindings,
       typeScriptExample,
       pythonExample,
+      typeScriptContract,
+      pythonContract,
       readmeFile,
     }),
     "utf8",
@@ -1173,6 +1183,8 @@ function scaffoldPackagePublishWorkflow(options: {
   pythonBindings: string;
   typeScriptExample: string;
   pythonExample: string;
+  typeScriptContract: string;
+  pythonContract: string;
   readmeFile: string;
 }): string {
   const bundleFile = `dist/${options.taskName}.forma-package.tgz`;
@@ -1187,6 +1199,8 @@ function scaffoldPackagePublishWorkflow(options: {
     options.pythonBindings,
     options.typeScriptExample,
     options.pythonExample,
+    options.typeScriptContract,
+    options.pythonContract,
     options.readmeFile,
     ".github/workflows/forma-package.yml",
     ".github/workflows/forma-publish.yml",
@@ -1351,6 +1365,40 @@ export async function run${pascalName}(input: ${inputType} = exampleInput): Prom
 `;
 }
 
+function scaffoldTypeScriptContractModule(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
+  const pascalName = toPascalCase(taskName);
+  const inputType = `${pascalName}Input`;
+  const exampleInput = renderTypeScriptObject(Object.fromEntries(effectiveInputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "");
+  return `import { fileURLToPath } from "node:url";
+import { agentFromPackageLock } from "@forma-lang/forma";
+import { assert${pascalName}Output, type ${inputType}, type ${pascalName}Output } from "../${taskName}.forma.js";
+
+const lockFile = fileURLToPath(new URL("../${taskName}.forma.lock.json", import.meta.url));
+const exampleInput: ${inputType} = ${exampleInput};
+
+export function ${toCamelCase(taskName)}Agent() {
+  return agentFromPackageLock({
+    lockFile,
+    task: "${taskName}",
+  });
+}
+
+export async function run${pascalName}(input: ${inputType} = exampleInput): Promise<${pascalName}Output> {
+  const result = await ${toCamelCase(taskName)}Agent().run({ ...input });
+  if (!result.ok) {
+    throw new Error(result.error ?? "Forma ${taskName} failed");
+  }
+  return assert${pascalName}Output(result.output);
+}
+
+export type { ${inputType}, ${pascalName}Output } from "../${taskName}.forma.js";
+export { assert${pascalName}Output } from "../${taskName}.forma.js";
+`;
+}
+
 function scaffoldToolTypeScriptExample(taskName: string): string {
   const pascalName = toPascalCase(taskName);
   const camelName = toCamelCase(taskName);
@@ -1486,6 +1534,44 @@ def run_${taskName}(input: ${inputType} = example_input) -> ${pascalName}Output:
     if not result.ok:
         raise RuntimeError(result.error or "Forma ${taskName} failed")
     return assert_${taskName}_output(result.output)
+`;
+}
+
+function scaffoldPythonContractModule(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
+  const pascalName = toPascalCase(taskName);
+  const inputType = `${pascalName}Input`;
+  const exampleInput = renderPythonObject(Object.fromEntries(effectiveInputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "    ");
+  return `from dataclasses import asdict
+from pathlib import Path
+
+from forma import agent_from_package_lock
+from ${taskName}_forma import ${inputType}, ${pascalName}Output, assert_${taskName}_output
+
+_LOCK_FILE = Path(__file__).resolve().parent.parent / "${taskName}.forma.lock.json"
+example_input = ${inputType}.from_dict(${exampleInput})
+
+
+def ${taskName}_agent():
+    return agent_from_package_lock(lock_file=_LOCK_FILE, task="${taskName}")
+
+
+def run_${taskName}(input: ${inputType} = example_input) -> ${pascalName}Output:
+    result = ${taskName}_agent().run(asdict(input))
+    if not result.ok:
+        raise RuntimeError(result.error or "Forma ${taskName} failed")
+    return assert_${taskName}_output(result.output)
+
+
+__all__ = [
+    "${inputType}",
+    "${pascalName}Output",
+    "assert_${taskName}_output",
+    "run_${taskName}",
+    "${taskName}_agent",
+]
 `;
 }
 

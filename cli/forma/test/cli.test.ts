@@ -851,6 +851,16 @@ describe("forma cli", () => {
           path: "review_diff_package.py",
           sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
         },
+        {
+          runtime: "typescript",
+          path: "review_diff_contract/index.ts",
+          sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        },
+        {
+          runtime: "python",
+          path: "review_diff_contract/__init__.py",
+          sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        },
       ],
     });
     expect(lock.providerProfile).not.toHaveProperty("apiKey");
@@ -897,11 +907,11 @@ describe("forma cli", () => {
         { name: "compatibility-policy", passed: true },
         { name: "provider-profile", passed: true, provider: "openai-responses", model: "gpt-5", required: true, apiKeyEnv: "OPENAI_API_KEY" },
         { name: "bindings", passed: true, total: 2, targets: ["typescript", "python"] },
-        { name: "examples", passed: true, total: 2, runtimes: ["typescript", "python"] },
+        { name: "examples", passed: true, total: 4, runtimes: ["typescript", "python"] },
         { name: "release-files", passed: true, total: 3, paths: ["README.md", ".github/workflows/forma-package.yml", ".github/workflows/forma-publish.yml"] },
         { name: "readme", passed: true, total: 6 },
         { name: "ci-workflow", passed: true, total: 4 },
-        { name: "publish-bundle", passed: true, total: 13 },
+        { name: "publish-bundle", passed: true, total: 15 },
         { name: "eval-coverage", passed: true, tasks: ["review_diff"] },
         { name: "eval-suite", passed: true, total: 1, failed: 0 },
       ],
@@ -1146,7 +1156,7 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "examples",
       passed: false,
-      total: 1,
+      total: 2,
       runtimes: ["typescript"],
       missingRuntimes: ["python"],
     });
@@ -1240,7 +1250,7 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "publish-bundle",
       passed: false,
-      total: 13,
+      total: 15,
       missingPaths: ["review_diff_forma.py"],
     });
   });
@@ -1307,6 +1317,12 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("providerFromProfile(providerProfile)");
     expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("provider_profile_from_file");
     expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("provider_from_profile(provider_profile)");
+    expect(await readFile(join(dir, "review_diff_contract", "index.ts"), "utf8")).toContain("agentFromPackageLock");
+    expect(await readFile(join(dir, "review_diff_contract", "__init__.py"), "utf8")).toContain("agent_from_package_lock");
+    expect(manifest.examples).toEqual(expect.arrayContaining([
+      { runtime: "typescript", path: "review_diff_contract/index.ts" },
+      { runtime: "python", path: "review_diff_contract/__init__.py" },
+    ]));
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
@@ -1321,6 +1337,8 @@ describe("forma cli", () => {
     expect(publishWorkflow).toContain("name: Publish Forma package");
     expect(publishWorkflow).toContain("forma package-review review_diff.forma.pkg.json");
     expect(publishWorkflow).toContain("tar -czf dist/review_diff.forma-package.tgz");
+    expect(publishWorkflow).toContain("review_diff_contract/index.ts");
+    expect(publishWorkflow).toContain("review_diff_contract/__init__.py");
     expect(publishWorkflow).toContain("gh release create \"$GITHUB_REF_NAME\"");
     expect(publishWorkflow).toContain("gh release upload \"$GITHUB_REF_NAME\" dist/review_diff.forma-package.tgz candidate.json");
     expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({
@@ -1345,6 +1363,11 @@ describe("forma cli", () => {
     expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
     const lockCheck = await runCli(["package-lock", manifestPath, "--output", lockPath, "--check"]);
     expect(lockCheck).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    const review = await runCli(["package-review", manifestPath]);
+    expect(JSON.parse(review.stdout).checks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ name: "examples", passed: true, total: 4, runtimes: ["typescript", "python"] }),
+      expect.objectContaining({ name: "publish-bundle", passed: true, total: 15 }),
+    ]));
   });
 
   it("scaffolds a package with custom provider profile settings", async () => {

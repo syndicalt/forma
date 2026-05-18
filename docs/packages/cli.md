@@ -165,9 +165,12 @@ forma package-review examples/review_diff.forma.pkg.json --baseline baseline.jso
 
 `forma package-init` scaffolds a starter package directory with a `.forma` task,
 eval fixture, eval suite, package manifest, package lockfile, generated
-TypeScript/Python bindings, host examples, and a package `README.md` with CI
-commands. It also writes `.github/workflows/forma-package.yml` as a GitHub
-Actions starting point for package checks. It also writes
+TypeScript/Python bindings, host examples, importable contract modules, and a
+package `README.md` with CI commands. The generated contract modules wrap
+`agentFromPackageLock(...)` and `agent_from_package_lock(...)` so package
+consumers can import a stable module instead of copying example files. It also
+writes `.github/workflows/forma-package.yml` as a GitHub Actions starting point
+for package checks. It also writes
 `.github/workflows/forma-publish.yml`, which reviews the package, builds a
 versioned `.tgz` bundle, uploads the bundle and candidate eval summary as
 workflow artifacts, and uploads those assets to a GitHub Release when a matching

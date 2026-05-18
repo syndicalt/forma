@@ -178,6 +178,8 @@ The current MVP provides:
   standard agent facade.
 - Checked-in importable TypeScript and Python contract entrypoints expose the
   reviewed `review_diff` package through stable module layouts.
+- `forma package-init` scaffolds importable TypeScript and Python contract
+  modules for new packages.
 - Package scaffolding supports review-agent, generic tool-using coding-agent,
   and focused function-repair templates through `--kind review`, `--kind tool`,
   and `--kind function-repair`.
@@ -324,10 +326,10 @@ The next three implementation slices should be:
 1. Clean-project onboarding: add installed-project smoke tests for the
    published TypeScript and Python package names once release packaging is
    available.
-2. Registry and versioning: teach `forma package-init` to scaffold the
-   importable contract module layout for new packages.
-3. Runtime ergonomics: add package-lock verification for host examples and
+2. Runtime ergonomics: add package-lock verification for host examples and
    release files in the public lock helpers.
+3. Registry and versioning: add installed-package smoke tests once release
+   packaging is available.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
