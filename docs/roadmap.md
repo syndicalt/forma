@@ -170,6 +170,7 @@ The current MVP provides:
   named output object schemas through repeatable schema flags.
 - Custom-schema scaffolds generate TypeScript and Python host examples that
   import the generated input types and run with schema-matched example input.
+- Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
 - Duplicate task name diagnostics.
