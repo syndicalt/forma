@@ -67,6 +67,16 @@ if (!result.ok) {
 console.log(result.output.summary);
 ```
 
+Generated packages also include a small contract module so application code can
+import a task-specific helper instead of spelling out the lockfile path:
+
+```ts
+import { reviewCodeDiff } from "./review_diff_contract/index.js";
+
+const output = await reviewCodeDiff("diff --git a/src/example.ts b/src/example.ts");
+console.log(output.summary);
+```
+
 Python applications use the matching `agent_from_package_lock(...)` API:
 
 ```python
@@ -87,6 +97,15 @@ if not result.ok:
 print(result.output["summary"])
 ```
 
+The generated Python contract module follows the same pattern:
+
+```python
+from review_diff_contract import review_code_diff
+
+output = review_code_diff("diff --git a/src/example.py b/src/example.py")
+print(output.summary)
+```
+
 Both helpers read the reviewed provider profile from the lockfile when a
 provider is not supplied directly. The profile names the provider, model,
 response format, timeout, temperature, endpoint when needed, and `apiKeyEnv`.
@@ -96,6 +115,25 @@ host runtime before running the agent:
 ```bash
 export OPENAI_API_KEY=sk-...
 ```
+
+Model selection lives in the reviewed provider profile, not in the generated
+contract module:
+
+```json
+{
+  "provider": "openai-responses",
+  "model": "gpt-5",
+  "apiKeyEnv": "OPENAI_API_KEY",
+  "responseFormat": "json_object",
+  "timeoutMs": 30000
+}
+```
+
+Change that `model` value when the package should use a different default model
+in every host runtime, then regenerate and review the package lock so the
+change is visible as reviewed artifact drift. Use an explicit provider when a
+specific deployment needs to override routing or model choice without changing
+the package default.
 
 Pass an explicit provider when the host application needs custom retries,
 logging, routing, or test doubles:
@@ -110,6 +148,38 @@ const reviewDiff = agentFromPackageLock({
   provider,
 });
 ```
+
+```python
+from forma import agent_from_package_lock, provider_from_profile, provider_profile_from_file
+
+provider = provider_from_profile(provider_profile_from_file("forma.provider.json"))
+review_diff = agent_from_package_lock(
+    lock_file="review_diff.forma.lock.json",
+    task="review_diff",
+    provider=provider,
+)
+```
+
+## What The Helper Calls
+
+The generated `reviewDiffAgent()` / `review_diff_agent()` function is a thin
+wrapper around the runtime helper. It calls:
+
+1. `agentFromPackageLock(...)` or `agent_from_package_lock(...)`.
+2. The package-lock verifier, which hashes the pinned `.forma` source,
+   provider profile, generated bindings, examples, tests, and release files.
+3. `providerFromProfile(...)` or `provider_from_profile(...)`, unless the host
+   passed an explicit provider.
+4. The base `agent(...)` helper with the reviewed `.forma` file, task name, and
+   provider.
+5. `FormaRuntime.runFile(...)` / `run_file(...)`, which parses the `.forma`
+   task and sends the instruction, input values, permissions, output contract,
+   schemas, and tools to the configured provider.
+
+So the `.forma` document is not called by the model directly. The host program
+calls the generated contract helper, the helper verifies the reviewed package
+artifacts, and the runtime calls the host-selected provider with the reviewed
+instruction and schema.
 
 ## Verification
 

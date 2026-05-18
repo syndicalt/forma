@@ -259,6 +259,9 @@ The current MVP provides:
   guidance and reports `missingGuidance` in CI and publish workflow rows.
 - Registry docs explain the package-review troubleshooting guidance gates for
   generated package and publish workflows.
+- Package consumer quickstart explains where provider keys and model defaults
+  live, shows TypeScript and Python generated contract imports, and traces what
+  the generated `agent(...)` helpers call at runtime.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -389,9 +392,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Runtime embedding clarity: add focused TypeScript and Python package-consumer
-   docs for provider key placement, model selection, and what the generated
-   `agent(...)` helpers call.
+3. Runtime embedding clarity: add generated README guidance that points package
+   consumers to the provider-key, model-selection, and helper-call flow in the
+   package consumer quickstart.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
