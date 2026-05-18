@@ -19,6 +19,10 @@ The `review_diff_decision.ts` and `review_diff_decision.py` examples show a
 host workflow consuming the typed `ReviewDiffOutput`: clean reviews become
 `approve`, and reviews with structured findings become `request_changes` with
 deduplicated affected paths.
+The `review_diff_inline.ts`, `review_diff_inline.py`, and
+`review_diff_migration.*` tests keep an inline baseline beside the Forma
+contract so reviewers can see that migration preserves the same host-facing
+review decision.
 The `tool_permission_workflow.ts` and `tool_permission_workflow.py` examples
 show declared `read`, `search`, `test`, and `edit` permissions with typed
 follow-up planning from `tool_permission_plan.ts` and `tool_permission_plan.py`.
@@ -31,10 +35,11 @@ Run these checks before publishing or consuming a changed package:
 forma package-review review_diff.forma.pkg.json
 forma package-check review_diff.forma.pkg.json
 forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
-npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts
+npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts
 python review_diff_decision_test.py
 python tool_permission_workflow_test.py
 python review_diff_contract_test.py
+python review_diff_migration_test.py
 forma eval-suite forma.eval.json --summary > candidate.json
 forma package-review review_diff.forma.pkg.json --baseline baseline.json
 forma compare baseline.json candidate.json --fail-on breaking,environment

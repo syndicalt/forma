@@ -67,6 +67,14 @@
     },
     {
       "runtime": "typescript",
+      "path": "review_diff_inline.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_inline.py"
+    },
+    {
+      "runtime": "typescript",
       "path": "review_diff_contract/index.ts"
     },
     {
@@ -98,6 +106,14 @@
     {
       "runtime": "python",
       "path": "review_diff_contract_test.py"
+    },
+    {
+      "runtime": "typescript",
+      "path": "review_diff_migration.test.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_migration_test.py"
     }
   ],
   "releaseFiles": [

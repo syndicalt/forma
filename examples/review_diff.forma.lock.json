@@ -4,7 +4,7 @@
     "name": "examples/review-diff",
     "version": "0.1.0",
     "manifest": "review_diff.forma.pkg.json",
-    "manifestSha256": "943b91b0eca3ae30abb989c765c2c2cad9da5ea5a483eaf9db8ccad6254b543b"
+    "manifestSha256": "b274980c1d6794b0289fab1f31868b3130ba6cd3e56c42bb904fe93a2ff201f9"
   },
   "tasks": [
     {
@@ -94,6 +94,16 @@
     },
     {
       "runtime": "typescript",
+      "path": "review_diff_inline.ts",
+      "sha256": "ea3a01318f8e97e28ee80f3c917ec6758163b77ba1d10ba52700b7564d996ea9"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_inline.py",
+      "sha256": "5f2040fd2de52a5f278a47bdba19af0ace15c4d0b6861f081bb64962dc4dfe0d"
+    },
+    {
+      "runtime": "typescript",
       "path": "review_diff_contract/index.ts",
       "sha256": "bb4391e98ee5319e68901f78dc246cca3bb0f1f25efc6e808cee7c61966412fe"
     },
@@ -133,20 +143,30 @@
       "runtime": "python",
       "path": "review_diff_contract_test.py",
       "sha256": "7cefed1df5dbe91228b51902913e6d7911b6aaa59bae2e8ab04773248d6131f2"
+    },
+    {
+      "runtime": "typescript",
+      "path": "review_diff_migration.test.ts",
+      "sha256": "567ea075e6cbacf848c2bf902919815fcba1e712f837b7cecb8e3912d4f83f68"
+    },
+    {
+      "runtime": "python",
+      "path": "review_diff_migration_test.py",
+      "sha256": "ebb490452a2a8367d61c4ca66b70a627b89fe028f154a86a9aef23ec7f42d8d6"
     }
   ],
   "releaseFiles": [
     {
       "path": "README.md",
-      "sha256": "fc21bf9511f3d80982b0da573157e2f68d5d07877593d8d3645d6b409dc20530"
+      "sha256": "eca76324838b542b3cc2f2c71a2fcaa2c08a5d696659fbf8c32bc18fd8e9eb7d"
     },
     {
       "path": ".github/workflows/forma-package.yml",
-      "sha256": "84d7cf72f0db0d7f55c8e826e57c35c25891293e3b2e14dca159a020d4118e5a"
+      "sha256": "4354656b2d31d0c18196875ef6a7a347c6ac4976430e1e127836780ea0cf99b7"
     },
     {
       "path": ".github/workflows/forma-publish.yml",
-      "sha256": "093fa4b61c833d622f0fabc536728bd0b64c1ca12df14a204cd6f1b470c48ef9"
+      "sha256": "12f0a808d14daf51883349d9ba27c27e72be5198b375be63f64e91250f2f02b8"
     }
   ]
 }

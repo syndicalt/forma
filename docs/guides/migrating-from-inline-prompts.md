@@ -180,6 +180,14 @@ moves into reviewed artifacts instead:
 | One-off smoke tests | package tests pinned in `review_diff.forma.lock.json` |
 | Manual release review | `forma package-review` checklist and eval comparison |
 
+The checked `examples/review_diff` package keeps the before/after migration
+proof as runnable fixtures. `examples/review_diff_inline.ts` and
+`examples/review_diff_inline.py` model the old inline baseline.
+`examples/review_diff_migration.test.ts` and
+`examples/review_diff_migration_test.py` convert that baseline output into the
+generated Forma output shape and assert that the host review decision is
+unchanged.
+
 When the task is ready to share, scaffold a package so the contract, evals,
 bindings, provider profile, examples, README, workflows, manifest, and lockfile
 move together:
@@ -196,6 +204,8 @@ Use the package review gate as the migration finish line:
 ```bash
 forma package-check review_diff.forma.pkg.json
 forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
+npx vitest run review_diff_migration.test.ts
+python review_diff_migration_test.py
 forma eval-suite forma.eval.json --summary > candidate.json
 forma package-review review_diff.forma.pkg.json --baseline baseline.json
 forma compare baseline.json candidate.json --fail-on breaking,environment

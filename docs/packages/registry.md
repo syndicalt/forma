@@ -93,6 +93,10 @@ or `agent_from_package_lock`. The generated release bundle includes
 `review_diff_contract.test.ts` and `review_diff_contract_test.py` style smoke
 tests so consumers can verify the lockfile-backed contract modules before
 running application code.
+The checked `review_diff` package also includes
+`review_diff_migration.test.ts` and `review_diff_migration_test.py`, which keep
+an inline TypeScript/Python baseline beside the Forma package version and
+assert that migration preserves the same host-facing review decision.
 
 ```json
 {

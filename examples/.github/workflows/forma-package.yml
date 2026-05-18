@@ -22,13 +22,15 @@ jobs:
       - name: Check package lock
         run: forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
       - name: Run TypeScript package tests
-        run: npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts
+        run: npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts
       - name: Run Python package test
         run: python review_diff_decision_test.py
       - name: Run Python package test
         run: python tool_permission_workflow_test.py
       - name: Run Python package test
         run: python review_diff_contract_test.py
+      - name: Run Python package test
+        run: python review_diff_migration_test.py
       - name: Run eval suite
         run: forma eval-suite forma.eval.json --summary > candidate.json
       - name: Review package
