@@ -2862,6 +2862,7 @@ TypeScript compiler, Python bytecode compilation, and both generated
 CI checks are worth this scaffold when application code depends on the generated binding shape,
 when both TypeScript and Python entrypoints should stay aligned, or when
 workflow drift should fail before a reviewed package lock exists.
+Keep checked CI only when it guards real application dependencies.
 
 Use the JSON output in CI when you need machine-readable check rows:
 

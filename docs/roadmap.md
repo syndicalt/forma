@@ -243,6 +243,8 @@ The current MVP provides:
 - Runtime-result docs now explain validation failures as the guard between
   model output and host code, telling applications to check `ok` before
   trusting output.
+- Generated checked-project READMEs now tell users to keep checked CI only when
+  it guards real application dependencies.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -774,12 +776,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add generated checked-project README wording that tells
-   users to keep checked CI only when it guards real application dependencies.
-2. Product clarity: add README wording that points skeptical readers to the
+1. Product clarity: add README wording that points skeptical readers to the
    same first-use audit before the product-proof command block.
-3. Product clarity: add package-consumer quickstart wording that treats lock
+2. Product clarity: add package-consumer quickstart wording that treats lock
    consumption as a dependency decision, not a starter path.
+3. Product clarity: add language overview wording that describes `.forma` as
+   one artifact in a contract toolchain, not the whole product.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
