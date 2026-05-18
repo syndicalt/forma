@@ -529,6 +529,9 @@ The current MVP provides:
   artifact categories, and error message.
 - Installed-package smoke matrix rows now carry `expectedArtifacts` so each
   package kind documents why its bundle files are required.
+- Installed-package smoke matrix rows now validate each `expectedArtifacts`
+  group against concrete `expectedArtifactFiles` in the bundle manifest and the
+  extracted package before running TypeScript or Python consumers.
 - Verification docs now include triage guidance for each installed-package
   smoke package kind: reviewed lock consumer, function-repair tool package, and
   generated reviewed package-lock project consumer.
@@ -675,12 +678,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: validate installed-package smoke `expectedArtifacts`
-   against bundled file groups instead of only checking field presence.
-2. Registry and versioning: include installed-package smoke summary examples in
+1. Registry and versioning: include installed-package smoke summary examples in
    release workflow artifacts.
-3. Registry and versioning: add a package-lock compatibility fixture that
+2. Registry and versioning: add a package-lock compatibility fixture that
    proves artifact group changes are reviewable across versions.
+3. Registry and versioning: add package artifact group change notes to registry
+   publishing guidance.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

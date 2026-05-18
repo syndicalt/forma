@@ -129,7 +129,8 @@ printed before and after the smoke run so release proof logs identify the exact
 bundle that failed. Successful runs end with a compact
 `installedPackageSmokeSummary` JSON line with the package kind, bundle, consumer
 directory, expected artifact categories, and TypeScript/Python smoke commands
-for CI log parsers. Failed runs emit an
+for CI log parsers. The summary also includes `expectedArtifactFiles`, the
+concrete bundle file groups validated before runtime tests start. Failed runs emit an
 `installedPackageSmokeFailureSummary` JSON line before temporary cleanup, with
 the failed package kind, completed package rows, expected artifact categories,
 and error message.

@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { execFile } from "node:child_process";
@@ -84,11 +84,26 @@ const installedPackageSmokes = [
   {
     packageKind: "review-diff package-lock consumer",
     expectedArtifacts: [
-      "reviewed package manifest and lock",
-      "task source, provider profile, and eval suite",
-      "generated TypeScript and Python bindings",
-      "lock-aware contract tests and importable contract helpers",
-      "package README and release workflows",
+      {
+        label: "reviewed package manifest and lock",
+        files: ["review_diff.forma.pkg.json", "review_diff.forma.lock.json"],
+      },
+      {
+        label: "task source, provider profile, and eval suite",
+        files: ["review_diff.forma", "forma.provider.json", "forma.eval.json"],
+      },
+      {
+        label: "generated TypeScript and Python bindings",
+        files: ["review_diff.forma.ts", "review_diff_forma.py", "review_diff_package.ts", "review_diff_package.py"],
+      },
+      {
+        label: "lock-aware contract tests and importable contract helpers",
+        files: ["review_diff_contract", "review_diff_contract.test.ts", "review_diff_contract_test.py"],
+      },
+      {
+        label: "package README and release workflows",
+        files: ["README.md", ".github/workflows/forma-package.yml", ".github/workflows/forma-publish.yml"],
+      },
     ],
     packageDir: "review-diff-package",
     bundleName: "review_diff.forma-package.tgz",
@@ -132,11 +147,22 @@ const installedPackageSmokes = [
   {
     packageKind: "function-repair tool package",
     expectedArtifacts: [
-      "function-repair package manifest and lock",
-      "tool-using task source, provider profile, and eval fixtures",
-      "generated TypeScript and Python bindings",
-      "host examples for the coding-agent tool workflow",
-      "package README and release workflows",
+      {
+        label: "function-repair package manifest and lock",
+        files: ["repair_function.forma.pkg.json", "repair_function.forma.lock.json"],
+      },
+      {
+        label: "tool-using task source, provider profile, and eval fixtures",
+        files: ["repair_function.forma", "forma.provider.json", "forma.eval.json", "repair_function.eval.json"],
+      },
+      {
+        label: "generated TypeScript and Python bindings",
+        files: ["repair_function.forma.ts", "repair_function_forma.py", "repair_function_package.ts", "repair_function_package.py"],
+      },
+      {
+        label: "package README and release workflows",
+        files: ["README.md", ".github/workflows/forma-package.yml", ".github/workflows/forma-publish.yml"],
+      },
     ],
     packageDir: "function-repair-package",
     bundleName: "repair_function.forma-package.tgz",
@@ -163,11 +189,26 @@ const installedPackageSmokes = [
   {
     packageKind: "reviewed package-lock project consumer",
     expectedArtifacts: [
-      "reviewed package manifest and lock for project-init --package-lock",
-      "task source, provider profile, and eval suite",
-      "generated TypeScript and Python bindings",
-      "reviewed package-lock smoke tests consumed by the generated host project",
-      "package README and release workflows",
+      {
+        label: "reviewed package manifest and lock for project-init --package-lock",
+        files: ["review_diff.forma.pkg.json", "review_diff.forma.lock.json"],
+      },
+      {
+        label: "task source, provider profile, and eval suite",
+        files: ["review_diff.forma", "forma.provider.json", "forma.eval.json"],
+      },
+      {
+        label: "generated TypeScript and Python bindings",
+        files: ["review_diff.forma.ts", "review_diff_forma.py", "review_diff_package.ts", "review_diff_package.py"],
+      },
+      {
+        label: "reviewed package-lock smoke tests consumed by the generated host project",
+        files: ["review_diff_contract", "review_diff_contract.test.ts", "review_diff_contract_test.py"],
+      },
+      {
+        label: "package README and release workflows",
+        files: ["README.md", ".github/workflows/forma-package.yml", ".github/workflows/forma-publish.yml"],
+      },
     ],
     packageDir: "review-diff-lock-project-package",
     bundleName: "review_diff.lock-project-package.tgz",
@@ -215,6 +256,39 @@ function smokeCommand(command) {
   return command.join(" ");
 }
 
+function expectedArtifactLabels(smoke) {
+  return smoke.expectedArtifacts.map((artifact) => artifact.label);
+}
+
+function expectedArtifactFiles(smoke) {
+  return smoke.expectedArtifacts.map((artifact) => ({
+    label: artifact.label,
+    files: artifact.files,
+  }));
+}
+
+async function validateExpectedArtifactGroups(smoke, packageDir) {
+  const bundledFiles = new Set(smoke.files);
+  for (const artifact of smoke.expectedArtifacts) {
+    if (!artifact.label || !Array.isArray(artifact.files) || artifact.files.length === 0) {
+      throw new Error(`${smoke.packageKind}: expected artifact group must have a label and files`);
+    }
+    for (const file of artifact.files) {
+      if (!bundledFiles.has(file)) {
+        throw new Error(`${smoke.packageKind}: expected artifact "${artifact.label}" is not in bundle files: ${file}`);
+      }
+      try {
+        await stat(join(packageDir, file));
+      } catch (error) {
+        if (error.code === "ENOENT") {
+          throw new Error(`${smoke.packageKind}: expected artifact "${artifact.label}" was not extracted: ${file}`);
+        }
+        throw error;
+      }
+    }
+  }
+}
+
 function smokePackageSummary(smoke, workDir, consumerDir, passed) {
   const [typeScriptCommand, typeScriptArgs] = smoke.typeScriptCommand;
   return {
@@ -222,7 +296,8 @@ function smokePackageSummary(smoke, workDir, consumerDir, passed) {
     bundleName: smoke.bundleName,
     packageDir: smoke.packageDir,
     consumerDir: consumerDir ? relative(workDir, consumerDir) : smoke.packageDir,
-    expectedArtifacts: smoke.expectedArtifacts,
+    expectedArtifacts: expectedArtifactLabels(smoke),
+    expectedArtifactFiles: expectedArtifactFiles(smoke),
     typeScriptCommand: smokeCommand([typeScriptCommand, ...typeScriptArgs]),
     pythonCommand: smokeCommand(smoke.pythonCommand),
     passed,
@@ -377,15 +452,20 @@ async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
   if (process.env.FORMA_INSTALLED_PACKAGE_SMOKE_FAIL_KIND === smoke.packageKind) {
     throw new Error(`injected installed package smoke failure: ${smoke.packageKind}`);
   }
+  const dropBundleFile = process.env.FORMA_INSTALLED_PACKAGE_SMOKE_DROP_BUNDLE_FILE;
+  const bundleFiles = dropBundleFile
+    ? smoke.files.filter((file) => file !== dropBundleFile)
+    : smoke.files;
   const packageDir = join(workDir, smoke.packageDir);
   const bundlePath = join(workDir, smoke.bundleName);
   await mkdir(packageDir, { recursive: true });
   await createBundle({
     sourceDir: smoke.sourceDir,
     bundlePath,
-    files: smoke.files,
+    files: bundleFiles,
   });
   await run("tar", ["-xzf", bundlePath, "-C", packageDir]);
+  await validateExpectedArtifactGroups(smoke, packageDir);
 
   let consumerDir = packageDir;
   if (smoke.prepare) {
