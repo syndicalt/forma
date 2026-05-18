@@ -42,6 +42,12 @@ The shipped result fields are:
 - `verification`: assertion status and failures.
 - `error`: runtime error text or `null` / `None`.
 
+Validation failures are the guard between model output and host code. Host
+programs should check `ok` before using `output`; when `diagnostics`,
+`verification.failures`, or `error` are present, treat the model response as
+untrusted and keep the failure in the calling workflow instead of silently
+coercing it into application data.
+
 ## Verification
 
 The conformance fixture `packages/forma-core/conformance/greet_user.json`
