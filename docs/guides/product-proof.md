@@ -164,6 +164,9 @@ candidate eval summaries so reviewers know which deployment path changed.
 Fallback route labels should appear in candidate summaries. The candidate
 artifact should repeat the stable route label used in logs and diagnostics so
 the baseline comparison shows which provider path produced the reviewed output.
+Fallback route labels should be compared without exposing deployment secrets.
+Use redacted, stable labels in baseline and candidate summaries instead of API
+keys, account identifiers, customer names, or secret-manager paths.
 When README or CI package test commands drift, the failing `readme` or
 `ci-workflow` row reports `missingCommands` with the exact command text to
 restore.
