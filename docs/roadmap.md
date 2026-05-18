@@ -386,6 +386,8 @@ The current MVP provides:
   lock regeneration.
 - First-use audit now says fallback comparisons belong after host-code
   simplification proof.
+- Runtime results now say fallback traces are workflow evidence, not model
+  output.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -948,12 +950,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add runtime-semantics wording that fallback traces are
-   workflow evidence, not model output.
-2. Product clarity: add package-consumer troubleshooting wording that lock
+1. Product clarity: add package-consumer troubleshooting wording that lock
    regeneration should not be used to test fallback policy.
-3. Product clarity: add provider-adapter wording that fallback comparisons
+2. Product clarity: add provider-adapter wording that fallback comparisons
    should happen after validation, not before.
+3. Product clarity: add product-proof wording that fallback smoke evidence is
+   not a substitute for eval coverage.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

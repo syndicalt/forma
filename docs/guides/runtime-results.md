@@ -68,6 +68,9 @@ Fallback comparisons should keep both failed and replacement results. Store the
 first failed `FormaResult` beside the fallback result so reviewers can compare
 errors, diagnostics, verification failures, and traces before trusting the
 replacement output.
+Fallback traces are workflow evidence, not model output. Treat trace entries as
+the host workflow record for validation, retries, and provider routing; do not
+copy fallback trace text into the agent response or application-facing output.
 
 ## Verification
 
