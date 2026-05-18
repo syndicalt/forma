@@ -138,7 +138,7 @@ const requiredTerms = {
     "docs/guides/quickstart.md#reviewed-package-lock-projects",
     "docs/guides/product-proof.md#verification",
   ],
-  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "projects:installed-smoke", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "package-install checks", "path-alias checks", "installed-project smoke CI step", "installed-package smoke CI step", "@forma-lang/forma", "forma-lang", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "review_diff_migration.test.ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "forma-project.yml", "missingCommands", "packageKind", "installedPackageSmokeSummary", "installedPackageSmokeFailureSummary", "expected artifact categories", "expectedArtifactFiles", "Installed-Package Smoke Triage", "review-diff package-lock consumer failure", "function-repair tool package failure", "reviewed package-lock project consumer failure"],
+  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "projects:installed-smoke", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "package-install checks", "path-alias checks", "installed-project smoke CI step", "installed-package smoke CI step", "@forma-lang/forma", "forma-lang", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "review_diff_migration.test.ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "forma-project.yml", "missingCommands", "packageKind", "installedPackageSmokeSummary", "installedPackageSmokeFailureSummary", "expected artifact categories", "expectedArtifactFiles", "installed-package-smoke-summary.jsonl", "forma-release-proof-artifacts", "Installed-Package Smoke Triage", "review-diff package-lock consumer failure", "function-repair tool package failure", "reviewed package-lock project consumer failure"],
   "docs/guides/migrating-from-inline-prompts.md": [
     "inline prompt",
     ".forma",
@@ -151,7 +151,7 @@ const requiredTerms = {
   "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification"],
   "docs/language/limitations.md": ["MVP", "named task", "provider"],
   "examples/README.md": ["proof:release", "corepack pnpm proof:release", "projects:check"],
-  ".github/workflows/forma-release-proof.yml": ["proof:release", "corepack pnpm proof:release"],
+  ".github/workflows/forma-release-proof.yml": ["proof:release", "corepack pnpm proof:release", "installed-package-smoke-summary.jsonl", "actions/upload-artifact", "installedPackageSmokeSummary"],
 };
 
 const scanRoots = [

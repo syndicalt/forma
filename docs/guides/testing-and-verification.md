@@ -142,6 +142,11 @@ release-bundle coverage without running the full release proof:
 - run: corepack pnpm packages:installed-smoke
 ```
 
+The repository release workflow also captures the raw
+`installedPackageSmokeSummary` or `installedPackageSmokeFailureSummary` line in
+`installed-package-smoke-summary.jsonl` and uploads it with the installed smoke
+log as `forma-release-proof-artifacts`.
+
 ### Installed-Package Smoke Triage
 
 Triage by the last `installed package smoke: ...` marker before the failure:

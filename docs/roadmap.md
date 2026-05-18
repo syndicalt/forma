@@ -553,6 +553,11 @@ The current MVP provides:
   docs gate to check after package artifacts or tests are restored.
 - Installed-package smoke recovery now includes the failing `packageKind` when
   proof output contains the package-kind marker.
+- The release proof workflow now captures installed-package smoke output,
+  extracts `installedPackageSmokeSummary` /
+  `installedPackageSmokeFailureSummary` lines into
+  `installed-package-smoke-summary.jsonl`, and uploads the JSONL plus raw log as
+  `forma-release-proof-artifacts`.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -678,12 +683,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: include installed-package smoke summary examples in
-   release workflow artifacts.
-2. Registry and versioning: add a package-lock compatibility fixture that
+1. Registry and versioning: add a package-lock compatibility fixture that
    proves artifact group changes are reviewable across versions.
-3. Registry and versioning: add package artifact group change notes to registry
+2. Registry and versioning: add package artifact group change notes to registry
    publishing guidance.
+3. Product clarity: add a short release-artifact reading guide for
+   `forma-release-proof-artifacts`.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
