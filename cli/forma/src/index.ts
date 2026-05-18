@@ -196,6 +196,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
   const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
   const releaseFilesCheck = packageReleaseFilesCheck(manifest);
+  const readmeCheck = await packageReadmeCheck(path, manifest, manifestDir);
   const ciWorkflowCheck = await packageCiWorkflowCheck(path, manifest, manifestDir);
   const publishBundleCheck = await packagePublishBundleCheck(path, manifest, manifestDir);
   const evalCoverageCheck = packageEvalCoverageCheck(manifest, suite);
@@ -206,6 +207,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     bindingsCheck,
     examplesCheck,
     releaseFilesCheck,
+    readmeCheck,
     ciWorkflowCheck,
     publishBundleCheck,
     evalCoverageCheck,
@@ -215,6 +217,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     && bindingsCheck.passed === true
     && examplesCheck.passed === true
     && releaseFilesCheck.passed === true
+    && readmeCheck.passed === true
     && ciWorkflowCheck.passed === true
     && publishBundleCheck.passed === true
     && evalCoverageCheck.passed === true;
@@ -355,6 +358,33 @@ function packageReleaseFilesCheck(manifest: FormaPackageManifest): Record<string
     paths,
     ...(missingPaths.length > 0 ? { missingPaths } : {}),
   };
+}
+
+async function packageReadmeCheck(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): Promise<Record<string, unknown>> {
+  const readmePath = "README.md";
+  const readme = await readFile(resolve(manifestDir, readmePath), "utf8").catch(() => "");
+  const commands = packageReadmeCommands(manifestPath, manifest, manifestDir);
+  const missingCommands = commands.filter((command) => !readme.includes(command));
+  return {
+    name: "readme",
+    passed: readme.length > 0 && missingCommands.length === 0,
+    total: commands.length,
+    ...(readme.length === 0 ? { missingReadme: readmePath } : {}),
+    ...(missingCommands.length > 0 ? { missingCommands } : {}),
+  };
+}
+
+function packageReadmeCommands(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): string[] {
+  const manifestFile = relative(manifestDir, resolve(manifestPath));
+  const lockFile = packageLockPath(manifestFile);
+  return [
+    `forma package-review ${manifestFile}`,
+    `forma package-check ${manifestFile}`,
+    `forma package-lock ${manifestFile} --output ${lockFile} --check`,
+    `forma eval-suite ${manifest.evalSuite ?? ""} --summary > candidate.json`,
+    `forma package-review ${manifestFile} --baseline baseline.json`,
+    "forma compare baseline.json candidate.json --fail-on breaking,environment",
+  ];
 }
 
 async function packageCiWorkflowCheck(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): Promise<Record<string, unknown>> {

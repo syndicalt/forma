@@ -724,6 +724,7 @@ describe("forma cli", () => {
         { name: "bindings", passed: true, total: 2, targets: ["typescript", "python"] },
         { name: "examples", passed: true, total: 2, runtimes: ["typescript", "python"] },
         { name: "release-files", passed: true, total: 3, paths: ["README.md", ".github/workflows/forma-package.yml", ".github/workflows/forma-publish.yml"] },
+        { name: "readme", passed: true, total: 6 },
         { name: "ci-workflow", passed: true, total: 4 },
         { name: "publish-bundle", passed: true, total: 13 },
         { name: "eval-coverage", passed: true, tasks: ["review_diff"] },
@@ -975,6 +976,29 @@ describe("forma cli", () => {
       total: 2,
       paths: ["README.md", ".github/workflows/forma-package.yml"],
       missingPaths: [".github/workflows/forma-publish.yml"],
+    });
+  });
+
+  it("fails package review when the README omits required review commands", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-readme-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    const readmePath = join(dir, "README.md");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const readme = await readFile(readmePath, "utf8");
+    await writeFile(readmePath, readme.replace("forma compare baseline.json candidate.json --fail-on breaking,environment", "echo compare later"));
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "readme",
+      passed: false,
+      total: 6,
+      missingCommands: ["forma compare baseline.json candidate.json --fail-on breaking,environment"],
     });
   });
 

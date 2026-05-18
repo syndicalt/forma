@@ -77,12 +77,14 @@ node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 
 The package review output should report `package-check`, `package-lock`,
 `provider-profile`, `bindings`, `examples`, `release-files`,
-`ci-workflow`, `publish-bundle`, `eval-coverage`, and `eval-suite` as passed, with
-`bindings.targets` and `examples.runtimes` listing both `typescript` and
-`python`, and `eval-coverage.tasks` listing the packaged task names. Eval
-coverage also checks that each evaluated task source hash matches the package
-manifest. Release file review checks that the package README and scaffolded CI
-workflows are present in the reviewed artifact set. CI workflow review checks
+`readme`, `ci-workflow`, `publish-bundle`, `eval-coverage`, and `eval-suite`
+as passed, with `bindings.targets` and `examples.runtimes` listing both
+`typescript` and `python`, and `eval-coverage.tasks` listing the packaged task
+names. Eval coverage also checks that each evaluated task source hash matches
+the package manifest. Release file review checks that the package README and
+scaffolded CI workflows are present in the reviewed artifact set. README review
+checks that the package docs include package-review, package-check, lock check,
+eval-suite, baseline review, and compare commands. CI workflow review checks
 that the package workflow runs package-check, lock check, eval-suite, and
 package-review. Publish bundle review checks that the publish workflow
 references every reviewed artifact path before building the release bundle.

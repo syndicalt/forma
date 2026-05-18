@@ -56,7 +56,10 @@ publish-facing files under `releaseFiles` so package review can fail when the
 README or workflows are omitted. Package review also checks that the publish
 workflow references every reviewed artifact path before building the release
 bundle, and that the package workflow runs the package check, lock check,
-eval-suite summary, and package-review commands.
+eval-suite summary, and package-review commands. It also checks that the README
+documents the same package-review, package-check, lock-check, eval-suite,
+baseline review, and compare commands that reviewers need before publishing or
+consuming a changed package.
 
 The scaffolded `.github/workflows/forma-publish.yml` automates the release
 artifact path for registry-style sharing. It runs `forma package-review`, writes
@@ -196,6 +199,9 @@ Publishing checklist:
 - Confirm the `release-files` row in package-review lists `README.md`,
   `.github/workflows/forma-package.yml`, and
   `.github/workflows/forma-publish.yml`; missing paths fail the review.
+- Confirm the `readme` row passes; missing package-review, package-check, lock
+  check, eval-suite, baseline review, or compare commands in `README.md` fail
+  the review.
 - Confirm the `ci-workflow` row passes; missing package-check, lock check,
   eval-suite, or package-review commands in `.github/workflows/forma-package.yml`
   fail the review.
