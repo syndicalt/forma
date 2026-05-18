@@ -309,6 +309,10 @@ The current MVP provides:
 - Package consumer quickstart explains where provider keys and model defaults
   live, shows TypeScript and Python generated contract imports, and traces what
   the generated `agent(...)` helpers call at runtime.
+- The "Why Forma Exists" guide is part of `docs:check` and explicitly frames
+  Forma as a contract layer, not prompt storage, with TypeScript and Python
+  `agentFromPackageLock(...)` / `agent_from_package_lock(...)` embedding
+  examples for reviewed agent capabilities.
 - Generated package READMEs point consumers to the provider-key,
   model-selection, and helper-call flow in the package consumer quickstart.
 - Package review fails generated READMEs that omit the runtime embedding guide
@@ -542,9 +546,10 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add a compact `proof:release` command summary to the
-   contributing docs so contributor setup, quickstart, and CI share the same
-   release gate.
+3. Product proof: add a compact consumer-path proof that runs the checked
+   clean-project fixture through the reviewed package-lock embedding path, so
+   the "contract layer, not prompt storage" claim is backed by executable
+   TypeScript and Python host code.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

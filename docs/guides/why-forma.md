@@ -1,11 +1,14 @@
 # Why Forma Exists
 
+## Purpose
+
 Forma is useful when an agent task has become important enough that a prompt
 string is no longer a good boundary. It is not a model client, provider router,
 secret store, or autonomous coding runtime. Python and TypeScript programs
 still own those pieces.
 
-Forma is the contract layer around the task:
+Forma is the contract layer, not prompt storage. It describes the boundary
+around the task:
 
 - what input the task accepts
 - what structured output the host expects
@@ -17,7 +20,7 @@ The practical comparison is not Forma versus a model SDK. It is Forma versus an
 inline prompt plus hand-written Zod or Pydantic schemas, duplicated in each
 runtime and rarely evaluated as one reviewable artifact.
 
-## The Coding-Agent Workflow
+## Steps
 
 The first useful workflow is `review_diff`: give an agent a code diff and get
 structured review metadata back.
@@ -109,7 +112,31 @@ values, declared permissions, and host tool gate. The provider returns an
 object. Forma validates that object against the declared output fields before
 the application consumes it.
 
-## What Forma Adds
+Reviewed packages keep the same boundary while letting host code load pinned
+artifacts instead of open file paths:
+
+```typescript
+const reviewDiff = agentFromPackageLock("examples/review_diff.forma.lock.json", {
+  provider,
+});
+
+const result = await reviewDiff.run({ diff, max_findings: 5 });
+```
+
+```python
+review_diff = agent_from_package_lock(
+    "examples/review_diff.forma.lock.json",
+    provider=provider,
+)
+
+result = review_diff.run({"diff": diff, "max_findings": 5})
+```
+
+The package lock verifies the reviewed task source, generated bindings,
+provider profile, host examples, package tests, and release files before the
+standard `agent(...)` facade is constructed.
+
+## Verification
 
 Inline prompt code usually scatters the contract:
 
@@ -140,11 +167,19 @@ The useful artifact is not only the `.forma` file. It is the set:
 - conformance fixtures under `packages/forma-core/conformance`
 - `forma eval` reports for task behavior
 - `forma compare` reports for regressions between baseline and candidate evals
+- package locks and `agentFromPackageLock(...)` /
+  `agent_from_package_lock(...)` for embedding a reviewed agent capability
+
+A Forma package is a reviewable agent capability when those artifacts move
+together: source, bindings, provider profile, evals, smoke tests, lockfile, and
+release proof.
 
 ## When Not To Use Forma
 
 Do not use Forma for a one-off prompt that only exists in one call site and has
 no meaningful output contract. A model SDK call plus a local schema is simpler.
+The shorter rule is: do not use Forma when the contract does not earn back its
+review and verification cost.
 
 Use Forma when the task is shared, reviewed, evaluated, or reused across Python
 and TypeScript. The more the task looks like application behavior rather than a
