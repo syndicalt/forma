@@ -246,8 +246,12 @@ written as script-runnable files and use `python <test-file>`.
 consumers can copy the reviewed test plan directly from the machine-readable
 review output.
 
-`forma package-review` runs the publish-review checklist for a package:
-manifest validation, adjacent lockfile verification, TypeScript and Python
+`forma package-review` runs the publish-review checklist for a package. In
+short, package-review is a release gate, not a usefulness test. Use minimal
+and checked host projects to decide whether the task should exist; use
+`package-review` after that decision to protect reusable package consumers.
+The checklist covers manifest validation, adjacent lockfile verification,
+TypeScript and Python
 binding presence, TypeScript and Python host example presence, checked test
 artifact coverage, provider profile secret hygiene, compatibility policy
 coverage, release file presence, README command coverage, package CI coverage,
