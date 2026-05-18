@@ -4,9 +4,10 @@
 
 Forma separates task contracts from model execution. An `agent` block declares
 the instruction, but the host runtime needs an explicit provider to produce
-output. The MVP includes `StaticProvider` for deterministic examples and
+output. The MVP includes `StaticProvider` for deterministic examples,
 `RecordingProvider` for host integration tests that need to inspect provider
-requests. Provider credentials and model names belong in host application code,
+requests, and optional OpenAI adapter packages for production Responses API
+calls. Provider credentials and model names belong in host application code,
 not in the `.forma` file. A Forma task describes what should be done; the
 provider adapter decides which model service to call and how to authenticate.
 
@@ -68,6 +69,25 @@ const greetUser = agent({
 });
 
 const result = await greetUser.run({ user_name: "Sam" });
+```
+
+When using OpenAI, install the optional provider package and keep model
+configuration in the host:
+
+```typescript
+import { agent } from "@forma-lang/forma";
+import { OpenAIResponsesProvider } from "@forma-lang/openai";
+
+const reviewDiff = agent({
+  file: "examples/review_diff.forma",
+  task: "review_diff",
+  provider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    model: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
+    responseFormat: "json_schema",
+    timeoutMs: 30000,
+  }),
+});
 ```
 
 When the runtime reaches an `agent` block, it calls:
@@ -133,6 +153,27 @@ result = runtime.run_task(
     "greet_user_warmly",
     input={"user_name": "Sam"},
     source_name="greet_user_warmly.forma",
+)
+```
+
+When using OpenAI, install the optional provider package and keep model
+configuration in the host:
+
+```python
+import os
+
+from forma import agent
+from forma_openai import OpenAIResponsesProvider
+
+review_diff = agent(
+    file="examples/review_diff.forma",
+    task="review_diff",
+    provider=OpenAIResponsesProvider(
+        api_key=os.environ["OPENAI_API_KEY"],
+        model=os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"),
+        response_format="json_schema",
+        timeout_ms=30000,
+    ),
 )
 ```
 
@@ -214,7 +255,9 @@ Provider behavior is covered by both runtime test files:
 
 ```bash
 corepack pnpm --filter @forma-lang/forma test
+corepack pnpm --filter @forma-lang/openai test
 python -m pytest packages/forma-python/tests/test_runtime.py -q
+python -m pytest packages/forma-openai-python/tests -q
 ```
 
 Use `StaticProvider` for deterministic tests. Real provider adapters should

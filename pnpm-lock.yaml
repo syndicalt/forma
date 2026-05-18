@@ -27,6 +27,16 @@ importers:
 
   packages/forma-core: {}
 
+  packages/forma-openai:
+    dependencies:
+      '@forma-lang/forma':
+        specifier: workspace:*
+        version: link:../forma-typescript
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.18
+        version: 22.19.19
+
   packages/forma-typescript:
     devDependencies:
       '@types/node':

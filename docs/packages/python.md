@@ -6,6 +6,13 @@ The Python runtime package is `forma-lang`, with source under
 `OpenAIResponsesProvider`, `provider_profile_from_file`, and
 `provider_from_profile` from `forma`. It also exports `ModelProvider` for
 typing custom adapters.
+
+The optional OpenAI adapter package is `forma-openai`, with source under
+`packages/forma-openai-python/src/forma_openai`. It re-exports the OpenAI
+Responses provider and provider-profile helpers for host applications that want
+production provider wiring in a separate install boundary from the core
+runtime.
+
 `FormaRuntime.run_source` accepts source text, an input dictionary, and a source
 name, then returns a `FormaResult` dataclass.
 
@@ -126,6 +133,8 @@ runtime supplies the task output contract so the provider can request strict
 structured output:
 
 ```python
+from forma_openai import OpenAIResponsesProvider
+
 runtime = FormaRuntime(
     model_provider=OpenAIResponsesProvider(
         api_key=os.environ["OPENAI_API_KEY"],

@@ -4,8 +4,13 @@ The TypeScript runtime package is `@forma-lang/forma`, with source under
 `packages/forma-typescript/src`. It exports `agent`, `FormaRuntime`,
 `StaticProvider`, `RecordingProvider`, `HttpJsonProvider`,
 `OpenAIResponsesProvider`, `parseForma`, `providerProfileFromFile`,
-`providerFromProfile`, binding generators,
-`ModelProvider`, and public result and AST types from `src/index.ts`.
+`providerFromProfile`, binding generators, `ModelProvider`, and public result
+and AST types from `src/index.ts`.
+
+The optional OpenAI adapter package is `@forma-lang/openai`, with source under
+`packages/forma-openai/src`. It re-exports the OpenAI Responses provider and
+provider-profile helpers for host applications that want production provider
+wiring in a separate install boundary from the core runtime.
 
 ## Deterministic Runtime
 
@@ -127,6 +132,8 @@ runtime supplies the task output contract so the provider can request strict
 structured output:
 
 ```ts
+import { OpenAIResponsesProvider } from "@forma-lang/openai";
+
 const runtime = new FormaRuntime({
   modelProvider: new OpenAIResponsesProvider({
     apiKey: process.env.OPENAI_API_KEY ?? "",

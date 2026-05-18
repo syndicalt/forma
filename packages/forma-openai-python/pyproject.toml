@@ -1,0 +1,14 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "forma-openai"
+version = "0.0.0"
+description = "OpenAI provider adapter package for the Forma Python runtime"
+requires-python = ">=3.11"
+readme = "README.md"
+dependencies = ["forma-lang==0.0.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/forma_openai"]

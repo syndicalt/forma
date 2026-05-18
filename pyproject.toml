@@ -1,4 +1,4 @@
 [tool.pytest.ini_options]
-testpaths = ["packages/forma-python/tests"]
-pythonpath = ["packages/forma-python/src"]
+testpaths = ["packages/forma-python/tests", "packages/forma-openai-python/tests"]
+pythonpath = ["packages/forma-python/src", "packages/forma-openai-python/src"]
 addopts = "-q"
