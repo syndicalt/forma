@@ -208,6 +208,9 @@ The current MVP provides:
 - Generated checked-project READMEs now explain when CI checks are worth the
   extra scaffold: generated binding shape dependencies, TypeScript/Python
   entrypoint parity, and workflow drift before package locks.
+- Quickstart now says project-check is the first CI gate for application-owned
+  host projects and package-review is a later release gate for reusable task
+  packages.
 - Registry docs now include CI guidance for archiving stale
   `package-lock --check --json` reports as `stale-package-lock-report.json`
   with `actions/upload-artifact`, so reviewers can inspect
@@ -734,12 +737,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add a quickstart note that project-check is the first CI
-   gate and package-review is a later release gate.
-2. Product clarity: add CLI docs guidance for interpreting `notes` versus
+1. Product clarity: add CLI docs guidance for interpreting `notes` versus
    blocking `checks` in package-review JSON.
-3. Product clarity: add README links from the before/after table to the
+2. Product clarity: add README links from the before/after table to the
    minimal, checked, and package-lock scaffold sections.
+3. Product clarity: add generated package-lock project README guidance that
+   explains when reviewed package consumption is worth the extra scaffold.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

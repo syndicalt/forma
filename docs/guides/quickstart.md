@@ -188,6 +188,10 @@ Choose the scaffold based on how reviewed the task is. Use `--minimal` for a
 local first-use task, default project-init for a checked host project with
 `project-check` and CI workflow proof commands, and `--package-lock` for a
 reviewed package-lock project that consumes a reviewed package artifact.
+In that progression, project-check is the first CI gate for application-owned
+host projects. package-review is a later release gate for reusable task
+packages after the minimal path has proved useful and the task is ready for
+manifest, lockfile, eval, release-file, and publish-bundle review.
 
 ```bash
 node cli/forma/dist/index.js project-init ./review-diff-agent \
