@@ -383,6 +383,10 @@ Fallback failures should preserve package-lock smoke evidence. If a fallback
 model, route, or provider override fails after the reviewed lock loads, keep the
 lock smoke output with the fallback error so package owners can separate
 deployment policy from reviewed artifact drift.
+Fallback route labels should be preserved across retries. Keep the same stable
+route label with the failed lock smoke output, fallback error, and replacement
+result so the retry can be traced without confusing deployment routing with
+package artifact drift.
 Lock regeneration should not be used to test fallback policy. Prove model
 failover with host adapter tests, saved diagnostics, and preserved fallback
 trace evidence; regenerate a package lock only when reviewed package artifacts
