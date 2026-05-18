@@ -171,6 +171,10 @@ and candidate eval summaries that prove task behavior stayed comparable.
 Cleaned-up route labels need before-and-after review context. Keep the old
 label, cleaned-up label, baseline summary, and candidate summary together so
 reviewers can see exactly what changed besides task behavior.
+Cleaned-up route labels should not replace baseline route labels. Preserve the
+baseline label as the original comparison point, then add the cleaned-up label
+to candidate notes so reviewers can verify the route rename without losing the
+provider path used by the baseline.
 Fallback baselines should identify the model route under review. Include the
 provider, model, endpoint or route label, and fallback policy in baseline and
 candidate eval summaries so reviewers know which deployment path changed.
