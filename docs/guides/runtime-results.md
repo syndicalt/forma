@@ -93,6 +93,10 @@ or redacted.
 Cleaned-up route labels should preserve trace search keys. Keep the original
 trace route label as a search key and add the cleaned-up label as a display
 alias so runtime support can find the same trace entries after cleanup.
+Cleaned-up route labels should preserve retry lookup keys. Keep retry records
+addressable by the original route label and attach the cleaned-up label as
+metadata so fallback workflows can find the failed attempt that triggered a
+rerun.
 Route-label evidence should not be copied into model output. Keep provider
 route labels in logs, traces, diagnostics, or host-owned retry records instead
 of asking the model to echo deployment evidence inside task output fields.
