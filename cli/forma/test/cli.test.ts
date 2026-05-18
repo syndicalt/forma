@@ -695,6 +695,9 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("forma compare baseline.json candidate.json --fail-on breaking,environment");
+    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
+    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
+    expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma eval-suite forma.eval.json --summary > candidate.json");
     expect(JSON.parse(await readFile(join(dir, "forma.eval.json"), "utf8"))).toEqual({
       fixtures: ["review_diff.eval.json"],
     });

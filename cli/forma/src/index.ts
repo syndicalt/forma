@@ -182,6 +182,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const lockFile = `${taskName}.forma.lock.json`;
   const providerProfileFile = "forma.provider.json";
   const readmeFile = "README.md";
+  const workflowDir = ".github/workflows";
+  const workflowFile = "forma-package.yml";
   const schema = scaffoldSchema(args);
   const source = scaffoldSource(taskName, kind, schema);
   await writeFile(resolve(path, taskFile), source, "utf8");
@@ -225,6 +227,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await validatePackageManifest(manifest, path);
   await writeFile(resolve(path, lockFile), `${JSON.stringify(await createPackageLock(manifestPath, manifest, path), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, readmeFile), scaffoldPackageReadme(packageName, taskName, manifestFile, lockFile, evalSuite), "utf8");
+  await mkdir(resolve(path, workflowDir), { recursive: true });
+  await writeFile(resolve(path, workflowDir, workflowFile), scaffoldPackageWorkflow(packageName, manifestFile, lockFile, evalSuite), "utf8");
   return { exitCode: 0, stdout: "ok\n", stderr: "" };
 }
 
@@ -563,6 +567,39 @@ forma compare baseline.json candidate.json --fail-on breaking,environment
 Commit the package manifest, lockfile, \`.forma\` source, eval suite, provider
 profile, generated bindings, and host examples together so TypeScript and Python
 consumers review the same contract.
+`;
+}
+
+function scaffoldPackageWorkflow(packageName: string, manifestFile: string, lockFile: string, evalSuite: string): string {
+  return `name: Forma package
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  forma-package:
+    name: ${packageName}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Forma CLI
+        run: npm install --global @forma-lang/cli
+      - name: Check package manifest
+        run: forma package-check ${manifestFile}
+      - name: Check package lock
+        run: forma package-lock ${manifestFile} --output ${lockFile} --check
+      - name: Run eval suite
+        run: forma eval-suite ${evalSuite} --summary > candidate.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forma-candidate
+          path: candidate.json
 `;
 }
 

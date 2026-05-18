@@ -119,6 +119,8 @@ The current MVP provides:
   examples.
 - Scaffolded packages include a README with package-check, package-lock,
   eval-suite, and compare commands for CI review.
+- Scaffolded packages include a GitHub Actions workflow that checks the
+  manifest, lockfile, and eval-suite summary artifact.
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,
   generated binding, and host example hashes for publishable packages.
 - Package scaffolding supports review-agent and tool-using coding-agent
@@ -255,7 +257,7 @@ The next three implementation slices should be:
 
 1. Provider adapter kit: add optional production provider packages.
 2. Registry and versioning: add registry publishing workflow automation.
-3. Coding-agent ergonomics: add package scaffold CI workflow file generation.
+3. Coding-agent ergonomics: add generated package publishing checklist command.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

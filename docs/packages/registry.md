@@ -44,7 +44,9 @@ aligned with the reviewed package contract.
 
 The scaffolded `README.md` includes the package-check, package-lock, eval-suite,
 and compare commands that should run before publishing or consuming a changed
-package.
+package. The scaffolded `.github/workflows/forma-package.yml` runs the package
+check, lock check, and eval-suite summary in GitHub Actions and uploads the
+candidate eval artifact.
 
 ```json
 {
