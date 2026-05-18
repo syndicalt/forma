@@ -69,6 +69,9 @@ Cleaned-up route labels should stay out of scaffold selection. Choose minimal,
 checked, or package-lock scaffolds from task ownership, CI needs, and named
 consumer requirements, not from whether provider route names have already been
 renamed or redacted.
+Cleaned-up route labels should not change the first-use proof command. Keep the
+minimal or checked smoke proof command fixed while cleaning labels so adoption
+review still measures host-code simplification instead of deployment naming.
 
 ## Steps
 
