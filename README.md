@@ -62,6 +62,10 @@ Move to the default `project-init` scaffold only when the contract should be
 checked in CI. Move to `project-init --package-lock` only after the task is a
 reviewed package that consumers should load through pinned artifacts.
 
+If you are skeptical, run the first-use audit before the product proof. The
+audit keeps the question concrete: whether Forma makes your host code clearer
+before you spend time on package review, package locks, or release checks.
+
 ## Product Proof
 
 The concrete proof is `examples/review_diff.forma`: one reviewed coding-agent
