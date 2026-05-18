@@ -278,6 +278,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
       ...(report.regressions.length > 0 ? { regressions: report.regressions } : {}),
       ...(report.contractChanges ? { contractChanges: report.contractChanges } : {}),
       ...(report.settingChanges ? { settingChanges: report.settingChanges } : {}),
+      ...(report.changes ? { changes: report.changes } : {}),
     });
   }
   return {

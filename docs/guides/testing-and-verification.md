@@ -117,6 +117,10 @@ Contract changes can include exact `details.added`, `details.removed`, and
 Use `--fail-on` to fail CI for selected severity labels in addition to normal
 check regressions.
 Use that as a PR gate for coding-agent task changes.
+When the comparison runs through `forma package-review --baseline`, the
+`compare` row includes the same `failedOn`, `contractChanges`,
+`settingChanges`, and detailed `changes` entries so package reviewers can see
+the exact field or provider setting that blocked a release.
 
 For GitHub Actions, the relevant CI step is:
 

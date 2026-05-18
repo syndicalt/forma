@@ -293,6 +293,36 @@ Archive the candidate artifact with the package manifest. Reviewers should look
 at `contractChanges`, `settingChanges`, and the machine-readable `changes`
 array before approving a version bump.
 
+When `package-review --baseline` fails a release gate, the `compare` row carries
+the same severity and field-level details as `forma compare`. For example, a
+candidate that removes a required output field from `review_diff` fails the
+default `breaking,environment` gate like this:
+
+```json
+{
+  "name": "compare",
+  "passed": false,
+  "baseline": "baseline.json",
+  "failOn": ["breaking", "environment"],
+  "failedOn": ["breaking"],
+  "contractChanges": ["review_diff:output"],
+  "changes": [
+    {
+      "kind": "contract",
+      "name": "review_diff",
+      "field": "output",
+      "severity": "breaking",
+      "details": { "removed": ["legacy_required_field"] }
+    }
+  ]
+}
+```
+
+Use `failedOn` to see which configured severity blocked the release,
+`contractChanges` or `settingChanges` to see the reviewed surface that changed,
+and `changes[].details` for the exact field paths to fix or intentionally
+approve with a version bump.
+
 Publishing checklist:
 
 - Run `forma package-review` against the manifest, with `--baseline` when a

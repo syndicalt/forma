@@ -194,6 +194,30 @@ For example, the `tests` row includes:
 }
 ```
 
+With `--baseline`, `package-review` adds a `compare` row. The default package
+gate fails on `breaking` and `environment` changes unless `--fail-on` is set.
+The row includes `failedOn`, summarized change keys, and the detailed
+machine-readable `changes` array:
+
+```json
+{
+  "name": "compare",
+  "passed": false,
+  "failOn": ["breaking", "environment"],
+  "failedOn": ["breaking"],
+  "contractChanges": ["review_diff:output"],
+  "changes": [
+    {
+      "kind": "contract",
+      "name": "review_diff",
+      "field": "output",
+      "severity": "breaking",
+      "details": { "removed": ["legacy_required_field"] }
+    }
+  ]
+}
+```
+
 If a package declares tests but the README or CI workflow omits one of those
 commands, the failing row reports a `missingCommands` array with the exact text
 to add back:
