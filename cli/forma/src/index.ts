@@ -2852,6 +2852,10 @@ forma run ${taskName}.forma --task ${taskName} --input '{"diff":"diff --git a/sr
 TypeScript compiler, Python bytecode compilation, and both generated
 \`StaticProvider\` smoke tests.
 
+CI checks are worth this scaffold when application code depends on the generated binding shape,
+when both TypeScript and Python entrypoints should stay aligned, or when
+workflow drift should fail before a reviewed package lock exists.
+
 Use the JSON output in CI when you need machine-readable check rows:
 
 \`\`\`bash

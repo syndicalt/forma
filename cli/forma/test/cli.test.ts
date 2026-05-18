@@ -2390,6 +2390,8 @@ describe("forma cli", () => {
     expect(readme).toContain("forma project-check .");
     expect(readme).toContain("forma project-check . --json");
     expect(readme).toContain("Use the JSON output in CI when you need machine-readable check rows");
+    expect(readme).toContain("CI checks are worth this scaffold");
+    expect(readme).toContain("application code depends on the generated binding shape");
     expect(readme).toContain("See docs/packages/cli.md for passing and failing project-check JSON examples");
     expect(readme).toContain("missingCommands");
     expect(readme).toContain("## Scaffold Choice");
