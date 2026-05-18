@@ -69,6 +69,10 @@ Cleaned-up route labels should preserve usefulness audit lookup keys. Keep the
 before/after usefulness notes and local smoke evidence searchable by the
 original route key, then record the cleaned-up label as deployment metadata
 after the adoption decision.
+Cleaned-up route labels should preserve decision audit lookup keys. Keep the
+adopt/defer/do-not-use decision, before/after notes, and smoke proof searchable
+by the original first-use route key, then record the cleaned-up label as
+post-decision metadata.
 Cleaned-up route labels should stay out of scaffold selection. Choose minimal,
 checked, or package-lock scaffolds from task ownership, CI needs, and named
 consumer requirements, not from whether provider route names have already been
