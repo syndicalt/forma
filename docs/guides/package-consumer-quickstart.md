@@ -92,6 +92,10 @@ Copied package internals lose package-review and lock drift protection. If a
 consumer copies only the `.forma` source, generated bindings, or helper module,
 the application has prompt sharing without the reviewed artifact set that tells
 maintainers when source, profiles, tests, evals, or release files drift apart.
+Fallback policy belongs with host adapters, not copied package helpers. If a
+consumer needs a deployment-specific route, model, retry, or failover rule,
+pass an explicit provider or adapter instead of editing copied generated
+helpers outside the reviewed package.
 
 Generated packages include smoke tests for the lockfile-backed contract modules.
 Run them after the lock check and before application-specific tests:

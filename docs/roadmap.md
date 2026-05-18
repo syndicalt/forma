@@ -397,6 +397,8 @@ The current MVP provides:
 - Runtime semantics now say fallback diagnostics are host evidence, not prompt
   repair instructions.
 - Testing guide now says fallback traces belong in artifacts, not lockfiles.
+- Package-consumer quickstart now says fallback policy belongs with host
+  adapters, not copied package helpers.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -959,12 +961,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer wording that fallback policy belongs
-   with host adapters, not copied package helpers.
-2. Product clarity: add provider-adapter wording that fallback diagnostics
+1. Product clarity: add provider-adapter wording that fallback diagnostics
    should be logged before route changes.
-3. Product clarity: add product-proof wording that fallback eval changes need
+2. Product clarity: add product-proof wording that fallback eval changes need
    baseline comparison, not smoke-only acceptance.
+3. Product clarity: add first-use audit wording that fallback policy is not a
+   reason to skip the minimal smoke comparison.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
