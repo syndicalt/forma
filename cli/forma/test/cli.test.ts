@@ -1871,6 +1871,28 @@ describe("forma cli", () => {
     ]));
   });
 
+  it("scaffolds package review proof commands into README and CI", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-init-proof-"));
+    const result = await runCli([
+      "package-init",
+      dir,
+      "--name",
+      "acme/review-diff",
+      "--task",
+      "review_diff",
+      "--proof-command",
+      "corepack pnpm proof:migration",
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    const readme = await readFile(join(dir, "README.md"), "utf8");
+    const packageWorkflow = await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8");
+
+    expect(readme).toContain("forma package-review review_diff.forma.pkg.json --proof-command \"corepack pnpm proof:migration\"");
+    expect(readme).toContain("proof-command");
+    expect(packageWorkflow).toContain("forma package-review review_diff.forma.pkg.json --proof-command \"corepack pnpm proof:migration\"");
+  });
+
   it("scaffolds a package with custom provider profile settings", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-init-provider-"));
     const result = await runCli([

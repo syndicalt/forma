@@ -565,15 +565,22 @@ writes `forma.provider.json`; review-agent host examples load it to choose the
 provider, model, and API-key environment variable. Pass
 `--provider`, `--endpoint`, `--model`, `--api-key-env`, `--response-format`,
 `--temperature`, and `--timeout-ms` to generate a provider profile that matches
-the runtime you plan to use. Repeat `--input-field name:Type`, `--output-field
-name:Type`, and `--output-object Object.field:Type` to tailor the generated
-`.forma` input/output contract, bindings, and eval fixture. Field types use
-Forma syntax, including `?` for optional fields and `[]` for arrays. The
-generated TypeScript and Python examples import the generated input/output
-types and include an example input value that matches the customized contract:
+the runtime you plan to use. Pass `--proof-command "command"` when the package
+has an external before/after proof that should be wired into the generated
+README and CI workflow through `package-review --proof-command`. Repeat
+`--input-field name:Type`, `--output-field name:Type`, and
+`--output-object Object.field:Type` to tailor the generated `.forma`
+input/output contract, bindings, and eval fixture. Field types use Forma
+syntax, including `?` for optional fields and `[]` for arrays. The generated
+TypeScript and Python examples import the generated input/output types and
+include an example input value that matches the customized contract:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
+forma package-init ./review-diff-package \
+  --name acme/review-diff \
+  --task review_diff \
+  --proof-command "corepack pnpm proof:migration"
 forma package-init ./repair-package --name acme/tool-repair --task tool_assisted_repair --kind tool
 forma package-init ./function-repair-package \
   --name acme/function-repair \

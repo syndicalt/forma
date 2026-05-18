@@ -662,6 +662,7 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const workflowFile = "forma-package.yml";
   const publishWorkflowFile = "forma-publish.yml";
   const schema = scaffoldSchema(args);
+  const proofCommand = optionValue(args, "--proof-command");
   const source = scaffoldSource(taskName, kind, schema);
   await writeFile(resolve(path, taskFile), source, "utf8");
   await writeFile(resolve(path, typeScriptBindings), generateTypeScriptBindings(source), "utf8");
@@ -733,9 +734,9 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   }) as FormaPackageManifest;
   const manifestPath = resolve(path, manifestFile);
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-  await writeFile(resolve(path, readmeFile), scaffoldPackageReadme(packageName, taskName, manifestFile, lockFile, evalSuite, packageTests), "utf8");
+  await writeFile(resolve(path, readmeFile), scaffoldPackageReadme(packageName, taskName, manifestFile, lockFile, evalSuite, packageTests, proofCommand), "utf8");
   await mkdir(resolve(path, workflowDir), { recursive: true });
-  await writeFile(resolve(path, workflowDir, workflowFile), scaffoldPackageWorkflow(packageName, manifestFile, lockFile, evalSuite, packageTests), "utf8");
+  await writeFile(resolve(path, workflowDir, workflowFile), scaffoldPackageWorkflow(packageName, manifestFile, lockFile, evalSuite, packageTests, proofCommand), "utf8");
   await writeFile(
     resolve(path, workflowDir, publishWorkflowFile),
     scaffoldPackagePublishWorkflow({
@@ -1275,6 +1276,7 @@ function scaffoldPackageReadme(
   lockFile: string,
   evalSuite: string,
   tests?: Array<{ runtime: "typescript" | "python"; path: string }>,
+  proofCommand?: string,
 ): string {
   const testCommands = packageTestCommands(tests);
   return `# ${packageName}
@@ -1289,6 +1291,7 @@ Run these checks before publishing or consuming a changed package:
 
 \`\`\`bash
 forma package-review ${manifestFile}
+${proofCommand ? `${packageReviewProofCommand(manifestFile, proofCommand)}\n` : ""}\
 forma package-check ${manifestFile}
 forma package-lock ${manifestFile} --output ${lockFile} --check
 ${testCommands.length > 0 ? `${testCommands.join("\n")}\n` : ""}\
@@ -1328,6 +1331,7 @@ function scaffoldPackageWorkflow(
   lockFile: string,
   evalSuite: string,
   tests?: Array<{ runtime: "typescript" | "python"; path: string }>,
+  proofCommand?: string,
 ): string {
   const testSteps = packageTestWorkflowSteps(packageTestCommands(tests));
   return `name: Forma package
@@ -1358,6 +1362,9 @@ ${testSteps}\
         run: forma eval-suite ${evalSuite} --summary > candidate.json
       - name: Review package
         run: forma package-review ${manifestFile}
+${proofCommand ? `      - name: Review package proof
+        run: ${packageReviewProofCommand(manifestFile, proofCommand)}
+` : ""}\
       - name: Troubleshoot package failures
         if: failure()
         run: echo "See ${packageTroubleshootingGuidance}"
@@ -1366,6 +1373,10 @@ ${testSteps}\
           name: forma-candidate
           path: candidate.json
 `;
+}
+
+function packageReviewProofCommand(manifestFile: string, proofCommand: string): string {
+  return `forma package-review ${manifestFile} --proof-command "${proofCommand.replaceAll("\"", "\\\"")}"`;
 }
 
 function packageTestWorkflowSteps(commands: string[]): string {
