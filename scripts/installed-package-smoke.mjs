@@ -1,6 +1,6 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
@@ -351,6 +351,15 @@ async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
     },
   });
   process.stdout.write(`installed package smoke ok: ${smoke.packageKind}\n`);
+  return {
+    packageKind: smoke.packageKind,
+    bundleName: smoke.bundleName,
+    packageDir: smoke.packageDir,
+    consumerDir: relative(workDir, consumerDir),
+    typeScriptCommand: [typeScriptCommand, ...typeScriptArgs].join(" "),
+    pythonCommand: smoke.pythonCommand.join(" "),
+    passed: true,
+  };
 }
 
 async function main() {
@@ -363,10 +372,17 @@ async function main() {
     await run("corepack", ["pnpm", "--filter", "@forma-lang/cli", "build"]);
     const runtimeTarball = await npmPackTypeScriptRuntime(tarballDir);
 
+    const packages = [];
     for (const smoke of installedPackageSmokes) {
-      await smokeInstalledPackage({ smoke, workDir, runtimeTarball });
+      packages.push(await smokeInstalledPackage({ smoke, workDir, runtimeTarball }));
     }
 
+    const installedPackageSmokeSummary = {
+      passed: true,
+      total: packages.length,
+      packages,
+    };
+    process.stdout.write(`${JSON.stringify({ installedPackageSmokeSummary })}\n`);
     process.stdout.write("installed package smoke ok\n");
   } finally {
     await rm(workDir, { recursive: true, force: true });

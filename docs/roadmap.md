@@ -520,6 +520,9 @@ The current MVP provides:
   package-lock host project with `project-init --package-lock`, installs
   packaged TypeScript and Python runtimes, and runs both generated lock smoke
   tests.
+- Installed-package smoke output now ends with an
+  `installedPackageSmokeSummary` JSON line for CI systems that need a compact
+  package-kind, bundle, consumer, and command summary.
 - `proof:release` now runs `packages:installed-smoke` after migration and
   project checks, so release proof covers installed package-lock consumers.
 - Verification and registry docs explain `packages:installed-smoke` as the
@@ -660,11 +663,11 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: turn installed-package smoke output into a compact
-   JSON summary for CI systems.
-2. Product clarity: document how to triage each installed package kind failure.
-3. Registry and versioning: add a matrix field for expected package artifacts
+1. Product clarity: document how to triage each installed package kind failure.
+2. Registry and versioning: add a matrix field for expected package artifacts
    so each smoke kind documents why its files are bundled.
+3. Registry and versioning: add a failure JSON summary for installed-package
+   smoke exits before cleanup.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
