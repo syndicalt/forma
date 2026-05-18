@@ -25,6 +25,9 @@ multiple applications or repositories should consume through pinned artifacts.
 Treat package-lock consumption as a dependency decision, not a starter path.
 Use it when the lock protects real downstream consumers from reviewed artifact
 drift.
+Not every reviewed local task should become a reusable package. Keep a task in
+the checked host project when one application owns the workflow and no other
+repository needs to consume a pinned contract.
 
 That progression mirrors the scaffold choices in
 `docs/guides/quickstart.md#five-minute-usefulness-path` and

@@ -284,6 +284,9 @@ The current MVP provides:
   prompt plus local schemas.
 - Provider-adapter docs now distinguish local smoke providers for embedding
   proof from production adapters for real model-service routing and credentials.
+- Package-consumer quickstart now says not every reviewed local task should
+  become a reusable package; checked host projects remain valid when one
+  application owns the workflow.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -815,12 +818,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer quickstart wording that says not every
-   reviewed local task should become a reusable package.
-2. Product clarity: add package-init README wording that says generated package
+1. Product clarity: add package-init README wording that says generated package
    scaffolds are release candidates, not first-use proofs.
-3. Product clarity: add runtime-result docs wording that describes failed
+2. Product clarity: add runtime-result docs wording that describes failed
    validation as a host integration bug until proven to be model behavior.
+3. Product clarity: add CLI docs wording that package-review is a release gate,
+   not a usefulness test.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

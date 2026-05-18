@@ -163,6 +163,7 @@ const requiredTerms = {
     "minimal host project",
     "checked host project",
     "reviewed package-lock project",
+    "Not every reviewed local task should become a reusable package",
     "Do not start with package consumption",
     "Treat package-lock consumption as a dependency decision, not a starter path",
   ],
