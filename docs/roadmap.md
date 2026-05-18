@@ -334,6 +334,8 @@ The current MVP provides:
   package-lock smoke evidence before retrying or adding fallback logic.
 - Provider-adapter docs now say provider profiles are shared defaults, while
   host overrides are deployment decisions.
+- README now frames reusable coding-agent packages as the product wedge, while
+  `.forma` is the source format.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -865,12 +867,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add README wording that reusable coding-agent packages are
-   the product wedge, while `.forma` is the source format.
-2. Product clarity: add why-forma wording that the reusable package is the
+1. Product clarity: add why-forma wording that the reusable package is the
    adoption unit, not the prompt file by itself.
-3. Product clarity: add docs index wording that Forma should be evaluated as a
+2. Product clarity: add docs index wording that Forma should be evaluated as a
    reusable agent package workflow before adopting package locks.
+3. Product clarity: add quickstart wording that package locks are evidence for
+   reusable package adoption, not proof that every local task belongs in Forma.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

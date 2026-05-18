@@ -1,10 +1,11 @@
 # Forma
 
-Forma is a contract language for agent tasks embedded in Python and TypeScript
-programs. It moves the task definition out of anonymous prompt strings and into
-a `.forma` file that can be reviewed, versioned, parsed, validated, and tested.
-The host program still owns model clients, provider keys, model selection,
-logging, retries, and deployment concerns.
+Forma is a contract compiler for reusable coding-agent packages embedded in
+Python and TypeScript programs. Reusable coding-agent packages are the product wedge; `.forma` is the source format for the reviewed task contract. Forma moves
+the task definition out of anonymous prompt strings and into a `.forma` file
+that can be reviewed, versioned, parsed, validated, and tested. The host program
+still owns model clients, provider keys, model selection, logging, retries, and
+deployment concerns.
 
 Use Forma when you want an agent task to have a clear boundary:
 
