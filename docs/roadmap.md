@@ -204,6 +204,9 @@ The current MVP provides:
   agent-coding interface.
 - TypeScript and Python `review_diff` decision helpers consume typed structured
   findings and convert reviewed output into host decisions with affected paths.
+- TypeScript and Python tool-permission workflow helpers combine declared
+  `read`, `search`, `test`, and `edit` permissions with typed follow-up
+  decisions for host repair workflows.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -334,8 +337,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add a second checked workflow that uses declared
-   tool permissions and typed outputs together in both TypeScript and Python.
+3. Coding workflow depth: make the tool-permission workflow packageable from
+   `package-init --kind tool` with the same typed follow-up helpers.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

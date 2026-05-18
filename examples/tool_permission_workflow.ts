@@ -1,6 +1,5 @@
 import { agent, type ModelProvider, type PermissionTools, type FormaValue } from "@forma-lang/forma";
-
-type ToolRepairOutput = Record<string, FormaValue>;
+export { planRepairFollowup, type ToolRepairFollowup, type ToolRepairOutput } from "./tool_permission_plan.js";
 
 class ToolRepairProvider implements ModelProvider {
   async runAgent(input: {
@@ -8,7 +7,7 @@ class ToolRepairProvider implements ModelProvider {
     values: Record<string, FormaValue>;
     permissions: string[];
     tools: PermissionTools;
-  }): Promise<ToolRepairOutput> {
+  }): Promise<Record<string, FormaValue>> {
     const path = String(input.values.path);
     const testCommand = typeof input.values.test_command === "string" ? input.values.test_command : "pnpm test";
     const source = await input.tools.readText(path);

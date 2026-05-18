@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any
 
 from forma import FormaValue, PermissionTools, agent
+from tool_permission_plan import ToolRepairOutput, plan_repair_followup
 
 
 class ToolRepairProvider:

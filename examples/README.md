@@ -18,6 +18,9 @@ The `review_diff_decision.ts` and `review_diff_decision.py` examples show a
 host workflow consuming the typed `ReviewDiffOutput`: clean reviews become
 `approve`, and reviews with structured findings become `request_changes` with
 deduplicated affected paths.
+The `tool_permission_workflow.ts` and `tool_permission_workflow.py` examples
+show declared `read`, `search`, `test`, and `edit` permissions with typed
+follow-up planning from `tool_permission_plan.ts` and `tool_permission_plan.py`.
 
 ## CI
 

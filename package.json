@@ -9,7 +9,7 @@
     "test": "corepack pnpm -r run test",
     "test:ts": "corepack pnpm --filter @forma-lang/forma test && corepack pnpm --filter @forma-lang/openai test && corepack pnpm --filter @forma-lang/cli test",
     "test:tree-sitter": "corepack pnpm --filter tree-sitter-forma test",
-    "examples:check": "tsc -p examples/tsconfig.json && vitest run examples/review_diff_decision.test.ts && python -m py_compile examples/embedded_agent.py examples/review_diff_forma.py examples/review_diff_package.py examples/review_diff_lock_consumer.py examples/review_diff_decision.py examples/review_diff_contract/__init__.py examples/tool_permission_workflow.py examples/function_repair/repair_function_forma.py examples/function_repair/repair_function_package.py && PYTHONPATH=examples python examples/review_diff_decision_test.py",
+    "examples:check": "tsc -p examples/tsconfig.json && vitest run examples/review_diff_decision.test.ts examples/tool_permission_workflow.test.ts && python -m py_compile examples/embedded_agent.py examples/review_diff_forma.py examples/review_diff_package.py examples/review_diff_lock_consumer.py examples/review_diff_decision.py examples/review_diff_contract/__init__.py examples/tool_permission_plan.py examples/tool_permission_workflow.py examples/function_repair/repair_function_forma.py examples/function_repair/repair_function_package.py && PYTHONPATH=examples python examples/review_diff_decision_test.py && PYTHONPATH=examples python examples/tool_permission_workflow_test.py",
     "docs:check": "corepack pnpm --filter @forma-lang/forma build && node scripts/check-docs.mjs"
   },
   "devDependencies": {

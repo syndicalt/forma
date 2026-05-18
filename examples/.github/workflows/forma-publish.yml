@@ -27,7 +27,7 @@ jobs:
       - name: Build package bundle
         run: |
           mkdir -p dist
-          tar -czf dist/review_diff.forma-package.tgz review_diff.forma.pkg.json review_diff.forma.lock.json review_diff.forma forma.eval.json ../packages/forma-core/conformance/greet_user.json ../packages/forma-core/conformance/greet_user_warmly.json ../packages/forma-core/conformance/review_diff.json forma.provider.json review_diff.forma.ts review_diff_forma.py review_diff_package.ts review_diff_package.py tool_permission_workflow.ts tool_permission_workflow.py review_diff_lock_consumer.ts review_diff_lock_consumer.py review_diff_decision.ts review_diff_decision.py review_diff_contract/index.ts review_diff_contract/__init__.py README.md .github/workflows/forma-package.yml .github/workflows/forma-publish.yml
+          tar -czf dist/review_diff.forma-package.tgz review_diff.forma.pkg.json review_diff.forma.lock.json review_diff.forma forma.eval.json ../packages/forma-core/conformance/greet_user.json ../packages/forma-core/conformance/greet_user_warmly.json ../packages/forma-core/conformance/review_diff.json forma.provider.json review_diff.forma.ts review_diff_forma.py review_diff_package.ts review_diff_package.py tool_permission_workflow.ts tool_permission_workflow.py tool_permission_plan.ts tool_permission_plan.py review_diff_lock_consumer.ts review_diff_lock_consumer.py review_diff_decision.ts review_diff_decision.py review_diff_contract/index.ts review_diff_contract/__init__.py README.md .github/workflows/forma-package.yml .github/workflows/forma-publish.yml
       - uses: actions/upload-artifact@v4
         with:
           name: forma-package

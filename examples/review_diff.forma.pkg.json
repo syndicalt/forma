@@ -43,6 +43,14 @@
     },
     {
       "runtime": "typescript",
+      "path": "tool_permission_plan.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "tool_permission_plan.py"
+    },
+    {
+      "runtime": "typescript",
       "path": "review_diff_lock_consumer.ts"
     },
     {

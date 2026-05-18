@@ -4,7 +4,7 @@
     "name": "examples/review-diff",
     "version": "0.1.0",
     "manifest": "review_diff.forma.pkg.json",
-    "manifestSha256": "94e75a2a8ecc824a80ed8dc4166469a39d31373ed454b529c5a04f9e512c9d80"
+    "manifestSha256": "2330c6af10f52debda521e51d20a9628cb46c199e3d1a2d5052267e0cb7506ca"
   },
   "tasks": [
     {
@@ -55,12 +55,22 @@
     {
       "runtime": "typescript",
       "path": "tool_permission_workflow.ts",
-      "sha256": "822aa2795f81ac6adaf3379b3d33f8fcb5c2c54a1d3c10fc37554fd1f72c1ed4"
+      "sha256": "5a6978015137a177027e770a1dd688f884fa8edd118b27f705e5ac4777fc9faf"
     },
     {
       "runtime": "python",
       "path": "tool_permission_workflow.py",
-      "sha256": "3c9c103d6acfefe202192b5d1a15636acd8d92689f23ef46f8ca9fe37d82ee60"
+      "sha256": "f717800c6c373de8353294887b34a0c784292d453364984658f5338755025fc4"
+    },
+    {
+      "runtime": "typescript",
+      "path": "tool_permission_plan.ts",
+      "sha256": "11e3c335bf92ed8cd8be403d1fe7ad11c98d6d7bf8b57998236b90db1c9546c2"
+    },
+    {
+      "runtime": "python",
+      "path": "tool_permission_plan.py",
+      "sha256": "8b0883375bb4be49830e313b8d95a850c7039a85202eecda58af4cf73f83a83d"
     },
     {
       "runtime": "typescript",
@@ -96,7 +106,7 @@
   "releaseFiles": [
     {
       "path": "README.md",
-      "sha256": "c2ed359c1ad823015df0213fd18f748fb5aa9443db26c656fdc3fb75412e31de"
+      "sha256": "45fd31c70860eecb9d42a850b66977ddcbf324ebc2961f2b5731dfc28ad5f147"
     },
     {
       "path": ".github/workflows/forma-package.yml",
@@ -104,7 +114,7 @@
     },
     {
       "path": ".github/workflows/forma-publish.yml",
-      "sha256": "f07d974057e46bf2f11bda7c731a3e1399a5a47ffc9211715d4e9bac4d4d315b"
+      "sha256": "1aad7c68641e1d4b73e9a0bbf9b267624981258cbe4b90c357734ddfbebb5c70"
     }
   ]
 }
