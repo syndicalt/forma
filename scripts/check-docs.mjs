@@ -84,6 +84,7 @@ const requiredTerms = {
     "restore the generated project workflow",
     "project-check --json",
     "package-lock-smoke-tests",
+    "\"missingPaths\": [\"test/review_diff_package_lock_smoke.py\"]",
     "proof:release",
     "review_diff_migration.test.ts",
     "forma-project.yml",

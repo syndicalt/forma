@@ -1054,7 +1054,15 @@ async function validateProjectManifest(manifest: FormaProjectManifest, manifestD
     try {
       smokeSource = await readFile(resolve(manifestDir, test.path), "utf8");
     } catch {
-      throw new Error(`project package-lock smoke test is missing: ${test.path}`);
+      throw new ProjectCheckError(
+        `project package-lock smoke test is missing: ${test.path}; restore the reviewed package-lock smoke tests`,
+        {
+          name: "package-lock-smoke-tests",
+          passed: false,
+          missingPaths: [test.path],
+          guidance: "restore the reviewed package-lock smoke tests",
+        },
+      );
     }
     validateProjectPackageLockSmokeTest(test, smokeSource);
   }

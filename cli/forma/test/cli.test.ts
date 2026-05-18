@@ -2454,6 +2454,58 @@ describe("forma cli", () => {
     }));
   });
 
+  it("prints structured project-check package-lock smoke failures as JSON", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-json-package-lock-failure-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    const manifestPath = join(dir, "forma.project.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.packageLockSmokeTests = [
+      {
+        runtime: "typescript",
+        path: "test/review_diff_package_lock.test.ts",
+        command: "vitest run test/review_diff_package_lock.test.ts",
+      },
+      {
+        runtime: "python",
+        path: "test/review_diff_package_lock_smoke.py",
+        command: "python test/review_diff_package_lock_smoke.py",
+      },
+    ];
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    await writeFile(
+      join(dir, "test", "review_diff_package_lock.test.ts"),
+      "import { agentFromPackageLock, StaticProvider } from '@forma-lang/forma';\nagentFromPackageLock({ lockFile: 'review_diff.forma.lock.json', task: 'review_diff', provider: new StaticProvider({}) });\n",
+    );
+
+    const result = await runCli(["project-check", dir, "--json"]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toBe("");
+    expect(JSON.parse(result.stdout)).toMatchObject({
+      passed: false,
+      project: {
+        name: "review-diff-agent",
+        task: "review_diff",
+        manifest: "forma.project.json",
+      },
+      checks: [
+        {
+          name: "package-lock-smoke-tests",
+          passed: false,
+          missingPaths: ["test/review_diff_package_lock_smoke.py"],
+          guidance: "restore the reviewed package-lock smoke tests",
+        },
+      ],
+    });
+  });
+
   it("prints structured project-check workflow failures as JSON", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-project-check-json-failure-"));
     await runCli([

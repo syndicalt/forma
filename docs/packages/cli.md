@@ -794,6 +794,29 @@ exact command to restore:
 }
 ```
 
+If a reviewed package-lock smoke file is missing, the failing row uses
+`missingPaths` so CI can distinguish package-lock consumer proof drift from
+direct project workflow drift:
+
+```json
+{
+  "passed": false,
+  "project": {
+    "name": "review-diff-agent",
+    "task": "review_diff",
+    "manifest": "forma.project.json"
+  },
+  "checks": [
+    {
+      "name": "package-lock-smoke-tests",
+      "passed": false,
+      "missingPaths": ["test/review_diff_package_lock_smoke.py"],
+      "guidance": "restore the reviewed package-lock smoke tests"
+    }
+  ]
+}
+```
+
 `forma eval` reads a conformance JSON file, resolves its `.forma` source path,
 runs the named task, compares `ok`, `output`, `trace`, `verification`, and
 `error`, and prints a JSON evaluation report:
