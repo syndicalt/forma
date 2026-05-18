@@ -16,7 +16,10 @@ const result = await runtime.runSource(source, {
   sourceName: "inline.forma",
 });
 
-console.log(result.ok);
+if (!result.ok) {
+  throw new Error(result.error ?? JSON.stringify(result.diagnostics));
+}
+
 console.log(result.output.message);
 ```
 
@@ -29,7 +32,9 @@ result = runtime.run_source(
     source_name="inline.forma",
 )
 
-print(result.ok)
+if not result.ok:
+    raise RuntimeError(result.error or str(result.diagnostics))
+
 print(result.output["message"])
 ```
 

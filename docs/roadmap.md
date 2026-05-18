@@ -298,6 +298,8 @@ The current MVP provides:
 - Package-consumer troubleshooting now says package-lock smoke failures usually
   mean a stale reviewed artifact set and should be repaired before application
   logic changes.
+- Runtime-result docs now show TypeScript and Python hosts branching on `ok`
+  before reading `output`.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -829,12 +831,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add runtime-result docs examples that show TypeScript and
-   Python hosts branching on `ok` before reading `output`.
-2. Product clarity: add provider-adapter docs wording that production adapters
+1. Product clarity: add provider-adapter docs wording that production adapters
    prove deployment routing, not Forma usefulness.
-3. Product clarity: add package-consumer quickstart wording that real consumers
+2. Product clarity: add package-consumer quickstart wording that real consumers
    should pin reviewed locks before adding app-specific retries or logging.
+3. Product clarity: add runtime-semantics wording that provider output
+   validation is part of the host trust boundary.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
