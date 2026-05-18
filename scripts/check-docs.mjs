@@ -83,6 +83,7 @@ const requiredTerms = {
     "forma-project.yml",
     "restore the generated project workflow",
     "project-check --json",
+    "package-lock-smoke-tests",
     "proof:release",
     "review_diff_migration.test.ts",
     "forma-project.yml",

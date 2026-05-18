@@ -233,6 +233,9 @@ The current MVP provides:
   can embed the reviewed `review_diff` package through
   `agentFromPackageLock(...)` and `agent_from_package_lock(...)` with explicit
   provider overrides.
+- `project-check --json` includes a `package-lock-smoke-tests` row when a
+  project declares reviewed package-lock smoke tests, so CI dashboards can
+  distinguish direct project embedding from reviewed package-lock embedding.
 - README and documentation index Product Proof commands include
   `projects:check`, so the checked clean-project fixture is part of the main
   proof path.
@@ -551,9 +554,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add the package-lock consumer proof to `project-check --json`
-   output so CI dashboards can distinguish direct project embedding from
-   reviewed package-lock embedding.
+3. Product proof: add `package-lock-smoke-tests` failure diagnostics to
+   `project-check --json`, including missing paths and restore guidance for the
+   reviewed package-lock consumer proof.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

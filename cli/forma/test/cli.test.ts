@@ -2402,6 +2402,58 @@ describe("forma cli", () => {
     });
   });
 
+  it("prints package-lock smoke tests in structured project-check output", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-project-check-json-package-lock-"));
+    await runCli([
+      "project-init",
+      dir,
+      "--name",
+      "review-diff-agent",
+      "--task",
+      "review_diff",
+    ]);
+    const manifestPath = join(dir, "forma.project.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.packageLockSmokeTests = [
+      {
+        runtime: "typescript",
+        path: "test/review_diff_package_lock.test.ts",
+        command: "vitest run test/review_diff_package_lock.test.ts",
+      },
+      {
+        runtime: "python",
+        path: "test/review_diff_package_lock_smoke.py",
+        command: "python test/review_diff_package_lock_smoke.py",
+      },
+    ];
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    await writeFile(
+      join(dir, "test", "review_diff_package_lock.test.ts"),
+      "import { agentFromPackageLock, StaticProvider } from '@forma-lang/forma';\nagentFromPackageLock({ lockFile: 'review_diff.forma.lock.json', task: 'review_diff', provider: new StaticProvider({}) });\n",
+    );
+    await writeFile(
+      join(dir, "test", "review_diff_package_lock_smoke.py"),
+      "from forma import StaticProvider, agent_from_package_lock\nagent_from_package_lock(lock_file='review_diff.forma.lock.json', task='review_diff', provider=StaticProvider({}))\n",
+    );
+
+    const result = await runCli(["project-check", dir, "--json"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual(expect.objectContaining({
+      checks: expect.arrayContaining([
+        expect.objectContaining({
+          name: "package-lock-smoke-tests",
+          passed: true,
+          runtimes: ["typescript", "python"],
+          paths: [
+            "test/review_diff_package_lock.test.ts",
+            "test/review_diff_package_lock_smoke.py",
+          ],
+        }),
+      ]),
+    }));
+  });
+
   it("prints structured project-check workflow failures as JSON", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-project-check-json-failure-"));
     await runCli([

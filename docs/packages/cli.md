@@ -737,9 +737,11 @@ forma project-check ./review-diff-agent --json
 ```
 
 The JSON output includes `passed`, project metadata, and check rows such as
-`bindings`, `entrypoints`, `smoke-tests`, and `ci-workflow`. Workflow failures
-include `missingCommands` and the `restore the generated project workflow`
-guidance string.
+`bindings`, `entrypoints`, `smoke-tests`, `package-lock-smoke-tests`, and
+`ci-workflow`. The package-lock row distinguishes reviewed package-lock
+embedding from direct project source embedding when a checked project declares
+package-lock smoke tests. Workflow failures include `missingCommands` and the
+`restore the generated project workflow` guidance string.
 
 A passing project report looks like:
 
@@ -755,6 +757,15 @@ A passing project report looks like:
     { "name": "bindings", "passed": true, "targets": ["typescript", "python"] },
     { "name": "entrypoints", "passed": true, "runtimes": ["typescript", "python"] },
     { "name": "smoke-tests", "passed": true, "runtimes": ["typescript", "python"] },
+    {
+      "name": "package-lock-smoke-tests",
+      "passed": true,
+      "runtimes": ["typescript", "python"],
+      "paths": [
+        "test/review_diff_package_lock.test.ts",
+        "test/review_diff_package_lock_smoke.py"
+      ]
+    },
     { "name": "ci-workflow", "passed": true, "path": ".github/workflows/forma-project.yml" }
   ]
 }

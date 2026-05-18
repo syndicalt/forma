@@ -179,6 +179,11 @@ interface FormaProjectManifest {
     path?: string;
     command?: string;
   }>;
+  packageLockSmokeTests?: Array<{
+    runtime?: string;
+    path?: string;
+    command?: string;
+  }>;
   ciWorkflow?: string;
 }
 
@@ -935,6 +940,16 @@ function projectCheckReport(
         passed: true,
         runtimes: (manifest.smokeTests ?? []).map((test) => test.runtime).filter(Boolean),
       },
+      ...(manifest.packageLockSmokeTests && manifest.packageLockSmokeTests.length > 0
+        ? [
+            {
+              name: "package-lock-smoke-tests",
+              passed: true,
+              runtimes: manifest.packageLockSmokeTests.map((test) => test.runtime).filter(Boolean),
+              paths: manifest.packageLockSmokeTests.map((test) => test.path).filter(Boolean),
+            },
+          ]
+        : []),
       {
         name: "ci-workflow",
         passed: true,
@@ -1030,6 +1045,20 @@ async function validateProjectManifest(manifest: FormaProjectManifest, manifestD
     validateProjectSmokeTest(test, smokeSource, manifest.task);
   }
 
+  const packageLockSmokeTests = manifest.packageLockSmokeTests ?? [];
+  for (const test of packageLockSmokeTests) {
+    if (!test.path || !test.command) {
+      throw new Error("project package-lock smoke test path and command are required");
+    }
+    let smokeSource: string;
+    try {
+      smokeSource = await readFile(resolve(manifestDir, test.path), "utf8");
+    } catch {
+      throw new Error(`project package-lock smoke test is missing: ${test.path}`);
+    }
+    validateProjectPackageLockSmokeTest(test, smokeSource);
+  }
+
   if (!manifest.ciWorkflow) {
     throw new Error("project ciWorkflow is required");
   }
@@ -1058,6 +1087,30 @@ async function validateProjectManifest(manifest: FormaProjectManifest, manifestD
       },
     );
   }
+}
+
+function validateProjectPackageLockSmokeTest(
+  test: NonNullable<FormaProjectManifest["packageLockSmokeTests"]>[number],
+  source: string,
+): void {
+  if (!test.path) {
+    throw new Error("project package-lock smoke test path and command are required");
+  }
+  if (test.runtime === "typescript") {
+    const required = ["agentFromPackageLock", "StaticProvider"];
+    if (required.some((term) => !source.includes(term))) {
+      throw new Error(`project TypeScript package-lock smoke test must use agentFromPackageLock and StaticProvider: ${test.path}`);
+    }
+    return;
+  }
+  if (test.runtime === "python") {
+    const required = ["agent_from_package_lock", "StaticProvider"];
+    if (required.some((term) => !source.includes(term))) {
+      throw new Error(`project Python package-lock smoke test must use agent_from_package_lock and StaticProvider: ${test.path}`);
+    }
+    return;
+  }
+  throw new Error(`unsupported project package-lock smoke test runtime: ${test.runtime}`);
 }
 
 function validateProjectEntrypoint(

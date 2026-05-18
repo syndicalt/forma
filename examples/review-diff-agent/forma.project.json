@@ -38,5 +38,17 @@
       "command": "python test/review_diff_agent_smoke.py"
     }
   ],
+  "packageLockSmokeTests": [
+    {
+      "runtime": "typescript",
+      "path": "test/review_diff_package_lock.test.ts",
+      "command": "vitest run --config examples/vitest.config.ts examples/review-diff-agent/test/review_diff_package_lock.test.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "test/review_diff_package_lock_smoke.py",
+      "command": "PYTHONPATH=packages/forma-python/src python examples/review-diff-agent/test/review_diff_package_lock_smoke.py"
+    }
+  ],
   "ciWorkflow": ".github/workflows/forma-project.yml"
 }
