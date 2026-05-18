@@ -163,3 +163,11 @@ python test/review_diff_package_lock_smoke.py
 
 Use this path when the question is not "can this project run a `.forma` task?"
 but "can this project consume the reviewed package artifact?"
+
+If `project-check --json` reports a `package-lock-smoke-tests` row with
+`missingPaths`, restore the generated package-lock smoke files named in that
+row and rerun the same lock scaffold command. If the failing row says the
+workflow has `missingCommands`, restore the generated `smoke:lock:ts` and
+Python package-lock smoke commands in `.github/workflows/forma-project.yml`.
+The recovery hint in that row is
+`restore the reviewed package-lock smoke tests`.

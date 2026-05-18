@@ -248,6 +248,8 @@ The current MVP provides:
   Python smoke tests against the checked review-diff lock.
 - Quickstart shows `project-init --package-lock` as the reviewed package-lock
   onboarding path beside direct clean-project embedding.
+- Quickstart explains how to restore `package-lock-smoke-tests` failures that
+  report `missingPaths` or workflow `missingCommands`.
 - README and documentation index Product Proof commands include
   `projects:check`, so the checked clean-project fixture is part of the main
   proof path.
@@ -566,9 +568,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add package-lock onboarding recovery guidance to the
-   quickstart so `package-lock-smoke-tests` failures have a visible restore
-   path from first-run docs.
+3. Product proof: add the package-lock onboarding recovery path to
+   `docs/guides/product-proof.md` so release proof troubleshooting and first-run
+   quickstart troubleshooting point to the same restore actions.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
