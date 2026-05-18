@@ -147,6 +147,8 @@ The current MVP provides:
   host examples and reports included and missing runtimes.
 - `forma package-review` fails package reviews that omit package README and CI
   workflow release files.
+- `forma package-review` fails package reviews when the publish workflow bundle
+  omits reviewed package artifact paths.
 - `forma package-review` fails package reviews when the eval suite omits
   package manifest tasks or evaluates mismatched task source hashes.
 - `forma package-review --baseline` folds previous-release eval comparison into

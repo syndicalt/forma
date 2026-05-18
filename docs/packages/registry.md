@@ -53,7 +53,9 @@ candidate eval artifact. It also runs `forma package-review`, which combines
 manifest validation, lockfile verification, and eval-suite execution into one
 machine-readable publishing checklist. The package manifest records these
 publish-facing files under `releaseFiles` so package review can fail when the
-README or workflows are omitted.
+README or workflows are omitted. Package review also checks that the publish
+workflow references every reviewed artifact path before building the release
+bundle.
 
 The scaffolded `.github/workflows/forma-publish.yml` automates the release
 artifact path for registry-style sharing. It runs `forma package-review`, writes
@@ -193,6 +195,9 @@ Publishing checklist:
 - Confirm the `release-files` row in package-review lists `README.md`,
   `.github/workflows/forma-package.yml`, and
   `.github/workflows/forma-publish.yml`; missing paths fail the review.
+- Confirm the `publish-bundle` row passes; missing manifest, lockfile, task
+  source, eval, provider profile, binding, example, README, or workflow paths
+  in the publish workflow fail the review.
 - Confirm the `eval-coverage` row in package-review lists every task from the
   manifest; missing tasks or mismatched source hashes fail the review.
 - Run `forma package-check` against the manifest.

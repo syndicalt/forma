@@ -74,7 +74,7 @@
     },
     {
       "path": ".github/workflows/forma-publish.yml",
-      "sha256": "b57b625f819812c01afe2ae2a3aecaf15315342debb51176ebd179d504bef99a"
+      "sha256": "385c590be17f652d68780a68da3628617ac6c444c7f1421e14b67776e72b91d7"
     }
   ]
 }

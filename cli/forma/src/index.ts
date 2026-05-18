@@ -196,6 +196,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
   const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
   const releaseFilesCheck = packageReleaseFilesCheck(manifest);
+  const publishBundleCheck = await packagePublishBundleCheck(path, manifest, manifestDir);
   const evalCoverageCheck = packageEvalCoverageCheck(manifest, suite);
   const checks: Array<Record<string, unknown>> = [
     { name: "package-check", passed: true },
@@ -204,6 +205,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     bindingsCheck,
     examplesCheck,
     releaseFilesCheck,
+    publishBundleCheck,
     evalCoverageCheck,
     { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
   ];
@@ -211,6 +213,7 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
     && bindingsCheck.passed === true
     && examplesCheck.passed === true
     && releaseFilesCheck.passed === true
+    && publishBundleCheck.passed === true
     && evalCoverageCheck.passed === true;
   const baselinePath = optionValue(args, "--baseline");
   if (baselinePath) {
@@ -349,6 +352,44 @@ function packageReleaseFilesCheck(manifest: FormaPackageManifest): Record<string
     paths,
     ...(missingPaths.length > 0 ? { missingPaths } : {}),
   };
+}
+
+async function packagePublishBundleCheck(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): Promise<Record<string, unknown>> {
+  const workflowPath = ".github/workflows/forma-publish.yml";
+  const workflow = await readFile(resolve(manifestDir, workflowPath), "utf8").catch(() => "");
+  const paths = await packageBundlePaths(manifestPath, manifest, manifestDir);
+  const missingPaths = paths.filter((path) => !workflow.includes(path));
+  return {
+    name: "publish-bundle",
+    passed: workflow.length > 0 && missingPaths.length === 0,
+    total: paths.length,
+    ...(workflow.length === 0 ? { missingWorkflow: workflowPath } : {}),
+    ...(missingPaths.length > 0 ? { missingPaths } : {}),
+  };
+}
+
+async function packageBundlePaths(manifestPath: string, manifest: FormaPackageManifest, manifestDir: string): Promise<string[]> {
+  const evalFixturePaths = manifest.evalSuite
+    ? await packageEvalFixturePaths(resolve(manifestDir, manifest.evalSuite))
+    : [];
+  return Array.from(new Set([
+    relative(manifestDir, resolve(manifestPath)),
+    packageLockPath(relative(manifestDir, resolve(manifestPath))),
+    ...(manifest.tasks ?? []).flatMap((task) => task.source ? [task.source] : []),
+    ...(manifest.evalSuite ? [manifest.evalSuite] : []),
+    ...evalFixturePaths,
+    ...(manifest.providerProfile ? [manifest.providerProfile] : []),
+    ...(manifest.bindings ?? []).flatMap((binding) => binding.output ? [binding.output] : []),
+    ...(manifest.examples ?? []).flatMap((example) => example.path ? [example.path] : []),
+    ...(manifest.releaseFiles ?? []).flatMap((file) => file.path ? [file.path] : []),
+  ]));
+}
+
+async function packageEvalFixturePaths(evalSuitePath: string): Promise<string[]> {
+  const suite = JSON.parse(await readFile(evalSuitePath, "utf8")) as { fixtures?: unknown };
+  return Array.isArray(suite.fixtures)
+    ? suite.fixtures.filter((fixture): fixture is string => typeof fixture === "string")
+    : [];
 }
 
 function packageLockPath(manifestPath: string): string {

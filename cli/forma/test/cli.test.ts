@@ -724,6 +724,7 @@ describe("forma cli", () => {
         { name: "bindings", passed: true, total: 2, targets: ["typescript", "python"] },
         { name: "examples", passed: true, total: 2, runtimes: ["typescript", "python"] },
         { name: "release-files", passed: true, total: 3, paths: ["README.md", ".github/workflows/forma-package.yml", ".github/workflows/forma-publish.yml"] },
+        { name: "publish-bundle", passed: true, total: 13 },
         { name: "eval-coverage", passed: true, tasks: ["review_diff"] },
         { name: "eval-suite", passed: true, total: 1, failed: 0 },
       ],
@@ -973,6 +974,29 @@ describe("forma cli", () => {
       total: 2,
       paths: ["README.md", ".github/workflows/forma-package.yml"],
       missingPaths: [".github/workflows/forma-publish.yml"],
+    });
+  });
+
+  it("fails package review when the publish workflow omits reviewed artifacts", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-publish-bundle-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    const workflowPath = join(dir, ".github", "workflows", "forma-publish.yml");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const workflow = await readFile(workflowPath, "utf8");
+    await writeFile(workflowPath, workflow.replace(" review_diff_forma.py", ""));
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "publish-bundle",
+      passed: false,
+      total: 13,
+      missingPaths: ["review_diff_forma.py"],
     });
   });
 
