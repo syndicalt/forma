@@ -169,6 +169,8 @@ Publishing checklist:
   `python`; missing targets fail the review.
 - Confirm the `examples` row in package-review lists both `typescript` and
   `python`; missing runtimes fail the review.
+- Confirm the `eval-coverage` row in package-review lists every task from the
+  manifest; missing tasks fail the review.
 - Run `forma package-check` against the manifest.
 - Run `forma package-lock --check` against the checked-in lockfile.
 - Run the package eval suite and archive the summary artifact.

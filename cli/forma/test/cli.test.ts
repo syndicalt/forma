@@ -722,8 +722,32 @@ describe("forma cli", () => {
         { name: "package-lock", passed: true, path: join(dir, "review_diff.forma.lock.json") },
         { name: "bindings", passed: true, total: 2, targets: ["typescript", "python"] },
         { name: "examples", passed: true, total: 2, runtimes: ["typescript", "python"] },
+        { name: "eval-coverage", passed: true, tasks: ["review_diff"] },
         { name: "eval-suite", passed: true, total: 1, failed: 0 },
       ],
+    });
+  });
+
+  it("fails package review when eval suite does not cover package tasks", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-eval-coverage-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    await writeFile(join(dir, "forma.eval.json"), JSON.stringify({
+      fixtures: [resolve(process.cwd(), "../../packages/forma-core/conformance/greet_user.json")],
+    }));
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "eval-coverage",
+      passed: false,
+      tasks: ["greet_user"],
+      missingTasks: ["review_diff"],
     });
   });
 

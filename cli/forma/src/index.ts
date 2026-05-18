@@ -185,14 +185,16 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
   const suite = JSON.parse(suiteResult.stdout) as EvalSuiteArtifact;
   const bindingsCheck = packageBindingsCheck(manifest);
   const examplesCheck = packageExamplesCheck(manifest);
+  const evalCoverageCheck = packageEvalCoverageCheck(manifest, suite);
   const checks: Array<Record<string, unknown>> = [
     { name: "package-check", passed: true },
     { name: "package-lock", passed: true, path: lockPath },
     bindingsCheck,
     examplesCheck,
+    evalCoverageCheck,
     { name: "eval-suite", passed: true, total: suite.summary?.total ?? 0, failed: suite.summary?.failed ?? 0 },
   ];
-  let passed = bindingsCheck.passed === true && examplesCheck.passed === true;
+  let passed = bindingsCheck.passed === true && examplesCheck.passed === true && evalCoverageCheck.passed === true;
   const baselinePath = optionValue(args, "--baseline");
   if (baselinePath) {
     const failOnArgs = optionValue(args, "--fail-on") ? args : [...args, "--fail-on", "breaking,environment"];
@@ -224,6 +226,18 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
       checks,
     }, null, 2)}\n`,
     stderr: "",
+  };
+}
+
+function packageEvalCoverageCheck(manifest: FormaPackageManifest, suite: EvalSuiteArtifact): Record<string, unknown> {
+  const tasks = Array.from(new Set(suite.reports.map((report) => report.name)));
+  const requiredTasks = (manifest.tasks ?? []).flatMap((task) => task.name ? [task.name] : []);
+  const missingTasks = requiredTasks.filter((task) => !tasks.includes(task));
+  return {
+    name: "eval-coverage",
+    passed: missingTasks.length === 0,
+    tasks,
+    ...(missingTasks.length > 0 ? { missingTasks } : {}),
   };
 }
 

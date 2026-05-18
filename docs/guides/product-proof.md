@@ -41,8 +41,8 @@ corepack pnpm examples:check
 
 Run the package review gate. This validates the manifest, lockfile, TypeScript
 and Python generated binding presence, TypeScript and Python host example
-presence, eval suite, provider profile metadata, generated binding artifacts,
-and host example artifacts:
+presence, eval coverage for package tasks, eval suite, provider profile
+metadata, generated binding artifacts, and host example artifacts:
 
 ```bash
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
@@ -75,8 +75,9 @@ node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
 The package review output should report `package-check`, `package-lock`,
-`bindings`, `examples`, and `eval-suite` as passed, with `bindings.targets` and
-`examples.runtimes` listing both `typescript` and `python`. `examples:check`
-should finish without output. A live provider run requires `OPENAI_API_KEY`;
-without it, the failure is expected and confirms that credentials stay in host
-configuration instead of the `.forma` contract.
+`bindings`, `examples`, `eval-coverage`, and `eval-suite` as passed, with
+`bindings.targets` and `examples.runtimes` listing both `typescript` and
+`python`, and `eval-coverage.tasks` listing the packaged task names.
+`examples:check` should finish without output. A live provider run requires
+`OPENAI_API_KEY`; without it, the failure is expected and confirms that
+credentials stay in host configuration instead of the `.forma` contract.
