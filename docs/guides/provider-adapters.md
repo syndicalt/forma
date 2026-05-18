@@ -31,6 +31,10 @@ Change the provider profile when every package consumer should inherit a new
 reviewed default. Pass an explicit provider when one host deployment needs
 different routing, retries, logging, or model selection without changing the
 reviewed package default.
+Deployment overrides are host policy, not package mutation. Keep environment
+keys, regional routing, fallback models, retry budgets, and logging changes in
+the host adapter or application configuration unless every reviewed consumer
+should inherit the same package default.
 
 ## Steps
 
