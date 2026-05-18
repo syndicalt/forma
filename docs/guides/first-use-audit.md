@@ -48,6 +48,9 @@ Fallback evidence belongs after local usefulness proof. Preserve diagnostics,
 route labels, and replacement results only after the minimal or checked host
 path has already shown that the Forma boundary is clearer than the inline
 prompt plus local schemas baseline.
+Route-label reviews belong after first-use proof. Do not spend adoption time
+reviewing fallback route names, redaction, or shared provider-profile defaults
+until the minimal smoke comparison shows the `.forma` boundary is worth keeping.
 
 ## Steps
 

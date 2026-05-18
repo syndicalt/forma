@@ -434,6 +434,7 @@ The current MVP provides:
   installed smoke reruns.
 - Provider-adapter docs now say fallback route labels should be reviewed before
   becoming shared defaults.
+- First-use audit now says route-label reviews belong after first-use proof.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -996,12 +997,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add first-use audit wording that route-label reviews belong
-   after first-use proof.
-2. Product clarity: add runtime-result wording that route-label evidence should
+1. Product clarity: add runtime-result wording that route-label evidence should
    not be copied into model output.
-3. Product clarity: add package-consumer wording that shared route-label
+2. Product clarity: add package-consumer wording that shared route-label
    defaults should arrive through reviewed releases.
+3. Product clarity: add product-proof wording that route-label review is not a
+   substitute for eval comparison.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
