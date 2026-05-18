@@ -136,7 +136,7 @@ const requiredTerms = {
     "docs/guides/quickstart.md#reviewed-package-lock-projects",
     "docs/guides/product-proof.md#verification",
   ],
-  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "projects:installed-smoke", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "package-install checks", "path-alias checks", "installed-project smoke CI step", "installed-package smoke CI step", "@forma-lang/forma", "forma-lang", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "review_diff_migration.test.ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "forma-project.yml", "missingCommands", "packageKind", "installedPackageSmokeSummary", "review-diff package-lock consumer failure", "function-repair tool package failure", "reviewed package-lock project consumer failure"],
+  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "projects:check", "projects:installed-smoke", "packages:installed-smoke", "installed package-lock consumers", "release bundle", "package-install checks", "path-alias checks", "installed-project smoke CI step", "installed-package smoke CI step", "@forma-lang/forma", "forma-lang", "proof:release", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "examples/review-diff-agent", "review_diff_migration.test.ts", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "forma-project.yml", "missingCommands", "packageKind", "installedPackageSmokeSummary", "expected artifact categories", "review-diff package-lock consumer failure", "function-repair tool package failure", "reviewed package-lock project consumer failure"],
   "docs/guides/migrating-from-inline-prompts.md": [
     "inline prompt",
     ".forma",
@@ -320,6 +320,7 @@ function validateInstalledPackageSmokeScript() {
   for (const requiredTerm of [
     "installedPackageSmokes",
     "installedPackageSmokeSummary",
+    "expectedArtifacts",
     "packageKind",
     "reviewed package-lock project consumer",
     "examples/function_repair",

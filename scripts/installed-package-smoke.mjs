@@ -83,6 +83,13 @@ async function installPythonConsumer(packageDir) {
 const installedPackageSmokes = [
   {
     packageKind: "review-diff package-lock consumer",
+    expectedArtifacts: [
+      "reviewed package manifest and lock",
+      "task source, provider profile, and eval suite",
+      "generated TypeScript and Python bindings",
+      "lock-aware contract tests and importable contract helpers",
+      "package README and release workflows",
+    ],
     packageDir: "review-diff-package",
     bundleName: "review_diff.forma-package.tgz",
     sourceDir: "examples",
@@ -124,6 +131,13 @@ const installedPackageSmokes = [
   },
   {
     packageKind: "function-repair tool package",
+    expectedArtifacts: [
+      "function-repair package manifest and lock",
+      "tool-using task source, provider profile, and eval fixtures",
+      "generated TypeScript and Python bindings",
+      "host examples for the coding-agent tool workflow",
+      "package README and release workflows",
+    ],
     packageDir: "function-repair-package",
     bundleName: "repair_function.forma-package.tgz",
     sourceDir: "examples/function_repair",
@@ -148,6 +162,13 @@ const installedPackageSmokes = [
   },
   {
     packageKind: "reviewed package-lock project consumer",
+    expectedArtifacts: [
+      "reviewed package manifest and lock for project-init --package-lock",
+      "task source, provider profile, and eval suite",
+      "generated TypeScript and Python bindings",
+      "reviewed package-lock smoke tests consumed by the generated host project",
+      "package README and release workflows",
+    ],
     packageDir: "review-diff-lock-project-package",
     bundleName: "review_diff.lock-project-package.tgz",
     sourceDir: "examples",
@@ -356,6 +377,7 @@ async function smokeInstalledPackage({ smoke, workDir, runtimeTarball }) {
     bundleName: smoke.bundleName,
     packageDir: smoke.packageDir,
     consumerDir: relative(workDir, consumerDir),
+    expectedArtifacts: smoke.expectedArtifacts,
     typeScriptCommand: [typeScriptCommand, ...typeScriptArgs].join(" "),
     pythonCommand: smoke.pythonCommand.join(" "),
     passed: true,

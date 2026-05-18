@@ -523,6 +523,8 @@ The current MVP provides:
 - Installed-package smoke output now ends with an
   `installedPackageSmokeSummary` JSON line for CI systems that need a compact
   package-kind, bundle, consumer, and command summary.
+- Installed-package smoke matrix rows now carry `expectedArtifacts` so each
+  package kind documents why its bundle files are required.
 - Verification docs now include triage guidance for each installed-package
   smoke package kind: reviewed lock consumer, function-repair tool package, and
   generated reviewed package-lock project consumer.
@@ -666,12 +668,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: add a matrix field for expected package artifacts
-   so each smoke kind documents why its files are bundled.
-2. Registry and versioning: add a failure JSON summary for installed-package
+1. Registry and versioning: add a failure JSON summary for installed-package
    smoke exits before cleanup.
-3. Product clarity: surface the installed-package smoke triage section from
+2. Product clarity: surface the installed-package smoke triage section from
    `package-review` recovery guidance.
+3. Registry and versioning: validate installed-package smoke `expectedArtifacts`
+   against bundled file groups instead of only checking field presence.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
