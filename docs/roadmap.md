@@ -222,6 +222,9 @@ The current MVP provides:
   CI test commands, and CLI tests cover those `missingCommands` diagnostics.
 - `package-review --baseline` surfaces structured compare `changes` in the
   `compare` row, and docs show baseline failure examples for release gates.
+- Compare and package-review baseline setting changes include `from` and `to`
+  details for redacted provider, model, response-format, temperature, and
+  timeout drift.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -352,8 +355,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add package-review examples for environment setting
-   changes so users can distinguish model/provider drift from contract drift.
+3. Coding workflow depth: add package-review baseline examples to scaffolded
+   package READMEs so generated packages teach release-gate interpretation.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

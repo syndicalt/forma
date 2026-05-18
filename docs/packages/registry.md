@@ -323,6 +323,32 @@ Use `failedOn` to see which configured severity blocked the release,
 and `changes[].details` for the exact field paths to fix or intentionally
 approve with a version bump.
 
+Provider and model drift is reported as an `environment` change instead of a
+contract change. Those rows include before and after values from the redacted
+eval-suite settings:
+
+```json
+{
+  "name": "compare",
+  "passed": false,
+  "failOn": ["breaking", "environment"],
+  "failedOn": ["environment"],
+  "settingChanges": ["model"],
+  "changes": [
+    {
+      "kind": "setting",
+      "field": "model",
+      "severity": "environment",
+      "details": { "from": "baseline-model", "to": "candidate-model" }
+    }
+  ]
+}
+```
+
+Treat environment failures as deployment review: they usually mean the provider,
+endpoint, model, response format, temperature, or timeout changed even when the
+`.forma` contract stayed compatible.
+
 Publishing checklist:
 
 - Run `forma package-review` against the manifest, with `--baseline` when a

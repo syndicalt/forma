@@ -2433,7 +2433,7 @@ interface ChangeDetail {
   name?: string;
   field: string;
   severity: "breaking" | "review" | "environment";
-  details?: FieldChangeDetails;
+  details?: FieldChangeDetails | SettingChangeDetails;
 }
 
 interface SuiteComparison {
@@ -2451,6 +2451,11 @@ interface FieldChangeDetails {
   added?: string[];
   removed?: string[];
   changed?: string[];
+}
+
+interface SettingChangeDetails {
+  from: string | number | null;
+  to: string | number | null;
 }
 
 async function compareReports(baselinePath: string, args: string[]): Promise<CliResult> {
@@ -2491,10 +2496,17 @@ function compareReportArtifacts(
   const regressions = reports.flatMap((report) => report.regressions.map((check) => `${report.name}:${check}`));
   const improvements = reports.flatMap((report) => report.improvements.map((check) => `${report.name}:${check}`));
   const contractChanges = reports.flatMap((report) => (report.contractChanges ?? []).map((field) => `${report.name}:${field}`));
-  const settingChanges = compareSettings(summarySettings(baselineRaw), summarySettings(candidateRaw));
+  const baselineSettings = summarySettings(baselineRaw);
+  const candidateSettings = summarySettings(candidateRaw);
+  const settingChanges = compareSettings(baselineSettings, candidateSettings);
   const changes = [
     ...reports.flatMap((report) => (report.changes ?? []).map((change) => ({ ...change, name: report.name }))),
-    ...settingChanges.map((field): ChangeDetail => ({ kind: "setting", field, severity: "environment" })),
+    ...settingChanges.map((field): ChangeDetail => ({
+      kind: "setting",
+      field,
+      severity: "environment",
+      details: settingChangeDetails(field, baselineSettings, candidateSettings),
+    })),
   ];
   const failOn = failOnSeverities(args);
   const failedOn = Array.from(new Set(changes.filter((change) => failOn.has(change.severity)).map((change) => change.severity)));
@@ -2541,10 +2553,25 @@ function summarySettings(report: EvalReport | EvalReport[] | EvalSuiteArtifact):
   return Array.isArray(report) || !("summary" in report) ? undefined : report.summary.settings;
 }
 
-function compareSettings(baseline: EvalSettings | undefined, candidate: EvalSettings | undefined): string[] {
+function compareSettings(baseline: EvalSettings | undefined, candidate: EvalSettings | undefined): Array<keyof EvalSettings> {
   if (!baseline || !candidate) return [];
   const fields: Array<keyof EvalSettings> = ["provider", "endpoint", "model", "responseFormat", "temperature", "timeoutMs"];
   return fields.filter((field) => baseline[field] !== candidate[field]);
+}
+
+function settingChangeDetails(
+  field: keyof EvalSettings,
+  baseline: EvalSettings | undefined,
+  candidate: EvalSettings | undefined,
+): SettingChangeDetails {
+  return {
+    from: settingValue(baseline?.[field]),
+    to: settingValue(candidate?.[field]),
+  };
+}
+
+function settingValue(value: string | number | undefined): string | number | null {
+  return value ?? null;
 }
 
 function compareReport(baseline: EvalReport | undefined, candidate: EvalReport | undefined): ReportComparison {

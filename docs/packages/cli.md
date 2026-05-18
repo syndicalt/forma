@@ -218,6 +218,26 @@ machine-readable `changes` array:
 }
 ```
 
+Environment changes use the same `changes` array but are marked as
+`kind: "setting"` with before and after values from the eval-suite summary:
+
+```json
+{
+  "name": "compare",
+  "passed": false,
+  "failedOn": ["environment"],
+  "settingChanges": ["model"],
+  "changes": [
+    {
+      "kind": "setting",
+      "field": "model",
+      "severity": "environment",
+      "details": { "from": "baseline-model", "to": "candidate-model" }
+    }
+  ]
+}
+```
+
 If a package declares tests but the README or CI workflow omits one of those
 commands, the failing row reports a `missingCommands` array with the exact text
 to add back:

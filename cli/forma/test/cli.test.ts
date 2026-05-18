@@ -1372,6 +1372,39 @@ describe("forma cli", () => {
     });
   });
 
+  it("reports baseline provider setting failures with value details", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-baseline-settings-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const baselinePath = join(dir, "baseline.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const baseline = await runCli(["eval-suite", join(dir, "forma.eval.json"), "--summary"]);
+    const baselineArtifact = JSON.parse(baseline.stdout);
+    baselineArtifact.summary.settings.model = "baseline-model";
+    await writeFile(baselinePath, `${JSON.stringify(baselineArtifact, null, 2)}\n`);
+
+    const result = await runCli(["package-review", manifestPath, "--baseline", baselinePath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "compare",
+      passed: false,
+      baseline: baselinePath,
+      failOn: ["breaking", "environment"],
+      failedOn: ["environment"],
+      settingChanges: ["model"],
+      changes: [
+        {
+          kind: "setting",
+          field: "model",
+          severity: "environment",
+          details: { from: "baseline-model", to: null },
+        },
+      ],
+    });
+  });
+
   it("scaffolds a package with task source, evals, bindings, and examples", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-init-"));
     const result = await runCli([
@@ -2800,9 +2833,24 @@ describe("forma cli", () => {
       improvements: [],
       settingChanges: ["model", "responseFormat", "temperature"],
       changes: [
-        { kind: "setting", field: "model", severity: "environment" },
-        { kind: "setting", field: "responseFormat", severity: "environment" },
-        { kind: "setting", field: "temperature", severity: "environment" },
+        {
+          kind: "setting",
+          field: "model",
+          severity: "environment",
+          details: { from: "baseline-model", to: "candidate-model" },
+        },
+        {
+          kind: "setting",
+          field: "responseFormat",
+          severity: "environment",
+          details: { from: "json_schema", to: "json_object" },
+        },
+        {
+          kind: "setting",
+          field: "temperature",
+          severity: "environment",
+          details: { from: 0.2, to: 0.3 },
+        },
       ],
       reports: [
         {

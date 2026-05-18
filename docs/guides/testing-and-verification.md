@@ -120,7 +120,9 @@ Use that as a PR gate for coding-agent task changes.
 When the comparison runs through `forma package-review --baseline`, the
 `compare` row includes the same `failedOn`, `contractChanges`,
 `settingChanges`, and detailed `changes` entries so package reviewers can see
-the exact field or provider setting that blocked a release.
+the exact field or provider setting that blocked a release. Setting changes use
+`details.from` and `details.to` to show the redacted provider, endpoint, model,
+response format, temperature, or timeout value change without exposing secrets.
 
 For GitHub Actions, the relevant CI step is:
 
