@@ -36,6 +36,10 @@ provider failover only after that contract is worth keeping.
 Fallback comparisons belong after host-code simplification proof. Compare
 failed and replacement model results only after the minimal or checked path has
 already shown that generated bindings and validation improve the host code.
+Fallback policy is not a reason to skip the minimal smoke comparison. If model
+routing, retry, or failover needs are already visible, still run the minimal
+before/after smoke path first so the team knows whether Forma simplifies the
+host contract before adding deployment policy.
 
 ## Steps
 

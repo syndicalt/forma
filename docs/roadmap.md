@@ -403,6 +403,8 @@ The current MVP provides:
   route changes.
 - Product-proof docs now say fallback eval changes need baseline comparison,
   not smoke-only acceptance.
+- First-use audit now says fallback policy is not a reason to skip the minimal
+  smoke comparison.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -965,12 +967,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add first-use audit wording that fallback policy is not a
-   reason to skip the minimal smoke comparison.
-2. Product clarity: add testing-guide wording that fallback route changes
+1. Product clarity: add testing-guide wording that fallback route changes
    require preserved diagnostics.
-3. Product clarity: add provider-adapter wording that fallback eval evidence
+2. Product clarity: add provider-adapter wording that fallback eval evidence
    belongs outside provider profile changes.
+3. Product clarity: add product-proof wording that fallback baselines should
+   identify the model route under review.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
