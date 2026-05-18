@@ -789,6 +789,30 @@ describe("forma cli", () => {
     });
   });
 
+  it("reports installed package smoke recovery guidance when release proof fails there", async () => {
+    const result = await runCli([
+      "package-review",
+      "../../examples/review_diff.forma.pkg.json",
+      "--proof-command",
+      "node -e \"process.stderr.write('packages:installed-smoke failed'); process.exit(7)\"",
+    ]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result.exitCode).toBe(1);
+    expect(review.checks).toContainEqual(expect.objectContaining({
+      name: "proof-command",
+      passed: false,
+      command: "node -e \"process.stderr.write('packages:installed-smoke failed'); process.exit(7)\"",
+      exitCode: 7,
+      stderr: "packages:installed-smoke failed",
+      guidance: "rerun corepack pnpm packages:installed-smoke and restore the installed release bundle smoke path",
+      recoveryCommands: [
+        "corepack pnpm packages:installed-smoke",
+        "corepack pnpm docs:check",
+      ],
+    }));
+  });
+
   it("fails package checks when a task source hash is stale", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-check-"));
     const manifest = join(dir, "review-diff.pkg.json");

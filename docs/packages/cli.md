@@ -370,10 +370,15 @@ A passing proof row includes the exact command and any captured output:
 If the command fails, the row reports `passed: false`, the exit code when
 available, and captured stdout or stderr, and the overall review fails.
 For the repository release gate, `proof:release` runs
-`proof:migration && projects:check` through the same row. If stdout stops near
-`review_diff_migration.test.ts`, fix migration parity first. If stdout reaches
-the clean-project JSON report and names `forma-project.yml` or
-`missingCommands`, restore the checked clean-project workflow commands.
+`proof:migration && projects:check && packages:installed-smoke` through the
+same row. If stdout stops near `review_diff_migration.test.ts`, fix migration
+parity first. If stdout reaches the clean-project JSON report and names
+`forma-project.yml` or `missingCommands`, restore the checked clean-project
+workflow commands. If the proof row fails at `packages:installed-smoke`, the row
+adds `guidance` and `recoveryCommands` with `corepack pnpm
+packages:installed-smoke` and `corepack pnpm docs:check`; rerun the installed
+release-bundle smoke, restore missing package artifacts or tests, then rerun
+the docs gate.
 When a package declares migration parity tests, `package-review` also expects
 README and CI command coverage for a proof review command derived from those
 tests, for example:

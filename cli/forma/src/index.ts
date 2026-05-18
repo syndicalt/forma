@@ -348,8 +348,23 @@ async function packageProofCommandCheck(args: string[]): Promise<Record<string, 
       ...(typeof failed.code === "number" ? { exitCode: failed.code } : {}),
       ...(typeof failed.stdout === "string" && failed.stdout ? { stdout: failed.stdout } : {}),
       ...(typeof failed.stderr === "string" && failed.stderr ? { stderr: failed.stderr } : {}),
+      ...proofCommandRecovery(command, failed),
     };
   }
+}
+
+function proofCommandRecovery(command: string, failed: { stdout?: unknown; stderr?: unknown }): Record<string, unknown> {
+  const output = `${typeof failed.stdout === "string" ? failed.stdout : ""}\n${typeof failed.stderr === "string" ? failed.stderr : ""}`;
+  if (!command.includes("packages:installed-smoke") && !output.includes("packages:installed-smoke")) {
+    return {};
+  }
+  return {
+    guidance: "rerun corepack pnpm packages:installed-smoke and restore the installed release bundle smoke path",
+    recoveryCommands: [
+      "corepack pnpm packages:installed-smoke",
+      "corepack pnpm docs:check",
+    ],
+  };
 }
 
 function packageCompatibilityPolicyCheck(manifest: FormaPackageManifest): Record<string, unknown> {

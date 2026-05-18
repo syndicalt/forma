@@ -520,6 +520,9 @@ The current MVP provides:
 - The docs gate keeps installed-package smoke guidance tied to release bundles
   and installed package-lock consumers in both the verification and registry
   docs.
+- Package-review proof failures now add recovery guidance when
+  `packages:installed-smoke` fails, including the focused rerun command and the
+  docs gate to check after package artifacts or tests are restored.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -645,12 +648,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add recovery guidance for installed-package smoke failures
-   in release proof output.
-2. Product clarity: add docs-check coverage that keeps the optional
+1. Product clarity: add docs-check coverage that keeps the optional
    installed-package smoke CI step visible in the verification guide.
-3. Registry and versioning: extract the installed-package smoke package matrix
+2. Registry and versioning: extract the installed-package smoke package matrix
    so new package kinds can be added without duplicating install and venv setup.
+3. Product clarity: add docs-check coverage for installed-package smoke
+   recovery guidance in package-review proof output.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
