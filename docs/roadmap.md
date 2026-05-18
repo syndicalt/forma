@@ -216,6 +216,8 @@ The current MVP provides:
   omitted from a package that declares test artifacts.
 - `forma package-review` surfaces exact pinned package test commands in the
   `tests` row so consumers can copy the verified test plan.
+- Package docs include representative `package-review` JSON output so users can
+  see the reviewed artifact checklist before running the CLI.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -346,8 +348,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add package-review output examples to docs so users
-   can see the reviewed artifact checklist before running the CLI.
+3. Coding workflow depth: add package-review failure examples for missing test
+   commands so users can fix broken package CI quickly.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

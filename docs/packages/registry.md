@@ -217,6 +217,43 @@ the same files that reviewers approved. `forma package-review` prints those
 commands in the `tests` row and checks that the README and package CI workflow
 include them whenever the manifest has a `tests` section.
 
+The review output is JSON so CI can gate on it, but it is also useful as a
+human checklist before publishing or consuming a package. A passing package
+review includes rows like:
+
+```json
+{
+  "passed": true,
+  "checks": [
+    { "name": "package-lock", "passed": true, "path": "examples/review_diff.forma.lock.json" },
+    { "name": "provider-profile", "passed": true, "provider": "openai-responses", "model": "gpt-5", "apiKeyEnv": "OPENAI_API_KEY" },
+    { "name": "bindings", "passed": true, "total": 2, "targets": ["typescript", "python"] },
+    { "name": "examples", "passed": true, "total": 12, "runtimes": ["typescript", "python"] },
+    {
+      "name": "tests",
+      "passed": true,
+      "total": 4,
+      "runtimes": ["typescript", "python"],
+      "commands": [
+        "npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts",
+        "python review_diff_decision_test.py",
+        "python tool_permission_workflow_test.py"
+      ]
+    },
+    { "name": "readme", "passed": true, "total": 9 },
+    { "name": "ci-workflow", "passed": true, "total": 7 },
+    { "name": "publish-bundle", "passed": true, "total": 29 },
+    { "name": "eval-coverage", "passed": true, "tasks": ["greet_user", "greet_user_warmly", "review_diff"] },
+    { "name": "eval-suite", "passed": true, "total": 3, "failed": 0 }
+  ]
+}
+```
+
+The important signal is not only `passed: true`; it is that the rows cover the
+artifact boundaries a consumer will depend on: lockfile verification,
+secret-free provider configuration, generated bindings, host examples, pinned
+tests, release documentation, CI, publish bundle contents, and eval coverage.
+
 ## Review
 
 Before publishing a package version, run the eval suite and compare it with the
