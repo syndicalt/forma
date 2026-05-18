@@ -336,6 +336,10 @@ Package-lock smoke failures usually mean a stale reviewed artifact set. Treat
 the failure as evidence that the host project, package lock, generated contract
 tests, or reviewed workflow no longer describe the same release; repair the
 artifact set before changing application logic.
+Keep diagnostics with failed package-lock smoke runs. Preserve the
+`project-check --json` row, smoke-test stdout, and failed TypeScript or Python
+command so reviewers can tell whether the stale piece is the host project,
+reviewed lock, generated contract tests, or CI workflow.
 
 If the `tests` row reports `missingProviderOverrideTests`, the package manifest
 still declares tests but no longer includes the generated TypeScript and Python

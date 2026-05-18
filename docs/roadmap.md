@@ -322,6 +322,8 @@ The current MVP provides:
   the `.forma` contract, keeping retry policy in host code or adapters.
 - Testing guide now says `projects:check` protects application-owned contracts
   before package review for downstream consumers.
+- Package-consumer troubleshooting now tells users to keep diagnostics with
+  failed package-lock smoke runs.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -853,12 +855,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add package-consumer troubleshooting wording that
-   diagnostics should be kept with failed package-lock smoke runs.
-2. Product clarity: add runtime-semantics wording that traces are evidence for
+1. Product clarity: add runtime-semantics wording that traces are evidence for
    host workflow decisions, not just debug output.
-3. Product clarity: add CLI docs wording that `project-check --json` is for
+2. Product clarity: add CLI docs wording that `project-check --json` is for
    application CI dashboards, not package release dashboards.
+3. Product clarity: add package-consumer quickstart wording that reviewed
+   package locks should be updated by package owners, not consumers.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
