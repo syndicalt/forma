@@ -189,6 +189,10 @@ Route-label cleanup should preserve release proof comparability. Keep the old
 and cleaned-up labels linked in the proof notes, eval summaries, and installed
 smoke artifacts so reviewers can compare the same provider path across the
 cleanup.
+Cleaned-up route labels should appear in proof notes when names change. When
+cleanup renames a route label, include the old and cleaned-up names in the
+release proof notes so reviewers can connect proof artifacts without reading
+deployment-specific configuration.
 Route-label cleanup should leave installed smoke labels traceable. When cleanup
 changes the displayed route name, keep the prior label beside the cleaned-up
 label in installed smoke summaries so reviewers can follow the same deployment
