@@ -57,6 +57,9 @@ results. Use `--allow-test-command` one or more times to restrict provider
 requested test commands to exact approved command strings.
 Use `--response-format`, `--temperature`, and `--timeout-ms` to override
 provider profile generation settings for one command.
+Use `--report` when a local run should print the full `FormaResult`, including
+diagnostics, verification, and runtime trace entries such as `tool` and
+`tool_failed`, instead of only printing the task output object.
 
 Invalid usage exits with code 2 and prints `usage: forma
 <check|run|eval|eval-suite|compare|generate|package-check|package-init> <path> [--input JSON]`.

@@ -98,6 +98,8 @@ The current MVP provides:
   so provider-backed evaluation can exercise coding-agent tool workflows.
 - Runtime traces include `tool_failed` entries when configured host tools deny
   or fail provider-requested read, search, test, or edit calls.
+- `forma run --report` prints the full runtime result so local provider-backed
+  runs can expose diagnostics, verification, and tool traces without eval setup.
 - Python generated bindings include recursive `from_dict` constructors and
   `assert_<task>_output` validators for runtime output dictionaries and nested
   schema dataclasses.

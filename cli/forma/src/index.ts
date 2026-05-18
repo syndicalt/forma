@@ -84,6 +84,13 @@ export async function runCli(args: string[]): Promise<CliResult> {
     const result = taskName
       ? await runtime.runTask(source, taskName, { input, sourceName: path })
       : await runtime.runSource(source, { input, sourceName: path });
+    if (rest.includes("--report")) {
+      return {
+        exitCode: result.ok ? 0 : 1,
+        stdout: `${JSON.stringify(result, null, 2)}\n`,
+        stderr: "",
+      };
+    }
     return result.ok
       ? { exitCode: 0, stdout: `${JSON.stringify(result.output)}\n`, stderr: "" }
       : { exitCode: 1, stdout: "", stderr: `${result.error ?? "run failed"}\n` };
