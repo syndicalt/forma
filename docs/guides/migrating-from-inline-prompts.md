@@ -192,6 +192,11 @@ When the task is ready to share, scaffold a package so the contract, evals,
 bindings, provider profile, examples, README, workflows, manifest, and lockfile
 move together:
 
+Keep the inline prompt when it is still a one-language, one-application detail.
+Do not package it until the task boundary needs review across TypeScript and
+Python, generated bindings remove duplicated host schemas, or downstream
+consumers need a reviewed lockfile instead of copied prompt code.
+
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
 forma package-review ./review-diff-package/review_diff.forma.pkg.json

@@ -268,6 +268,9 @@ The current MVP provides:
   protection, not framework ceremony.
 - Examples README now maps `proof:migration`, `projects:check`, and
   `proof:release` to the adoption questions each command answers.
+- Migration guide now tells teams to keep inline prompts when they remain
+  one-language, one-application details and only package when the boundary needs
+  cross-runtime review, generated bindings, or downstream locks.
 - Quickstart now says project-check is the first CI gate for application-owned
   host projects and package-review is a later release gate for reusable task
   packages.
@@ -799,12 +802,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add migration guide wording that defines when an inline
-   prompt should stay inline instead of becoming a package.
-2. Product clarity: add first-use audit wording that defines the stop condition
+1. Product clarity: add first-use audit wording that defines the stop condition
    for teams that do not need cross-language contracts.
-3. Product clarity: add why-forma wording that names the minimum useful
+2. Product clarity: add why-forma wording that names the minimum useful
    contract boundary before packaging.
+3. Product clarity: add README wording that names local-only tasks as a valid
+   non-adoption outcome after the first-use path.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

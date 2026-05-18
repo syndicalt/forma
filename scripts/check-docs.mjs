@@ -175,6 +175,7 @@ const requiredTerms = {
     "package-review",
     "--proof-command",
     "missingMigrationParityProofCommand",
+    "Keep the inline prompt when it is still a one-language, one-application detail",
   ],
   "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification"],
   "docs/language/limitations.md": ["MVP", "named task", "provider"],
