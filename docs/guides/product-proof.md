@@ -179,6 +179,10 @@ Cleaned-up route labels should not hide baseline diagnostics. Keep the baseline
 diagnostics, original route label, and cleaned-up candidate label in the same
 review set so release reviewers can tell whether the label changed independently
 from the failure evidence.
+Cleaned-up route labels should keep candidate diagnostics comparable. Store the
+candidate diagnostics with both the cleaned-up label and the original route key
+so reviewers can compare failure evidence across the rename without treating it
+as a new provider path.
 Fallback baselines should identify the model route under review. Include the
 provider, model, endpoint or route label, and fallback policy in baseline and
 candidate eval summaries so reviewers know which deployment path changed.
