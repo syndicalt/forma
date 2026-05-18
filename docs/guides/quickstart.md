@@ -60,6 +60,12 @@ corepack pnpm build
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
 ```
 
+The final command runs the reviewed package checklist and executes the migration
+parity proof as a blocking `proof-command` row. If package review reports
+`missingMigrationParityProofCommand`, restore the reported
+`package-review --proof-command` command to README and CI so release review
+continues to run the before/after proof.
+
 If `forma run` fails on an agent task without a provider, that is expected for
 the default CLI path. Agent tasks require an explicit host-provided provider.
 Use `--provider-profile` when you want the CLI to execute a provider-backed
