@@ -235,8 +235,13 @@ async function reviewPackageManifest(path: string, args: string[] = []): Promise
 }
 
 async function packageProviderProfileCheck(manifest: FormaPackageManifest, manifestDir: string): Promise<Record<string, unknown>> {
+  const required = await packageRequiresProviderProfile(manifest, manifestDir);
   if (!manifest.providerProfile) {
-    return { name: "provider-profile", passed: true };
+    return {
+      name: "provider-profile",
+      passed: !required,
+      ...(required ? { required, missingProviderProfile: true } : {}),
+    };
   }
   const profile = JSON.parse(await readFile(resolve(manifestDir, manifest.providerProfile), "utf8")) as ProviderProfile;
   const secretFields = [
@@ -247,10 +252,23 @@ async function packageProviderProfileCheck(manifest: FormaPackageManifest, manif
     passed: secretFields.length === 0,
     provider: profile.provider,
     model: profile.model,
+    ...(required ? { required } : {}),
     ...(profile.apiKeyEnv ? { apiKeyEnv: profile.apiKeyEnv } : {}),
     ...(profile.endpoint ? { endpoint: profile.endpoint } : {}),
     ...(secretFields.length > 0 ? { secretFields } : {}),
   };
+}
+
+async function packageRequiresProviderProfile(manifest: FormaPackageManifest, manifestDir: string): Promise<boolean> {
+  for (const task of manifest.tasks ?? []) {
+    if (!task.source || !task.name) continue;
+    const source = await readFile(resolve(manifestDir, task.source), "utf8");
+    const parsedTask = parseForma(source).tasks.find((candidate) => candidate.name === task.name);
+    if (parsedTask?.agentInstruction) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function packageEvalCoverageCheck(manifest: FormaPackageManifest, suite: EvalSuiteArtifact): Record<string, unknown> {

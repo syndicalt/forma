@@ -137,6 +137,8 @@ The current MVP provides:
   across manifest validation, lockfile verification, and eval-suite execution.
 - `forma package-review` fails package reviews when provider profiles embed
   `apiKey` secrets instead of naming an environment variable.
+- `forma package-review` requires provider profiles for agent task packages
+  while allowing deterministic task packages to omit them.
 - `forma package-review` fails package reviews that omit TypeScript or Python
   generated bindings and reports included and missing targets.
 - `forma package-review` fails package reviews that omit TypeScript or Python

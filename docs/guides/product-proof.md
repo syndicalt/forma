@@ -41,9 +41,9 @@ corepack pnpm examples:check
 
 Run the package review gate. This validates the manifest, lockfile, TypeScript
 and Python generated binding presence, TypeScript and Python host example
-presence, provider profile secret hygiene, eval coverage for package tasks,
-eval suite, provider profile metadata, generated binding artifacts, and host
-example artifacts:
+presence, required provider profile metadata for agent tasks, provider profile
+secret hygiene, eval coverage for package tasks, eval suite, generated binding
+artifacts, and host example artifacts:
 
 ```bash
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
@@ -81,7 +81,8 @@ as passed, with `bindings.targets` and `examples.runtimes` listing both
 `typescript` and `python`, and `eval-coverage.tasks` listing the packaged task
 names. Eval coverage also checks that each evaluated task source hash matches
 the package manifest. Provider profile review fails if the profile embeds an
-`apiKey`; packages should use `apiKeyEnv`.
+`apiKey`; agent task packages should include a provider profile that uses
+`apiKeyEnv`.
 `examples:check` should finish without output. A live provider run requires
 `OPENAI_API_KEY`; without it, the failure is expected and confirms that
 credentials stay in host configuration instead of the `.forma` contract.

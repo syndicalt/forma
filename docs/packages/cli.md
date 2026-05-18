@@ -121,11 +121,11 @@ manifest validation, adjacent lockfile verification, TypeScript and Python
 binding presence, TypeScript and Python host example presence, provider profile
 secret hygiene, and eval suite summary. It prints a machine-readable checklist
 result. The review fails when a publishable package embeds provider secrets,
-does not include generated bindings and host examples for both runtimes, or
-when the eval suite does not cover every task in the package manifest with
-matching task source hashes. Add `--baseline baseline.json` to compare the
-candidate eval suite against a previous release artifact; baseline comparisons
-default to
+omits a provider profile for an agent task, does not include generated bindings
+and host examples for both runtimes, or when the eval suite does not cover every
+task in the package manifest with matching task source hashes. Add `--baseline
+baseline.json` to compare the candidate eval suite against a previous release
+artifact; baseline comparisons default to
 `--fail-on breaking,environment` unless you pass a different `--fail-on`
 severity list:
 
@@ -294,9 +294,10 @@ forma eval packages/forma-core/conformance/review_diff.json \
 
 The profile supports `provider`, `endpoint`, `model`, `apiKey`, `apiKeyEnv`,
 `responseFormat`, `temperature`, and `timeoutMs`. Command-line flags override
-profile values. Use `apiKeyEnv` for package profiles so the profile names the
-secret environment variable without storing the secret value; `forma
-package-review` fails package profiles that include `apiKey`.
+profile values. Agent task packages should include a provider profile.
+Deterministic task packages may omit one. Use `apiKeyEnv` for package profiles
+so the profile names the secret environment variable without storing the secret
+value; `forma package-review` fails package profiles that include `apiKey`.
 
 Use `--provider openai-responses` to evaluate against the built-in OpenAI
 Responses adapter. The CLI passes the task output contract to the provider so

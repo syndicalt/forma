@@ -720,7 +720,7 @@ describe("forma cli", () => {
       checks: [
         { name: "package-check", passed: true },
         { name: "package-lock", passed: true, path: join(dir, "review_diff.forma.lock.json") },
-        { name: "provider-profile", passed: true, provider: "openai-responses", model: "gpt-5", apiKeyEnv: "OPENAI_API_KEY" },
+        { name: "provider-profile", passed: true, provider: "openai-responses", model: "gpt-5", required: true, apiKeyEnv: "OPENAI_API_KEY" },
         { name: "bindings", passed: true, total: 2, targets: ["typescript", "python"] },
         { name: "examples", passed: true, total: 2, runtimes: ["typescript", "python"] },
         { name: "eval-coverage", passed: true, tasks: ["review_diff"] },
@@ -750,8 +750,32 @@ describe("forma cli", () => {
       passed: false,
       provider: "openai-responses",
       model: "gpt-5",
+      required: true,
       apiKeyEnv: "OPENAI_API_KEY",
       secretFields: ["apiKey"],
+    });
+  });
+
+  it("fails package review when an agent task package omits provider profile", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-missing-provider-profile-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    delete manifest.providerProfile;
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "provider-profile",
+      passed: false,
+      required: true,
+      missingProviderProfile: true,
     });
   });
 
