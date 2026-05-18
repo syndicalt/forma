@@ -2020,6 +2020,7 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "review_diff_contract_test.py"), "utf8")).toContain("review_diff_contract");
     const readme = await readFile(join(dir, "README.md"), "utf8");
     expect(readme).toContain("forma package-review review_diff.forma.pkg.json");
+    expect(readme).toContain("Publish only after package review protects real consumers");
     expect(readme).toContain("forma package-check review_diff.forma.pkg.json");
     expect(readme).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
     expect(readme).toContain("npx vitest run review_diff_contract.test.ts");

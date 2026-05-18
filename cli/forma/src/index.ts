@@ -1740,6 +1740,11 @@ forma package-review ${manifestFile} --baseline baseline.json
 forma compare baseline.json candidate.json --fail-on breaking,environment
 \`\`\`
 
+Publish only after package review protects real consumers. If this package is
+still used by one application, keep it local until the reviewed manifest,
+lockfile, generated bindings, tests, release files, and evals protect downstream
+TypeScript and Python hosts from drift.
+
 If the baseline review fails, inspect the \`compare\` row in
 \`package-review\` output. \`failedOn\` shows which configured severity blocked
 the release, \`contractChanges\` and \`settingChanges\` summarize the changed
