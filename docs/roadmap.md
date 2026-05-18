@@ -491,6 +491,9 @@ The current MVP provides:
   preserve the generated project README scaffold-choice route.
 - The root README links the first-use audit beside the scaffold decision table,
   so the repo front door and docs index point to the same scaffold-choice map.
+- `projects:installed-smoke` scaffolds a clean project, installs
+  `@forma-lang/forma` from a local npm tarball and `forma-lang` into a Python
+  venv, then runs generated TypeScript and Python `StaticProvider` smoke paths.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -616,13 +619,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Clean-project onboarding: add installed-project smoke tests for the
-   published TypeScript and Python package names once release packaging is
-   available.
+1. Clean-project onboarding: add `projects:installed-smoke` to the standard
+   project verification gate after keeping its runtime acceptable.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add a docs gate that keeps the root README linked to the
-   first-use audit and generated project README scaffold-choice map.
+3. Product clarity: add docs for the installed-project smoke command so users
+   can distinguish local path-alias checks from package-install checks.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
