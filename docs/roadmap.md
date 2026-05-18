@@ -122,6 +122,8 @@ The current MVP provides:
   templates through `--kind review` and `--kind tool`.
 - Package scaffolding customizes generated provider profiles with provider,
   endpoint, model, key-env, response-format, temperature, and timeout flags.
+- Package scaffolding customizes generated input fields, output fields, and
+  named output object schemas through repeatable schema flags.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
 - Duplicate task name diagnostics.
@@ -248,8 +250,8 @@ The next three implementation slices should be:
 
 1. Provider adapter kit: add optional production provider packages.
 2. Registry and versioning: add registry publishing workflow automation.
-3. Coding-agent ergonomics: add package scaffold customization for
-   task-specific schemas.
+3. Coding-agent ergonomics: add richer generated host examples for
+   custom-scaffolded schemas.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

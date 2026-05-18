@@ -738,6 +738,57 @@ describe("forma cli", () => {
     expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
   });
 
+  it("scaffolds a package with custom task schema fields", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-init-schema-"));
+    const result = await runCli([
+      "package-init",
+      dir,
+      "--name",
+      "acme/review-diff",
+      "--task",
+      "review_diff",
+      "--input-field",
+      "diff:Text",
+      "--input-field",
+      "repo_path:Text?",
+      "--output-field",
+      "summary:Text",
+      "--output-field",
+      "findings:Finding[]",
+      "--output-field",
+      "risk:Number?",
+      "--output-object",
+      "Finding.path:Text",
+      "--output-object",
+      "Finding.message:Text",
+      "--output-object",
+      "Finding.severity:Text?",
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    const source = await readFile(join(dir, "review_diff.forma"), "utf8");
+    expect(source).toContain("repo_path: Text?");
+    expect(source).toContain("risk: Number?");
+    expect(source).toContain("severity: Text?");
+    expect(source).not.toContain("clean: Boolean");
+    expect(await readFile(join(dir, "review_diff.forma.ts"), "utf8")).toContain("risk?: number");
+    expect(await readFile(join(dir, "review_diff_forma.py"), "utf8")).toContain("risk: float | None = None");
+    expect(JSON.parse(await readFile(join(dir, "review_diff.eval.json"), "utf8")).fakeProviderOutput).toEqual({
+      summary: "Example summary.",
+      findings: [
+        {
+          path: "example",
+          message: "Example message.",
+          severity: "example",
+        },
+      ],
+      risk: 1,
+    });
+
+    const check = await runCli(["package-check", join(dir, "review_diff.forma.pkg.json")]);
+    expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+  });
+
   it("scaffolds a tool-using package when requested", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-init-tools-"));
     const result = await runCli([

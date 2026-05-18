@@ -32,7 +32,10 @@ customize that file with provider flags such as `--provider`, `--endpoint`,
 `--timeout-ms`. The generated profile stays secret-free by recording the key
 environment variable name with `apiKeyEnv`; hosts read the actual key from the
 process environment. The package manifest records the profile path as
-`providerProfile`.
+`providerProfile`. The same scaffold command can customize task fields with
+`--input-field`, `--output-field`, and `--output-object`, so the manifest hash,
+generated TypeScript/Python bindings, eval fixture, and lockfile all describe
+the task-specific contract rather than a generic review template.
 
 ```json
 {

@@ -180,14 +180,15 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   const evalSuite = "forma.eval.json";
   const manifestFile = `${taskName}.forma.pkg.json`;
   const providerProfileFile = "forma.provider.json";
-  const source = scaffoldSource(taskName, kind);
+  const schema = scaffoldSchema(args);
+  const source = scaffoldSource(taskName, kind, schema);
   await writeFile(resolve(path, taskFile), source, "utf8");
   await writeFile(resolve(path, typeScriptBindings), generateTypeScriptBindings(source), "utf8");
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
   await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName, kind), "utf8");
   await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName, kind), "utf8");
   await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(scaffoldProviderProfile(args), null, 2)}\n`, "utf8");
-  await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind), null, 2)}\n`, "utf8");
+  await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind, schema), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
   const manifest = {
     formaPackage: 1,
@@ -291,6 +292,19 @@ function omitUndefined<T>(value: T): T {
 
 type ScaffoldKind = "review" | "tool";
 
+interface ScaffoldField {
+  name: string;
+  type: string;
+  optional: boolean;
+  array: boolean;
+}
+
+interface ScaffoldSchema {
+  input?: ScaffoldField[];
+  output?: ScaffoldField[];
+  outputObjects: Record<string, ScaffoldField[]>;
+}
+
 function scaffoldKind(args: string[]): ScaffoldKind {
   const kind = optionValue(args, "--kind") ?? "review";
   if (kind !== "review" && kind !== "tool") {
@@ -299,8 +313,59 @@ function scaffoldKind(args: string[]): ScaffoldKind {
   return kind;
 }
 
-function scaffoldSource(taskName: string, kind: ScaffoldKind): string {
-  return kind === "tool" ? scaffoldToolSource(taskName) : scaffoldReviewSource(taskName);
+function scaffoldSchema(args: string[]): ScaffoldSchema | undefined {
+  const input = optionValues(args, "--input-field").map((value) => parseScaffoldField(value, "--input-field"));
+  const output = optionValues(args, "--output-field").map((value) => parseScaffoldField(value, "--output-field"));
+  const outputObjects = parseScaffoldObjects(optionValues(args, "--output-object"));
+  if (input.length === 0 && output.length === 0 && Object.keys(outputObjects).length === 0) {
+    return undefined;
+  }
+  return {
+    ...(input.length > 0 ? { input } : {}),
+    ...(output.length > 0 ? { output } : {}),
+    outputObjects,
+  };
+}
+
+function parseScaffoldObjects(values: string[]): Record<string, ScaffoldField[]> {
+  const objects: Record<string, ScaffoldField[]> = {};
+  for (const value of values) {
+    const [path, type] = value.split(":");
+    if (!path || !type) {
+      throw new Error("--output-object must use Object.field:Type");
+    }
+    const [objectName, fieldName] = path.split(".");
+    if (!objectName || !fieldName || path.split(".").length !== 2) {
+      throw new Error("--output-object must use Object.field:Type");
+    }
+    validateScaffoldIdentifier(objectName, "--output-object object");
+    const field = parseScaffoldField(`${fieldName}:${type}`, "--output-object");
+    objects[objectName] = [...(objects[objectName] ?? []), field];
+  }
+  return objects;
+}
+
+function parseScaffoldField(value: string, flag: string): ScaffoldField {
+  const [name, typeSpec] = value.split(":");
+  if (!name || !typeSpec || value.split(":").length !== 2) {
+    throw new Error(`${flag} must use name:Type`);
+  }
+  validateScaffoldIdentifier(name, flag);
+  const array = typeSpec.endsWith("[]") || typeSpec.endsWith("[]?");
+  const optional = typeSpec.endsWith("?");
+  const type = typeSpec.replace(/\[\]\??$/, "").replace(/\?$/, "");
+  validateScaffoldIdentifier(type, flag);
+  return { name, type, optional, array };
+}
+
+function validateScaffoldIdentifier(value: string, flag: string): void {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
+    throw new Error(`${flag} contains an invalid identifier`);
+  }
+}
+
+function scaffoldSource(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
+  return kind === "tool" ? scaffoldToolSource(taskName, schema) : scaffoldReviewSource(taskName, schema);
 }
 
 function scaffoldProviderProfile(args: string[]): ProviderProfile {
@@ -327,25 +392,20 @@ function scaffoldProviderProfile(args: string[]): ProviderProfile {
   return profile;
 }
 
-function scaffoldReviewSource(taskName: string): string {
+function scaffoldReviewSource(taskName: string, schema?: ScaffoldSchema): string {
+  const inputFields = effectiveInputFields("review", schema);
+  const outputFields = effectiveOutputFields("review", schema);
+  const outputObjects = effectiveOutputObjects("review", schema);
   return `task ${taskName} {
   intent "Review a code diff and produce structured review metadata"
 
   input {
-    diff: Text
-    max_findings: Number?
+${renderScaffoldFields(inputFields, "    ")}
   }
 
   output {
-    summary: Text
-    findings: Finding[]
-    clean: Boolean
-
-    object Finding {
-      path: Text
-      line: Number?
-      message: Text
-    }
+${renderScaffoldFields(outputFields, "    ")}
+${renderScaffoldObjects(outputObjects, "    ")}
   }
 
   agent {
@@ -365,20 +425,20 @@ function scaffoldReviewSource(taskName: string): string {
 `;
 }
 
-function scaffoldToolSource(taskName: string): string {
+function scaffoldToolSource(taskName: string, schema?: ScaffoldSchema): string {
+  const inputFields = effectiveInputFields("tool", schema);
+  const outputFields = effectiveOutputFields("tool", schema);
+  const outputObjects = effectiveOutputObjects("tool", schema);
   return `task ${taskName} {
   intent "Inspect a source file, run a focused test command, and write a small repair"
 
   input {
-    path: Text
-    test_command: Text?
+${renderScaffoldFields(inputFields, "    ")}
   }
 
   output {
-    summary: Text
-    searched: Boolean
-    test_passed: Boolean
-    edited: Boolean
+${renderScaffoldFields(outputFields, "    ")}
+${renderScaffoldObjects(outputObjects, "    ")}
   }
 
   agent {
@@ -399,7 +459,25 @@ function scaffoldToolSource(taskName: string): string {
 `;
 }
 
-function scaffoldEvalFixture(taskName: string, taskFile: string, kind: ScaffoldKind) {
+function renderScaffoldFields(fields: ScaffoldField[], indent: string): string {
+  return fields.map((field) => `${indent}${field.name}: ${field.type}${field.array ? "[]" : ""}${field.optional ? "?" : ""}`).join("\n");
+}
+
+function renderScaffoldObjects(objects: Record<string, ScaffoldField[]>, indent: string): string {
+  return Object.entries(objects)
+    .map(([name, fields]) => `\n${indent}object ${name} {\n${renderScaffoldFields(fields, `${indent}  `)}\n${indent}}`)
+    .join("\n");
+}
+
+function scaffoldEvalFixture(taskName: string, taskFile: string, kind: ScaffoldKind, schema?: ScaffoldSchema) {
+  if (schema) {
+    const effectiveSchema = {
+      outputObjects: effectiveOutputObjects(kind, schema),
+    };
+    const input = Object.fromEntries(effectiveInputFields(kind, schema).map((field) => [field.name, scaffoldValue(field, effectiveSchema)]));
+    const output = Object.fromEntries(effectiveOutputFields(kind, schema).map((field) => [field.name, scaffoldValue(field, effectiveSchema)]));
+    return scaffoldAgentEvalFixture(taskName, taskFile, input, output);
+  }
   if (kind === "tool") {
     const output = {
       summary: "Read src/example.ts, found related context, ran tests, and wrote a repair.",
@@ -436,13 +514,17 @@ function scaffoldEvalFixture(taskName: string, taskFile: string, kind: ScaffoldK
     ],
     clean: false,
   };
+  return scaffoldAgentEvalFixture(taskName, taskFile, {
+    diff: "diff --git a/src/example.ts b/src/example.ts",
+    max_findings: 3,
+  }, output);
+}
+
+function scaffoldAgentEvalFixture(taskName: string, taskFile: string, input: Record<string, FormaValue>, output: Record<string, FormaValue>) {
   return {
     name: taskName,
     source: taskFile,
-    input: {
-      diff: "diff --git a/src/example.ts b/src/example.ts",
-      max_findings: 3,
-    },
+    input,
     fakeProviderOutput: output,
     expectedResult: {
       ok: true,
@@ -453,6 +535,62 @@ function scaffoldEvalFixture(taskName: string, taskFile: string, kind: ScaffoldK
       error: null,
     },
   };
+}
+
+function scaffoldValue(field: ScaffoldField, schema: ScaffoldSchema): FormaValue {
+  if (field.array) {
+    return [scaffoldValue({ ...field, array: false, optional: false }, schema)] as FormaValue;
+  }
+  const nested = schema.outputObjects[field.type];
+  if (nested) {
+    return Object.fromEntries(nested.map((nestedField) => [nestedField.name, scaffoldValue(nestedField, schema)])) as FormaValue;
+  }
+  if (field.type === "Text") return field.name === "summary" ? "Example summary." : field.name === "message" ? "Example message." : "example";
+  if (field.type === "Number") return 1;
+  if (field.type === "Boolean") return true;
+  return "example";
+}
+
+function effectiveInputFields(kind: ScaffoldKind, schema?: ScaffoldSchema): ScaffoldField[] {
+  return schema?.input ?? (kind === "tool"
+    ? [
+        { name: "path", type: "Text", optional: false, array: false },
+        { name: "test_command", type: "Text", optional: true, array: false },
+      ]
+    : [
+        { name: "diff", type: "Text", optional: false, array: false },
+        { name: "max_findings", type: "Number", optional: true, array: false },
+      ]);
+}
+
+function effectiveOutputFields(kind: ScaffoldKind, schema?: ScaffoldSchema): ScaffoldField[] {
+  return schema?.output ?? (kind === "tool"
+    ? [
+        { name: "summary", type: "Text", optional: false, array: false },
+        { name: "searched", type: "Boolean", optional: false, array: false },
+        { name: "test_passed", type: "Boolean", optional: false, array: false },
+        { name: "edited", type: "Boolean", optional: false, array: false },
+      ]
+    : [
+        { name: "summary", type: "Text", optional: false, array: false },
+        { name: "findings", type: "Finding", optional: false, array: true },
+        { name: "clean", type: "Boolean", optional: false, array: false },
+      ]);
+}
+
+function effectiveOutputObjects(kind: ScaffoldKind, schema?: ScaffoldSchema): Record<string, ScaffoldField[]> {
+  if (schema) {
+    return schema.outputObjects;
+  }
+  return kind === "review"
+    ? {
+        Finding: [
+          { name: "path", type: "Text", optional: false, array: false },
+          { name: "line", type: "Number", optional: true, array: false },
+          { name: "message", type: "Text", optional: false, array: false },
+        ],
+      }
+    : {};
 }
 
 function scaffoldTypeScriptExample(taskName: string, kind: ScaffoldKind): string {

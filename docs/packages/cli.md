@@ -109,7 +109,11 @@ those tools. The scaffold also writes `forma.provider.json`; review-agent host
 examples load it to choose the provider, model, and API-key environment
 variable. Pass `--provider`, `--endpoint`, `--model`, `--api-key-env`,
 `--response-format`, `--temperature`, and `--timeout-ms` to generate a provider
-profile that matches the runtime you plan to use:
+profile that matches the runtime you plan to use. Repeat `--input-field
+name:Type`, `--output-field name:Type`, and `--output-object Object.field:Type`
+to tailor the generated `.forma` input/output contract, bindings, and eval
+fixture. Field types use Forma syntax, including `?` for optional fields and
+`[]` for arrays:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
@@ -124,6 +128,17 @@ forma package-init ./review-diff-http \
   --response-format json_object \
   --temperature 0.1 \
   --timeout-ms 10000
+forma package-init ./risk-review \
+  --name acme/risk-review \
+  --task risk_review \
+  --input-field diff:Text \
+  --input-field repo_path:Text? \
+  --output-field summary:Text \
+  --output-field findings:Finding[] \
+  --output-field risk:Number? \
+  --output-object Finding.path:Text \
+  --output-object Finding.message:Text \
+  --output-object Finding.severity:Text?
 forma package-check ./review-diff-package/review_diff.forma.pkg.json
 ```
 
