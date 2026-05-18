@@ -35,6 +35,10 @@ Deployment overrides are host policy, not package mutation. Keep environment
 keys, regional routing, fallback models, retry budgets, and logging changes in
 the host adapter or application configuration unless every reviewed consumer
 should inherit the same package default.
+Fallback models are deployment policy unless every consumer should inherit them.
+Put temporary provider failover, region-specific model choice, and canary model
+routing in the host adapter. Change the reviewed package profile only when the
+new fallback behavior is part of the shared contract for all consumers.
 
 ## Steps
 
