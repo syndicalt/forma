@@ -185,8 +185,8 @@ async function initializePackage(path: string, args: string[]): Promise<CliResul
   await writeFile(resolve(path, taskFile), source, "utf8");
   await writeFile(resolve(path, typeScriptBindings), generateTypeScriptBindings(source), "utf8");
   await writeFile(resolve(path, pythonBindings), generatePythonBindings(source), "utf8");
-  await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName, kind), "utf8");
-  await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName, kind), "utf8");
+  await writeFile(resolve(path, typeScriptExample), scaffoldTypeScriptExample(taskName, kind, schema), "utf8");
+  await writeFile(resolve(path, pythonExample), scaffoldPythonExample(taskName, kind, schema), "utf8");
   await writeFile(resolve(path, providerProfileFile), `${JSON.stringify(scaffoldProviderProfile(args), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalFixture), `${JSON.stringify(scaffoldEvalFixture(taskName, taskFile, kind, schema), null, 2)}\n`, "utf8");
   await writeFile(resolve(path, evalSuite), `${JSON.stringify({ fixtures: [evalFixture] }, null, 2)}\n`, "utf8");
@@ -593,15 +593,20 @@ function effectiveOutputObjects(kind: ScaffoldKind, schema?: ScaffoldSchema): Re
     : {};
 }
 
-function scaffoldTypeScriptExample(taskName: string, kind: ScaffoldKind): string {
+function scaffoldTypeScriptExample(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
   if (kind === "tool") {
     return scaffoldToolTypeScriptExample(taskName);
   }
   const pascalName = toPascalCase(taskName);
   const camelName = toCamelCase(taskName);
+  const inputType = `${pascalName}Input`;
+  const exampleInput = renderTypeScriptObject(Object.fromEntries(effectiveInputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "");
   return `import { fileURLToPath } from "node:url";
 import { agent, providerFromProfile, providerProfileFromFile } from "@forma-lang/forma";
-import { assert${pascalName}Output, type ${pascalName}Output } from "./${taskName}.forma.js";
+import { assert${pascalName}Output, type ${inputType}, type ${pascalName}Output } from "./${taskName}.forma.js";
 
 const providerProfile = providerProfileFromFile(fileURLToPath(new URL("./forma.provider.json", import.meta.url)));
 
@@ -611,8 +616,10 @@ const ${camelName} = agent({
   provider: providerFromProfile(providerProfile),
 });
 
-export async function run${pascalName}(diff: string): Promise<${pascalName}Output> {
-  const result = await ${camelName}.run({ diff, max_findings: 5 });
+const exampleInput: ${inputType} = ${exampleInput};
+
+export async function run${pascalName}(input: ${inputType} = exampleInput): Promise<${pascalName}Output> {
+  const result = await ${camelName}.run(input);
   if (!result.ok) {
     throw new Error(result.error ?? "Forma ${taskName} failed");
   }
@@ -666,15 +673,21 @@ export async function run${pascalName}(path: string): Promise<${pascalName}Outpu
 `;
 }
 
-function scaffoldPythonExample(taskName: string, kind: ScaffoldKind): string {
+function scaffoldPythonExample(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
   if (kind === "tool") {
     return scaffoldToolPythonExample(taskName);
   }
   const pascalName = toPascalCase(taskName);
+  const inputType = `${pascalName}Input`;
+  const exampleInput = renderPythonObject(Object.fromEntries(effectiveInputFields(kind, schema).map((field) => [
+    field.name,
+    scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
+  ])), "    ");
   return `from pathlib import Path
+from dataclasses import asdict
 
 from forma import agent, provider_from_profile, provider_profile_from_file
-from ${taskName}_forma import ${pascalName}Output, assert_${taskName}_output
+from ${taskName}_forma import ${inputType}, ${pascalName}Output, assert_${taskName}_output
 
 
 provider_profile = provider_profile_from_file(Path(__file__).with_name("forma.provider.json"))
@@ -686,12 +699,49 @@ ${taskName} = agent(
 )
 
 
-def run_${taskName}(diff: str) -> ${pascalName}Output:
-    result = ${taskName}.run({"diff": diff, "max_findings": 5})
+example_input = ${inputType}.from_dict(${exampleInput})
+
+
+def run_${taskName}(input: ${inputType} = example_input) -> ${pascalName}Output:
+    result = ${taskName}.run(asdict(input))
     if not result.ok:
         raise RuntimeError(result.error or "Forma ${taskName} failed")
     return assert_${taskName}_output(result.output)
 `;
+}
+
+function renderTypeScriptObject(value: Record<string, FormaValue>, indent: string): string {
+  const entries = Object.entries(value);
+  if (entries.length === 0) return "{}";
+  const nextIndent = `${indent}  `;
+  return `{\n${entries.map(([key, entry]) => `${nextIndent}${key}: ${renderTypeScriptValue(entry, nextIndent)},`).join("\n")}\n${indent}}`;
+}
+
+function renderTypeScriptValue(value: FormaValue, indent: string): string {
+  if (Array.isArray(value)) {
+    return `[${(value as FormaValue[]).map((entry) => renderTypeScriptValue(entry, indent)).join(", ")}]`;
+  }
+  if (value && typeof value === "object") {
+    return renderTypeScriptObject(value as Record<string, FormaValue>, indent);
+  }
+  return JSON.stringify(value);
+}
+
+function renderPythonObject(value: Record<string, FormaValue>, indent: string): string {
+  const entries = Object.entries(value);
+  if (entries.length === 0) return "{}";
+  const nextIndent = `${indent}    `;
+  return `{\n${entries.map(([key, entry]) => `${nextIndent}${JSON.stringify(key)}: ${renderPythonValue(entry, nextIndent)},`).join("\n")}\n${indent}}`;
+}
+
+function renderPythonValue(value: FormaValue, indent: string): string {
+  if (Array.isArray(value)) {
+    return `[${(value as FormaValue[]).map((entry) => renderPythonValue(entry, indent)).join(", ")}]`;
+  }
+  if (value && typeof value === "object") {
+    return renderPythonObject(value as Record<string, FormaValue>, indent);
+  }
+  return JSON.stringify(value);
 }
 
 function scaffoldToolPythonExample(taskName: string): string {

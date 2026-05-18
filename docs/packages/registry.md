@@ -35,7 +35,9 @@ process environment. The package manifest records the profile path as
 `providerProfile`. The same scaffold command can customize task fields with
 `--input-field`, `--output-field`, and `--output-object`, so the manifest hash,
 generated TypeScript/Python bindings, eval fixture, and lockfile all describe
-the task-specific contract rather than a generic review template.
+the task-specific contract rather than a generic review template. The generated
+host examples also use the task-specific input type, which keeps embedding code
+aligned with the reviewed package contract.
 
 ```json
 {

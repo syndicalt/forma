@@ -113,7 +113,9 @@ profile that matches the runtime you plan to use. Repeat `--input-field
 name:Type`, `--output-field name:Type`, and `--output-object Object.field:Type`
 to tailor the generated `.forma` input/output contract, bindings, and eval
 fixture. Field types use Forma syntax, including `?` for optional fields and
-`[]` for arrays:
+`[]` for arrays. The generated TypeScript and Python examples import the
+generated input/output types and include an example input value that matches the
+customized contract:
 
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff

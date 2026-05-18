@@ -773,6 +773,12 @@ describe("forma cli", () => {
     expect(source).not.toContain("clean: Boolean");
     expect(await readFile(join(dir, "review_diff.forma.ts"), "utf8")).toContain("risk?: number");
     expect(await readFile(join(dir, "review_diff_forma.py"), "utf8")).toContain("risk: float | None = None");
+    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("type ReviewDiffInput");
+    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("input: ReviewDiffInput");
+    expect(await readFile(join(dir, "review_diff_package.ts"), "utf8")).toContain("repo_path: \"example\"");
+    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("ReviewDiffInput");
+    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain("input: ReviewDiffInput");
+    expect(await readFile(join(dir, "review_diff_package.py"), "utf8")).toContain('"repo_path": "example"');
     expect(JSON.parse(await readFile(join(dir, "review_diff.eval.json"), "utf8")).fakeProviderOutput).toEqual({
       summary: "Example summary.",
       findings: [
