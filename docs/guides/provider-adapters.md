@@ -70,6 +70,9 @@ unless review accepts a new package default for every consumer.
 Cleaned-up route labels should not change provider profile ownership. A label
 rename stays in the host adapter until the package owner reviews it as a shared
 provider-profile default for every consumer.
+Cleaned-up route labels should preserve host override ownership. If a
+deployment override supplied the original label, keep the cleaned-up label in
+that override path until review promotes it into the shared provider profile.
 Fallback models are deployment policy unless every consumer should inherit them.
 Put temporary provider failover, region-specific model choice, and canary model
 routing in the host adapter. Change the reviewed package profile only when the
