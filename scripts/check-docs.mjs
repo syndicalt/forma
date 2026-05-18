@@ -93,7 +93,7 @@ const requiredTerms = {
     "\"missingCommands\": [\"pnpm run smoke:ts\"]",
   ],
   "docs/packages/registry.md": ["formaPackage", "semver", "compatibility", "evalSuite", "function-repair", "missingMigrationParityProofCommand", "proof:release", "review_diff_migration.test.ts", "forma-project.yml"],
-  "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run", "proof:release", "projects:check", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md", "docs/guides/product-proof.md#verification", "docs/packages/cli.md#package-review-output"],
+  "docs/guides/quickstart.md": ["corepack pnpm", "python -m pytest", "forma run", "proof:release", "projects:check", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "project-init ./review-diff-agent-lock", "--package-lock examples/review_diff.forma.lock.json", "smoke:lock:ts", "docs/packages/cli.md", "docs/guides/product-proof.md#verification", "docs/packages/cli.md#package-review-output"],
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
   "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],

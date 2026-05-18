@@ -139,3 +139,27 @@ python test/review_diff_agent_smoke.py
 The scaffold also writes `.github/workflows/forma-project.yml` with the same
 `project-check`, TypeScript compile, Python compile, and smoke-test commands for
 CI.
+
+When you already have a reviewed Forma package lock, scaffold the same clean
+host project with package-lock consumer smoke tests:
+
+```bash
+node cli/forma/dist/index.js project-init ./review-diff-agent-lock \
+  --name review-diff-agent-lock \
+  --task review_diff \
+  --package-lock examples/review_diff.forma.lock.json
+```
+
+That path still generates direct TypeScript and Python `agent(...)` entrypoints,
+but it also writes `package-lock-smoke-tests` manifest rows and package-lock
+smoke tests that call `agentFromPackageLock(...)` and
+`agent_from_package_lock(...)` with `StaticProvider` test doubles:
+
+```bash
+cd review-diff-agent-lock
+pnpm run smoke:lock:ts
+python test/review_diff_package_lock_smoke.py
+```
+
+Use this path when the question is not "can this project run a `.forma` task?"
+but "can this project consume the reviewed package artifact?"

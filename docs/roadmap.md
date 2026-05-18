@@ -246,6 +246,8 @@ The current MVP provides:
   and README guidance when a reviewed package lock is already available.
 - CLI tests execute generated `project-init --package-lock` TypeScript and
   Python smoke tests against the checked review-diff lock.
+- Quickstart shows `project-init --package-lock` as the reviewed package-lock
+  onboarding path beside direct clean-project embedding.
 - README and documentation index Product Proof commands include
   `projects:check`, so the checked clean-project fixture is part of the main
   proof path.
@@ -564,9 +566,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: promote `project-init --package-lock` into the quickstart so
-   users see direct project embedding and reviewed package-lock embedding as
-   separate, executable onboarding paths.
+3. Product proof: add package-lock onboarding recovery guidance to the
+   quickstart so `package-lock-smoke-tests` failures have a visible restore
+   path from first-run docs.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
