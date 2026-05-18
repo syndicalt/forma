@@ -222,6 +222,8 @@ The current MVP provides:
   the generated `StaticProvider` smoke-test commands.
 - Quickstart points to the CLI docs for passing and failing
   `project-check --json` report examples, including `missingCommands`.
+- Documentation index Start Here shows `project-check --json` for
+  clean-project CI checks and points to the CLI examples before quickstart.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -518,8 +520,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add project-check JSON guidance to the docs index Start Here
-   flow so the clean-project CI path is visible before quickstart.
+3. Product proof: add the clean-project `project-check --json` report path to
+   the testing and verification guide so contributor gates match onboarding.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

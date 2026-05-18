@@ -41,6 +41,9 @@ Use `forma project-init` when you want a clean TypeScript and Python host
 project with provider profile, generated bindings, and `agent(...)` entrypoints.
 Use `forma project-check` to verify that scaffolded host projects still have
 current bindings, provider profiles, and runtime entrypoints.
+Use `project-check --json` when CI needs machine-readable clean-project check
+rows. See `docs/packages/cli.md` for passing and failing examples, including
+`missingCommands` when a generated workflow drops a proof command.
 Read `docs/roadmap.md` for the path from the current contract runtime to a
 TypeScript and Python agent coding tool.
 
