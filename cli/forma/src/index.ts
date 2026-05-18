@@ -412,13 +412,24 @@ function packageTestsCheck(manifest: FormaPackageManifest): Record<string, unkno
     new Set(tests.flatMap((test) => test.runtime === "typescript" || test.runtime === "python" ? [test.runtime] : [])),
   );
   const commands = packageTestCommands(tests);
+  const requiredProviderOverrideTests = packageProviderOverrideTestPaths(manifest);
+  const testPaths = new Set(tests.flatMap((test) => typeof test.path === "string" ? [test.path] : []));
+  const missingProviderOverrideTests = tests.length > 0
+    ? requiredProviderOverrideTests.filter((path) => !testPaths.has(path))
+    : [];
   return {
     name: "tests",
-    passed: true,
+    passed: missingProviderOverrideTests.length === 0,
     total: tests.length,
     runtimes,
     ...(commands.length > 0 ? { commands } : {}),
+    ...(missingProviderOverrideTests.length > 0 ? { missingProviderOverrideTests } : {}),
   };
+}
+
+function packageProviderOverrideTestPaths(manifest: FormaPackageManifest): string[] {
+  const taskNames = manifest.tasks?.flatMap((task) => typeof task.name === "string" ? [task.name] : []) ?? [];
+  return taskNames.flatMap((name) => [`${name}_contract.test.ts`, `${name}_contract_test.py`]);
 }
 
 function packageReleaseFilesCheck(manifest: FormaPackageManifest): Record<string, unknown> {

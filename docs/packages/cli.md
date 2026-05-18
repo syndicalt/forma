@@ -367,6 +367,21 @@ to add back:
 }
 ```
 
+If a package declares tests but omits the generated lockfile consumer smoke
+tests that pass explicit provider overrides, the `tests` row reports
+`missingProviderOverrideTests`:
+
+```json
+{
+  "name": "tests",
+  "passed": false,
+  "total": 1,
+  "runtimes": ["typescript"],
+  "commands": ["npx vitest run host_workflow.test.ts"],
+  "missingProviderOverrideTests": ["review_diff_contract.test.ts", "review_diff_contract_test.py"]
+}
+```
+
 Generated READMEs must also keep the runtime embedding guide link. If the README
 omits it, the `readme` row reports `missingGuidance`:
 

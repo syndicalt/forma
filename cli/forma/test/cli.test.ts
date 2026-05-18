@@ -940,6 +940,32 @@ describe("forma cli", () => {
     });
   });
 
+  it("fails package review when declared tests omit provider override smoke coverage", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-provider-override-tests-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    await writeFile(join(dir, "host_workflow.test.ts"), "import { it } from 'vitest';\nit('runs host workflow', () => {});\n");
+    manifest.tests = [{ runtime: "typescript", path: "host_workflow.test.ts" }];
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "tests",
+      passed: false,
+      total: 1,
+      runtimes: ["typescript"],
+      commands: ["npx vitest run host_workflow.test.ts"],
+      missingProviderOverrideTests: ["review_diff_contract.test.ts", "review_diff_contract_test.py"],
+    });
+  });
+
   it("fails package review when compatibility policy omits reviewed fields", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-compatibility-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");

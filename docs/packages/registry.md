@@ -300,6 +300,20 @@ at the exact command that needs to be restored:
 
 Use the `tests.commands` row from the same `package-review` output as the
 source of truth when repairing those README or workflow entries.
+When a package declares tests, keep the generated TypeScript and Python
+lockfile consumer smoke tests in that manifest too. If they are removed, the
+`tests` row reports `missingProviderOverrideTests`:
+
+```json
+{
+  "name": "tests",
+  "passed": false,
+  "total": 1,
+  "runtimes": ["typescript"],
+  "commands": ["npx vitest run host_workflow.test.ts"],
+  "missingProviderOverrideTests": ["review_diff_contract.test.ts", "review_diff_contract_test.py"]
+}
+```
 
 When generated workflow troubleshooting guidance is missing, the failing row
 names the exact guide link to restore:
