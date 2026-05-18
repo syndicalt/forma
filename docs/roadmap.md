@@ -484,6 +484,8 @@ The current MVP provides:
   app-owned until reviewed.
 - Product-proof docs now say cleaned-up route labels should not replace
   baseline route labels.
+- Provider-adapter docs now say cleaned-up route labels should preserve
+  reviewed provider defaults.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1046,12 +1048,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-adapter wording that cleaned-up route labels
-   should preserve reviewed provider defaults.
-2. Product clarity: add testing-guide wording that cleaned-up route labels
+1. Product clarity: add testing-guide wording that cleaned-up route labels
    should remain linked to release proof artifacts.
-3. Product clarity: add runtime-result wording that cleaned-up route labels
+2. Product clarity: add runtime-result wording that cleaned-up route labels
    should keep original diagnostics searchable.
+3. Product clarity: add first-use audit wording that cleaned-up route labels
+   should stay out of scaffold selection.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
