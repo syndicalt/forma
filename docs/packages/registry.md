@@ -373,7 +373,10 @@ names the exact guide link to restore:
   "name": "readme",
   "passed": false,
   "total": 11,
-  "missingGuidance": ["missingMigrationParityTests"]
+  "missingGuidance": [
+    "missingMigrationParityTests",
+    "docs/guides/package-consumer-quickstart.md#missingmigrationparitytests"
+  ]
 }
 ```
 

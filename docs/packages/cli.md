@@ -454,14 +454,18 @@ tests. If it is removed, the `readme` row reports it as missing guidance:
 ```
 
 Generated READMEs must also keep the recovery token for migration parity
-fixtures. If it is removed, the `readme` row reports it as missing guidance:
+fixtures and the direct troubleshooting link for that failure. If either is
+removed, the `readme` row reports it as missing guidance:
 
 ```json
 {
   "name": "readme",
   "passed": false,
   "total": 11,
-  "missingGuidance": ["missingMigrationParityTests"]
+  "missingGuidance": [
+    "missingMigrationParityTests",
+    "docs/guides/package-consumer-quickstart.md#missingmigrationparitytests"
+  ]
 }
 ```
 

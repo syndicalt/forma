@@ -301,6 +301,8 @@ reviewed package lock with the default provider profile and can also pass an
 explicit provider override for custom retries, logging, routing, model choice,
 or test doubles.
 
+### missingMigrationParityTests
+
 If the `readme`, `ci-workflow`, or `publish-bundle` row reports
 `missingMigrationParityTests`, the package still declares migration parity
 fixtures but the before/after proof drifted out of one reviewed release

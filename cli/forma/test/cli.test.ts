@@ -1407,6 +1407,33 @@ describe("forma cli", () => {
     }
   });
 
+  it("reports missing README migration parity troubleshooting link", async () => {
+    const dir = await mkdtemp(join(repoRoot, ".tmp-forma-package-review-readme-migration-link-"));
+    await cp(resolve(repoRoot, "examples"), dir, { recursive: true });
+    try {
+      const manifestPath = join(dir, "review_diff.forma.pkg.json");
+      const lockPath = join(dir, "review_diff.forma.lock.json");
+      const readmePath = join(dir, "README.md");
+      const readme = await readFile(readmePath, "utf8");
+      await writeFile(readmePath, readme.replace("docs/guides/package-consumer-quickstart.md#missingmigrationparitytests", "docs/guides/package-consumer-quickstart.md#troubleshooting"));
+      await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+      const result = await runCli(["package-review", manifestPath]);
+      const review = JSON.parse(result.stdout);
+
+      expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+      expect(review.passed).toBe(false);
+      expect(review.checks).toContainEqual({
+        name: "readme",
+        passed: false,
+        total: 11,
+        missingGuidance: ["docs/guides/package-consumer-quickstart.md#missingmigrationparitytests"],
+      });
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
   it("fails package review when the CI workflow omits required package checks", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-package-review-ci-workflow-"));
     const manifestPath = join(dir, "review_diff.forma.pkg.json");
@@ -1753,6 +1780,7 @@ describe("forma cli", () => {
     expect(readme).toContain("restore the generated TypeScript and Python lockfile smoke tests");
     expect(readme).toContain("missingMigrationParityTests");
     expect(readme).toContain("restore the TypeScript and Python migration parity fixtures");
+    expect(readme).toContain("docs/guides/package-consumer-quickstart.md#missingmigrationparitytests");
     expect(readme).toContain("regenerate the package lock");
     expect(readme).not.toContain('"kind": "setting"');
     expect(readme).not.toContain('"kind": "contract"');

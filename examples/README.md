@@ -62,4 +62,6 @@ bundle, and regenerate the package lock.
 If package review reports `missingMigrationParityTests`, restore the TypeScript
 and Python migration parity fixtures. Keep them in the manifest `tests` array,
 add their commands back to README and CI, include them in the publish bundle,
-and regenerate the package lock.
+and regenerate the package lock. See
+docs/guides/package-consumer-quickstart.md#missingmigrationparitytests for the
+full restore sequence.
