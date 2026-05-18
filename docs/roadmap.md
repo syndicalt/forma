@@ -224,6 +224,8 @@ The current MVP provides:
   `project-check --json` report examples, including `missingCommands`.
 - Documentation index Start Here shows `project-check --json` for
   clean-project CI checks and points to the CLI examples before quickstart.
+- Testing and verification guide shows the clean-project `project-check --json`
+  gate and explains `missingCommands` workflow drift rows.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -520,8 +522,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add the clean-project `project-check --json` report path to
-   the testing and verification guide so contributor gates match onboarding.
+3. Product proof: add a checked clean-project fixture or generated-project
+   artifact so `project-check --json` guidance can point to a real repository
+   path instead of an illustrative scaffold name.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

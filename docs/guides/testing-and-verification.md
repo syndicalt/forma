@@ -45,6 +45,18 @@ corepack pnpm examples:check
 This type-checks the TypeScript examples under `examples/` and compiles the
 Python examples so package host code stays aligned with the generated bindings.
 
+Check a scaffolded clean project when changing project onboarding, generated
+host entrypoints, smoke tests, or CI workflow guidance:
+
+```bash
+node cli/forma/dist/index.js project-check ./review-diff-agent
+node cli/forma/dist/index.js project-check ./review-diff-agent --json
+```
+
+Use `project-check --json` in CI when a contributor gate needs structured
+clean-project rows. Workflow drift failures include `missingCommands` with the
+exact generated proof command to restore.
+
 Run the focused migration proof when changing the inline-to-Forma review
 workflow, package review gates, or product proof docs:
 

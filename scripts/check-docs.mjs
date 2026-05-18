@@ -104,7 +104,7 @@ const requiredTerms = {
     "missingMigrationParityProofCommand",
     "docs/guides/package-consumer-quickstart.md#missingmigrationparitytests",
   ],
-  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand"],
+  "docs/guides/testing-and-verification.md": ["docs:check", "examples:check", "tree-sitter test", "pytest", "vitest", "proof:migration", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "missingCommands"],
   "docs/guides/migrating-from-inline-prompts.md": [
     "inline prompt",
     ".forma",
