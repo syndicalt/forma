@@ -227,6 +227,7 @@ validatePackageManifest("examples/review_diff.forma.pkg.json");
 validatePackageLock("examples/review_diff.forma.lock.json");
 validatePackageManifest("examples/function_repair/repair_function.forma.pkg.json");
 validatePackageLock("examples/function_repair/repair_function.forma.lock.json");
+validateInstalledPackageSmokeScript();
 validateRootPackageScripts();
 
 console.log("docs ok");
@@ -305,6 +306,21 @@ function validateRootPackageScripts() {
   ]) {
     if (!releaseProof.includes(requiredCommand)) {
       console.error(`package.json: proof:release missing ${requiredCommand}`);
+      process.exit(1);
+    }
+  }
+}
+
+function validateInstalledPackageSmokeScript() {
+  const script = readFileSync("scripts/installed-package-smoke.mjs", "utf8");
+  for (const requiredTerm of [
+    "examples/function_repair",
+    "repair_function.forma.pkg.json",
+    "repair_function.forma.lock.json",
+    "repair_function",
+  ]) {
+    if (!script.includes(requiredTerm)) {
+      console.error(`scripts/installed-package-smoke.mjs: missing ${requiredTerm}`);
       process.exit(1);
     }
   }

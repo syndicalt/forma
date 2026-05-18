@@ -112,11 +112,15 @@ package-lock smoke commands, restore those commands in
 `.github/workflows/forma-project.yml`; the recovery hint is
 `restore the reviewed package-lock smoke tests`.
 
-`packages:installed-smoke` builds the checked review-diff release bundle,
-extracts it into a temporary consumer, installs the Forma runtimes by package
-name, and runs the reviewed TypeScript and Python lockfile smoke tests from the
-bundle. Use it when changes affect release bundle contents, package locks, or
-`agentFromPackageLock` / `agent_from_package_lock` consumers.
+`packages:installed-smoke` builds checked release bundles for `review_diff` and
+the function-repair package kind, extracts each into a temporary consumer,
+installs the Forma runtimes by package name, and runs installed TypeScript and
+Python smoke tests from the bundles. The `review_diff` path proves reviewed
+package-lock consumers still load, and the function-repair path proves a
+tool-using coding-agent package can call declared read, search, edit, and test
+tools through installed runtimes. Use it when changes affect release bundle
+contents, package locks, tool permissions, or `agentFromPackageLock` /
+`agent_from_package_lock` consumers.
 
 Use this installed-package smoke CI step when a workflow needs focused
 release-bundle coverage without running the full release proof:

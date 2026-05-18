@@ -592,12 +592,15 @@ Publishing checklist:
 
 ## Verification
 
-The docs gate checks that `examples/review_diff.forma.pkg.json` has a package
-format marker, semver version, matching task source hash, eval suite path,
+The docs gate checks that `examples/review_diff.forma.pkg.json` and
+`examples/function_repair/repair_function.forma.pkg.json` have package format
+markers, semver versions, matching task source hashes, eval suite paths,
 current generated bindings, existing host examples, release files, and
-compatibility policy.
-It also checks that `examples/review_diff.forma.lock.json` matches the locked
-manifest and artifact hashes, including README and workflow hashes.
+compatibility policies. It also checks that their package locks match the
+locked manifest and artifact hashes, including README and workflow hashes.
+`scripts/installed-package-smoke.mjs` is also checked for the function-repair
+package kind so installed release-bundle coverage does not silently fall back
+to only `review_diff`.
 The CLI exposes the same check for package users:
 
 ```bash

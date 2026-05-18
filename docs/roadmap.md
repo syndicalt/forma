@@ -502,10 +502,14 @@ The current MVP provides:
   instead of only repo path aliases.
 - Testing docs include an optional installed-project smoke CI step for workflows
   that need focused package-install coverage without the full release proof.
-- `packages:installed-smoke` builds the checked review-diff release bundle,
-  extracts it into a temporary consumer, installs `@forma-lang/forma` from a
-  local npm tarball and `forma-lang` into a Python venv, then runs the reviewed
-  TypeScript and Python lockfile smoke tests from the bundle.
+- `packages:installed-smoke` builds checked release bundles for `review_diff`
+  and the function-repair package kind, extracts them into temporary
+  consumers, installs `@forma-lang/forma` from a local npm tarball and
+  `forma-lang` into Python venvs, then runs installed TypeScript and Python
+  smoke tests from both bundles.
+- The function-repair installed package smoke proves a tool-using coding-agent
+  package can call declared read, search, edit, and test tools through installed
+  TypeScript and Python runtimes.
 - `proof:release` now runs `packages:installed-smoke` after migration and
   project checks, so release proof covers installed package-lock consumers.
 - Verification and registry docs explain `packages:installed-smoke` as the
@@ -641,12 +645,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: add installed-package smoke coverage for additional
-   package kinds beyond the checked `review_diff` bundle.
-2. Product clarity: add recovery guidance for installed-package smoke failures
+1. Product clarity: add recovery guidance for installed-package smoke failures
    in release proof output.
-3. Product clarity: add docs-check coverage that keeps the optional
+2. Product clarity: add docs-check coverage that keeps the optional
    installed-package smoke CI step visible in the verification guide.
+3. Registry and versioning: extract the installed-package smoke package matrix
+   so new package kinds can be added without duplicating install and venv setup.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
