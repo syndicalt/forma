@@ -247,6 +247,8 @@ The current MVP provides:
   package bundles.
 - CLI package docs include package-review output examples for generated
   lockfile consumer smoke tests and publish-bundle `missingPaths` failures.
+- CLI package docs show stale generated contract-module smoke-test failures as
+  package-lock row errors when test artifact hashes drift.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -377,8 +379,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Coding workflow depth: add package-review failure examples for stale
-   generated contract-module smoke tests.
+3. Coding workflow depth: add a package-consumer troubleshooting section for
+   lockfile, provider profile, and generated smoke-test failures.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

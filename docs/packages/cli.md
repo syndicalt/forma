@@ -297,6 +297,19 @@ downloads it:
 }
 ```
 
+If a generated contract-module smoke test changes after the lockfile was
+reviewed, `package-review` fails at the package-lock row because the pinned test
+hash no longer matches:
+
+```json
+{
+  "name": "package-lock",
+  "passed": false,
+  "path": "review_diff.forma.lock.json",
+  "error": "package test does not match reviewed package lock: review_diff_contract_test.py"
+}
+```
+
 With `--baseline`, `package-review` adds a `compare` row. The default package
 gate fails on `breaking` and `environment` changes unless `--fail-on` is set.
 The row includes `failedOn`, summarized change keys, and the detailed
