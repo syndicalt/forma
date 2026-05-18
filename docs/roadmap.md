@@ -162,8 +162,9 @@ The current MVP provides:
 - `forma package-lock` pins manifest, task source, eval suite, provider profile,
   generated binding, host example, and release file hashes for publishable
   packages.
-- Package scaffolding supports review-agent and tool-using coding-agent
-  templates through `--kind review` and `--kind tool`.
+- Package scaffolding supports review-agent, generic tool-using coding-agent,
+  and focused function-repair templates through `--kind review`, `--kind tool`,
+  and `--kind function-repair`.
 - Package scaffolding customizes generated provider profiles with provider,
   endpoint, model, key-env, response-format, temperature, and timeout flags.
 - Package scaffolding customizes generated input fields, output fields, and

@@ -1327,6 +1327,41 @@ describe("forma cli", () => {
     expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
   });
 
+  it("scaffolds a function repair coding-agent package when requested", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-init-function-repair-"));
+    const result = await runCli([
+      "package-init",
+      dir,
+      "--name",
+      "acme/function-repair",
+      "--task",
+      "repair_function",
+      "--kind",
+      "function-repair",
+    ]);
+
+    expect(result).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+    const source = await readFile(join(dir, "repair_function.forma"), "utf8");
+    expect(source).toContain("function_name: Text");
+    expect(source).toContain("desired_behavior: Text");
+    expect(source).toContain("focused test command");
+    expect(source).toContain("read");
+    expect(source).toContain("edit");
+    expect(await readFile(join(dir, "repair_function_package.ts"), "utf8")).toContain("function_name: \"calculateTotal\"");
+    expect(await readFile(join(dir, "repair_function_package.ts"), "utf8")).toContain("input.tools.runTest");
+    expect(await readFile(join(dir, "repair_function_package.py"), "utf8")).toContain('"function_name": "calculate_total"');
+    expect(await readFile(join(dir, "repair_function_package.py"), "utf8")).toContain("tools.run_test");
+    expect(JSON.parse(await readFile(join(dir, "repair_function.eval.json"), "utf8")).input).toEqual({
+      path: "src/billing.ts",
+      function_name: "calculateTotal",
+      desired_behavior: "Return the total including discounts.",
+      test_command: "pnpm test -- billing",
+    });
+
+    const check = await runCli(["package-check", join(dir, "repair_function.forma.pkg.json")]);
+    expect(check).toEqual({ exitCode: 0, stdout: "ok\n", stderr: "" });
+  });
+
   it("scaffolds a clean TypeScript and Python host project", async () => {
     const dir = await mkdtemp(join(tmpdir(), "forma-project-init-"));
     const result = await runCli([

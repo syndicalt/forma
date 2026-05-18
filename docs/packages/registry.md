@@ -23,6 +23,10 @@ manifest, lockfile, host examples, and package CI commands created together:
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
 forma package-init ./repair-package --name acme/tool-repair --task tool_assisted_repair --kind tool
+forma package-init ./function-repair-package \
+  --name acme/function-repair \
+  --task repair_function \
+  --kind function-repair
 forma package-check ./review-diff-package/review_diff.forma.pkg.json
 forma package-lock ./review-diff-package/review_diff.forma.pkg.json \
   --output ./review-diff-package/review_diff.forma.lock.json \

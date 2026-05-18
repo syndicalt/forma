@@ -796,7 +796,7 @@ function omitUndefined<T>(value: T): T {
   ) as T;
 }
 
-type ScaffoldKind = "review" | "tool";
+type ScaffoldKind = "review" | "tool" | "function-repair";
 
 interface ScaffoldField {
   name: string;
@@ -813,8 +813,8 @@ interface ScaffoldSchema {
 
 function scaffoldKind(args: string[]): ScaffoldKind {
   const kind = optionValue(args, "--kind") ?? "review";
-  if (kind !== "review" && kind !== "tool") {
-    throw new Error("--kind must be review or tool");
+  if (kind !== "review" && kind !== "tool" && kind !== "function-repair") {
+    throw new Error("--kind must be review, tool, or function-repair");
   }
   return kind;
 }
@@ -871,7 +871,9 @@ function validateScaffoldIdentifier(value: string, flag: string): void {
 }
 
 function scaffoldSource(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
-  return kind === "tool" ? scaffoldToolSource(taskName, schema) : scaffoldReviewSource(taskName, schema);
+  if (kind === "tool") return scaffoldToolSource(taskName, schema);
+  if (kind === "function-repair") return scaffoldFunctionRepairSource(taskName, schema);
+  return scaffoldReviewSource(taskName, schema);
 }
 
 function scaffoldProviderProfile(args: string[]): ProviderProfile {
@@ -965,6 +967,41 @@ ${renderScaffoldObjects(outputObjects, "    ")}
 `;
 }
 
+function scaffoldFunctionRepairSource(taskName: string, schema?: ScaffoldSchema): string {
+  const inputFields = effectiveInputFields("function-repair", schema);
+  const outputFields = effectiveOutputFields("function-repair", schema);
+  const outputObjects = effectiveOutputObjects("function-repair", schema);
+  return `task ${taskName} {
+  intent "Modify one named function and run its focused tests"
+
+  input {
+${renderScaffoldFields(inputFields, "    ")}
+  }
+
+  output {
+${renderScaffoldFields(outputFields, "    ")}
+${renderScaffoldObjects(outputObjects, "    ")}
+  }
+
+  agent {
+    instruction """
+    Use the host read and search tools to inspect the named function and nearby context.
+    Apply the smallest edit needed to satisfy the desired behavior.
+    Run the focused test command before returning.
+    Return only the declared structured output fields.
+    """
+  }
+
+  permissions {
+    read
+    search
+    test
+    edit
+  }
+}
+`;
+}
+
 function renderScaffoldFields(fields: ScaffoldField[], indent: string): string {
   return fields.map((field) => `${indent}${field.name}: ${field.type}${field.array ? "[]" : ""}${field.optional ? "?" : ""}`).join("\n");
 }
@@ -1008,6 +1045,20 @@ function scaffoldEvalFixture(taskName: string, taskFile: string, kind: ScaffoldK
         error: null,
       },
     };
+  }
+  if (kind === "function-repair") {
+    const output = {
+      summary: "Updated calculateTotal and verified the focused billing test.",
+      function_name: "calculateTotal",
+      test_passed: true,
+      edited: true,
+    };
+    return scaffoldAgentEvalFixture(taskName, taskFile, {
+      path: "src/billing.ts",
+      function_name: "calculateTotal",
+      desired_behavior: "Return the total including discounts.",
+      test_command: "pnpm test -- billing",
+    }, output);
   }
   const output = {
     summary: "The diff needs review.",
@@ -1197,30 +1248,50 @@ function scaffoldValue(field: ScaffoldField, schema: ScaffoldSchema): FormaValue
 }
 
 function effectiveInputFields(kind: ScaffoldKind, schema?: ScaffoldSchema): ScaffoldField[] {
-  return schema?.input ?? (kind === "tool"
-    ? [
-        { name: "path", type: "Text", optional: false, array: false },
-        { name: "test_command", type: "Text", optional: true, array: false },
-      ]
-    : [
-        { name: "diff", type: "Text", optional: false, array: false },
-        { name: "max_findings", type: "Number", optional: true, array: false },
-      ]);
+  if (schema?.input) return schema.input;
+  if (kind === "tool") {
+    return [
+      { name: "path", type: "Text", optional: false, array: false },
+      { name: "test_command", type: "Text", optional: true, array: false },
+    ];
+  }
+  if (kind === "function-repair") {
+    return [
+      { name: "path", type: "Text", optional: false, array: false },
+      { name: "function_name", type: "Text", optional: false, array: false },
+      { name: "desired_behavior", type: "Text", optional: false, array: false },
+      { name: "test_command", type: "Text", optional: false, array: false },
+    ];
+  }
+  return [
+    { name: "diff", type: "Text", optional: false, array: false },
+    { name: "max_findings", type: "Number", optional: true, array: false },
+  ];
 }
 
 function effectiveOutputFields(kind: ScaffoldKind, schema?: ScaffoldSchema): ScaffoldField[] {
-  return schema?.output ?? (kind === "tool"
-    ? [
-        { name: "summary", type: "Text", optional: false, array: false },
-        { name: "searched", type: "Boolean", optional: false, array: false },
-        { name: "test_passed", type: "Boolean", optional: false, array: false },
-        { name: "edited", type: "Boolean", optional: false, array: false },
-      ]
-    : [
-        { name: "summary", type: "Text", optional: false, array: false },
-        { name: "findings", type: "Finding", optional: false, array: true },
-        { name: "clean", type: "Boolean", optional: false, array: false },
-      ]);
+  if (schema?.output) return schema.output;
+  if (kind === "tool") {
+    return [
+      { name: "summary", type: "Text", optional: false, array: false },
+      { name: "searched", type: "Boolean", optional: false, array: false },
+      { name: "test_passed", type: "Boolean", optional: false, array: false },
+      { name: "edited", type: "Boolean", optional: false, array: false },
+    ];
+  }
+  if (kind === "function-repair") {
+    return [
+      { name: "summary", type: "Text", optional: false, array: false },
+      { name: "function_name", type: "Text", optional: false, array: false },
+      { name: "test_passed", type: "Boolean", optional: false, array: false },
+      { name: "edited", type: "Boolean", optional: false, array: false },
+    ];
+  }
+  return [
+    { name: "summary", type: "Text", optional: false, array: false },
+    { name: "findings", type: "Finding", optional: false, array: true },
+    { name: "clean", type: "Boolean", optional: false, array: false },
+  ];
 }
 
 function effectiveOutputObjects(kind: ScaffoldKind, schema?: ScaffoldSchema): Record<string, ScaffoldField[]> {
@@ -1242,6 +1313,9 @@ function scaffoldTypeScriptExample(taskName: string, kind: ScaffoldKind, schema?
   if (kind === "tool") {
     return scaffoldToolTypeScriptExample(taskName);
   }
+  if (kind === "function-repair") {
+    return scaffoldFunctionRepairTypeScriptExample(taskName);
+  }
   const pascalName = toPascalCase(taskName);
   const camelName = toCamelCase(taskName);
   const inputType = `${pascalName}Input`;
@@ -1249,14 +1323,13 @@ function scaffoldTypeScriptExample(taskName: string, kind: ScaffoldKind, schema?
     field.name,
     scaffoldValue(field, { outputObjects: effectiveOutputObjects(kind, schema) }),
   ])), "");
-  return `import { fileURLToPath } from "node:url";
-import { agent, providerFromProfile, providerProfileFromFile } from "@forma-lang/forma";
+  return `import { agent, providerFromProfile, providerProfileFromFile } from "@forma-lang/forma";
 import { assert${pascalName}Output, type ${inputType}, type ${pascalName}Output } from "./${taskName}.forma.js";
 
-const providerProfile = providerProfileFromFile(fileURLToPath(new URL("./forma.provider.json", import.meta.url)));
+const providerProfile = providerProfileFromFile("forma.provider.json");
 
 const ${camelName} = agent({
-  file: fileURLToPath(new URL("./${taskName}.forma", import.meta.url)),
+  file: "${taskName}.forma",
   task: "${taskName}",
   provider: providerFromProfile(providerProfile),
 });
@@ -1276,8 +1349,7 @@ export async function run${pascalName}(input: ${inputType} = exampleInput): Prom
 function scaffoldToolTypeScriptExample(taskName: string): string {
   const pascalName = toPascalCase(taskName);
   const camelName = toCamelCase(taskName);
-  return `import { fileURLToPath } from "node:url";
-import { agent, type FormaValue, type ModelProvider, type PermissionTools } from "@forma-lang/forma";
+  return `import { agent, type FormaValue, type ModelProvider, type PermissionTools } from "@forma-lang/forma";
 import { assert${pascalName}Output, type ${pascalName}Output } from "./${taskName}.forma.js";
 
 class ToolProvider implements ModelProvider {
@@ -1303,7 +1375,7 @@ class ToolProvider implements ModelProvider {
 }
 
 const ${camelName} = agent({
-  file: fileURLToPath(new URL("./${taskName}.forma", import.meta.url)),
+  file: "${taskName}.forma",
   task: "${taskName}",
   provider: new ToolProvider(),
 });
@@ -1318,9 +1390,66 @@ export async function run${pascalName}(path: string): Promise<${pascalName}Outpu
 `;
 }
 
+function scaffoldFunctionRepairTypeScriptExample(taskName: string): string {
+  const pascalName = toPascalCase(taskName);
+  const camelName = toCamelCase(taskName);
+  return `import { agent, type FormaValue, type ModelProvider, type PermissionTools } from "@forma-lang/forma";
+import { assert${pascalName}Output, type ${pascalName}Output } from "./${taskName}.forma.js";
+
+class FunctionRepairProvider implements ModelProvider {
+  async runAgent(input: {
+    instruction: string;
+    values: Record<string, FormaValue>;
+    permissions: string[];
+    tools: PermissionTools;
+  }): Promise<Record<string, FormaValue>> {
+    const path = String(input.values.path);
+    const functionName = String(input.values.function_name);
+    const desiredBehavior = String(input.values.desired_behavior);
+    const testCommand = String(input.values.test_command);
+    const source = await input.tools.readText(path);
+    await input.tools.searchText(functionName);
+    const repaired = source.includes("NEEDS_FIX")
+      ? source.replace("NEEDS_FIX", desiredBehavior)
+      : source;
+    await input.tools.writeText(path, repaired);
+    const test = await input.tools.runTest(testCommand);
+    return {
+      summary: \`Updated \${functionName} in \${path} and ran \${testCommand}.\`,
+      function_name: functionName,
+      test_passed: test.ok,
+      edited: repaired !== source,
+    };
+  }
+}
+
+const ${camelName} = agent({
+  file: "${taskName}.forma",
+  task: "${taskName}",
+  provider: new FunctionRepairProvider(),
+});
+
+export async function run${pascalName}(): Promise<${pascalName}Output> {
+  const result = await ${camelName}.run({
+    path: "src/billing.ts",
+    function_name: "calculateTotal",
+    desired_behavior: "Return the total including discounts.",
+    test_command: "pnpm test -- billing",
+  });
+  if (!result.ok) {
+    throw new Error(result.error ?? "Forma ${taskName} failed");
+  }
+  return assert${pascalName}Output(result.output);
+}
+`;
+}
+
 function scaffoldPythonExample(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
   if (kind === "tool") {
     return scaffoldToolPythonExample(taskName);
+  }
+  if (kind === "function-repair") {
+    return scaffoldFunctionRepairPythonExample(taskName);
   }
   const pascalName = toPascalCase(taskName);
   const inputType = `${pascalName}Input`;
@@ -1358,6 +1487,13 @@ def run_${taskName}(input: ${inputType} = example_input) -> ${pascalName}Output:
 function scaffoldProjectTypeScriptAgent(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
   if (kind === "tool") {
     return scaffoldToolTypeScriptExample(taskName)
+      .replace(
+        `file: fileURLToPath(new URL("./${taskName}.forma", import.meta.url)),`,
+        `file: fileURLToPath(new URL("../${taskName}.forma", import.meta.url)),`,
+      );
+  }
+  if (kind === "function-repair") {
+    return scaffoldFunctionRepairTypeScriptExample(taskName)
       .replace(
         `file: fileURLToPath(new URL("./${taskName}.forma", import.meta.url)),`,
         `file: fileURLToPath(new URL("../${taskName}.forma", import.meta.url)),`,
@@ -1402,6 +1538,17 @@ if (import.meta.url === \`file://\${process.argv[1]}\`) {
 function scaffoldProjectPythonAgent(taskName: string, kind: ScaffoldKind, schema?: ScaffoldSchema): string {
   if (kind === "tool") {
     return scaffoldToolPythonExample(taskName)
+      .replace(
+        "from pathlib import Path\n",
+        "from pathlib import Path\n\nPROJECT_ROOT = Path(__file__).resolve().parent.parent\n",
+      )
+      .replace(
+        `file=Path(__file__).with_name("${taskName}.forma"),`,
+        `file=PROJECT_ROOT / "${taskName}.forma",`,
+      );
+  }
+  if (kind === "function-repair") {
+    return scaffoldFunctionRepairPythonExample(taskName)
       .replace(
         "from pathlib import Path\n",
         "from pathlib import Path\n\nPROJECT_ROOT = Path(__file__).resolve().parent.parent\n",
@@ -1623,6 +1770,61 @@ ${taskName} = agent(
 
 def run_${taskName}(path: str) -> ${pascalName}Output:
     result = ${taskName}.run({"path": path, "test_command": "pytest"})
+    if not result.ok:
+        raise RuntimeError(result.error or "Forma ${taskName} failed")
+    return assert_${taskName}_output(result.output)
+`;
+}
+
+function scaffoldFunctionRepairPythonExample(taskName: string): string {
+  const pascalName = toPascalCase(taskName);
+  return `from pathlib import Path
+
+from forma import FormaValue, PermissionTools, agent
+from ${taskName}_forma import ${pascalName}Output, assert_${taskName}_output
+
+
+class FunctionRepairProvider:
+    def run_agent(
+        self,
+        instruction: str,
+        values: dict[str, FormaValue],
+        permissions: list[str],
+        tools: PermissionTools,
+        output: dict[str, dict[str, object]] | None = None,
+        schemas: dict[str, dict[str, dict[str, object]]] | None = None,
+    ) -> dict[str, FormaValue]:
+        path = str(values["path"])
+        function_name = str(values["function_name"])
+        desired_behavior = str(values["desired_behavior"])
+        test_command = str(values["test_command"])
+        source = tools.read_text(path)
+        tools.search_text(function_name)
+        repaired = source.replace("NEEDS_FIX", desired_behavior) if "NEEDS_FIX" in source else source
+        tools.write_text(path, repaired)
+        test = tools.run_test(test_command)
+        return {
+            "summary": f"Updated {function_name} in {path} and ran {test_command}.",
+            "function_name": function_name,
+            "test_passed": bool(test.get("ok")),
+            "edited": repaired != source,
+        }
+
+
+${taskName} = agent(
+    file=Path(__file__).with_name("${taskName}.forma"),
+    task="${taskName}",
+    provider=FunctionRepairProvider(),
+)
+
+
+def run_${taskName}() -> ${pascalName}Output:
+    result = ${taskName}.run({
+        "path": "src/billing.py",
+        "function_name": "calculate_total",
+        "desired_behavior": "Return the total including discounts.",
+        "test_command": "pytest tests/test_billing.py",
+    })
     if not result.ok:
         raise RuntimeError(result.error or "Forma ${taskName} failed")
     return assert_${taskName}_output(result.output)

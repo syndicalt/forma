@@ -150,11 +150,13 @@ versioned `.tgz` bundle, uploads the bundle and candidate eval summary as
 workflow artifacts, and uploads those assets to a GitHub Release when a matching
 tag is pushed. The scaffolded manifest records those publish-facing files in
 `releaseFiles`, and the lockfile pins their hashes with the rest of the package
-artifact set. Use `--kind review` for the default code-review agent shape or
-`--kind tool` for a coding-agent shape that declares `read`, `search`, `test`,
-and `edit` permissions and generates host examples that call those tools. The
-scaffold also writes `forma.provider.json`; review-agent host examples load it
-to choose the provider, model, and API-key environment variable. Pass
+artifact set. Use `--kind review` for the default code-review agent shape,
+`--kind tool` for a generic coding-agent shape that declares `read`, `search`,
+`test`, and `edit`, or `--kind function-repair` for a concrete workflow that
+names a source file, target function, desired behavior, and focused test
+command. The scaffold also writes `forma.provider.json`; review-agent host
+examples load it to choose the provider, model, and API-key environment
+variable. Pass
 `--provider`, `--endpoint`, `--model`, `--api-key-env`, `--response-format`,
 `--temperature`, and `--timeout-ms` to generate a provider profile that matches
 the runtime you plan to use. Repeat `--input-field name:Type`, `--output-field
@@ -167,6 +169,10 @@ types and include an example input value that matches the customized contract:
 ```bash
 forma package-init ./review-diff-package --name acme/review-diff --task review_diff
 forma package-init ./repair-package --name acme/tool-repair --task tool_assisted_repair --kind tool
+forma package-init ./function-repair-package \
+  --name acme/function-repair \
+  --task repair_function \
+  --kind function-repair
 forma package-init ./review-diff-http \
   --name acme/review-diff \
   --task review_diff \
