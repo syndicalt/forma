@@ -174,6 +174,12 @@ the row reaches the clean-project JSON report and names
 `.github/workflows/forma-project.yml` or `missingCommands`, restore the checked
 project workflow commands in `examples/review-diff-agent` before rerunning the
 release proof.
+If the clean-project JSON report includes a `package-lock-smoke-tests` row with
+`missingPaths`, restore the named reviewed package-lock smoke files before
+rerunning `projects:check`. If that row points at workflow `missingCommands`,
+restore the TypeScript and Python package-lock smoke commands in
+`.github/workflows/forma-project.yml`. The restore hint for this path is
+`restore the reviewed package-lock smoke tests`.
 `missingMigrationParityTests` means a parity file or direct test command
 drifted out of review; `missingMigrationParityProofCommand` means the files and
 direct test commands are present, but release review no longer runs them through

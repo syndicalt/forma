@@ -97,7 +97,7 @@ const requiredTerms = {
   "docs/guides/task-authoring.md": ["compute", "agent", "verify"],
   "docs/guides/runtime-results.md": ["ok", "output", "trace", "diagnostics", "verification"],
   "docs/guides/provider-adapters.md": ["ModelProvider", "StaticProvider", "runAgent", "run_agent"],
-  "docs/guides/product-proof.md": ["review_diff", "examples:check", "package-review", "eval-suite", "review_diff_inline", "review_diff_package_lock", "missingMigrationParityTests", "missingMigrationParityProofCommand", "proof:migration", "proof:release", "review_diff_migration.test.ts", "forma-project.yml"],
+  "docs/guides/product-proof.md": ["review_diff", "examples:check", "package-review", "eval-suite", "review_diff_inline", "review_diff_package_lock", "missingMigrationParityTests", "missingMigrationParityProofCommand", "package-lock-smoke-tests", "missingPaths", "restore the reviewed package-lock smoke tests", "proof:migration", "proof:release", "review_diff_migration.test.ts", "forma-project.yml"],
   "docs/guides/why-forma.md": ["contract layer, not prompt storage", "reviewable agent capability", "agentFromPackageLock", "agent_from_package_lock", "do not use Forma"],
   "docs/guides/package-consumer-quickstart.md": [
     "agentFromPackageLock",
