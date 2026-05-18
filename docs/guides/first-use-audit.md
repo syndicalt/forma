@@ -75,6 +75,10 @@ review still measures host-code simplification instead of deployment naming.
 Cleaned-up route labels should not change local smoke fixture ownership. Keep
 the minimal smoke inputs, expected outputs, and fixture files owned by the host
 application while route names are cleaned up in provider configuration.
+Cleaned-up route labels should preserve local audit lookup keys. Keep the
+first-use proof notes, smoke output, and route evidence searchable by the
+original local route key, then add the cleaned-up label as host configuration
+metadata.
 
 ## Steps
 
