@@ -372,6 +372,10 @@ Preserve package-lock smoke evidence before retrying the application CI job or
 wrapping the agent call in app-specific fallback logic. Retry only after the
 saved evidence shows an environmental failure; otherwise fix the reviewed
 artifact set or adopt a new reviewed package release first.
+Fallback failures should preserve package-lock smoke evidence. If a fallback
+model, route, or provider override fails after the reviewed lock loads, keep the
+lock smoke output with the fallback error so package owners can separate
+deployment policy from reviewed artifact drift.
 
 If the `tests` row reports `missingProviderOverrideTests`, the package manifest
 still declares tests but no longer includes the generated TypeScript and Python

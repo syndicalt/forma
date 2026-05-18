@@ -181,6 +181,7 @@ const requiredTerms = {
     "Stale locks are package-owner work unless the consumer owns the reviewed release",
     "Keep diagnostics with failed package-lock smoke runs",
     "Preserve package-lock smoke evidence before retrying",
+    "Fallback failures should preserve package-lock smoke evidence",
     "Package owners update reviewed locks",
     "Consume reviewed releases instead of copying package internals",
     "Copied package internals lose package-review and lock drift protection",
