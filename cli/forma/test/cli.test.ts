@@ -1104,7 +1104,7 @@ describe("forma cli", () => {
         },
         { name: "release-files", passed: true, total: 3, paths: ["README.md", ".github/workflows/forma-package.yml", ".github/workflows/forma-publish.yml"] },
         { name: "readme", passed: true, total: 8 },
-        { name: "ci-workflow", passed: true, total: 6 },
+        { name: "ci-workflow", passed: true, total: 7 },
         { name: "publish-bundle", passed: true, total: 17 },
         { name: "eval-coverage", passed: true, tasks: ["review_diff"] },
         { name: "eval-suite", passed: true, total: 1, failed: 0 },
@@ -1651,8 +1651,37 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "ci-workflow",
       passed: false,
-      total: 6,
+      total: 7,
       missingCommands: ["forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check"],
+    });
+  });
+
+  it("reports missing CI stale package-lock report upload guidance", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-package-review-ci-stale-lock-report-"));
+    const manifestPath = join(dir, "review_diff.forma.pkg.json");
+    const lockPath = join(dir, "review_diff.forma.lock.json");
+    const workflowPath = join(dir, ".github", "workflows", "forma-package.yml");
+    await runCli(["package-init", dir, "--name", "acme/review-diff", "--task", "review_diff"]);
+    const workflow = await readFile(workflowPath, "utf8");
+    await writeFile(
+      workflowPath,
+      workflow.replace(
+        "forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check --json > stale-package-lock-report.json",
+        "echo stale lock report later",
+      ),
+    );
+    await runCli(["package-lock", manifestPath, "--output", lockPath]);
+
+    const result = await runCli(["package-review", manifestPath]);
+    const review = JSON.parse(result.stdout);
+
+    expect(result).toEqual({ exitCode: 1, stdout: expect.any(String), stderr: "" });
+    expect(review.passed).toBe(false);
+    expect(review.checks).toContainEqual({
+      name: "ci-workflow",
+      passed: false,
+      total: 7,
+      missingCommands: ["forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check --json > stale-package-lock-report.json || true"],
     });
   });
 
@@ -1674,7 +1703,7 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "ci-workflow",
       passed: false,
-      total: 7,
+      total: 8,
       missingCommands: ["npx vitest run tool_assisted_repair_contract.test.ts tool_assisted_repair_plan.test.ts"],
     });
   });
@@ -1755,7 +1784,7 @@ describe("forma cli", () => {
     expect(review.checks).toContainEqual({
       name: "ci-workflow",
       passed: false,
-      total: 6,
+      total: 7,
       missingGuidance: ["docs/guides/package-consumer-quickstart.md#troubleshooting"],
     });
   });
@@ -2253,7 +2282,7 @@ describe("forma cli", () => {
           ],
         }),
         expect.objectContaining({ name: "readme", passed: true, total: 9 }),
-        expect.objectContaining({ name: "ci-workflow", passed: true, total: 7 }),
+        expect.objectContaining({ name: "ci-workflow", passed: true, total: 8 }),
       ]),
     );
   });

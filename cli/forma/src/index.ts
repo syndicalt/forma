@@ -663,7 +663,7 @@ async function packageCiWorkflowCheck(manifestPath: string, manifest: FormaPacka
   const workflowPath = ".github/workflows/forma-package.yml";
   const workflow = await readFile(resolve(manifestDir, workflowPath), "utf8").catch(() => "");
   const commands = packageCiWorkflowCommands(manifestPath, manifest, manifestDir);
-  const missingCommands = commands.filter((command) => !workflow.includes(command));
+  const missingCommands = commands.filter((command) => !workflowIncludesCommand(workflow, command));
   const migrationProofCommand = packageMigrationParityProofReviewCommand(relative(manifestDir, resolve(manifestPath)), manifest.tests);
   const missingMigrationParityProofCommand = migrationProofCommand && missingCommands.includes(migrationProofCommand)
     ? migrationProofCommand
@@ -690,11 +690,18 @@ function packageCiWorkflowCommands(manifestPath: string, manifest: FormaPackageM
   return [
     `forma package-check ${manifestFile}`,
     `forma package-lock ${manifestFile} --output ${lockFile} --check`,
+    `forma package-lock ${manifestFile} --output ${lockFile} --check --json > stale-package-lock-report.json || true`,
     ...packageTestCommands(manifest.tests),
-    `forma eval-suite ${manifest.evalSuite ?? ""} --summary`,
+    `forma eval-suite ${manifest.evalSuite ?? ""} --summary > candidate.json`,
     `forma package-review ${manifestFile}`,
     ...(migrationProofCommand ? [migrationProofCommand] : []),
   ];
+}
+
+function workflowIncludesCommand(workflow: string, command: string): boolean {
+  return workflow
+    .split(/\r?\n/)
+    .some((line) => line.trim() === `run: ${command}` || line.trim() === command);
 }
 
 function packageMigrationParityProofReviewCommand(

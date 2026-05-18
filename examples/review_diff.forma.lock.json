@@ -162,7 +162,7 @@
     },
     {
       "path": ".github/workflows/forma-package.yml",
-      "sha256": "29d25f57b459f5ac10892b3e063c2267f3d67a46392914a5fef714691f49206c"
+      "sha256": "9607891e3dee6bb11f4401fcb160eee0a8ecf8dd002ef6deb4a1b86a40bb338d"
     },
     {
       "path": ".github/workflows/forma-publish.yml",

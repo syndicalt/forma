@@ -21,6 +21,14 @@ jobs:
         run: forma package-check repair_function.forma.pkg.json
       - name: Check package lock
         run: forma package-lock repair_function.forma.pkg.json --output repair_function.forma.lock.json --check
+      - name: Write stale package lock report
+        if: failure()
+        run: forma package-lock repair_function.forma.pkg.json --output repair_function.forma.lock.json --check --json > stale-package-lock-report.json || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: stale-package-lock-report
+          path: stale-package-lock-report.json
       - name: Run eval suite
         run: forma eval-suite forma.eval.json --summary > candidate.json
       - name: Review package

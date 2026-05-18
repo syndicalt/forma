@@ -186,6 +186,9 @@ The current MVP provides:
 - Generated package workflows now write `stale-package-lock-report.json` with
   `package-lock --check --json` after lock drift and upload it as a
   `stale-package-lock-report` artifact for review.
+- Package review now fails generated package workflows that drop the
+  `package-lock --check --json` stale report command, preserving artifact group
+  release-note review guidance after scaffold edits.
 - Registry docs now include CI guidance for archiving stale
   `package-lock --check --json` reports as `stale-package-lock-report.json`
   with `actions/upload-artifact`, so reviewers can inspect
@@ -712,12 +715,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Registry and versioning: require generated package workflows to preserve
-   artifact group release-note guidance.
-2. Product clarity: add a first-use before/after audit that states when Forma is
+1. Product clarity: add a first-use before/after audit that states when Forma is
    not worth using versus inline prompts plus local schemas.
-3. Product clarity: make the README lead with the five-minute usefulness path
+2. Product clarity: make the README lead with the five-minute usefulness path
    before package-review and release proof.
+3. Product clarity: make the generated minimal project README explain the
+   smallest useful Forma boundary before reviewed packages.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

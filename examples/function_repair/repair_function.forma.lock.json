@@ -60,7 +60,7 @@
     },
     {
       "path": ".github/workflows/forma-package.yml",
-      "sha256": "f575c60771f1971ac689fddd167e4496ec7330250ef871c7331ae3e53e4702eb"
+      "sha256": "c4eddf1f09eb212968d12936ba27b2385eeffa8c3af2fbeb24ee932b7eb5c564"
     },
     {
       "path": ".github/workflows/forma-publish.yml",
