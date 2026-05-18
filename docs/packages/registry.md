@@ -236,6 +236,18 @@ Use `forma package-lock --check --json` when CI or release review needs a
 machine-readable artifact group report. The `changedArtifactGroups` array names
 the package metadata fields that changed and the added, removed, or changed
 paths under groups such as `bindings`, `examples`, `tests`, and `releaseFiles`.
+Archive that report when lock drift blocks CI:
+
+```yaml
+- run: |
+    forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check --json > stale-package-lock-report.json
+- uses: actions/upload-artifact@v4
+  if: failure()
+  with:
+    name: stale-package-lock-report
+    path: stale-package-lock-report.json
+```
+
 The importable package entrypoints `examples/review_diff_contract/index.ts` and
 `examples/review_diff_contract/__init__.py` wrap those helpers behind stable
 TypeScript and Python module names so consumers can depend on the reviewed
