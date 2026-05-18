@@ -40,9 +40,9 @@ Read `docs/guides/why-forma.md` for the concrete product problem and the
 `review_diff` coding-agent workflow.
 Read `docs/guides/product-proof.md` when you want to test whether the current
 package workflow is more useful than an inline prompt plus local schemas.
-Read `docs/guides/first-use-audit.md` when you want the cross-document map from
-README, quickstart, CLI docs, and generated project READMEs to the same
-scaffold choices.
+Read `docs/guides/first-use-audit.md` for the first-use audit that maps README,
+quickstart, CLI docs, and generated project READMEs to the same scaffold
+choices.
 Read `docs/guides/package-consumer-quickstart.md` when embedding a reviewed
 package lock from TypeScript or Python.
 Read `docs/guides/migrating-from-inline-prompts.md` when moving an existing
