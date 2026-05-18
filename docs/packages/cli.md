@@ -145,6 +145,10 @@ with `changedArtifactGroups`. The report lists package metadata changes and
 added, removed, or changed paths for groups such as `bindings`, `examples`,
 `tests`, and `releaseFiles`, so reviewers can see which reviewed artifact group
 changed before regenerating the lock.
+Package-lock drift is a release artifact problem before it is a host application problem.
+Inspect the changed artifact group, repair or intentionally update the package
+manifest, generated files, tests, or release files, then regenerate the reviewed
+lock before changing consuming application logic.
 
 For example, a stale generated binding appears in the JSON report as a changed
 artifact group:

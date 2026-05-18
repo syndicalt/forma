@@ -121,6 +121,7 @@ const requiredTerms = {
     "--check --json",
     "changedArtifactGroups",
     "\"group\": \"bindings\"",
+    "Package-lock drift is a release artifact problem before it is a host application problem",
     "notes are informational",
     "checks are blocking",
     "Fix failing checks before interpreting informational notes",
