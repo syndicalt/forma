@@ -342,6 +342,8 @@ The current MVP provides:
   file by itself.
 - Documentation index now tells readers to evaluate Forma as a reusable agent
   package workflow before adopting package locks.
+- Documentation index now says first-use proof asks whether host code improves,
+  not whether packaging succeeds.
 - Quickstart now says package locks are evidence for reusable package adoption,
   not proof that every local task belongs in Forma.
 - Quickstart now says a package lock should follow a named consuming
@@ -905,12 +907,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add docs index wording that first-use proof asks whether
-   host code improves, not whether packaging succeeds.
-2. Product clarity: add testing guide wording that `proof:release` belongs
+1. Product clarity: add testing guide wording that `proof:release` belongs
    after a named package consumer exists.
-3. Product clarity: add CLI package-lock docs wording that stale-lock recovery
+2. Product clarity: add CLI package-lock docs wording that stale-lock recovery
    starts with the package release owner.
+3. Product clarity: add README wording that product proof should follow
+   first-use proof, not replace it.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
