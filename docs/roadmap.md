@@ -471,6 +471,9 @@ The current MVP provides:
   default `project-init`, or `project-init --package-lock` based on whether
   they need a local first-use task, checked host project, or reviewed
   package-lock project.
+- Quickstart setup flow repeats the scaffold-choice rule before the first full
+  `project-init` command, distinguishing local first-use, checked host, and
+  reviewed package-lock projects.
 - Migration guide from inline prompts to Forma task contracts.
 - First coding-agent conformance task: `review_diff` with structured findings
   and a failing structured-output fixture.
@@ -601,8 +604,9 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product clarity: add the same scaffold-choice language to the quickstart
-   setup flow before the first `project-init` command.
+3. Product clarity: run a completion audit of the first-use documentation path
+   from README to index, quickstart, CLI docs, and generated minimal README,
+   then fill any remaining gaps.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

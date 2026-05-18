@@ -184,6 +184,11 @@ OPENAI_API_KEY=... OPENAI_MODEL=gpt-5 PYTHONPATH=packages/forma-python/src pytho
 To start from a clean host project instead of the repository examples, scaffold
 both runtimes with `project-init`:
 
+Choose the scaffold based on how reviewed the task is. Use `--minimal` for a
+local first-use task, default project-init for a checked host project with
+`project-check` and CI workflow proof commands, and `--package-lock` for a
+reviewed package-lock project that consumes a reviewed package artifact.
+
 ```bash
 node cli/forma/dist/index.js project-init ./review-diff-agent \
   --name review-diff-agent \
