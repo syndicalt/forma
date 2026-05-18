@@ -260,7 +260,9 @@ consumers can import a stable module instead of copying example files. The
 generated README also explains how to inspect the `compare` row from
 `package-review --baseline`: `failedOn` names the blocking severity,
 `contractChanges` and `settingChanges` summarize the changed surface, and
-`changes[].details` points at exact field paths or setting values. It also
+`changes[].details` points at exact field paths or setting values. It includes
+a model-drift JSON example so generated packages show how provider setting
+review differs from contract review. It also
 writes `.github/workflows/forma-package.yml` as a GitHub Actions starting point
 for package checks. It also writes
 `.github/workflows/forma-publish.yml`, which reviews the package, builds a

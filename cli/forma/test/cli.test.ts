@@ -1462,6 +1462,8 @@ describe("forma cli", () => {
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("If the baseline review fails");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("failedOn");
     expect(await readFile(join(dir, "README.md"), "utf8")).toContain("changes[].details");
+    expect(await readFile(join(dir, "README.md"), "utf8")).toContain('"kind": "setting"');
+    expect(await readFile(join(dir, "README.md"), "utf8")).toContain('"details": { "from": "baseline-model", "to": "candidate-model" }');
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-check review_diff.forma.pkg.json");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check");
     expect(await readFile(join(dir, ".github", "workflows", "forma-package.yml"), "utf8")).toContain("forma package-review review_diff.forma.pkg.json");

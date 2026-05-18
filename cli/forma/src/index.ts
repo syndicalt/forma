@@ -1213,6 +1213,23 @@ the release, \`contractChanges\` and \`settingChanges\` summarize the changed
 surface, and \`changes[].details\` names the exact contract fields or
 environment setting values that changed.
 
+\`\`\`json
+{
+  "name": "compare",
+  "passed": false,
+  "failedOn": ["environment"],
+  "settingChanges": ["model"],
+  "changes": [
+    {
+      "kind": "setting",
+      "field": "model",
+      "severity": "environment",
+      "details": { "from": "baseline-model", "to": "candidate-model" }
+    }
+  ]
+}
+\`\`\`
+
 Commit the package manifest, lockfile, \`.forma\` source, eval suite, provider
 profile, generated bindings, and host examples together so TypeScript and Python
 consumers review the same contract.
