@@ -228,6 +228,9 @@ The current MVP provides:
   gate and explains `missingCommands` workflow drift rows.
 - `examples/review-diff-agent` is a checked clean-project fixture, and the root
   `projects:check` script runs both human and JSON `project-check` gates.
+- README and documentation index Product Proof commands include
+  `projects:check`, so the checked clean-project fixture is part of the main
+  proof path.
 - The README and documentation index now lead with the `review_diff` product
   proof: reviewed `.forma` contract, generated bindings, provider profile,
   lockfile, eval suite, package review, and TypeScript/Python embedding as one
@@ -524,9 +527,8 @@ The next three implementation slices should be:
    available.
 2. Registry and versioning: add installed-package smoke tests once release
    packaging is available.
-3. Product proof: add `projects:check` to the main verification path or docs
-   index commands so the checked clean-project fixture becomes a first-class
-   proof alongside examples and migration parity.
+3. Product proof: add `projects:check` to package-review proof-command guidance
+   or CI so clean-project fixture drift can block reviewed releases.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

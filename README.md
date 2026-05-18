@@ -38,6 +38,7 @@ node cli/forma/dist/index.js outline examples/review_diff.forma
 node cli/forma/dist/index.js generate examples/review_diff.forma --target typescript --output examples/review_diff.forma.ts --check
 node cli/forma/dist/index.js generate examples/review_diff.forma --target python --output examples/review_diff_forma.py --check
 corepack pnpm examples:check
+corepack pnpm projects:check
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
 node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command "corepack pnpm proof:migration"
 node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
@@ -49,6 +50,9 @@ files, README, CI workflow, publish bundle, eval coverage, and eval suite.
 Consumers can then load the reviewed lock with `agentFromPackageLock(...)` or
 `agent_from_package_lock(...)` and get the same `run(input)` facade as a direct
 `agent(...)` call.
+`projects:check` verifies the checked clean-project fixture at
+`examples/review-diff-agent`, including the human and JSON `project-check`
+paths for generated TypeScript and Python host projects.
 
 ### Migration Parity
 
