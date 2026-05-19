@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Expressions | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Expressions.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="./overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Language / <span>Expressions</span></div>
+          <article class="markdown-body">
+            <h1 id="expressions">Expressions</h1>
+            <p>The MVP parser stores raw <code>compute</code>, <code>constraints</code>, and <code>verify</code> lines, but the runtime evaluator supports only the expressions listed here. Other compute expressions fail at runtime with <code>F3001: unsupported compute expression</code>.</p>
+            <h2 id="compute-expression">Compute Expression</h2>
+            <p>Supported <code>compute</code> expression:</p>
+            <pre><code class="language-forma">message = if user_name
+  then &quot;Hello, {user_name}!&quot;
+  else &quot;Hello, world!&quot;</code></pre>
+            <p>The expression reads the input field <code>user_name</code>. If present, the then-template is interpolated with <code>{user_name}</code>; otherwise the else string is assigned to <code>message</code>. This behavior is tested in <code>packages/forma-typescript/test/runtime.test.ts</code> and <code>packages/forma-python/tests/test_runtime.py</code>.</p>
+            <p>The output field name is currently <code>message</code>, and the optional input field is currently <code>user_name</code>. This is the expression shape represented in <code>packages/forma-core/conformance/greet_user.json</code>.</p>
+            <h2 id="verification-expressions">Verification Expressions</h2>
+            <p>Supported <code>verify</code> expressions:</p>
+            <pre><code class="language-forma">message.length &gt; 0
+message.words &lt;= 12</code></pre>
+            <p><code>message.length &gt; 0</code> fails when <code>message</code> is empty. <code>message.words &lt;= 12</code> counts whitespace-separated words and fails when the count is greater than 12. The <code>constraints</code> block is parsed and included in conformance IR, but current runtime enforcement is performed through <code>verify</code>.</p>
+            <h2 id="adding-expressions">Adding Expressions</h2>
+            <p>Expression changes should start in the shared conformance layer:</p>
+            <pre><code class="language-bash">packages/forma-core/fixtures
+packages/forma-core/conformance</code></pre>
+            <p>Then update both runtimes and both test suites:</p>
+            <pre><code class="language-bash">corepack pnpm --filter @forma-lang/forma test
+python -m pytest packages/forma-python/tests -q</code></pre>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#compute-expression">Compute Expression</a></li>
+              <li><a href="#verification-expressions">Verification Expressions</a></li>
+              <li><a href="#adding-expressions">Adding Expressions</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/language/expressions.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

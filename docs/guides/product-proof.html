@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Product Proof | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Product Proof.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="./golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="./golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="./quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="./first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="./runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="./provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="./task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="./package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="./testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Guides / <span>Product Proof</span></div>
+          <article class="markdown-body">
+            <h1 id="product-proof">Product Proof</h1>
+            <h2 id="purpose">Purpose</h2>
+            <p>This guide shows the concrete problem Forma solves in the current repository: a coding-agent task can be treated as a reviewed contract instead of an inline prompt string. The proof is not that a <code>.forma</code> file can hold instructions. The proof is that one <code>review_diff</code> contract drives generated TypeScript and Python bindings, host embedding examples, provider configuration, evals, package locking, and package review.</p>
+            <p>Use this guide when deciding whether Forma is adding enough value over a model SDK call plus local Zod or Pydantic schemas. Use <code>docs/guides/golden-workflow.md</code> for the staged proof order: <code>review_diff</code> first, <code>function_repair</code> second, and package review only after local usefulness is clear. Read <code>docs/guides/migrating-from-inline-prompts.md</code> when you want the before/after implementation path from inline model calls to a reviewed package.</p>
+            <h2 id="steps">Steps</h2>
+            <p>Build the runtime and CLI:</p>
+            <pre><code class="language-bash">corepack pnpm build</code></pre>
+            <p>Inspect the task contract that both runtimes consume:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js outline examples/review_diff.forma</code></pre>
+            <p>Check that generated host bindings match the task contract:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js generate examples/review_diff.forma --target typescript --output examples/review_diff.forma.ts --check
+node cli/forma/dist/index.js generate examples/review_diff.forma --target python --output examples/review_diff_forma.py --check</code></pre>
+            <p>Check that the TypeScript and Python host examples are valid consumer code:</p>
+            <pre><code class="language-bash">corepack pnpm examples:check</code></pre>
+            <p>That check also runs the <code>review_diff_decision.ts</code> and <code>review_diff_decision.py</code> workflow assertions. Those helpers consume the typed <code>ReviewDiffOutput</code> produced from the <code>.forma</code> contract and turn structured findings into an <code>approve</code> or <code>request_changes</code> decision with affected paths. It also runs <code>review_diff_migration.test.ts</code> and <code>review_diff_migration_test.py</code>, which keep <code>review_diff_inline.ts</code> and <code>review_diff_inline.py</code> beside the Forma package path. Those tests prove that moving the old inline baseline into the reviewed Forma output shape preserves the same host-facing review decision. It also runs <code>tool_permission_workflow.test.ts</code> and <code>tool_permission_workflow_test.py</code>, which check a host planning layer around declared <code>read</code>, <code>search</code>, <code>test</code>, and <code>edit</code> permissions.</p>
+            <p>Run the package review gate. This validates the manifest, lockfile, TypeScript and Python generated binding presence, TypeScript and Python host example presence, required provider profile metadata for agent tasks, provider profile secret hygiene, eval coverage for package tasks, eval suite, generated binding artifacts, and host example artifacts:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
+corepack pnpm proof:release</code></pre>
+            <p>Run the eval suite directly when you want the lower-level artifact:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary</code></pre>
+            <h2 id="migration-parity">Migration Parity</h2>
+            <p>The migration parity fixtures are the current before/after proof that Forma is more than a prompt file. <code>examples/review_diff_inline.ts</code> and <code>examples/review_diff_inline.py</code> model the pre-Forma inline task boundary. The matching migration tests convert that inline output into the generated <code>ReviewDiffOutput</code> shape and assert that the host decision helper still returns the same <code>approve</code> or <code>request_changes</code> result.</p>
+            <p>Run the parity checks directly with:</p>
+            <pre><code class="language-bash">corepack pnpm proof:migration</code></pre>
+            <p>That top-level command expands to the individual runtime checks:</p>
+            <pre><code class="language-bash">npx vitest run --config examples/vitest.config.ts examples/review_diff_migration.test.ts
+PYTHONPATH=examples python examples/review_diff_migration_test.py</code></pre>
+            <p>The reviewed package pins those tests in the manifest and lockfile. The <code>package-review</code> <code>tests</code> row reports <code>migrationParityTests</code> when the package contains them, and <code>readme</code>, <code>ci-workflow</code>, or <code>publish-bundle</code> rows report <code>missingMigrationParityTests</code> if the parity files drift out of README commands, CI commands, or release bundle paths. Run <code>corepack pnpm proof:release</code> when you want package review to run the before/after proof and checked clean-project fixture before trusting the release artifact rows. That script passes <code>--proof-command &quot;corepack pnpm proof:migration &amp;&amp; corepack pnpm projects:check&quot;</code> to package review. If the parity files still exist but README or CI no longer runs that blocking review command, the <code>readme</code> or <code>ci-workflow</code> row reports <code>missingMigrationParityProofCommand</code> with the exact <code>package-review --proof-command</code> command to restore. The restore sequence lives in <code>docs/guides/package-consumer-quickstart.md#missingmigrationparitytests</code>.</p>
+            <p>For a live model run, keep credentials and model selection in host-controlled provider configuration. The <code>.forma</code> source does not contain the API key or choose the provider:</p>
+            <pre><code class="language-bash">OPENAI_API_KEY=... OPENAI_MODEL=gpt-5 node examples/embedded-agent.ts
+OPENAI_API_KEY=... OPENAI_MODEL=gpt-5 PYTHONPATH=packages/forma-python/src python examples/embedded_agent.py</code></pre>
+            <h2 id="verification">Verification</h2>
+            <p>A useful local proof run should include:</p>
+            <pre><code class="language-bash">corepack pnpm build
+corepack pnpm examples:check
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
+corepack pnpm proof:release
+node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary</code></pre>
+            <p>The package review output should report <code>package-check</code>, <code>package-lock</code>, <code>compatibility-policy</code>, <code>provider-profile</code>, <code>bindings</code>, <code>examples</code>, <code>tests</code>, <code>release-files</code>, <code>readme</code>, <code>ci-workflow</code>, <code>publish-bundle</code>, <code>eval-coverage</code>, and <code>eval-suite</code> as passed, with <code>bindings.targets</code>, <code>examples.runtimes</code>, and <code>tests.runtimes</code> listing both <code>typescript</code> and <code>python</code>. The <code>tests.commands</code> list should include the exact TypeScript and Python package test commands to run after lock verification. Eval coverage also checks that each evaluated task source hash matches the package manifest. Compatibility policy review checks that the manifest classifies breaking, review, and environment fields used by compare. Release file review checks that the package README and scaffolded CI workflows are present in the reviewed artifact set. README review checks that the package docs include package-review, package-check, lock check, package tests, eval-suite, baseline review, and compare commands. CI workflow review checks that the package workflow runs package-check, lock check, package tests, eval-suite, and package-review. Publish bundle review checks that the publish workflow references every reviewed artifact path before building the release bundle. Provider profile review fails if the profile embeds an <code>apiKey</code>; agent task packages should include a provider profile that uses <code>apiKeyEnv</code>, and OpenAI profiles fail review when that key environment variable is missing. Fallback smoke evidence is not a substitute for eval coverage. Smoke output can show that a fallback route, provider override, or package-lock helper executed, but the <code>eval-suite</code> row is still the task-quality proof for reviewed model behavior. Fallback eval changes need baseline comparison, not smoke-only acceptance. When fallback policy changes model behavior, compare the candidate eval summary against the reviewed baseline before treating a successful smoke run as release evidence. Route-label review is not a substitute for eval comparison. A clean, stable, or redacted route label only identifies the provider path; reviewers still need the baseline and candidate eval summaries to judge task quality. Route-label cleanup must keep baseline and candidate artifacts comparable. When renaming or redacting a route label, update the paired baseline and candidate summaries together so reviewers can compare the same provider path before and after cleanup. Route-label cleanup should be reviewed with eval summaries, not alone. Treat a cleaner label as evidence hygiene; accept the change only beside the baseline and candidate eval summaries that prove task behavior stayed comparable. Cleaned-up route labels need before-and-after review context. Keep the old label, cleaned-up label, baseline summary, and candidate summary together so reviewers can see exactly what changed besides task behavior. Cleaned-up route labels should not replace baseline route labels. Preserve the baseline label as the original comparison point, then add the cleaned-up label to candidate notes so reviewers can verify the route rename without losing the provider path used by the baseline. Cleaned-up route labels should not hide baseline diagnostics. Keep the baseline diagnostics, original route label, and cleaned-up candidate label in the same review set so release reviewers can tell whether the label changed independently from the failure evidence. Cleaned-up route labels should keep candidate diagnostics comparable. Store the candidate diagnostics with both the cleaned-up label and the original route key so reviewers can compare failure evidence across the rename without treating it as a new provider path. Cleaned-up route labels should preserve candidate audit lookup keys. Keep candidate summaries, candidate diagnostics, comparison notes, and reviewer comments searchable by the original candidate route key, then record the cleaned-up label as review metadata after candidate acceptance. Cleaned-up route labels should preserve candidate-result audit lookup keys. Keep candidate results, candidate diagnostics, comparison notes, and reviewer comments searchable by the original candidate-result route key, then attach the cleaned-up label after the candidate result is accepted. Cleaned-up route labels should preserve baseline audit lookup keys. Keep baseline summaries, baseline diagnostics, previous-release notes, and reviewer comments searchable by the original baseline route key, then record the cleaned-up label as review metadata after the comparison decision. Cleaned-up route labels should preserve comparison audit lookup keys. Keep comparison summaries, baseline-to-candidate notes, route-change evidence, and review decisions searchable by the original comparison route key, then record the cleaned-up label after the comparison is accepted. Cleaned-up route labels should preserve comparison-proof audit lookup keys. Keep comparison proof records, baseline-to-candidate notes, route-change evidence, and review decisions searchable by the original comparison-proof route key, then attach the cleaned-up label after the comparison proof is accepted. Cleaned-up route labels should preserve route-change audit lookup keys. Keep route-change requests, baseline comparisons, candidate diagnostics, and review decisions searchable by the original route-change key, then attach the cleaned-up label after the eval comparison is accepted. Cleaned-up route labels should preserve route-change-proof audit lookup keys. Keep route-change proof records, baseline comparisons, candidate diagnostics, and review decisions searchable by the original route-change-proof key, then attach the cleaned-up label after the route-change proof is accepted. Cleaned-up route labels should preserve eval artifact lookup keys. Keep baseline and candidate summaries addressable by the original route key, then attach the cleaned-up label as review metadata so historical eval artifacts remain findable after the rename. Cleaned-up route labels should preserve eval audit lookup keys. Keep eval summaries, comparison notes, candidate diagnostics, and approval comments searchable by the original eval route key, then record the cleaned-up label as review metadata after the eval decision. Cleaned-up route labels should preserve eval-attempt audit lookup keys. Keep eval attempts, candidate diagnostics, baseline comparison notes, and rerun decisions searchable by the original eval-attempt route key, then attach the cleaned-up label after the eval attempt is recorded. Cleaned-up route labels should preserve eval-result audit lookup keys. Keep eval results, baseline comparisons, candidate diagnostics, and approval comments searchable by the original eval-result route key, then attach the cleaned-up label after the eval result is accepted. Cleaned-up route labels should preserve review audit lookup keys. Keep review notes, approval evidence, and before-and-after summaries searchable by the original route key, then attach the cleaned-up label as the reviewer-facing display name. Cleaned-up route labels should preserve review-result audit lookup keys. Keep review results, approval evidence, before-and-after summaries, and eval notes searchable by the original review-result route key, then attach the cleaned-up label after the review result is accepted. Cleaned-up route labels should preserve package-review audit lookup keys. Keep package-review notes, approval records, lock evidence, and eval summaries searchable by the original reviewed route key, then record the cleaned-up label as review metadata after package acceptance. Fallback baselines should identify the model route under review. Include the provider, model, endpoint or route label, and fallback policy in baseline and candidate eval summaries so reviewers know which deployment path changed. Fallback route labels should appear in candidate summaries. The candidate artifact should repeat the stable route label used in logs and diagnostics so the baseline comparison shows which provider path produced the reviewed output. Fallback route labels should be compared without exposing deployment secrets. Use redacted, stable labels in baseline and candidate summaries instead of API keys, account identifiers, customer names, or secret-manager paths. When README or CI package test commands drift, the failing <code>readme</code> or <code>ci-workflow</code> row reports <code>missingCommands</code> with the exact command text to restore. <code>examples:check</code> should finish without output. A live provider run requires <code>OPENAI_API_KEY</code>; without it, the failure is expected and confirms that credentials stay in host configuration instead of the <code>.forma</code> contract. Migration parity should be visible in both layers: <code>examples:check</code> runs the TypeScript and Python parity tests, and <code>package-review</code> reports the <code>migrationParityTests</code> paths as reviewed release artifacts. When release review needs the proof executed inline, run <code>corepack pnpm proof:release</code> to add a blocking <code>proof-command</code> row that executes both <code>proof:migration</code> and <code>projects:check</code>. The <code>projects:check</code> command also runs <code>examples/review-diff-agent/test/review_diff_package_lock.test.ts</code> and <code>examples/review-diff-agent/test/review_diff_package_lock_smoke.py</code>, proving that a clean TypeScript and Python host can load the reviewed package lock with explicit test providers instead of treating the <code>.forma</code> source as prompt storage. If that row fails before <code>projects:check</code> starts, inspect <code>review_diff_migration.test.ts</code> and <code>review_diff_migration_test.py</code> first. If the row reaches the clean-project JSON report and names <code>.github/workflows/forma-project.yml</code> or <code>missingCommands</code>, restore the checked project workflow commands in <code>examples/review-diff-agent</code> before rerunning the release proof. If the clean-project JSON report includes a <code>package-lock-smoke-tests</code> row with <code>missingPaths</code>, restore the named reviewed package-lock smoke files before rerunning <code>projects:check</code>. If that row points at workflow <code>missingCommands</code>, restore the TypeScript and Python package-lock smoke commands in <code>.github/workflows/forma-project.yml</code>. The restore hint for this path is <code>restore the reviewed package-lock smoke tests</code>. <code>missingMigrationParityTests</code> means a parity file or direct test command drifted out of review; <code>missingMigrationParityProofCommand</code> means the files and direct test commands are present, but release review no longer runs them through the blocking proof row.</p>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#purpose">Purpose</a></li>
+              <li><a href="#steps">Steps</a></li>
+              <li><a href="#migration-parity">Migration Parity</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/guides/product-proof.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

@@ -184,6 +184,10 @@ pre {
   min-width: 0;
 }
 
+.markdown-content {
+  max-width: 860px;
+}
+
 .breadcrumb {
   color: var(--text-subtle);
   font-size: 0.875rem;
@@ -462,6 +466,141 @@ h1 {
 .page-list {
   margin: 0;
   padding-left: 18px;
+}
+
+.markdown-body {
+  max-width: 760px;
+}
+
+.markdown-body h1 {
+  max-width: 760px;
+  margin-bottom: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  line-height: 1.08;
+}
+
+.markdown-body h2 {
+  margin: 42px 0 12px;
+  padding-top: 8px;
+  color: var(--text);
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.markdown-body h3 {
+  margin: 30px 0 10px;
+  color: #253246;
+  font-size: 1.08rem;
+  line-height: 1.28;
+}
+
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin: 24px 0 8px;
+  color: #2d394d;
+}
+
+.markdown-body p,
+.markdown-body li,
+.markdown-body td,
+.markdown-body th {
+  color: var(--text-muted);
+  font-size: 0.96875rem;
+  line-height: 1.72;
+}
+
+.markdown-body p {
+  margin: 0 0 16px;
+}
+
+.markdown-body a,
+.rail-card a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0 0 20px;
+  padding-left: 24px;
+}
+
+.markdown-body li + li {
+  margin-top: 6px;
+}
+
+.markdown-body code {
+  border: 1px solid #d9e1ec;
+  border-radius: 5px;
+  background: #f3f6fa;
+  color: #1d3d6f;
+  padding: 0.12em 0.35em;
+  font-size: 0.88em;
+}
+
+.markdown-body pre {
+  margin: 20px 0;
+  overflow-x: auto;
+  border: 1px solid #202b3b;
+  border-radius: 8px;
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 17px;
+  font-size: 0.875rem;
+  line-height: 1.58;
+}
+
+.markdown-body pre code {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+.markdown-body blockquote {
+  margin: 22px 0;
+  border-left: 3px solid var(--verified);
+  background: #f4faf9;
+  padding: 12px 16px;
+}
+
+.markdown-body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  margin: 22px 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.markdown-body th,
+.markdown-body td {
+  min-width: 150px;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-body th {
+  background: var(--surface-muted);
+  color: #2c394c;
+  font-weight: 700;
+}
+
+.markdown-body tr:last-child td {
+  border-bottom: 0;
 }
 
 @media (max-width: 1180px) {

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Forma Language Overview | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Forma Language Overview.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item active" href="./overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Language / <span>Forma Language Overview</span></div>
+          <article class="markdown-body">
+            <h1 id="forma-language-overview">Forma Language Overview</h1>
+            <p>Forma describes typed tasks that a host runtime can validate and execute. It is meant for the point where application code would otherwise hide a prompt string, expected JSON shape, and result checks inside ordinary Python or TypeScript. A .forma file is one artifact in the contract toolchain, not the whole product: generated bindings, runtime validation, provider adapters, package locks, evals, and CI checks make that source file useful inside real host applications.</p>
+            <p>A task combines a human-readable intent, typed inputs and outputs, deterministic or provider-backed behavior, and verification checks. The language makes the agent boundary inspectable from ordinary software.</p>
+            <p>The Tree-sitter grammar accepts repeated <code>task</code> declarations in one source file, but the current Python and TypeScript runtimes execute the first task in a source string or file. The shipped examples use one task per file. Multi-task runtime selection is outside the shipped MVP behavior.</p>
+            <p>The MVP runtimes are the Python package in <code>packages/forma-python</code> and the TypeScript package in <code>packages/forma-typescript</code>. Both expose a <code>FormaRuntime</code> that runs source text with host-provided input and returns a structured <code>FormaResult</code>.</p>
+            <h2 id="task-model">Task Model</h2>
+            <p>A task has:</p>
+            <ul>
+              <li><code>intent</code>: plain text describing why the task exists.</li>
+              <li><code>input</code>: typed values provided by the host program.</li>
+              <li><code>output</code>: typed values returned to the host program.</li>
+              <li><code>compute</code>: deterministic behavior supported by the evaluator.</li>
+              <li><code>agent</code>: provider-mediated behavior for agent work.</li>
+              <li><code>constraints</code>: recorded constraints for agent tasks.</li>
+              <li><code>verify</code>: runtime checks against output.</li>
+            </ul>
+            <p>Deterministic tasks currently support the <code>greet_user</code> compute expression shown in the shared fixture. Agent tasks do not call a model by themselves; the host must pass an explicit provider such as <code>StaticProvider</code>.</p>
+            <pre><code class="language-forma">task greet_user {
+  intent &quot;Greet the current user&quot;
+
+  input {
+    user_name: Text?
+  }
+
+  output {
+    message: Text
+  }
+
+  compute {
+    message = if user_name
+      then &quot;Hello, {user_name}!&quot;
+      else &quot;Hello, world!&quot;
+  }
+
+  verify {
+    message.length &gt; 0
+  }
+}</code></pre>
+            <p>This example matches <code>examples/greet_user.forma</code> and <code>packages/forma-core/fixtures/greet_user.forma</code>.</p>
+            <h2 id="host-integration">Host Integration</h2>
+            <p>The CLI can validate and execute deterministic files:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js run examples/greet_user.forma --input '{&quot;user_name&quot;:&quot;Sam&quot;}'</code></pre>
+            <p>Python and TypeScript hosts can execute source directly through <code>FormaRuntime</code>. Both runtimes expose the same conceptual result fields: <code>ok</code>, <code>output</code>, <code>trace</code>, <code>diagnostics</code>, <code>verification</code>, and <code>error</code>.</p>
+            <p>Named task execution lets one source file hold more than one task:</p>
+            <pre><code class="language-typescript">const result = await runtime.runTask(source, &quot;greet_user&quot;, {
+  input: { user_name: &quot;Sam&quot; },
+  sourceName: &quot;tasks.forma&quot;,
+});</code></pre>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#task-model">Task Model</a></li>
+              <li><a href="#host-integration">Host Integration</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/language/overview.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

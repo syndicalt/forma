@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Runtime Results | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Runtime Results.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="./golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="./golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="./quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="./first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item active" href="./runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="./provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="./task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="./package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="./testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Guides / <span>Runtime Results</span></div>
+          <article class="markdown-body">
+            <h1 id="runtime-results">Runtime Results</h1>
+            <h2 id="purpose">Purpose</h2>
+            <p>Forma runtimes return a structured result instead of only returning task output. This lets host programs inspect success, output, trace entries, diagnostics, verification status, and errors in a consistent shape.</p>
+            <h2 id="steps">Steps</h2>
+            <p>The TypeScript runtime returns a <code>FormaResult</code> object:</p>
+            <pre><code class="language-typescript">const result = await runtime.runSource(source, {
+  input: { user_name: &quot;Sam&quot; },
+  sourceName: &quot;inline.forma&quot;,
+});
+
+if (!result.ok) {
+  throw new Error(result.error ?? JSON.stringify(result.diagnostics));
+}
+
+console.log(result.output.message);</code></pre>
+            <p>The Python runtime returns a dataclass with the same fields:</p>
+            <pre><code class="language-python">result = runtime.run_source(
+    source,
+    input={&quot;user_name&quot;: &quot;Sam&quot;},
+    source_name=&quot;inline.forma&quot;,
+)
+
+if not result.ok:
+    raise RuntimeError(result.error or str(result.diagnostics))
+
+print(result.output[&quot;message&quot;])</code></pre>
+            <p>The shipped result fields are:</p>
+            <ul>
+              <li><code>ok</code>: final success flag after verification.</li>
+              <li><code>output</code>: task output values.</li>
+              <li><code>trace</code>: runtime steps such as <code>compute</code> or <code>agent</code>.</li>
+              <li><code>diagnostics</code>: structured validation diagnostics.</li>
+              <li><code>verification</code>: assertion status and failures.</li>
+              <li><code>error</code>: runtime error text or <code>null</code> / <code>None</code>.</li>
+            </ul>
+            <p>Validation failures are the guard between model output and host code. Host programs should check <code>ok</code> before using <code>output</code>; when <code>diagnostics</code>, <code>verification.failures</code>, or <code>error</code> are present, treat the model response as untrusted and keep the failure in the calling workflow instead of silently coercing it into application data. Treat failed validation as a host integration bug until proven to be model behavior. First check that the host selected the intended task, loaded the current generated bindings, passed the expected provider profile, and did not discard <code>diagnostics</code>, <code>verification</code>, or <code>error</code>; only then tune the model instruction or adapter response. Log <code>error</code> with diagnostics before retrying the model. A retry that drops <code>diagnostics</code>, <code>verification.failures</code>, or trace entries loses the evidence needed to distinguish provider behavior from host integration drift. Model fallback should retry from diagnostics, not bypass validation. When a host switches models after a failed response, pass the same Forma contract through the next provider attempt and preserve the original diagnostics so the fallback cannot turn invalid model output into trusted application data. Fallback comparisons should keep both failed and replacement results. Store the first failed <code>FormaResult</code> beside the fallback result so reviewers can compare errors, diagnostics, verification failures, and traces before trusting the replacement output. Fallback traces are workflow evidence, not model output. Treat trace entries as the host workflow record for validation, retries, and provider routing; do not copy fallback trace text into the agent response or application-facing output. Fallback route labels should be logged with failed validation results. When a provider attempt returns <code>ok: false</code>, store the stable route label beside the <code>error</code>, <code>diagnostics</code>, <code>verification.failures</code>, and trace so fallback retries can be compared without losing which provider path produced the failure. Route-label cleanup should preserve failed-result diagnostics. If a host renames or redacts a route label after failure, keep the original failed result and cleaned-up label in the same retry record so diagnostics remain comparable. Cleaned-up route labels should preserve failed-result lookup keys. Store the failed <code>FormaResult</code> under the original route label and attach the cleaned-up label as metadata so support tools can still find the exact failed attempt. Cleaned-up route labels should preserve original failure context. Store the pre-cleanup label, cleaned-up label, failed provider response, and retry result together so later readers can reconstruct the failure path without exposing deployment secrets. Cleaned-up route labels should not overwrite trace route evidence. Add the cleaned-up label beside the trace entry that recorded the original provider route so reviewers can follow the exact runtime path without treating a post-run display name as the source evidence. Cleaned-up route labels should keep original diagnostics searchable. Index the failed result by the pre-cleanup label as well as the cleaned-up label so support tools can find the original diagnostics after route names are renamed or redacted. Cleaned-up route labels should preserve trace search keys. Keep the original trace route label as a search key and add the cleaned-up label as a display alias so runtime support can find the same trace entries after cleanup. Cleaned-up route labels should preserve trace audit lookup keys. Keep trace records, audit notes, and route evidence searchable by the original trace route key, then attach the cleaned-up label as audit metadata. Cleaned-up route labels should preserve trace-result audit lookup keys. Keep trace results, validation outcomes, route evidence, and retry notes searchable by the original trace-result route key, then attach the cleaned-up label after the runtime result is saved. Cleaned-up route labels should preserve validation audit lookup keys. Keep validation failures, diagnostics, verification records, and retry notes searchable by the original validation route key, then attach the cleaned-up label as runtime audit metadata. Cleaned-up route labels should preserve validation-result audit lookup keys. Keep validation results, failed outputs, diagnostics, and retry notes searchable by the original validation-result route key, then attach the cleaned-up label after the runtime result is stored. Cleaned-up route labels should preserve validation-decision audit lookup keys. Keep validation decisions, failed outputs, diagnostics, and retry notes searchable by the original validation-decision route key, then attach the cleaned-up label after the runtime validation decision is recorded. Cleaned-up route labels should preserve validation-proof audit lookup keys. Keep validation proof records, failed outputs, diagnostics, and host integration notes searchable by the original validation-proof route key, then attach the cleaned-up label after the validation proof is accepted. Cleaned-up route labels should preserve validation-attempt audit lookup keys. Keep validation attempts, failed outputs, diagnostics, and retry notes searchable by the original validation-attempt route key, then attach the cleaned-up label after the validation attempt is recorded. Cleaned-up route labels should preserve failed validation audit lookup keys. Keep failed validation results, diagnostics, verification failures, and retry records searchable by the original failed-validation route key, then attach the cleaned-up label after the failed result is saved. Cleaned-up route labels should preserve failure-proof audit lookup keys. Keep failure proof records, diagnostics, verification failures, and retry notes searchable by the original failure-proof route key, then attach the cleaned-up label after the failure proof is recorded. Cleaned-up route labels should preserve diagnostics audit lookup keys. Keep diagnostic messages, verification failures, failed results, and support notes searchable by the original diagnostics route key, then attach the cleaned-up label as audit metadata after the runtime record is saved. Cleaned-up route labels should preserve diagnostics-attempt audit lookup keys. Keep diagnostics attempts, verification failures, failed results, and support notes searchable by the original diagnostics-attempt route key, then attach the cleaned-up label after the diagnostics attempt is recorded. Cleaned-up route labels should preserve diagnostics-proof audit lookup keys. Keep diagnostics proof records, verification failures, failed results, and support notes searchable by the original diagnostics-proof route key, then attach the cleaned-up label after the diagnostics proof is recorded. Cleaned-up route labels should preserve diagnostics-result audit lookup keys. Keep diagnostics results, verification failures, failed outputs, and support notes searchable by the original diagnostics-result route key, then attach the cleaned-up label after the diagnostics result is saved. Cleaned-up route labels should preserve diagnostics-decision audit lookup keys. Keep diagnostics decisions, verification failures, failed outputs, and support notes searchable by the original diagnostics-decision route key, then attach the cleaned-up label after the diagnostics decision is recorded. Cleaned-up route labels should preserve retry lookup keys. Keep retry records addressable by the original route label and attach the cleaned-up label as metadata so fallback workflows can find the failed attempt that triggered a rerun. Cleaned-up route labels should preserve retry-result audit lookup keys. Keep retry results, failed attempts, replacement outputs, and comparison notes searchable by the original retry-result route key, then attach the cleaned-up label after the rerun record is saved. Cleaned-up route labels should preserve retry-attempt audit lookup keys. Keep retry attempts, failed validation snapshots, fallback decisions, and rerun notes searchable by the original retry-attempt route key, then attach the cleaned-up label after the attempt record is saved. Cleaned-up route labels should preserve retry-decision audit lookup keys. Keep retry decisions, failed validation snapshots, fallback rationale, and rerun notes searchable by the original retry-decision route key, then attach the cleaned-up label after the retry decision is recorded. Cleaned-up route labels should preserve retry-proof audit lookup keys. Keep retry proof records, failed validation snapshots, replacement outputs, and rerun evidence searchable by the original retry-proof route key, then attach the cleaned-up label after the retry proof is recorded. Cleaned-up route labels should preserve replacement-attempt audit lookup keys. Keep replacement attempts, rerun traces, comparison notes, and original failure links searchable by the original replacement-attempt route key, then attach the cleaned-up label after the replacement attempt is recorded. Cleaned-up route labels should preserve replacement-result audit lookup keys. Keep replacement outputs, rerun traces, comparison notes, and original failure links searchable by the original replacement-result route key, then attach the cleaned-up label after the replacement result is stored. Cleaned-up route labels should preserve replacement-decision audit lookup keys. Keep replacement decisions, rerun traces, comparison notes, and original failure links searchable by the original replacement-decision route key, then attach the cleaned-up label after the replacement decision is recorded. Cleaned-up route labels should preserve replacement-proof audit lookup keys. Keep replacement proof records, rerun traces, comparison notes, and original failure links searchable by the original replacement-proof route key, then attach the cleaned-up label after the replacement proof is accepted. Route-label evidence should not be copied into model output. Keep provider route labels in logs, traces, diagnostics, or host-owned retry records instead of asking the model to echo deployment evidence inside task output fields.</p>
+            <h2 id="verification">Verification</h2>
+            <p>The conformance fixture <code>packages/forma-core/conformance/greet_user.json</code> contains the expected result shape:</p>
+            <pre><code class="language-json">{
+  &quot;ok&quot;: true,
+  &quot;output&quot;: {
+    &quot;message&quot;: &quot;Hello, Sam!&quot;
+  },
+  &quot;trace&quot;: [
+    {
+      &quot;step&quot;: &quot;compute&quot;,
+      &quot;detail&quot;: &quot;greet_user&quot;
+    }
+  ],
+  &quot;diagnostics&quot;: [],
+  &quot;verification&quot;: {
+    &quot;ok&quot;: true
+  },
+  &quot;error&quot;: null
+}</code></pre>
+            <p>Run both host test suites before changing result behavior:</p>
+            <pre><code class="language-bash">corepack pnpm --filter @forma-lang/forma test
+python -m pytest packages/forma-python/tests -q</code></pre>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#purpose">Purpose</a></li>
+              <li><a href="#steps">Steps</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/guides/runtime-results.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

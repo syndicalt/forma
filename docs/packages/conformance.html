@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Conformance | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Conformance.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="./registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="./cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="./registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Packages / <span>Conformance</span></div>
+          <article class="markdown-body">
+            <h1 id="conformance">Conformance</h1>
+            <p>Shared conformance data lives in <code>packages/forma-core</code>. Source fixtures are in <code>packages/forma-core/fixtures</code>, and expected behavior files are in <code>packages/forma-core/conformance</code>. Each JSON file names the fixture source, input, expected IR summary, and expected runtime result.</p>
+            <h2 id="fixture-layout">Fixture Layout</h2>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;greet_user&quot;,
+  &quot;source&quot;: &quot;../fixtures/greet_user.forma&quot;,
+  &quot;input&quot;: {
+    &quot;user_name&quot;: &quot;Sam&quot;
+  },
+  &quot;expectedResult&quot;: {
+    &quot;ok&quot;: true,
+    &quot;output&quot;: {
+      &quot;message&quot;: &quot;Hello, Sam!&quot;
+    }
+  }
+}</code></pre>
+            <p>The full object is in <code>packages/forma-core/conformance/greet_user.json</code>. Expected result objects follow <code>packages/forma-core/schema/result.schema.json</code> and include <code>ok</code>, <code>output</code>, <code>trace</code>, <code>diagnostics</code>, <code>verification</code>, and <code>error</code>. Agent fixtures may also include <code>fakeProviderOutput</code> for <code>StaticProvider</code>-backed tests.</p>
+            <h2 id="how-runtimes-use-fixtures">How Runtimes Use Fixtures</h2>
+            <p>Both runtime packages read the same source fixtures and compare the same result shape:</p>
+            <pre><code class="language-bash">corepack pnpm --filter @forma-lang/forma test
+python -m pytest packages/forma-python/tests -q</code></pre>
+            <p>The TypeScript tests load JSON conformance files from <code>packages/forma-core</code>. The Python tests use the same files through normal filesystem paths. When a language feature changes the task model, update the fixture source, expected IR, expected result, and schemas together so the packages stay aligned.</p>
+            <p>The CLI can also evaluate a conformance file directly:</p>
+            <pre><code class="language-bash">corepack pnpm --filter @forma-lang/cli build
+node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.json</code></pre>
+            <p>The JSON report includes <code>name</code>, <code>passed</code>, the runtime <code>result</code>, provider metadata, <code>durationMs</code>, contract metadata, and checks for <code>ok</code>, <code>output</code>, <code>trace</code>, <code>verification</code>, and <code>error</code>. The contract metadata records the evaluated source path, source SHA-256, task intent, input fields, output fields, named schemas, permissions, and verify expressions.</p>
+            <p>Multiple conformance files can be grouped in a suite file. The repo includes <code>examples/forma.eval.json</code>:</p>
+            <pre><code class="language-json">{
+  &quot;fixtures&quot;: [
+    &quot;packages/forma-core/conformance/greet_user.json&quot;,
+    &quot;packages/forma-core/conformance/review_diff.json&quot;
+  ]
+}</code></pre>
+            <p>Run the suite with:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js eval-suite examples/forma.eval.json &gt; candidate-suite.json
+node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary &gt; candidate-artifact.json</code></pre>
+            <p>The <code>--summary</code> form wraps the report array with pass/fail totals, total duration, and redacted provider settings such as provider, endpoint, and model, which is better suited to CI artifact summaries.</p>
+            <p>Eval reports can be compared directly:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js compare baseline.json candidate.json
+node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json --fail-on breaking,environment</code></pre>
+            <p>The compare command flags any check that passed in the baseline and failed in the candidate. Each input file can contain one report, an array of reports, or a summary artifact, so CI can compare a full fixture suite and get aggregate regressions such as <code>review_diff:output</code>. If both artifacts include contract metadata, compare also lists changed contract fields such as <code>review_diff:sourceSha256</code>, <code>review_diff:output</code>, or <code>review_diff:permissions</code>. If both artifacts include summary settings, compare also lists changed provider settings such as <code>provider</code>, <code>endpoint</code>, <code>model</code>, <code>responseFormat</code>, <code>temperature</code>, or <code>timeoutMs</code>. The <code>changes</code> array gives each change a <code>kind</code>, <code>field</code>, and <code>severity</code>: <code>breaking</code> for input, output, and schema contract changes; <code>review</code> for additive optional output fields, permission changes, and other contract changes; and <code>environment</code> for provider settings. Use <code>--fail-on</code> with one or more comma-separated severities to turn those informational changes into a failing compare result. Contract changes can include a <code>details</code> object that lists exact <code>added</code>, <code>removed</code>, and <code>changed</code> field paths, including schema paths such as <code>Finding.message</code>. That makes task-contract changes reviewable in CI: a prompt, schema, tool permission, provider, or model update can ship with an artifact that shows which behavior improved or regressed.</p>
+            <p>The <code>review_diff</code> conformance file is the first coding-agent fixture:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json</code></pre>
+            <p>It exercises scalar fields and an array of typed finding objects for a diff review task. The companion <code>review_diff_invalid_findings.json</code> fixture records the expected failure when a provider returns an invalid field inside that typed array, such as a string <code>line</code> value where the contract requires <code>Number</code>.</p>
+            <p>Live-style evaluation can use the HTTP JSON provider:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json \
+  --provider http-json \
+  --endpoint &quot;$MODEL_ENDPOINT&quot; \
+  --model &quot;$MODEL_NAME&quot;</code></pre>
+            <p>It can also use the built-in OpenAI Responses provider:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json \
+  --provider openai-responses \
+  --model &quot;$OPENAI_MODEL&quot;</code></pre>
+            <h2 id="result-contract">Result Contract</h2>
+            <p>Conformance result objects are intentionally close to runtime output:</p>
+            <ul>
+              <li><code>ok</code> reports whether execution and verification completed successfully.</li>
+              <li><code>output</code> contains task output fields such as <code>message</code>.</li>
+              <li><code>trace</code> records high-level execution steps.</li>
+              <li><code>diagnostics</code> contains validation diagnostics with <code>F</code> codes.</li>
+              <li><code>verification</code> records each verify expression and pass status.</li>
+              <li><code>error</code> carries runtime error text when execution cannot continue.</li>
+            </ul>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#fixture-layout">Fixture Layout</a></li>
+              <li><a href="#how-runtimes-use-fixtures">How Runtimes Use Fixtures</a></li>
+              <li><a href="#result-contract">Result Contract</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/packages/conformance.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

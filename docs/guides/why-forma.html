@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Why Forma Exists | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Why Forma Exists.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="./golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="./golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="./quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="./first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="./runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="./provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="./task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="./package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="./testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Guides / <span>Why Forma Exists</span></div>
+          <article class="markdown-body">
+            <h1 id="why-forma-exists">Why Forma Exists</h1>
+            <h2 id="purpose">Purpose</h2>
+            <p>Forma is useful when an agent task has become important enough that a prompt string is no longer a good boundary. It is not a model client, provider router, secret store, or autonomous coding runtime. Python and TypeScript programs still own those pieces.</p>
+            <p>Forma is the contract layer, not prompt storage. It describes the boundary around the task:</p>
+            <ul>
+              <li>what input the task accepts</li>
+              <li>what structured output the host expects</li>
+              <li>what model instruction should be reviewed with the code</li>
+              <li>which workspace capabilities the task is allowed to request</li>
+              <li>which verification and eval checks decide whether the result is trusted</li>
+            </ul>
+            <p>The practical comparison is not Forma versus a model SDK. It is Forma versus an inline prompt plus hand-written Zod or Pydantic schemas, duplicated in each runtime and rarely evaluated as one reviewable artifact.</p>
+            <h2 id="steps">Steps</h2>
+            <p>The first useful workflow is <code>review_diff</code>: give an agent a code diff and get structured review metadata back.</p>
+            <pre><code class="language-forma">task review_diff {
+  input {
+    diff: Text
+    max_findings: Number?
+  }
+
+  output {
+    summary: Text
+    findings: Finding[]
+    clean: Boolean
+
+    object Finding {
+      path: Text
+      line: Number?
+      message: Text
+    }
+  }
+
+  agent {
+    instruction &quot;&quot;&quot;
+    Review the supplied code diff.
+    Return a concise summary, structured findings, and whether the diff is clean.
+    Do not include commentary outside the declared output fields.
+    &quot;&quot;&quot;
+  }
+
+  permissions {
+    read
+    search
+    test
+  }
+}</code></pre>
+            <p>The <code>.forma</code> file is not called by the model directly. The host program loads the file, chooses the provider, supplies the key and model name, and runs the named task. Generated packages keep provider selection, model selection, and the API-key environment variable in <code>forma.provider.json</code>:</p>
+            <pre><code class="language-json">{
+  &quot;provider&quot;: &quot;openai-responses&quot;,
+  &quot;model&quot;: &quot;gpt-5&quot;,
+  &quot;apiKeyEnv&quot;: &quot;OPENAI_API_KEY&quot;,
+  &quot;responseFormat&quot;: &quot;json_schema&quot;,
+  &quot;temperature&quot;: 0.2,
+  &quot;timeoutMs&quot;: 30000
+}</code></pre>
+            <p>The host reads that file and creates the provider:</p>
+            <pre><code class="language-typescript">const reviewDiff = agent({
+  file: &quot;examples/review_diff.forma&quot;,
+  task: &quot;review_diff&quot;,
+  provider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? &quot;&quot;,
+    model: process.env.OPENAI_MODEL ?? &quot;gpt-5&quot;,
+  }),
+});
+
+const result = await reviewDiff.run({ diff, max_findings: 5 });</code></pre>
+            <pre><code class="language-python">review_diff = agent(
+    file=&quot;examples/review_diff.forma&quot;,
+    task=&quot;review_diff&quot;,
+    provider=OpenAIResponsesProvider(
+        api_key=os.environ[&quot;OPENAI_API_KEY&quot;],
+        model=os.environ.get(&quot;OPENAI_MODEL&quot;, &quot;gpt-5&quot;),
+    ),
+)
+
+result = review_diff.run({&quot;diff&quot;: diff, &quot;max_findings&quot;: 5})</code></pre>
+            <p>The public <code>agent(...)</code> helper calls <code>FormaRuntime.runFile</code> or <code>FormaRuntime.runTask</code> in TypeScript and <code>FormaRuntime.run_file</code> or <code>FormaRuntime.run_task</code> in Python. When the runtime reaches the <code>.forma</code> <code>agent</code> block, it calls the configured provider with the instruction, input values, declared permissions, and host tool gate. The provider returns an object. Forma validates that object against the declared output fields before the application consumes it.</p>
+            <p>Reviewed packages keep the same boundary while letting host code load pinned artifacts instead of open file paths:</p>
+            <pre><code class="language-typescript">const reviewDiff = agentFromPackageLock(&quot;examples/review_diff.forma.lock.json&quot;, {
+  provider,
+});
+
+const result = await reviewDiff.run({ diff, max_findings: 5 });</code></pre>
+            <pre><code class="language-python">review_diff = agent_from_package_lock(
+    &quot;examples/review_diff.forma.lock.json&quot;,
+    provider=provider,
+)
+
+result = review_diff.run({&quot;diff&quot;: diff, &quot;max_findings&quot;: 5})</code></pre>
+            <p>The package lock verifies the reviewed task source, generated bindings, provider profile, host examples, package tests, and release files before the standard <code>agent(...)</code> facade is constructed.</p>
+            <h2 id="verification">Verification</h2>
+            <p>Inline prompt code usually scatters the contract:</p>
+            <ul>
+              <li>prompt text in one function</li>
+              <li>provider key environment variable and model choice in another module</li>
+              <li>output parsing near the call site</li>
+              <li>permissions hidden in tool glue</li>
+              <li>evals in a separate test or not present at all</li>
+            </ul>
+            <p>Forma puts the task boundary in one file and keeps host-owned execution in the host language. That makes the task easier to review and easier to run from both Python and TypeScript.</p>
+            <p>The useful part is not that instructions live in a new file extension. A plain Markdown prompt can already do that. Forma is useful when the prompt has become application behavior and needs the same treatment as other application interfaces: typed inputs, typed outputs, generated host bindings, package locks, CI smoke tests, provider profile review, eval reports, and compatibility checks.</p>
+            <p>The minimum useful contract boundary before packaging is a task that has reviewable instructions, declared inputs, declared outputs, runtime validation, and at least one host smoke path that proves the generated binding is simpler than duplicated local schemas. If that boundary is not useful in one application, packaging only adds release ceremony.</p>
+            <p>The useful artifact is not only the <code>.forma</code> file. It is the set:</p>
+            <ul>
+              <li><code>examples/review_diff.forma</code> for the contract</li>
+              <li><code>examples/embedded-agent.ts</code> and <code>examples/embedded_agent.py</code> for host usage</li>
+              <li>generated TypeScript and Python bindings for host types</li>
+              <li>runtime output validation before host code trusts the result</li>
+              <li>permission checks around host tools such as read, search, test, and edit</li>
+              <li>conformance fixtures under <code>packages/forma-core/conformance</code></li>
+              <li><code>forma eval</code> reports for task behavior</li>
+              <li><code>forma compare</code> reports for regressions between baseline and candidate evals</li>
+              <li>package locks and <code>agentFromPackageLock(...)</code> /</li>
+            <p><code>agent_from_package_lock(...)</code> for embedding a reviewed agent capability</p>
+            </ul>
+            <p>A Forma package is a reviewable agent capability when those artifacts move together: source, bindings, provider profile, evals, smoke tests, lockfile, and release proof. The reusable package is the adoption unit, not the prompt file by itself. Adopt Forma when the package boundary gives consumers a reviewed contract, generated Python and TypeScript bindings, provider-profile defaults, package-lock drift checks, eval evidence, and smoke tests that move together. A package is useful only when the contract is consumed outside its authoring context. If the same application owns the task, provider profile, smoke tests, and release process, keep the contract local until another repository or deployment handoff needs the reviewed artifact set. Copying <code>.forma</code> files without bindings, evals, and locks is prompt sharing. That can still be useful for a local team, but it is not the reviewed package workflow Forma is designed to make durable across Python and TypeScript.</p>
+            <h2 id="when-not-to-use-forma">When Not To Use Forma</h2>
+            <p>Do not use Forma for a one-off prompt that only exists in one call site and has no meaningful output contract. A model SDK call plus a local schema is simpler. The shorter rule is: do not use Forma when the contract does not earn back its review and verification cost.</p>
+            <p>Use Forma when the task is shared, reviewed, evaluated, or reused across Python and TypeScript. The more the task looks like application behavior rather than a temporary prompt, the more the contract pays for itself.</p>
+            <p>The honest decision rule is: if replacing an inline model call with Forma does not reduce duplicated host schema code, improve reviewability, or catch drift in CI, do not use Forma for that task yet.</p>
+            <h2 id="current-limit">Current Limit</h2>
+            <p>The current project is still an MVP. It proves the boundary with scalar output types, arrays of structured output objects, provider adapters, permissions, traces, and eval comparison. The next major usefulness jump is richer provider adapters and review examples that use the structured findings to drive a real host workflow.</p>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#purpose">Purpose</a></li>
+              <li><a href="#steps">Steps</a></li>
+              <li><a href="#verification">Verification</a></li>
+              <li><a href="#when-not-to-use-forma">When Not To Use Forma</a></li>
+              <li><a href="#current-limit">Current Limit</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/guides/why-forma.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

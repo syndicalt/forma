@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Testing And Verification | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Testing And Verification.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="./golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="./golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="./quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="./first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="./runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="./provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="./task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="./package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item active" href="./testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Guides / <span>Testing And Verification</span></div>
+          <article class="markdown-body">
+            <h1 id="testing-and-verification">Testing And Verification</h1>
+            <h2 id="purpose">Purpose</h2>
+            <p>Forma uses layered verification so language syntax, host runtimes, CLI behavior, documentation, and package hygiene stay aligned. This guide lists the commands that should run before merging changes.</p>
+            <h2 id="steps">Steps</h2>
+            <p>Run the full JavaScript and TypeScript checks:</p>
+            <pre><code class="language-bash">corepack pnpm install --frozen-lockfile
+corepack pnpm check
+corepack pnpm test
+corepack pnpm examples:check
+corepack pnpm docs:check</code></pre>
+            <p>Run Python tests:</p>
+            <pre><code class="language-bash">python -m pytest packages/forma-python/tests -q</code></pre>
+            <p>Run package-specific tests while iterating:</p>
+            <pre><code class="language-bash">corepack pnpm --filter tree-sitter-forma test
+corepack pnpm --filter @forma-lang/forma test
+corepack pnpm --filter @forma-lang/cli test</code></pre>
+            <p>The Tree-sitter package uses <code>tree-sitter test</code>. The TypeScript packages use <code>vitest</code>. The Python package uses <code>pytest</code>.</p>
+            <p>Check host examples when changing generated bindings, package examples, or embedding docs:</p>
+            <pre><code class="language-bash">corepack pnpm examples:check</code></pre>
+            <p>This type-checks the TypeScript examples under <code>examples/</code> and compiles the Python examples so package host code stays aligned with the generated bindings.</p>
+            <p>Check a scaffolded clean project when changing project onboarding, generated host entrypoints, smoke tests, or CI workflow guidance:</p>
+            <pre><code class="language-bash">corepack pnpm projects:check
+node cli/forma/dist/index.js project-check examples/review-diff-agent
+node cli/forma/dist/index.js project-check examples/review-diff-agent --json
+corepack pnpm projects:installed-smoke</code></pre>
+            <p>Use <code>project-check --json</code> in CI when a contributor gate needs structured clean-project rows. The checked fixture lives at <code>examples/review-diff-agent</code>. Workflow drift failures include <code>missingCommands</code> with the exact generated proof command to restore. <code>projects:check</code> protects application-owned contracts before package review. Run it while one host project owns the workflow and before moving the task into release-candidate package review for downstream consumers.</p>
+            <p><code>projects:check</code> covers both local path-alias checks and package-install checks. The direct <code>project-check</code> commands and reviewed package-lock smoke tests exercise the checked fixture against repo source paths. The <code>projects:installed-smoke</code> command scaffolds a temporary clean project, installs <code>@forma-lang/forma</code> from a local npm tarball, installs <code>forma-lang</code> into a Python virtual environment, and runs the generated TypeScript and Python <code>StaticProvider</code> smoke tests. Use it when packaging or scaffold dependency changes could break a project that installs Forma by package name instead of using repo path aliases.</p>
+            <p>Use this installed-project smoke CI step when a workflow needs focused package install coverage without running the full release proof:</p>
+            <pre><code class="language-yaml">- run: corepack pnpm projects:installed-smoke</code></pre>
+            <p>Run the focused migration proof when changing the inline-to-Forma review workflow, package review gates, or product proof docs:</p>
+            <pre><code class="language-bash">corepack pnpm proof:migration</code></pre>
+            <p>That command runs the TypeScript and Python <code>review_diff_migration</code> tests. If package review reports <code>missingMigrationParityTests</code>, restore the missing migration parity files or direct test commands. If it reports <code>missingMigrationParityProofCommand</code>, the files and direct test commands still exist, but README or CI no longer runs them through the blocking <code>package-review --proof-command</code> gate.</p>
+            <p>Run the same proof through package review when you need the release checklist to fail if the migration proof, checked clean-project fixture, or installed package-lock consumers fail:</p>
+            <pre><code class="language-bash">corepack pnpm proof:release
+node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command &quot;corepack pnpm proof:migration &amp;&amp; corepack pnpm projects:check &amp;&amp; corepack pnpm packages:installed-smoke&quot;</code></pre>
+            <p>Release proof validates reusable package readiness, not local adoption. Release proof answers consumer readiness, not first-use usefulness. Use the minimal smoke path and migration proof to decide whether Forma improves the host workflow; use <code>proof:release</code> after that decision when reusable packages and reviewed locks need to protect downstream consumers. <code>proof:release</code> belongs after a named package consumer exists. If the team cannot name the consuming application, repository, or release process, keep the task on the minimal or checked host-project verification path.</p>
+            <p>Read the <code>proof-command</code> row to identify which part failed. If stdout stops at <code>review_diff_migration.test.ts</code>, fix the TypeScript/Python migration parity fixtures before regenerating package locks. If stdout reaches <code>project-check examples/review-diff-agent --json</code> and the JSON row reports <code>.github/workflows/forma-project.yml</code> or <code>missingCommands</code>, restore the checked clean-project workflow proof commands and rerun <code>corepack pnpm projects:check</code>. If the JSON report includes <code>package-lock-smoke-tests</code> with <code>missingPaths</code>, restore the named reviewed package-lock smoke files before rerunning <code>projects:check</code>. If the workflow row reports missing TypeScript or Python package-lock smoke commands, restore those commands in <code>.github/workflows/forma-project.yml</code>; the recovery hint is <code>restore the reviewed package-lock smoke tests</code>.</p>
+            <p><code>packages:installed-smoke</code> builds checked release bundles for <code>review_diff</code>, the function-repair package kind, and a generated reviewed package-lock host project, extracts each into a temporary consumer, installs the Forma runtimes by package name, and runs installed TypeScript and Python smoke tests from the bundles. The <code>review_diff</code> path proves reviewed package-lock consumers still load, the function-repair path proves a tool-using coding-agent package can call declared read, search, edit, and test tools through installed runtimes, and the reviewed package-lock project path proves <code>project-init --package-lock</code> consumers run against installed runtimes. Use it when changes affect release bundle contents, package locks, tool permissions, or <code>agentFromPackageLock</code> / <code>agent_from_package_lock</code> consumers. The script keeps package kinds in an <code>installedPackageSmokes</code> matrix so new release-bundle shapes share the same install, venv, and smoke runner. Each matrix entry has a <code>packageKind</code> label printed before and after the smoke run so release proof logs identify the exact bundle that failed. Successful runs end with a compact <code>installedPackageSmokeSummary</code> JSON line with the package kind, bundle, consumer directory, expected artifact categories, and TypeScript/Python smoke commands for CI log parsers. The summary also includes <code>expectedArtifactFiles</code>, the concrete bundle file groups validated before runtime tests start. Failed runs emit an <code>installedPackageSmokeFailureSummary</code> JSON line before temporary cleanup, with the failed package kind, completed package rows, expected artifact categories, and error message.</p>
+            <p>Use this installed-package smoke CI step when a workflow needs focused release-bundle coverage without running the full release proof:</p>
+            <pre><code class="language-yaml">- run: corepack pnpm packages:installed-smoke</code></pre>
+            <p>The repository release workflow also captures the raw <code>installedPackageSmokeSummary</code> or <code>installedPackageSmokeFailureSummary</code> line in <code>installed-package-smoke-summary.jsonl</code> and uploads it with the installed smoke log as <code>forma-release-proof-artifacts</code>. Fallback retries must keep validation evidence in release artifacts. If a release proof rerun changes provider routing or model fallback policy, preserve the original diagnostics, failed smoke summary, and installed-package log so reviewers can see whether the retry fixed provider behavior or hid contract validation drift. Fallback reruns should compare against the saved failed artifact. Keep the failed <code>forma-release-proof-artifacts</code> bundle and review it beside the rerun so the fix can be traced to provider environment, fallback policy, or reviewed artifact repair instead of a blind retry. Fallback policy changes should stay outside package lock regeneration. Do not rewrite reviewed locks just to try a different deployment model, route, or retry budget; regenerate locks only when reviewed package artifacts change. Fallback traces belong in artifacts, not lockfiles. Keep trace entries in uploaded proof logs, smoke summaries, or saved failure bundles so reviewers can inspect host workflow evidence without changing the reviewed package lock. Fallback route changes require preserved diagnostics. Before rerunning release proof with a new provider route, keep the failed diagnostics and smoke artifact beside the rerun so reviewers can tell whether routing changed behavior or only hid the original validation failure. Fallback eval artifacts should travel with release proof logs. When fallback policy changes model behavior, attach the baseline and candidate eval summaries beside <code>forma-release-proof-artifacts</code> so reviewers can compare task quality with the same evidence set as package readiness. Route-label changes should include eval artifacts. When a provider route name changes, keep the baseline summary, candidate summary, and release proof logs together so reviewers can tell whether the label changed independently from task behavior. Route-label cleanup should preserve release proof comparability. Keep the old and cleaned-up labels linked in the proof notes, eval summaries, and installed smoke artifacts so reviewers can compare the same provider path across the cleanup. Cleaned-up route labels should appear in proof notes when names change. When cleanup renames a route label, include the old and cleaned-up names in the release proof notes so reviewers can connect proof artifacts without reading deployment-specific configuration. Cleaned-up route labels should remain linked to release proof artifacts. Keep the old label, cleaned-up label, proof notes, eval summaries, and <code>forma-release-proof-artifacts</code> bundle together so release review can trace the same provider path across the rename. Cleaned-up route labels should preserve release proof lookup keys. Keep the release proof bundle, proof notes, and saved summaries searchable by the original route key, then add the cleaned-up label as review metadata. Cleaned-up route labels should preserve release-proof audit lookup keys. Keep release-proof bundles, package-review notes, uploaded summaries, and rerun evidence searchable by the original release-proof route key, then attach the cleaned-up label after the proof run is accepted. Cleaned-up route labels should preserve release-proof-decision audit lookup keys. Keep release-proof decisions, package-review notes, uploaded summaries, and rerun evidence searchable by the original release-proof-decision route key, then attach the cleaned-up label after the release proof decision is recorded. Cleaned-up route labels should preserve proof-result audit lookup keys. Keep proof results, release summaries, package-review notes, and rerun evidence searchable by the original proof-result route key, then attach the cleaned-up label after the proof result is accepted. Cleaned-up route labels should preserve proof-decision audit lookup keys. Keep proof decisions, release summaries, package-review notes, and rerun evidence searchable by the original proof-decision route key, then attach the cleaned-up label after the proof decision is recorded. Cleaned-up route labels should preserve release audit lookup keys. Keep release proof artifacts, uploaded summaries, CI notes, and package-review evidence searchable by the original release route key, then attach the cleaned-up label as audit metadata after proof acceptance. Cleaned-up route labels should preserve release-attempt audit lookup keys. Keep release attempts, proof artifacts, CI notes, and package-review evidence searchable by the original release-attempt route key, then attach the cleaned-up label after the release attempt is recorded. Cleaned-up route labels should preserve release-decision audit lookup keys. Keep release decisions, proof artifacts, package-review evidence, and CI notes searchable by the original release-decision route key, then attach the cleaned-up label after the release decision is recorded. Cleaned-up route labels should preserve artifact audit lookup keys. Keep release bundles, uploaded artifacts, smoke summaries, and saved proof logs searchable by the original artifact route key, then attach the cleaned-up label as artifact metadata after the proof run is accepted. Cleaned-up route labels should preserve artifact-proof audit lookup keys. Keep artifact proof notes, release bundles, uploaded summaries, and saved proof logs searchable by the original artifact-proof route key, then attach the cleaned-up label after the artifact proof is accepted. Cleaned-up route labels should preserve artifact-decision audit lookup keys. Keep artifact decisions, release bundles, uploaded summaries, and saved proof logs searchable by the original artifact-decision route key, then attach the cleaned-up label after the artifact decision is recorded. Route-label cleanup should leave installed smoke labels traceable. When cleanup changes the displayed route name, keep the prior label beside the cleaned-up label in installed smoke summaries so reviewers can follow the same deployment path across reruns. Cleaned-up route labels should keep smoke summaries searchable. Include the old and cleaned-up labels in <code>installedPackageSmokeSummary</code> and <code>installedPackageSmokeFailureSummary</code> notes so support searches can find the same smoke run after a route rename. Cleaned-up route labels should preserve smoke audit lookup keys. Keep installed smoke summaries, failure summaries, and saved smoke logs searchable by the original smoke route key, then add the cleaned-up label as audit metadata. Cleaned-up route labels should preserve installed audit lookup keys. Keep installed project smoke output, installed package smoke output, failure summaries, and saved package logs searchable by the original installed route key, then add the cleaned-up label as installed-smoke metadata. Cleaned-up route labels should preserve installed-attempt audit lookup keys. Keep installed attempts, installed package smoke output, failure summaries, and saved package logs searchable by the original installed-attempt route key, then attach the cleaned-up label after the installed attempt is recorded. Cleaned-up route labels should preserve installed-proof audit lookup keys. Keep installed proof records, installed package smoke output, failure summaries, and saved package logs searchable by the original installed-proof route key, then attach the cleaned-up label after the installed proof is accepted. Cleaned-up route labels should preserve triage audit lookup keys. Keep triage notes, failure summaries, package-kind markers, and recovery commands searchable by the original triage route key, then add the cleaned-up label after the failed smoke path is classified. Cleaned-up route labels should preserve triage-proof audit lookup keys. Keep triage proof records, failure summaries, package-kind markers, and recovery commands searchable by the original triage-proof route key, then attach the cleaned-up label after the triage proof is accepted. Cleaned-up route labels should preserve triage-result audit lookup keys. Keep triage results, failure summaries, package-kind markers, and recovery commands searchable by the original triage-result route key, then attach the cleaned-up label after the triage result is saved. Cleaned-up route labels should preserve triage-decision audit lookup keys. Keep triage decisions, failure summaries, package-kind markers, and recovery commands searchable by the original triage-decision route key, then attach the cleaned-up label after the triage decision is recorded. Cleaned-up route labels should preserve failure-summary audit lookup keys. Keep installed smoke failure summaries, failed package-kind markers, saved logs, and recovery notes searchable by the original failure-summary route key, then add the cleaned-up label after the failure summary is saved. Cleaned-up route labels should preserve failure-result audit lookup keys. Keep installed smoke failure results, failed package-kind markers, saved logs, and recovery notes searchable by the original failure-result route key, then attach the cleaned-up label after the failure result is saved. Cleaned-up route labels should preserve failure-attempt audit lookup keys. Keep installed smoke failure attempts, failed package-kind markers, saved logs, and recovery notes searchable by the original failure-attempt route key, then attach the cleaned-up label after the failure attempt is recorded. Cleaned-up route labels should preserve failure-decision audit lookup keys. Keep installed smoke failure decisions, failed package-kind markers, saved logs, and recovery notes searchable by the original failure-decision route key, then attach the cleaned-up label after the failure decision is recorded. Cleaned-up route labels should keep installed smoke failure notes comparable. When a route rename appears in a failed installed smoke run, keep the original failure note beside the cleaned-up label so reviewers can compare reruns without treating the failure as a different package path. Fallback route labels should match diagnostics and eval summaries. Use the same stable route label in the failed diagnostics, rerun smoke summary, baseline eval summary, and candidate eval summary so reviewers can trace which provider path produced each artifact. Fallback route labels should remain stable across installed smoke reruns. When rerunning <code>packages:installed-smoke</code> after a provider route change, keep the same redacted route label in the failed <code>installedPackageSmokeFailureSummary</code> and the replacement <code>installedPackageSmokeSummary</code> so reviewers can compare the same deployment path without reading secret-bearing configuration.</p>
+            <h3 id="release-artifact-reading-guide">Release Artifact Reading Guide</h3>
+            <p>When a release workflow uploads <code>forma-release-proof-artifacts</code>, start with <code>installed-package-smoke-summary.jsonl</code>. A passing artifact has one <code>installedPackageSmokeSummary</code> row with <code>total</code>, <code>packages</code>, <code>packageKind</code>, <code>expectedArtifacts</code>, <code>expectedArtifactFiles</code>, <code>typeScriptCommand</code>, and <code>pythonCommand</code>. Confirm every package row has <code>passed: true</code>, then use <code>expectedArtifactFiles</code> to review the concrete bundle groups that were installed and tested.</p>
+            <p>If the artifact has <code>installedPackageSmokeFailureSummary</code>, read <code>failedPackage.packageKind</code>, <code>completed</code>, <code>error</code>, and the failed package <code>expectedArtifactFiles</code> before opening <code>installed-package-smoke.log</code>. Use the package kind with the triage table below, restore the listed package artifacts, then rerun <code>corepack pnpm packages:installed-smoke</code>.</p>
+            <h3 id="installed-package-smoke-triage">Installed-Package Smoke Triage</h3>
+            <p>Triage by the last <code>installed package smoke: ...</code> marker before the failure:</p>
+            <ul>
+              <li><code>review-diff package-lock consumer failure</code>: restore the reviewed</li>
+            <p><code>review_diff</code> package artifacts, especially <code>review_diff.forma.lock.json</code>, <code>review_diff_contract.test.ts</code>, <code>review_diff_contract_test.py</code>, generated TypeScript/Python bindings, and package README/workflows. Rerun <code>corepack pnpm packages:installed-smoke</code>.</p>
+              <li><code>function-repair tool package failure</code>: restore the function-repair manifest,</li>
+            <p>lockfile, <code>.forma</code> source, generated bindings, host examples, provider profile, and workflows. If the error mentions read, search, edit, or test tools, verify the explicit tool-provider smoke fixtures before rerunning the installed-package smoke.</p>
+              <li><code>reviewed package-lock project consumer failure</code>: rerun</li>
+            <p><code>node cli/forma/dist/index.js project-init ... --package-lock ...</code> or restore the generated package-lock host project scaffold. Confirm <code>pnpm run smoke:lock:ts</code>, <code>test/review_diff_package_lock_smoke.py</code>, and the reviewed lock path still point at the extracted package bundle, then rerun <code>corepack pnpm packages:installed-smoke</code>.</p>
+            </ul>
+            <p>Run CLI smoke tests after building:</p>
+            <pre><code class="language-bash">corepack pnpm build
+node cli/forma/dist/index.js check examples/greet_user.forma
+node cli/forma/dist/index.js run examples/greet_user.forma --input '{&quot;user_name&quot;:&quot;Sam&quot;}'
+node cli/forma/dist/index.js eval packages/forma-core/conformance/greet_user.json</code></pre>
+            <p>Run the checked-in eval suite when changing agent task contracts, prompts, provider adapters, output schemas, or verification rules:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary &gt; candidate-artifact.json</code></pre>
+            <p>Each report in the artifact includes <code>metadata.contract</code>, so reviewers can see the evaluated source hash, fields, schemas, permissions, and verify expressions next to the pass/fail checks. The artifact summary also includes redacted provider settings such as provider, endpoint, and model; API keys are not written to the artifact.</p>
+            <p>The suite manifest is intentionally small and reviewable:</p>
+            <pre><code class="language-json">{
+  &quot;fixtures&quot;: [
+    &quot;../packages/forma-core/conformance/greet_user.json&quot;,
+    &quot;../packages/forma-core/conformance/greet_user_warmly.json&quot;,
+    &quot;../packages/forma-core/conformance/review_diff.json&quot;
+  ]
+}</code></pre>
+            <p>Run an HTTP JSON provider evaluation when a compatible endpoint is available:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json \
+  --provider http-json \
+  --endpoint &quot;$MODEL_ENDPOINT&quot; \
+  --model &quot;$MODEL_NAME&quot;</code></pre>
+            <p>Run an OpenAI Responses provider evaluation when <code>OPENAI_API_KEY</code> is available:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js eval packages/forma-core/conformance/review_diff.json \
+  --provider openai-responses \
+  --model &quot;$OPENAI_MODEL&quot;</code></pre>
+            <p>Compare saved eval reports or suite artifacts when changing a task contract, prompt, provider, or model:</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js compare baseline.json candidate.json
+node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json
+node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json --fail-on breaking,environment</code></pre>
+            <p>The command exits with code 1 when the candidate loses a check that passed in the baseline. It also reports informational <code>contractChanges</code> when the source hash, prompt intent, fields, schemas, permissions, or verify expressions changed. For suite summary artifacts, it reports informational <code>settingChanges</code> when the provider, endpoint, or model changed. The <code>changes</code> array adds machine-readable severity labels: <code>breaking</code>, <code>review</code>, or <code>environment</code>. Additive optional output fields and permission changes are classified as <code>review</code>. Contract changes can include exact <code>details.added</code>, <code>details.removed</code>, and <code>details.changed</code> field paths for reviewing the compatibility impact. Use <code>--fail-on</code> to fail CI for selected severity labels in addition to normal check regressions. Use that as a PR gate for coding-agent task changes. When the comparison runs through <code>forma package-review --baseline</code>, the <code>compare</code> row includes the same <code>failedOn</code>, <code>contractChanges</code>, <code>settingChanges</code>, and detailed <code>changes</code> entries so package reviewers can see the exact field or provider setting that blocked a release. Setting changes use <code>details.from</code> and <code>details.to</code> to show the redacted provider, endpoint, model, response format, temperature, or timeout value change without exposing secrets.</p>
+            <p>For GitHub Actions, the relevant CI step is:</p>
+            <pre><code class="language-yaml">- name: Evaluate Forma contracts
+  run: |
+    corepack pnpm build
+    node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary &gt; candidate-artifact.json
+    test ! -f baseline-artifact.json || node cli/forma/dist/index.js compare baseline-artifact.json candidate-artifact.json --fail-on breaking,environment
+
+- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: forma-eval-artifact
+    path: candidate-artifact.json</code></pre>
+            <h2 id="verification">Verification</h2>
+            <p>Expected smoke output:</p>
+            <pre><code class="language-text">ok
+{&quot;message&quot;:&quot;Hello, Sam!&quot;}
+{&quot;name&quot;:&quot;greet_user&quot;,&quot;passed&quot;:true,...}
+{&quot;passed&quot;:true,&quot;summary&quot;:{&quot;total&quot;:3,&quot;passed&quot;:3,&quot;failed&quot;:0,&quot;settings&quot;:{&quot;provider&quot;:&quot;fixture&quot;},...},...}</code></pre>
+            <p>Use <code>git -c core.excludesfile=/dev/null status --short --branch</code> after a full build to confirm generated artifacts are covered by repository-local ignores.</p>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#purpose">Purpose</a></li>
+              <li><a href="#steps">Steps</a></li>
+              <li><a href="#release-artifact-reading-guide">Release Artifact Reading Guide</a></li>
+              <li><a href="#installed-package-smoke-triage">Installed-Package Smoke Triage</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/guides/testing-and-verification.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

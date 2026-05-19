@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Golden Workflow | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Golden Workflow.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="./golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item active" href="./golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="./quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="./first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="./runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="./provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="./task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="./package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="./testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Guides / <span>Golden Workflow</span></div>
+          <article class="markdown-body">
+            <h1 id="golden-workflow">Golden Workflow</h1>
+            <h2 id="purpose">Purpose</h2>
+            <p>The golden workflow is the path for evaluating Forma as an agent coding contract layer. It starts with the <code>review_diff first-use path</code>, moves to the <code>function_repair coding-agent showcase</code>, and reaches package review only after local usefulness is proven.</p>
+            <h2 id="steps">Steps</h2>
+            <h3 id="stage-1-review-diff-first-use-path">Stage 1: review_diff first-use path</h3>
+            <p>Use this stage to decide whether a <code>.forma</code> contract is clearer than an inline prompt plus local schemas.</p>
+            <pre><code class="language-bash">forma project-init ./review-diff-agent-minimal \
+  --name review-diff-agent-minimal \
+  --task review_diff \
+  --minimal
+cd review-diff-agent-minimal
+pnpm run smoke:local:ts
+python test/review_diff_local_smoke.py</code></pre>
+            <p>The ten-minute local proof is the generated project plus local smoke output: the <code>.forma</code> contract owns task shape, generated TypeScript and Python bindings validate output, and host code keeps provider setup local.</p>
+            <p>Compare that with <code>examples/review_diff_inline.ts</code> and <code>examples/review_diff_inline.py</code>. If the generated contract boundary is not simpler than inline prompt plus local schemas, stop here.</p>
+            <h3 id="stage-2-function-repair-coding-agent-showcase">Stage 2: function_repair coding-agent showcase</h3>
+            <p>Use this stage after the first-use path proves the contract boundary. The <code>function_repair</code> task demonstrates a narrow coding-agent workflow with read/search/edit/test trace evidence.</p>
+            <p>The showcase edits one named function and runs one focused test command. The host owns tool implementations and decides which read, search, edit, and test requests are allowed.</p>
+            <h3 id="stage-3-compact-proof-report">Stage 3: compact proof report</h3>
+            <p>Run the compact proof report after the local smoke checks:</p>
+            <pre><code class="language-bash">forma golden-proof examples</code></pre>
+            <p>The compact proof report summarizes workflow name, task name, commands, validation status, diagnostics, <code>traceSummary</code>, and <code>nextGate</code>. It is the local reviewer summary for the <code>review_diff first-use path</code> and the <code>function_repair coding-agent showcase</code>; it does not run the full release gate. The next gate is one of: stop local, add checked project CI, or package review.</p>
+            <h3 id="stage-4-package-review-comes-after-local-usefulness">Stage 4: package review comes after local usefulness</h3>
+            <p>Package review and package locks are downstream adoption evidence. Use them when a named consumer should depend on a reviewed task package, not as the first step in evaluating Forma.</p>
+            <p>Use <code>proof:release</code> only after the local report says the task is worth packaging for reusable consumers.</p>
+            <h2 id="verification">Verification</h2>
+            <p>The local proof is healthy when the <code>review_diff</code> minimal smoke commands pass, the <code>function_repair</code> coding-agent showcase records read/search/edit/test trace evidence, and package review stays downstream from the local usefulness decision.</p>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#purpose">Purpose</a></li>
+              <li><a href="#steps">Steps</a></li>
+              <li><a href="#stage-1-review-diff-first-use-path">Stage 1: review_diff first-use path</a></li>
+              <li><a href="#stage-2-function-repair-coding-agent-showcase">Stage 2: function_repair coding-agent showcase</a></li>
+              <li><a href="#stage-3-compact-proof-report">Stage 3: compact proof report</a></li>
+              <li><a href="#stage-4-package-review-comes-after-local-usefulness">Stage 4: package review comes after local usefulness</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/guides/golden-workflow.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

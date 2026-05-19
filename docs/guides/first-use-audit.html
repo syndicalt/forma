@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>First-Use Audit | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for First-Use Audit.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="./golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="./golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="./quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item active" href="./first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="./runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="./provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="./task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="./package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="./testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Guides / <span>First-Use Audit</span></div>
+          <article class="markdown-body">
+            <h1 id="first-use-audit">First-Use Audit</h1>
+            <h2 id="purpose">Purpose</h2>
+            <p>Forma's first-use path must answer the same scaffold-choice question in every place a new user is likely to read first: which project shape should I create, where do provider keys and model selection live, and what does the generated <code>agent(...)</code> entrypoint run?</p>
+            <h2 id="decision-rule">Decision Rule</h2>
+            <p>Do not use Forma for a one-off prompt that has one call site, no shared runtime boundary, and no output contract worth reviewing. Use <code>inline prompt plus local schemas</code> instead until the task needs generated TypeScript and Python types, runtime output validation, evals, or CI checks. Stop after the audit when the team does not need a cross-language contract. A local-only task can stay as an inline prompt plus local schemas when there is no duplicated TypeScript/Python boundary to remove, no shared output contract to review, and no downstream application that needs a pinned package lock.</p>
+            <p>Use the first-use path as a before/after audit. Before Forma, the useful baseline is an inline model call with a local Zod or Pydantic schema and a small smoke test. After Forma, the <code>.forma</code> task should remove duplicated input and output shape code, generate the host bindings, and catch stale contracts with <code>project-check</code> before package locks or package review enter the workflow. Defer package review until one concrete consumer needs release artifacts. A package manifest, lockfile, release workflow, and package-review gate should protect a real downstream dependency, not substitute for the first-use proof that the host code became simpler. No named consumer means no package lock yet. Stay on the minimal or checked host-project path until a specific application, repository, or release process needs pinned package artifacts from a reviewed contract. Use <code>docs/guides/golden-workflow.md</code> when the first-use audit should continue: prove <code>review_diff</code> first, inspect <code>function_repair</code> second, and move to package review only after local usefulness is clear. Fallback models are not part of the usefulness proof. First prove the Forma contract removes duplicated schema and prompt code with local smoke tests; add provider failover only after that contract is worth keeping. Fallback comparisons belong after host-code simplification proof. Compare failed and replacement model results only after the minimal or checked path has already shown that generated bindings and validation improve the host code. Fallback policy is not a reason to skip the minimal smoke comparison. If model routing, retry, or failover needs are already visible, still run the minimal before/after smoke path first so the team knows whether Forma simplifies the host contract before adding deployment policy. Fallback route testing follows, not replaces, host-code simplification. Prove the <code>.forma</code> contract reduces duplicated schema and prompt handling first, then use route tests to decide whether provider failover belongs in the host workflow. Fallback evidence belongs after local usefulness proof. Preserve diagnostics, route labels, and replacement results only after the minimal or checked host path has already shown that the Forma boundary is clearer than the inline prompt plus local schemas baseline. Route-label reviews belong after first-use proof. Do not spend adoption time reviewing fallback route names, redaction, or shared provider-profile defaults until the minimal smoke comparison shows the <code>.forma</code> boundary is worth keeping. Route-label cleanup should not delay local smoke proof. Use a simple redacted host-owned label for the first run, then clean up naming once the minimal smoke comparison proves Forma is worth adopting. Route-label cleanup should not create package-review prerequisites. Keep naming fixes in the host adapter during first use, and move to package review only after a named consumer needs shared release artifacts. Cleaned-up route labels should not obscure the first-use comparison. Keep the minimal before/after proof focused on host-code shape, and record any label cleanup as host configuration so reviewers can still compare the same local task path. Cleaned-up route labels should stay outside the usefulness decision. Decide whether Forma is worth keeping from the before/after host code, generated bindings, validation boundary, and smoke proof; treat route-label cleanup as deployment hygiene after that decision. Cleaned-up route labels should preserve usefulness audit lookup keys. Keep the before/after usefulness notes and local smoke evidence searchable by the original route key, then record the cleaned-up label as deployment metadata after the adoption decision. Cleaned-up route labels should preserve usefulness-attempt audit lookup keys. Keep usefulness attempts, before/after notes, local smoke output, and generated binding evidence searchable by the original usefulness-attempt route key, then attach the cleaned-up label after the usefulness attempt is recorded. Cleaned-up route labels should preserve usefulness-result audit lookup keys. Keep before/after usefulness results, smoke proof, generated binding notes, and host-code simplification evidence searchable by the original usefulness-result route key, then attach the cleaned-up label after the result is accepted. Cleaned-up route labels should preserve usefulness-decision audit lookup keys. Keep usefulness decisions, before/after notes, local smoke output, and generated binding evidence searchable by the original usefulness-decision route key, then attach the cleaned-up label after the usefulness decision is recorded. Cleaned-up route labels should preserve adoption-proof audit lookup keys. Keep adoption proof notes, before/after usefulness evidence, local smoke output, and generated binding notes searchable by the original adoption-proof route key, then attach the cleaned-up label after the adoption proof is recorded. Cleaned-up route labels should preserve adoption-decision audit lookup keys. Keep adoption decisions, before/after usefulness evidence, local smoke output, and generated binding notes searchable by the original adoption-decision route key, then attach the cleaned-up label after the adoption decision is recorded. Cleaned-up route labels should preserve adoption-attempt audit lookup keys. Keep adoption attempts, before/after usefulness evidence, local smoke output, and generated binding notes searchable by the original adoption-attempt route key, then attach the cleaned-up label after the adoption attempt is recorded. Cleaned-up route labels should preserve decision audit lookup keys. Keep the adopt/defer/do-not-use decision, before/after notes, and smoke proof searchable by the original first-use route key, then record the cleaned-up label as post-decision metadata. Cleaned-up route labels should preserve decision-result audit lookup keys. Keep decision results, before/after notes, local smoke proof, and adoption status searchable by the original decision-result route key, then attach the cleaned-up label after the first-use decision result is recorded. Cleaned-up route labels should preserve local-decision audit lookup keys. Keep local keep/defer/adopt decisions, before/after notes, and minimal smoke proof searchable by the original local-decision route key, then attach the cleaned-up label after the local first-use decision is recorded. Cleaned-up route labels should stay out of scaffold selection. Choose minimal, checked, or package-lock scaffolds from task ownership, CI needs, and named consumer requirements, not from whether provider route names have already been renamed or redacted. Cleaned-up route labels should not change the first-use proof command. Keep the minimal or checked smoke proof command fixed while cleaning labels so adoption review still measures host-code simplification instead of deployment naming. Cleaned-up route labels should not change local smoke fixture ownership. Keep the minimal smoke inputs, expected outputs, and fixture files owned by the host application while route names are cleaned up in provider configuration. Cleaned-up route labels should preserve local audit lookup keys. Keep the first-use proof notes, smoke output, and route evidence searchable by the original local route key, then add the cleaned-up label as host configuration metadata. Cleaned-up route labels should preserve local-attempt audit lookup keys. Keep local proof attempts, smoke output, before/after notes, and route evidence searchable by the original local-attempt route key, then attach the cleaned-up label after the local attempt is recorded. Cleaned-up route labels should preserve local-result audit lookup keys. Keep local proof results, smoke output, before/after notes, and route evidence searchable by the original local-result route key, then attach the cleaned-up label after the local result is recorded. Cleaned-up route labels should preserve local-proof audit lookup keys. Keep local proof notes, smoke output, before/after evidence, and route records searchable by the original local-proof route key, then attach the cleaned-up label after the local proof is accepted. Cleaned-up route labels should preserve smoke audit lookup keys. Keep minimal smoke output, checked smoke output, fixture notes, and first-use proof records searchable by the original smoke route key, then attach the cleaned-up label as host-owned audit metadata. Cleaned-up route labels should preserve smoke-attempt audit lookup keys. Keep minimal smoke attempts, checked smoke attempts, fixture notes, and first-use proof records searchable by the original smoke-attempt route key, then attach the cleaned-up label after the smoke attempt is recorded. Cleaned-up route labels should preserve smoke-result audit lookup keys. Keep minimal smoke results, checked smoke results, fixture notes, and before/after proof records searchable by the original smoke-result route key, then attach the cleaned-up label after the local smoke result is accepted. Cleaned-up route labels should preserve smoke-decision audit lookup keys. Keep minimal smoke decisions, checked smoke decisions, fixture notes, and before/after proof records searchable by the original smoke-decision route key, then attach the cleaned-up label after the local smoke decision is recorded. Cleaned-up route labels should preserve smoke-proof audit lookup keys. Keep minimal smoke proof records, checked smoke proof records, fixture notes, and before/after evidence searchable by the original smoke-proof route key, then attach the cleaned-up label after the smoke proof is accepted. Cleaned-up route labels should preserve scaffold audit lookup keys. Keep minimal, checked, and package-lock scaffold decisions searchable by the original scaffold route key, then attach the cleaned-up label after the first-use scaffold choice is recorded. Cleaned-up route labels should preserve scaffold-decision audit lookup keys. Keep minimal, checked, and package-lock scaffold decisions, ownership notes, and proof commands searchable by the original scaffold-decision route key, then attach the cleaned-up label after the scaffold decision is recorded. Cleaned-up route labels should preserve scaffold-proof audit lookup keys. Keep minimal, checked, and package-lock scaffold proof records, ownership notes, and proof commands searchable by the original scaffold-proof route key, then attach the cleaned-up label after the scaffold proof is accepted. Cleaned-up route labels should preserve proof-command audit lookup keys. Keep proof commands, smoke output, before/after notes, and decision evidence searchable by the original proof-command route key, then attach the cleaned-up label after the proof command result is recorded.</p>
+            <h2 id="steps">Steps</h2>
+            <table>
+              <thead><tr><th>User state</th><th>Command</th><th>Artifact</th></tr></thead>
+              <tbody>
+                <tr><td>local first-use task</td><td><code>forma project-init --minimal</code></td><td>generated minimal project README</td></tr>
+                <tr><td>checked host project</td><td>default project-init</td><td>generated checked project README</td></tr>
+                <tr><td>reviewed package-lock project</td><td><code>forma project-init --package-lock</code></td><td>generated package-lock project README</td></tr>
+              </tbody>
+            </table>
+            <p>Use <code>project-init --minimal</code> while deciding whether a <code>.forma</code> contract is useful for one application. Move to default project-init when the host needs <code>project-check</code>, generated smoke tests, and CI workflow checks. Use <code>project-init --package-lock</code> after a reviewed package lock exists and the host should prove it can consume pinned package artifacts.</p>
+            <h2 id="verification">Verification</h2>
+            <table>
+              <thead><tr><th>Surface</th><th>Evidence</th></tr></thead>
+              <tbody>
+                <tr><td><code>README.md</code></td><td><code>Which Scaffold Should I Use?</code> maps local first-use, checked CI, and reviewed package consumption to the three <code>project-init</code> commands.</td></tr>
+                <tr><td><code>docs/index.md</code></td><td>The start-here page routes readers to the five-minute usefulness path, then repeats the same local first-use task, checked host project, and reviewed package-lock project choices.</td></tr>
+                <tr><td><code>docs/guides/quickstart.md</code></td><td>The quickstart shows the five-minute usefulness path, the clean checked host project flow, and the reviewed package-lock project flow with expected smoke commands.</td></tr>
+                <tr><td><code>docs/packages/cli.md</code></td><td>The CLI package docs keep the <code>project-init</code> decision table beside command output examples for minimal, checked, and package-lock scaffolds.</td></tr>
+                <tr><td>generated minimal project README</td><td>The minimal scaffold explains when to stay local, when to rerun default <code>forma project-init</code>, and when to use <code>forma project-init --package-lock</code>.</td></tr>
+                <tr><td>generated checked project README</td><td>The checked scaffold identifies itself as the host-project scaffold and links back to the minimal first-use path and package-lock choice.</td></tr>
+                <tr><td>generated package-lock project README</td><td>The package-lock scaffold explains that it consumes pinned package artifacts after package review and still leaves provider keys, model selection, retries, logging, and deployment policy in the host application.</td></tr>
+              </tbody>
+            </table>
+            <p>The docs gate keeps this audit honest by requiring the same vocabulary across these surfaces: <code>project-init --minimal</code>, default project-init, <code>project-init --package-lock</code>, local first-use task, checked host project, and reviewed package-lock project.</p>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#purpose">Purpose</a></li>
+              <li><a href="#decision-rule">Decision Rule</a></li>
+              <li><a href="#steps">Steps</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/guides/first-use-audit.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

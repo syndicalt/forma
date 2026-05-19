@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Runtime Semantics | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Runtime Semantics.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="./overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Language / <span>Runtime Semantics</span></div>
+          <article class="markdown-body">
+            <h1 id="runtime-semantics">Runtime Semantics</h1>
+            <p>Forma runtime semantics are intentionally small in the MVP. The host passes source text and input values to <code>FormaRuntime</code>; the runtime parses the source, validates the task, executes either deterministic compute behavior or an agent provider call, verifies output, and returns <code>FormaResult</code>.</p>
+            <h2 id="execution-order">Execution Order</h2>
+            <p>The current Python and TypeScript runtimes use this order:</p>
+            <pre><code class="language-text">parse source
+validate task contract
+select first task or named task
+bind host input
+run compute or agent behavior
+validate output fields
+run verify expressions
+return FormaResult</code></pre>
+            <p>Both host runtimes execute the first task by default through <code>runSource</code> or <code>run_source</code>. Use <code>runTask</code> in TypeScript or <code>run_task</code> in Python to execute a specific named task from source text. Use the public <code>agent(...)</code> helper when embedding a reusable named task from source text or a <code>.forma</code> file.</p>
+            <pre><code class="language-typescript">const greetUser = agent({
+  source,
+  sourceName: &quot;tasks.forma&quot;,
+  task: &quot;greet_user_warmly&quot;,
+  provider,
+});
+
+await greetUser.run({ user_name: &quot;Sam&quot; });</code></pre>
+            <h2 id="compute">Compute</h2>
+            <p>The deterministic <code>compute</code> path supports the current greeting expression:</p>
+            <pre><code class="language-forma">message = if user_name
+  then &quot;Hello, {user_name}!&quot;
+  else &quot;Hello, world!&quot;</code></pre>
+            <p>When <code>user_name</code> is present, the runtime interpolates it into the first string. When it is absent, the runtime uses the <code>else</code> string.</p>
+            <h2 id="agent">Agent</h2>
+            <p>The <code>agent</code> path requires a host provider. The task instruction is sent to the provider with input values, and provider output becomes task output. Credentials and model names are not read from the Forma source. Put them in the host provider adapter, usually from environment variables or a secret manager.</p>
+            <pre><code class="language-typescript">const result = await runtime.runSource(source, {
+  input: { user_name: &quot;Sam&quot; },
+  sourceName: &quot;agent.forma&quot;,
+});</code></pre>
+            <p>The TypeScript runtime calls:</p>
+            <pre><code class="language-typescript">modelProvider.runAgent({
+  instruction: task.agentInstruction,
+  values: input,
+  permissions: task.permissions,
+  tools,
+});</code></pre>
+            <p>The Python runtime calls:</p>
+            <pre><code class="language-python">self.model_provider.run_agent(task.agent_instruction, input, task.permissions, tools)</code></pre>
+            <p>The adapter returns a dictionary or object matching the task <code>output</code> block. The <code>.forma</code> <code>agent { ... }</code> syntax is a task member; the runtime turns it into an instruction field and dispatches to the configured provider. The host <code>agent(...)</code> helper is a convenience facade over <code>FormaRuntime.runTask</code>, <code>FormaRuntime.runFile</code>, <code>FormaRuntime.run_task</code>, and <code>FormaRuntime.run_file</code>.</p>
+            <h2 id="permissions">Permissions</h2>
+            <p>Agent tasks can declare workspace permissions:</p>
+            <pre><code class="language-forma">permissions {
+  read
+  search
+  test
+}</code></pre>
+            <p>The runtime passes those strings into the provider call and exposes <code>tools.require(permission)</code> to the provider. Forma does not execute workspace tools directly in the current runtime; host providers call <code>tools.require</code> before a workspace action. Allowed checks add <code>permission</code> trace entries. Undeclared checks fail with <code>F4001</code> and add <code>permission_denied</code> trace entries.</p>
+            <p>Host programs can also configure read, search, test, and edit tools:</p>
+            <pre><code class="language-typescript">const runtime = new FormaRuntime({
+  modelProvider,
+  tools: {
+    readText: async (path) =&gt; readFile(path, &quot;utf8&quot;),
+    searchText: async (query) =&gt; searchWorkspace(query),
+    runTest: async (command) =&gt; runCommand(command),
+    writeText: async (path, content) =&gt; writeFile(path, content, &quot;utf8&quot;),
+  },
+});</code></pre>
+            <p>Providers call <code>tools.readText(path)</code> in TypeScript or <code>tools.read_text(path)</code> in Python for reads. They call <code>tools.searchText(query)</code> in TypeScript or <code>tools.search_text(query)</code> in Python for search. The runtime checks the matching permission before calling the host function and records <code>tool</code> trace entries such as <code>read:README.md</code>, <code>search:FormaRuntime</code>, or <code>test:pnpm test</code>. Providers call <code>tools.runTest(command)</code> in TypeScript or <code>tools.run_test(command)</code> in Python for focused verification. Providers call <code>tools.writeText(path, content)</code> in TypeScript or <code>tools.write_text(path, content)</code> in Python for edits. If a requested tool is not configured, the runtime returns <code>F4002</code>.</p>
+            <p>The HTTP JSON provider adapters expose the same capability to model gateways with a two-step JSON protocol. A provider response may include <code>toolCalls</code>; the adapter runs those calls through the host tools and sends <code>toolResults</code> on the next request before accepting final structured <code>output</code>. The CLI tool host also scopes file reads, searches, and edits to <code>--workspace</code>, defaulting to the current working directory, and can restrict test execution to exact <code>--allow-test-command</code> strings.</p>
+            <h2 id="traces">Traces</h2>
+            <p>Runtime traces are host workflow evidence, not just debug output. Host programs should preserve trace entries beside diagnostics, verification results, and provider metadata when deciding whether to retry, escalate for review, accept a tool-assisted edit, or fail a CI gate. A <code>tool_failed</code> or <code>permission_denied</code> trace explains the workflow decision that followed the provider response; it should not be discarded before the host has recorded why the agent result was trusted or rejected.</p>
+            <h2 id="output-contract">Output Contract</h2>
+            <p>Provider and compute output is validated against the task <code>output</code> block before <code>verify</code> expressions run. Required fields must be present, <code>Text</code> fields must be strings, <code>Number</code> fields must be numbers, and <code>Boolean</code> fields must be booleans. Array fields such as <code>Finding[]</code> must be arrays. Named output object schemas validate each object item recursively. Provider output validation is part of the host trust boundary. Host code should treat provider output as untrusted until the runtime has returned an <code>ok</code> <code>FormaResult</code>; validation failure means the application should inspect diagnostics and preserve the failed result instead of coercing model output into typed application data. Fallback policy cannot turn invalid provider output into trusted data. When a host retries with another model or route, the replacement response must pass the same Forma output validation and verification before application code uses it. Fallback diagnostics are host evidence, not prompt repair instructions. Use diagnostics to decide whether the host contract, provider adapter, or model route needs work; do not paste diagnostics back into the next prompt as a way to bypass the runtime trust boundary.</p>
+            <pre><code class="language-forma">output {
+  summary: Text
+  findings: Finding[]
+
+  object Finding {
+    path: Text
+    line: Number?
+    message: Text
+  }
+}</code></pre>
+            <p>If a provider returns <code>{}</code> for a required field, the runtime returns <code>F3003</code>. If it returns a value with the wrong type, including a nested value such as <code>findings[0].line</code>, the runtime returns <code>F3004</code>.</p>
+            <h2 id="binding-generation">Binding Generation</h2>
+            <p>Host packages can generate language-native bindings from task fields:</p>
+            <pre><code class="language-typescript">generateTypeScriptBindings(source)</code></pre>
+            <pre><code class="language-python">generate_python_bindings(source)</code></pre>
+            <p>This is separate from execution. It gives host programs a generated contract for the same input and output fields that the runtime validates. Named output schemas may reference other named schemas; generated Python dataclasses are ordered so those references can be imported directly. Generated TypeScript and Python bindings also include output validators for host-side trust boundaries.</p>
+            <h2 id="verification">Verification</h2>
+            <p>The runtime evaluates shipped <code>verify</code> expressions against the output and stores the result in <code>FormaResult.verification</code>.</p>
+            <pre><code class="language-json">{
+  &quot;ok&quot;: true,
+  &quot;verification&quot;: {
+    &quot;ok&quot;: true
+  }
+}</code></pre>
+            <p>Run parity tests with:</p>
+            <pre><code class="language-bash">corepack pnpm --filter @forma-lang/forma test
+python -m pytest packages/forma-python/tests -q</code></pre>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#execution-order">Execution Order</a></li>
+              <li><a href="#compute">Compute</a></li>
+              <li><a href="#agent">Agent</a></li>
+              <li><a href="#permissions">Permissions</a></li>
+              <li><a href="#traces">Traces</a></li>
+              <li><a href="#output-contract">Output Contract</a></li>
+              <li><a href="#binding-generation">Binding Generation</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/language/runtime-semantics.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

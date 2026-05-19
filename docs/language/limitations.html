@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MVP Limitations | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for MVP Limitations.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="./overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Language / <span>MVP Limitations</span></div>
+          <article class="markdown-body">
+            <h1 id="mvp-limitations">MVP Limitations</h1>
+            <p>Forma currently ships a focused MVP. This document lists the boundaries so host applications and contributors do not mistake planned design space for available runtime behavior.</p>
+            <h2 id="syntax-and-runtime-boundary">Syntax And Runtime Boundary</h2>
+            <p>The Tree-sitter grammar accepts repeated <code>task</code> declarations in a source file. The Python and TypeScript runtimes execute the first task by default, and both runtimes can execute a named task through <code>runTask</code> / <code>run_task</code> or the public <code>agent(...)</code> helper. The shipped package examples still keep one task per file because versioning, generated bindings, and eval artifacts are clearer that way.</p>
+            <pre><code class="language-forma">task greet_user {
+  intent &quot;Greet the current user&quot;
+  input { user_name: Text? }
+  output { message: Text }
+  compute { message = if user_name then &quot;Hello, {user_name}!&quot; else &quot;Hello, world!&quot; }
+  verify { message.length &gt; 0 }
+}</code></pre>
+            <h2 id="expression-subset">Expression Subset</h2>
+            <p>The evaluator supports the greeting compute shape and these verification checks:</p>
+            <ul>
+              <li><code>message.length &gt; 0</code></li>
+              <li><code>message.words &lt;= 12</code></li>
+            </ul>
+            <p>Other expressions should be added with conformance fixtures and matching Python and TypeScript tests.</p>
+            <h2 id="agent-execution">Agent Execution</h2>
+            <p>Agent tasks require a provider. The CLI can check provider-backed tasks without a provider, and <code>forma run</code> can execute them when a provider is configured with <code>--provider</code>, <code>--provider-profile</code>, or the OpenAI environment defaults.</p>
+            <pre><code class="language-bash">node cli/forma/dist/index.js check examples/greet_user_warmly.forma
+node cli/forma/dist/index.js run examples/review_diff.forma \
+  --task review_diff \
+  --input '{&quot;diff&quot;:&quot;diff --git a/src/example.ts b/src/example.ts&quot;}' \
+  --provider-profile examples/forma.provider.json</code></pre>
+            <h2 id="verification">Verification</h2>
+            <p>Before expanding any limit, update:</p>
+            <pre><code class="language-bash">packages/forma-core/conformance
+packages/forma-typescript/test/runtime.test.ts
+packages/forma-python/tests/test_runtime.py
+docs/language/limitations.md</code></pre>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#syntax-and-runtime-boundary">Syntax And Runtime Boundary</a></li>
+              <li><a href="#expression-subset">Expression Subset</a></li>
+              <li><a href="#agent-execution">Agent Execution</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/language/limitations.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

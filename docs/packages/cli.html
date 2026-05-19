@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CLI Package | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for CLI Package.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="./registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item active" href="./cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="./registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Packages / <span>CLI Package</span></div>
+          <article class="markdown-body">
+            <h1 id="cli-package">CLI Package</h1>
+            <p>The CLI package is <code>@forma-lang/cli</code> and the entry point is <code>cli/forma/src/index.ts</code>. It is a thin command-line wrapper around the TypeScript runtime package, so CLI behavior should match <code>FormaRuntime.runSource</code>.</p>
+            <h2 id="commands">Commands</h2>
+            <p>The MVP command shape is:</p>
+            <pre><code class="language-bash">forma &lt;check|run|outline|preview|eval|eval-suite|compare|generate|golden-proof|package-check|package-init|package-lock|package-review|project-check|project-init&gt; &lt;path&gt; [--input JSON]</code></pre>
+            <p><code>forma check</code> reads a <code>.forma</code> file, parses and validates it through the TypeScript runtime, and prints <code>ok</code> on success. For agent files, check treats the missing model provider error <code>F3002</code> as valid syntax and validation success, because agent execution still requires a host-supplied provider at run time.</p>
+            <pre><code class="language-bash">corepack pnpm --filter @forma-lang/cli test
+forma check examples/greet_user.forma
+forma outline examples/review_diff.forma
+forma preview examples/review_diff.forma
+forma run examples/greet_user.forma --input '{&quot;user_name&quot;:&quot;Sam&quot;}'</code></pre>
+            <p><code>forma run</code> executes a task and prints the JSON output. By default it runs the first task in the file; use <code>--task</code> to select a named task. Deterministic tasks need only <code>--input</code>. Agent tasks can use the same provider options as <code>forma eval</code>, including <code>--provider-profile</code>:</p>
+            <pre><code class="language-bash">forma run examples/greet_user.forma \
+  --input '{&quot;user_name&quot;:&quot;Sam&quot;}'
+
+forma run examples/review_diff.forma \
+  --task review_diff \
+  --input '{&quot;diff&quot;:&quot;diff --git a/src/example.ts b/src/example.ts&quot;}' \
+  --provider-profile examples/forma.provider.json \
+  --response-format json_schema \
+  --temperature 0.2 \
+  --timeout-ms 30000 \
+  --workspace . \
+  --allow-read \
+  --allow-search \
+  --allow-test \
+  --allow-test-command 'pnpm test'</code></pre>
+            <p>Use <code>--allow-read</code>, <code>--allow-search</code>, <code>--allow-test</code>, and <code>--allow-edit</code> to wire local CLI tools into provider-backed runs. These flags configure host tools; the task still has to declare the matching permission in its <code>.forma</code> file before the runtime will execute the tool call. File reads, searches, and edits are scoped to <code>--workspace</code>, which defaults to the current working directory. Provider-requested paths outside that workspace return failed tool results. Use <code>--allow-test-command</code> one or more times to restrict provider requested test commands to exact approved command strings. Use <code>--response-format</code>, <code>--temperature</code>, and <code>--timeout-ms</code> to override provider profile generation settings for one command. Use <code>--report</code> when a local run should print the full <code>FormaResult</code>, including diagnostics, verification, and runtime trace entries such as <code>tool</code> and <code>tool_failed</code>, instead of only printing the task output object.</p>
+            <p>Invalid usage exits with code 2 and prints `usage: forma</p>
+            <table>
+              <thead><tr><th>&lt;check</th><th>run</th><th>outline</th><th>preview</th><th>eval</th><th>eval-suite</th><th>compare</th><th>generate</th><th>golden-proof</th><th>package-check</th><th>package-init</th><th>package-lock</th><th>package-review</th><th>project-check</th><th>project-init&gt; &lt;path&gt; [--input JSON]`.</th></tr></thead>
+              <tbody>
+
+              </tbody>
+            </table>
+            <p>These behaviors are covered by <code>cli/forma/test/cli.test.ts</code>.</p>
+            <p><code>forma golden-proof examples</code> prints the compact local reviewer summary for the golden workflow. It reports the <code>review_diff first-use path</code>, the <code>function_repair coding-agent showcase</code>, validation status, diagnostics, <code>traceSummary</code>, and <code>nextGate</code> values without running the heavier release gate. Use it after the local smoke checks; keep <code>proof:release</code> for reusable package readiness after local usefulness is clear.</p>
+            <p><code>forma outline</code> reads a <code>.forma</code> file and prints machine-readable task metadata for editor integrations, package review, and quick inspection:</p>
+            <pre><code class="language-bash">forma outline examples/review_diff.forma</code></pre>
+            <p>The output includes each task name, intent, execution mode, input and output fields, named schemas, declared permissions, verify rules, and task source span.</p>
+            <p><code>forma preview</code> reads the same <code>.forma</code> file and prints a JSON object that combines the task outline with generated TypeScript, Python dataclass, and Python Pydantic type previews. Use it for editor integrations, review comments, and quick inspection when you want to see the runtime contract and host-facing types without writing generated files:</p>
+            <pre><code class="language-bash">forma preview examples/review_diff.forma
+forma preview examples/review_diff.forma --watch</code></pre>
+            <p>The preview payload always includes a <code>diagnostics</code> array. Valid files return an empty array and exit 0. Parser failures and validation failures return the same JSON shape with diagnostics and exit 1, so editors can show the current outline and generated type preview whenever parsing succeeds while still surfacing stable <code>F</code> codes.</p>
+            <p>Use <code>preview --watch</code> while editing a task file. It writes an initial JSON preview event and then writes another event each time the file changes. Add <code>--once</code> when a script or test should exercise the watch payload without leaving a long-running process.</p>
+            <p><code>forma generate</code> reads a <code>.forma</code> file and prints host-language bindings:</p>
+            <pre><code class="language-bash">forma generate examples/review_diff.forma --target typescript
+forma generate examples/review_diff.forma --target python
+forma generate examples/review_diff.forma --target python-pydantic
+forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts
+forma generate examples/review_diff.forma --target typescript --output src/review_diff.forma.ts --check</code></pre>
+            <p>The TypeScript target emits interfaces plus an <code>assert&lt;Task&gt;Output</code> validator. The Python target emits dataclasses plus an <code>assert_&lt;task&gt;_output</code> validator. The <code>python-pydantic</code> target emits strict Pydantic v2 <code>BaseModel</code> classes with nested object models ordered before the classes that reference them. Host projects using that target should install Pydantic. All targets use the same parser and schema compiler as the runtime. Use <code>--output</code> to write generated bindings directly to a file; otherwise the CLI prints them to stdout. Use <code>--check</code> with <code>--output</code> in CI to fail when a checked-in generated file is out of date.</p>
+            <p><code>forma package-check</code> validates a versioned task package manifest. It checks the manifest marker, semver version, task source hashes, eval suite path, generated bindings, host examples, and compatibility policy:</p>
+            <pre><code class="language-bash">forma package-check examples/review_diff.forma.pkg.json</code></pre>
+            <p><code>forma package-lock</code> records the reviewed package artifact set in a lockfile. It validates the manifest first, then pins the manifest, task sources, eval suite, provider profile, generated bindings, host examples, package tests, and release files by SHA-256. Use <code>--output</code> to write the lockfile and <code>--check</code> in CI to fail when any locked artifact drifts:</p>
+            <pre><code class="language-bash">forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json
+forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check
+forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check --json</code></pre>
+            <p>When <code>--check --json</code> fails, stdout includes a compact artifact group report with <code>changedArtifactGroups</code>. The report lists package metadata changes and added, removed, or changed paths for groups such as <code>bindings</code>, <code>examples</code>, <code>tests</code>, and <code>releaseFiles</code>, so reviewers can see which reviewed artifact group changed before regenerating the lock. Package-lock drift is a release artifact problem before it is a host application problem. Inspect the changed artifact group, repair or intentionally update the package manifest, generated files, tests, or release files, then regenerate the reviewed lock before changing consuming application logic. Stale-lock recovery starts with the package release owner. Consumers should adopt the next reviewed release unless they also own the package manifest, lockfile, generated artifacts, tests, and release workflow.</p>
+            <p>For example, a stale generated binding appears in the JSON report as a changed artifact group:</p>
+            <pre><code class="language-json">{
+  &quot;ok&quot;: false,
+  &quot;changedArtifactGroups&quot;: [
+    {
+      &quot;group&quot;: &quot;bindings&quot;,
+      &quot;changed&quot;: [
+        {
+          &quot;path&quot;: &quot;generated/review_diff.forma.ts&quot;,
+          &quot;expectedHash&quot;: &quot;sha256:old&quot;,
+          &quot;actualHash&quot;: &quot;sha256:new&quot;
+        }
+      ]
+    }
+  ]
+}</code></pre>
+            <h2 id="release-runtime-flow">Release Runtime Flow</h2>
+            <p>For a publishable agent package, the CLI ties three runtime-facing artifacts together:</p>
+            <ul>
+              <li><code>forma.provider.json</code> records provider selection, model selection, response</li>
+            <p>format, timeout, temperature, endpoint when needed, and the API-key environment variable name. It must use <code>apiKeyEnv</code> instead of storing a secret value.</p>
+              <li><code>forma eval-suite ... --summary &gt; candidate.json</code> records the candidate</li>
+            <p>contract shape, provider settings, and eval results that reviewers compare against a previous release.</p>
+              <li><code>forma package-lock ... --check</code> verifies that the package manifest, <code>.forma</code></li>
+            <p>source, provider profile, generated bindings, host examples, package tests, release files, and eval suite still match the reviewed hashes.</p>
+            </ul>
+            <p>The release path is therefore:</p>
+            <pre><code class="language-bash">forma package-check examples/review_diff.forma.pkg.json
+forma package-lock examples/review_diff.forma.pkg.json --output examples/review_diff.forma.lock.json --check
+forma eval-suite examples/forma.eval.json --summary &gt; candidate.json
+forma package-review examples/review_diff.forma.pkg.json --baseline baseline.json</code></pre>
+            <p>At runtime, the host program still owns the secret and the actual model client. TypeScript consumers can either load the provider profile directly:</p>
+            <pre><code class="language-ts">import { agent, providerFromProfile, providerProfileFromFile } from &quot;@forma-lang/forma&quot;;
+
+const profile = providerProfileFromFile(&quot;forma.provider.json&quot;);
+const reviewDiff = agent(&quot;review_diff.forma&quot;, &quot;review_diff&quot;, {
+  provider: providerFromProfile(profile),
+});</code></pre>
+            <p>or load the reviewed package lock:</p>
+            <pre><code class="language-ts">import { agentFromPackageLock } from &quot;@forma-lang/forma&quot;;
+
+const reviewDiff = agentFromPackageLock({
+  lockFile: &quot;review_diff.forma.lock.json&quot;,
+  task: &quot;review_diff&quot;,
+});</code></pre>
+            <p>Python consumers use the same boundary:</p>
+            <pre><code class="language-python">from forma import agent, agent_from_package_lock, provider_from_profile, provider_profile_from_file
+
+profile = provider_profile_from_file(&quot;forma.provider.json&quot;)
+review_diff = agent(
+    &quot;review_diff.forma&quot;,
+    &quot;review_diff&quot;,
+    provider=provider_from_profile(profile),
+)
+
+locked_review_diff = agent_from_package_lock(
+    lock_file=&quot;review_diff.forma.lock.json&quot;,
+    task=&quot;review_diff&quot;,
+)</code></pre>
+            <p>Use the direct provider-profile path while developing an application. Use the package-lock path when consuming a reviewed package because it rejects drift in the task source, provider profile, generated bindings, host examples, package tests, and release files before the host runs the agent.</p>
+            <p>When the manifest includes <code>tests</code>, scaffolded package READMEs and CI workflows run the locked package test files after <code>forma package-lock --check</code> and before the eval suite. TypeScript tests use <code>npx vitest run ...</code>; Python tests are written as script-runnable files and use <code>python &lt;test-file&gt;</code>. <code>forma package-review</code> also prints those commands in the <code>tests</code> row so consumers can copy the reviewed test plan directly from the machine-readable review output.</p>
+            <p><code>forma package-review</code> runs the publish-review checklist for a package. In short, package-review is a release gate, not a usefulness test. Use minimal and checked host projects to decide whether the task should exist; use <code>package-review</code> after that decision to protect reusable package consumers. Review gates should reference a downstream consumer, not a hypothetical package audience. If no application or repository needs the reviewed lock, generated contract helper, package tests, and release bundle, keep the task in a checked host project instead of promoting package review. The checklist covers manifest validation, adjacent lockfile verification, TypeScript and Python binding presence, TypeScript and Python host example presence, checked test artifact coverage, provider profile secret hygiene, compatibility policy coverage, release file presence, README command coverage, package CI coverage, publish bundle coverage, and eval suite summary. It prints a machine-readable checklist result. The review fails when a publishable package embeds provider secrets, omits a provider profile for an agent task, does not include generated bindings and host examples for both runtimes, omits required compatibility policy fields, omits the package README or scaffolded CI workflows from <code>releaseFiles</code>, omits package review commands from the README, omits package-check, lock check, eval-suite, or package-review commands from the package CI workflow, omits reviewed artifacts or checked test artifacts from the publish workflow bundle, or when the eval suite does not cover every task in the package manifest with matching task source hashes. Add <code>--baseline baseline.json</code> to compare the candidate eval suite against a previous release artifact; baseline comparisons default to <code>--fail-on breaking,environment</code> unless you pass a different <code>--fail-on</code> severity list:</p>
+            <pre><code class="language-bash">forma package-review examples/review_diff.forma.pkg.json
+forma package-review examples/review_diff.forma.pkg.json --baseline baseline.json
+forma package-review examples/review_diff.forma.pkg.json --proof-command &quot;corepack pnpm proof:migration&quot;</code></pre>
+            <p>Use <code>--proof-command</code> when a package has an external proof command that should run before the release artifact rows are trusted. The command is optional and host-owned: <code>package-review</code> executes it from the current working directory, adds a <code>proof-command</code> row to the JSON output, and fails the review if the command exits nonzero.</p>
+            <p>The top-level <code>notes</code> field separates first-use proof from release readiness: minimal first-use success proves local embedding, while <code>package-review</code> proves reviewed release readiness for reusable packages. Use <code>project-init --minimal</code> and local smoke tests before promoting a task to the package-review path.</p>
+            <h2 id="package-review-output">Package Review Output</h2>
+            <p>A passing review is a compact artifact checklist. The checked review-diff package reports rows for the reviewed lockfile, secret-free provider profile, TypeScript and Python bindings, TypeScript and Python host examples, pinned package tests with copyable commands, release files, README commands, package CI commands, publish bundle contents, eval coverage, and eval-suite results. In the JSON output, notes are informational guidance for humans and automation dashboards, while checks are blocking pass/fail rows that decide the command exit status. Fix failing checks before interpreting informational notes. A failed <code>checks</code> row means the package is not ready to publish or consume, even when <code>notes</code> describe useful first-use or release-readiness context. For example, the checked <code>review_diff</code> package <code>tests</code> row includes the migration parity fixtures separately from the generic package test commands:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;tests&quot;,
+  &quot;passed&quot;: true,
+  &quot;total&quot;: 8,
+  &quot;runtimes&quot;: [&quot;typescript&quot;, &quot;python&quot;],
+  &quot;commands&quot;: [
+    &quot;npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts&quot;,
+    &quot;python review_diff_decision_test.py&quot;,
+    &quot;python tool_permission_workflow_test.py&quot;,
+    &quot;python review_diff_contract_test.py&quot;,
+    &quot;python review_diff_migration_test.py&quot;
+  ],
+  &quot;migrationParityTests&quot;: [
+    &quot;review_diff_migration.test.ts&quot;,
+    &quot;review_diff_migration_test.py&quot;
+  ]
+}</code></pre>
+            <p>Scaffolded packages also include lockfile consumer smoke tests for the generated contract modules. The <code>tests</code> row for a default package shows those exact commands:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;tests&quot;,
+  &quot;passed&quot;: true,
+  &quot;total&quot;: 2,
+  &quot;runtimes&quot;: [&quot;typescript&quot;, &quot;python&quot;],
+  &quot;commands&quot;: [
+    &quot;npx vitest run review_diff_contract.test.ts&quot;,
+    &quot;python review_diff_contract_test.py&quot;
+  ]
+}</code></pre>
+            <p>When the publish workflow omits a reviewed artifact, the <code>publish-bundle</code> row reports <code>missingPaths</code> so the release bundle can be fixed before a consumer downloads it:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;publish-bundle&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 17,
+  &quot;missingPaths&quot;: [&quot;review_diff_contract_test.py&quot;]
+}</code></pre>
+            <p>If a generated contract-module smoke test changes after the lockfile was reviewed, <code>package-review</code> fails at the package-lock row because the pinned test hash no longer matches:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;package-lock&quot;,
+  &quot;passed&quot;: false,
+  &quot;path&quot;: &quot;review_diff.forma.lock.json&quot;,
+  &quot;error&quot;: &quot;package test does not match reviewed package lock: review_diff_contract_test.py&quot;
+}</code></pre>
+            <p>With <code>--baseline</code>, <code>package-review</code> adds a <code>compare</code> row. The default package gate fails on <code>breaking</code> and <code>environment</code> changes unless <code>--fail-on</code> is set. The row includes <code>failedOn</code>, summarized change keys, and the detailed machine-readable <code>changes</code> array:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;compare&quot;,
+  &quot;passed&quot;: false,
+  &quot;failOn&quot;: [&quot;breaking&quot;, &quot;environment&quot;],
+  &quot;failedOn&quot;: [&quot;breaking&quot;],
+  &quot;contractChanges&quot;: [&quot;review_diff:output&quot;],
+  &quot;changes&quot;: [
+    {
+      &quot;kind&quot;: &quot;contract&quot;,
+      &quot;name&quot;: &quot;review_diff&quot;,
+      &quot;field&quot;: &quot;output&quot;,
+      &quot;severity&quot;: &quot;breaking&quot;,
+      &quot;details&quot;: { &quot;removed&quot;: [&quot;legacy_required_field&quot;] }
+    }
+  ]
+}</code></pre>
+            <p>With <code>--proof-command</code>, <code>package-review</code> adds a <code>proof-command</code> row before the release artifact rows. For the Forma repo, the migration parity proof can be folded into review like this:</p>
+            <pre><code class="language-bash">forma package-review examples/review_diff.forma.pkg.json --proof-command &quot;corepack pnpm proof:migration&quot;
+corepack pnpm proof:release</code></pre>
+            <p>A passing proof row includes the exact command and any captured output:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;proof-command&quot;,
+  &quot;passed&quot;: true,
+  &quot;command&quot;: &quot;corepack pnpm proof:migration&quot;
+}</code></pre>
+            <p>If the command fails, the row reports <code>passed: false</code>, the exit code when available, and captured stdout or stderr, and the overall review fails. For the repository release gate, <code>proof:release</code> runs <code>proof:migration &amp;&amp; projects:check &amp;&amp; packages:installed-smoke</code> through the same row. If stdout stops near <code>review_diff_migration.test.ts</code>, fix migration parity first. If stdout reaches the clean-project JSON report and names <code>forma-project.yml</code> or <code>missingCommands</code>, restore the checked clean-project workflow commands. If the proof row fails at <code>packages:installed-smoke</code>, the row adds <code>guidance</code>, <code>triageGuide</code>, and <code>recoveryCommands</code> with <code>corepack pnpm packages:installed-smoke</code> and <code>corepack pnpm docs:check</code>; use <code>docs/guides/testing-and-verification.md#installed-package-smoke-triage</code> to map the failed package kind to the restore path, then rerun the installed release-bundle smoke and docs gate. When the smoke output includes an <code>installed package smoke: ...</code> marker, the failed proof row also includes <code>packageKind</code> so CI can point to the exact bundle that was running. When a package declares migration parity tests, <code>package-review</code> also expects README and CI command coverage for a proof review command derived from those tests, for example:</p>
+            <pre><code class="language-bash">forma package-review review_diff.forma.pkg.json --proof-command &quot;npx vitest run review_diff_migration.test.ts &amp;&amp; python review_diff_migration_test.py&quot;</code></pre>
+            <p>If README or CI omits that derived proof command, the row reports <code>missingMigrationParityProofCommand</code> alongside the generic <code>missingCommands</code> entry:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;readme&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 12,
+  &quot;missingCommands&quot;: [
+    &quot;forma package-review review_diff.forma.pkg.json --proof-command \&quot;npx vitest run review_diff_migration.test.ts &amp;&amp; python review_diff_migration_test.py\&quot;&quot;
+  ],
+  &quot;missingMigrationParityProofCommand&quot;: &quot;forma package-review review_diff.forma.pkg.json --proof-command \&quot;npx vitest run review_diff_migration.test.ts &amp;&amp; python review_diff_migration_test.py\&quot;&quot;
+}</code></pre>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;ci-workflow&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 10,
+  &quot;missingCommands&quot;: [
+    &quot;forma package-review review_diff.forma.pkg.json --proof-command \&quot;npx vitest run review_diff_migration.test.ts &amp;&amp; python review_diff_migration_test.py\&quot;&quot;
+  ],
+  &quot;missingMigrationParityProofCommand&quot;: &quot;forma package-review review_diff.forma.pkg.json --proof-command \&quot;npx vitest run review_diff_migration.test.ts &amp;&amp; python review_diff_migration_test.py\&quot;&quot;
+}</code></pre>
+            <p>Environment changes use the same <code>changes</code> array but are marked as <code>kind: &quot;setting&quot;</code> with before and after values from the eval-suite summary:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;compare&quot;,
+  &quot;passed&quot;: false,
+  &quot;failedOn&quot;: [&quot;environment&quot;],
+  &quot;settingChanges&quot;: [&quot;model&quot;],
+  &quot;changes&quot;: [
+    {
+      &quot;kind&quot;: &quot;setting&quot;,
+      &quot;field&quot;: &quot;model&quot;,
+      &quot;severity&quot;: &quot;environment&quot;,
+      &quot;details&quot;: { &quot;from&quot;: &quot;baseline-model&quot;, &quot;to&quot;: &quot;candidate-model&quot; }
+    }
+  ]
+}</code></pre>
+            <p>If a package declares tests but the README or CI workflow omits one of those commands, the failing row reports a <code>missingCommands</code> array with the exact text to add back:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;ci-workflow&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 6,
+  &quot;missingCommands&quot;: [&quot;npx vitest run tool_assisted_repair_plan.test.ts&quot;]
+}</code></pre>
+            <p>When the omitted command contains a migration parity fixture, the same row also reports <code>missingMigrationParityTests</code> so reviewers can see that the before/after migration proof drifted out of the package docs or CI workflow:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;readme&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 11,
+  &quot;missingCommands&quot;: [
+    &quot;npx vitest run review_diff_decision.test.ts tool_permission_workflow.test.ts review_diff_contract.test.ts review_diff_migration.test.ts&quot;
+  ],
+  &quot;missingMigrationParityTests&quot;: [&quot;review_diff_migration.test.ts&quot;]
+}</code></pre>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;ci-workflow&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 9,
+  &quot;missingCommands&quot;: [&quot;python review_diff_migration_test.py&quot;],
+  &quot;missingMigrationParityTests&quot;: [&quot;review_diff_migration_test.py&quot;]
+}</code></pre>
+            <p>The publish bundle row uses the same field when a migration parity fixture is missing from the release tarball command:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;publish-bundle&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 35,
+  &quot;missingPaths&quot;: [&quot;review_diff_migration_test.py&quot;],
+  &quot;missingMigrationParityTests&quot;: [&quot;review_diff_migration_test.py&quot;]
+}</code></pre>
+            <p>If a package declares tests but omits the generated lockfile consumer smoke tests that pass explicit provider overrides, the <code>tests</code> row reports <code>missingProviderOverrideTests</code>. Restore the reported files and commands using the package consumer troubleshooting guide:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;tests&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 1,
+  &quot;runtimes&quot;: [&quot;typescript&quot;],
+  &quot;commands&quot;: [&quot;npx vitest run host_workflow.test.ts&quot;],
+  &quot;missingProviderOverrideTests&quot;: [&quot;review_diff_contract.test.ts&quot;, &quot;review_diff_contract_test.py&quot;]
+}</code></pre>
+            <p>Generated READMEs must also keep the runtime embedding guide link. If the README omits it, the <code>readme</code> row reports <code>missingGuidance</code>:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;readme&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 8,
+  &quot;missingGuidance&quot;: [&quot;docs/guides/package-consumer-quickstart.md#what-the-helper-calls&quot;]
+}</code></pre>
+            <p>The same row reports the explicit-provider override guide if that link is removed:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;readme&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 8,
+  &quot;missingGuidance&quot;: [&quot;docs/guides/package-consumer-quickstart.md#explicit-provider-overrides&quot;]
+}</code></pre>
+            <p>Generated READMEs must also keep the recovery token for provider override smoke tests. If it is removed, the <code>readme</code> row reports it as missing guidance:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;readme&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 8,
+  &quot;missingGuidance&quot;: [&quot;missingProviderOverrideTests&quot;]
+}</code></pre>
+            <p>Generated READMEs must also keep the recovery token for migration parity fixtures and the direct troubleshooting link for that failure. If either is removed, the <code>readme</code> row reports it as missing guidance:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;readme&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 11,
+  &quot;missingGuidance&quot;: [
+    &quot;missingMigrationParityTests&quot;,
+    &quot;docs/guides/package-consumer-quickstart.md#missingmigrationparitytests&quot;
+  ]
+}</code></pre>
+            <p>Generated workflows must also keep their failure guidance link. If the package workflow omits it, the <code>ci-workflow</code> row reports <code>missingGuidance</code>:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;ci-workflow&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 6,
+  &quot;missingGuidance&quot;: [&quot;docs/guides/package-consumer-quickstart.md#troubleshooting&quot;]
+}</code></pre>
+            <p>The publish workflow uses the same guidance check in the <code>publish-bundle</code> row:</p>
+            <pre><code class="language-json">{
+  &quot;name&quot;: &quot;publish-bundle&quot;,
+  &quot;passed&quot;: false,
+  &quot;total&quot;: 17,
+  &quot;missingGuidance&quot;: [&quot;docs/guides/package-consumer-quickstart.md#troubleshooting&quot;]
+}</code></pre>
+            <p><code>forma package-init</code> scaffolds a starter package directory with a <code>.forma</code> task, eval fixture, eval suite, package manifest, package lockfile, generated TypeScript/Python bindings, host examples, importable contract modules, and a package <code>README.md</code> with CI commands. Generated package scaffolds are release candidates, not first-use proofs. Use this boundary directly: package-init is for reusable task packages, not local prompt extraction. Keep a one-application prompt on the minimal or checked project path until another consumer needs a reviewed package release. Use them after a minimal or checked host project has already shown that the <code>.forma</code> contract is clearer than an inline prompt plus local schemas. Do not publish a release candidate until a downstream consumer exists and needs the reviewed manifest, lockfile, generated bindings, tests, release files, and evals as a pinned dependency. The generated contract modules wrap <code>agentFromPackageLock(...)</code> and <code>agent_from_package_lock(...)</code> so package consumers can import a stable module instead of copying example files. The scaffold also writes TypeScript and Python smoke tests for those contract modules and records them in <code>tests</code>, so package lock review verifies that lockfile consumers can still load the reviewed agent entrypoints. The generated README also explains how to inspect the <code>compare</code> row from <code>package-review --baseline</code>: <code>failedOn</code> names the blocking severity, <code>contractChanges</code> and <code>settingChanges</code> summarize the changed surface, and <code>changes[].details</code> points at exact field paths or setting values. It links that compact guidance back to the package-review output examples above instead of duplicating the full JSON blocks in every generated package. It also writes <code>.github/workflows/forma-package.yml</code> as a GitHub Actions starting point for package checks. Generated package and publish workflows include a failure step that points maintainers to the package-consumer troubleshooting guide for lockfile, provider profile, and smoke-test failures. It also writes <code>.github/workflows/forma-publish.yml</code>, which reviews the package, builds a versioned <code>.tgz</code> bundle, uploads the bundle and candidate eval summary as workflow artifacts, and uploads those assets to a GitHub Release when a matching tag is pushed. The scaffolded manifest records those publish-facing files in <code>releaseFiles</code>, and the lockfile pins their hashes with the rest of the package artifact set. Use <code>--kind review</code> for the default code-review agent shape, <code>--kind tool</code> for a generic coding-agent shape that declares <code>read</code>, <code>search</code>, <code>test</code>, and <code>edit</code> and includes TypeScript/Python follow-up planning helpers, or <code>--kind function-repair</code> for a concrete workflow that names a source file, target function, desired behavior, and focused test command. The scaffold also writes <code>forma.provider.json</code>; review-agent host examples load it to choose the provider, model, and API-key environment variable. Pass <code>--provider</code>, <code>--endpoint</code>, <code>--model</code>, <code>--api-key-env</code>, <code>--response-format</code>, <code>--temperature</code>, and <code>--timeout-ms</code> to generate a provider profile that matches the runtime you plan to use. Pass <code>--proof-command &quot;command&quot;</code> when the package has an external before/after proof that should be wired into the generated README and CI workflow through <code>package-review --proof-command</code>. Repeat <code>--input-field name:Type</code>, <code>--output-field name:Type</code>, and <code>--output-object Object.field:Type</code> to tailor the generated <code>.forma</code> input/output contract, bindings, and eval fixture. Field types use Forma syntax, including <code>?</code> for optional fields and <code>[]</code> for arrays. The generated TypeScript and Python examples import the generated input/output types and include an example input value that matches the customized contract:</p>
+            <pre><code class="language-bash">forma package-init ./review-diff-package --name acme/review-diff --task review_diff
+forma package-init ./review-diff-package \
+  --name acme/review-diff \
+  --task review_diff \
+  --proof-command &quot;corepack pnpm proof:migration&quot;
+forma package-init ./repair-package --name acme/tool-repair --task tool_assisted_repair --kind tool
+forma package-init ./function-repair-package \
+  --name acme/function-repair \
+  --task repair_function \
+  --kind function-repair
+forma package-init ./review-diff-http \
+  --name acme/review-diff \
+  --task review_diff \
+  --provider http-json \
+  --endpoint https://model.example/v1/agent \
+  --model acme-review-model \
+  --api-key-env ACME_MODEL_KEY \
+  --response-format json_object \
+  --temperature 0.1 \
+  --timeout-ms 10000
+forma package-init ./risk-review \
+  --name acme/risk-review \
+  --task risk_review \
+  --input-field diff:Text \
+  --input-field repo_path:Text? \
+  --output-field summary:Text \
+  --output-field findings:Finding[] \
+  --output-field risk:Number? \
+  --output-object Finding.path:Text \
+  --output-object Finding.message:Text \
+  --output-object Finding.severity:Text?
+forma package-check ./review-diff-package/review_diff.forma.pkg.json
+forma package-lock ./review-diff-package/review_diff.forma.pkg.json \
+  --output ./review-diff-package/review_diff.forma.lock.json \
+  --check
+forma package-review ./review-diff-package/review_diff.forma.pkg.json
+forma package-review ./review-diff-package/review_diff.forma.pkg.json --baseline baseline.json</code></pre>
+            <p>The default generated provider profile is:</p>
+            <pre><code class="language-json">{
+  &quot;provider&quot;: &quot;openai-responses&quot;,
+  &quot;model&quot;: &quot;gpt-5&quot;,
+  &quot;apiKeyEnv&quot;: &quot;OPENAI_API_KEY&quot;,
+  &quot;responseFormat&quot;: &quot;json_schema&quot;,
+  &quot;temperature&quot;: 0.2,
+  &quot;timeoutMs&quot;: 30000
+}</code></pre>
+            <p><code>forma project-init</code> scaffolds a clean host project for embedding a Forma agent task from TypeScript and Python. It writes a <code>.forma</code> task, <code>forma.provider.json</code>, <code>forma.project.json</code>, generated TypeScript and Python bindings under <code>src/</code>, host entrypoints under <code>src/</code>, <code>package.json</code>, <code>tsconfig.json</code>, <code>pyproject.toml</code>, and a README. Use it when the goal is to run a task from an application, not to publish a versioned task package:</p>
+            <p>Which project-init scaffold should I use?</p>
+            <table>
+              <thead><tr><th>Situation</th><th>Command</th><th>Use when</th></tr></thead>
+              <tbody>
+                <tr><td>local to one application</td><td><code>forma project-init ./review-diff-agent-minimal --name review-diff-agent-minimal --task review_diff --minimal</code></td><td>You are deciding whether a <code>.forma</code> contract is useful before adding CI or package review</td></tr>
+                <tr><td>checked in CI</td><td><code>forma project-init ./review-diff-agent --name review-diff-agent --task review_diff</code></td><td>The host project should run <code>project-check</code>, generated smoke tests, and a workflow gate</td></tr>
+                <tr><td>consuming a reviewed package</td><td><code>forma project-init ./review-diff-agent --name review-diff-agent --task review_diff --package-lock ../review_diff.forma.lock.json</code></td><td>The app should prove it can load a reviewed package lock with <code>agentFromPackageLock(...)</code> and <code>agent_from_package_lock(...)</code></td></tr>
+              </tbody>
+            </table>
+            <p><code>--package-lock</code> is for consuming a reviewed release, not proving the first task. Use it after a package owner has already published the reviewed task contract and an application needs to prove it can load that pinned release.</p>
+            <p>Scaffold proof commands:</p>
+            <table>
+              <thead><tr><th>Scaffold</th><th>Proof command before depending on it</th></tr></thead>
+              <tbody>
+                <tr><td>minimal proof command</td><td><code>pnpm run smoke:local:ts &amp;&amp; python test/review_diff_local_smoke.py</code></td></tr>
+                <tr><td>checked proof command</td><td><code>forma project-check . &amp;&amp; pnpm run smoke:ts &amp;&amp; python test/review_diff_agent_smoke.py</code></td></tr>
+                <tr><td>package-lock proof command</td><td><code>forma project-check . &amp;&amp; pnpm run smoke:lock:ts &amp;&amp; python test/review_diff_package_lock_smoke.py</code></td></tr>
+              </tbody>
+            </table>
+            <pre><code class="language-bash">forma project-init ./review-diff-agent \
+  --name review-diff-agent \
+  --task review_diff \
+  --model gpt-5 \
+  --api-key-env OPENAI_API_KEY</code></pre>
+            <p>Use <code>--minimal</code> for the first five-minute usefulness path. Treat it as the ten-minute local proof before package-review or package locks. It writes the task, provider profile, generated TypeScript and Python bindings, host entrypoints, runtime package manifests, local <code>StaticProvider</code> smoke files, and a README, but skips <code>forma.project.json</code> and <code>.github/workflows/forma-project.yml</code>:</p>
+            <pre><code class="language-bash">forma project-init ./review-diff-agent-minimal \
+  --name review-diff-agent-minimal \
+  --task review_diff \
+  --minimal</code></pre>
+            <p>The command output identifies this as the first-use path:</p>
+            <pre><code class="language-text">created minimal host project
+next: pnpm run smoke:local:ts
+use default project-init for project-check and CI workflow</code></pre>
+            <p>Use the default scaffold when you are ready for <code>forma project-check</code>, checked CI workflow proof commands, and manifest-enforced smoke tests. The minimal scaffold still gives you no-key local checks: Generated project CI is application contract protection, not framework ceremony. Keep the workflow when application code depends on the generated task bindings, provider profile, and runtime entrypoints staying aligned across TypeScript and Python.</p>
+            <pre><code class="language-bash">cd review-diff-agent-minimal
+pnpm run smoke:local:ts
+python test/review_diff_local_smoke.py</code></pre>
+            <p>The default scaffold output points to the checked-project gate:</p>
+            <pre><code class="language-text">created checked host project
+next: forma project-check .
+use --minimal for the five-minute first-use path</code></pre>
+            <p>When a reviewed package lock is already available, pass it to the scaffold so the generated project also proves the reviewed package consumer path:</p>
+            <pre><code class="language-bash">forma project-init ./review-diff-agent \
+  --name review-diff-agent \
+  --task review_diff \
+  --package-lock ../review_diff.forma.lock.json</code></pre>
+            <p>The package-lock scaffold output points to the reviewed lock smoke path:</p>
+            <pre><code class="language-text">created package-lock host project
+next: pnpm run smoke:lock:ts
+use --minimal only before reviewed package locks</code></pre>
+            <p>The generated provider profile stores the provider, model, response format, temperature, timeout, and key environment variable name. It does not store the secret key. The generated TypeScript entrypoint uses <code>agent(...)</code>, <code>providerProfileFromFile</code>, and <code>providerFromProfile</code>; the Python entrypoint uses the matching <code>agent(...)</code>, <code>provider_profile_from_file</code>, and <code>provider_from_profile</code> APIs. Both runtimes read the same <code>.forma</code> task and validate model output through generated binding helpers.</p>
+            <p>Generated projects also include StaticProvider smoke tests so onboarding can prove the TypeScript and Python embedding paths without model credentials:</p>
+            <pre><code class="language-bash">pnpm run smoke:ts
+python test/review_diff_agent_smoke.py</code></pre>
+            <p>Projects scaffolded with <code>--package-lock</code> also include <code>test/review_diff_package_lock_smoke.ts</code>, <code>test/review_diff_package_lock_smoke.py</code>, <code>pnpm run smoke:lock:ts</code>, and a <code>package-lock-smoke-tests</code> manifest row. Those tests load the reviewed lock with <code>agentFromPackageLock(...)</code> and <code>agent_from_package_lock(...)</code> while passing explicit <code>StaticProvider</code> test doubles.</p>
+            <p>They also include <code>.github/workflows/forma-project.yml</code>. That workflow runs <code>forma project-check .</code>, <code>pnpm run check</code>, Python bytecode compilation, and the two generated smoke tests. When <code>--package-lock</code> is used, the workflow also runs the reviewed package-lock smoke commands so both direct project embedding and reviewed package-lock embedding stay enforced after the initial scaffold.</p>
+            <p><code>forma project-check</code> validates a generated host project. It reads <code>forma.project.json</code>, confirms the named agent task exists, validates the provider profile without accepting stored <code>apiKey</code> secrets, checks that TypeScript and Python generated bindings are current, and confirms both runtime entrypoints keep the expected embedding wiring: <code>agent(...)</code>, the shared provider profile loader, provider construction, <code>.forma</code> source path, and generated output validator. It also confirms the generated TypeScript and Python StaticProvider smoke tests are present and that <code>.github/workflows/forma-project.yml</code> runs the project-check, compile, and smoke commands:</p>
+            <pre><code class="language-bash">forma project-check ./review-diff-agent</code></pre>
+            <p>Use it in CI before running host-language compilers or live provider smoke tests so a generated project cannot silently drift back into ad hoc provider calls or unvalidated model output.</p>
+            <p>If <code>project-check</code> reports that <code>.github/workflows/forma-project.yml</code> is missing proof commands, restore the generated project workflow entries for <code>forma project-check .</code>, <code>pnpm run check</code>, Python bytecode compilation, <code>pnpm run smoke:ts</code>, and <code>python test/review_diff_agent_smoke.py</code>.</p>
+            <p>Use <code>project-check --json</code> when CI needs a structured result instead of stderr text:</p>
+            <pre><code class="language-bash">forma project-check ./review-diff-agent --json</code></pre>
+            <p>Use this boundary clearly: project-check --json is for application CI dashboards, not package release dashboards. It reports whether a generated host project still has current bindings, entrypoints, smoke tests, package-lock smoke tests, and workflow commands. Package release dashboards should use <code>package-review</code>, <code>package-lock --check --json</code>, and <code>eval-suite --summary</code> because those commands cover reviewed package artifacts, package locks, compatibility, evals, and release files.</p>
+            <p>The JSON output includes <code>passed</code>, project metadata, and check rows such as <code>bindings</code>, <code>entrypoints</code>, <code>smoke-tests</code>, <code>package-lock-smoke-tests</code>, and <code>ci-workflow</code>. The package-lock row distinguishes reviewed package-lock embedding from direct project source embedding when a checked project declares package-lock smoke tests. Workflow failures include <code>missingCommands</code> and the <code>restore the generated project workflow</code> guidance string.</p>
+            <p>A passing project report looks like:</p>
+            <pre><code class="language-json">{
+  &quot;passed&quot;: true,
+  &quot;project&quot;: {
+    &quot;name&quot;: &quot;review-diff-agent&quot;,
+    &quot;task&quot;: &quot;review_diff&quot;,
+    &quot;manifest&quot;: &quot;forma.project.json&quot;
+  },
+  &quot;checks&quot;: [
+    { &quot;name&quot;: &quot;bindings&quot;, &quot;passed&quot;: true, &quot;targets&quot;: [&quot;typescript&quot;, &quot;python&quot;] },
+    { &quot;name&quot;: &quot;entrypoints&quot;, &quot;passed&quot;: true, &quot;runtimes&quot;: [&quot;typescript&quot;, &quot;python&quot;] },
+    { &quot;name&quot;: &quot;smoke-tests&quot;, &quot;passed&quot;: true, &quot;runtimes&quot;: [&quot;typescript&quot;, &quot;python&quot;] },
+    {
+      &quot;name&quot;: &quot;package-lock-smoke-tests&quot;,
+      &quot;passed&quot;: true,
+      &quot;runtimes&quot;: [&quot;typescript&quot;, &quot;python&quot;],
+      &quot;paths&quot;: [
+        &quot;test/review_diff_package_lock.test.ts&quot;,
+        &quot;test/review_diff_package_lock_smoke.py&quot;
+      ]
+    },
+    { &quot;name&quot;: &quot;ci-workflow&quot;, &quot;passed&quot;: true, &quot;path&quot;: &quot;.github/workflows/forma-project.yml&quot; }
+  ]
+}</code></pre>
+            <p>If the workflow drops a generated proof command, the failing row names the exact command to restore:</p>
+            <pre><code class="language-json">{
+  &quot;passed&quot;: false,
+  &quot;project&quot;: {
+    &quot;name&quot;: &quot;review-diff-agent&quot;,
+    &quot;task&quot;: &quot;review_diff&quot;,
+    &quot;manifest&quot;: &quot;forma.project.json&quot;
+  },
+  &quot;checks&quot;: [
+    {
+      &quot;name&quot;: &quot;ci-workflow&quot;,
+      &quot;passed&quot;: false,
+      &quot;path&quot;: &quot;.github/workflows/forma-project.yml&quot;,
+      &quot;missingCommands&quot;: [&quot;pnpm run smoke:ts&quot;],
+      &quot;guidance&quot;: &quot;restore the generated project workflow&quot;
+    }
+  ]
+}</code></pre>
+            <p>If a reviewed package-lock smoke file is missing, the failing row uses <code>missingPaths</code> so CI can distinguish package-lock consumer proof drift from direct project workflow drift:</p>
+            <pre><code class="language-json">{
+  &quot;passed&quot;: false,
+  &quot;project&quot;: {
+    &quot;name&quot;: &quot;review-diff-agent&quot;,
+    &quot;task&quot;: &quot;review_diff&quot;,
+    &quot;manifest&quot;: &quot;forma.project.json&quot;
+  },
+  &quot;checks&quot;: [
+    {
+      &quot;name&quot;: &quot;package-lock-smoke-tests&quot;,
+      &quot;passed&quot;: false,
+      &quot;missingPaths&quot;: [&quot;test/review_diff_package_lock_smoke.py&quot;],
+      &quot;guidance&quot;: &quot;restore the reviewed package-lock smoke tests&quot;
+    }
+  ]
+}</code></pre>
+            <p><code>forma eval</code> reads a conformance JSON file, resolves its <code>.forma</code> source path, runs the named task, compares <code>ok</code>, <code>output</code>, <code>trace</code>, <code>verification</code>, and <code>error</code>, and prints a JSON evaluation report:</p>
+            <pre><code class="language-bash">forma eval packages/forma-core/conformance/greet_user.json</code></pre>
+            <p>Agent fixtures can use <code>fakeProviderOutput</code>; the CLI evaluates those with <code>StaticProvider</code> so CI does not need a model key. Eval reports include provider metadata, <code>durationMs</code>, and <code>metadata.contract</code> with the evaluated source path, source SHA-256, task intent, input fields, output fields, named schemas, permissions, and verify expressions. That makes an eval artifact useful in code review even before opening the <code>.forma</code> file.</p>
+            <p>Provider-backed evals support the same explicit host tools as <code>forma run</code>. Use <code>--workspace</code> to choose the file-system boundary and opt into individual capabilities with <code>--allow-read</code>, <code>--allow-search</code>, <code>--allow-test</code>, and <code>--allow-edit</code>. If test execution is allowed, repeat <code>--allow-test-command</code> to restrict provider-requested test runs to exact approved commands:</p>
+            <pre><code class="language-bash">forma eval packages/forma-core/conformance/review_diff.json \
+  --provider-profile ./forma.provider.json \
+  --response-format json_schema \
+  --temperature 0.2 \
+  --timeout-ms 30000 \
+  --workspace . \
+  --allow-read \
+  --allow-search \
+  --allow-test \
+  --allow-test-command &quot;pnpm test&quot;</code></pre>
+            <p><code>forma eval-suite</code> reads a JSON suite file and prints an array of normal eval reports. The repo includes <code>examples/forma.eval.json</code> as a small CI-ready suite:</p>
+            <pre><code class="language-json">{
+  &quot;fixtures&quot;: [
+    &quot;packages/forma-core/conformance/greet_user.json&quot;,
+    &quot;packages/forma-core/conformance/review_diff.json&quot;
+  ]
+}</code></pre>
+            <pre><code class="language-bash">forma eval-suite examples/forma.eval.json &gt; candidate-suite.json
+forma eval-suite examples/forma.eval.json --summary &gt; candidate-artifact.json</code></pre>
+            <p>Fixture paths are resolved relative to the suite file. The command exits with code 1 when any report fails, but still prints the full report array so CI can archive and compare it. Use <code>--summary</code> to wrap the reports with <code>passed</code> and <code>summary</code> fields containing <code>total</code>, <code>passed</code>, <code>failed</code>, <code>durationMs</code>, and redacted provider settings such as <code>provider</code>, <code>endpoint</code>, and <code>model</code>.</p>
+            <p>Use <code>--provider http-json</code> to evaluate against an HTTP JSON model endpoint:</p>
+            <pre><code class="language-bash">forma eval packages/forma-core/conformance/review_diff.json \
+  --provider http-json \
+  --endpoint &quot;$MODEL_ENDPOINT&quot; \
+  --model &quot;$MODEL_NAME&quot; \
+  --api-key &quot;$MODEL_API_KEY&quot;</code></pre>
+            <p>The HTTP provider ignores <code>fakeProviderOutput</code>, sends the fixture input to the configured endpoint, and compares the live output with <code>expectedResult</code>.</p>
+            <p>Provider settings can also live in a JSON profile so CI and local runs use the same model configuration without putting secrets in the fixture:</p>
+            <pre><code class="language-json">{
+  &quot;provider&quot;: &quot;http-json&quot;,
+  &quot;endpoint&quot;: &quot;https://model.example/v1/agent&quot;,
+  &quot;model&quot;: &quot;example-model&quot;,
+  &quot;apiKeyEnv&quot;: &quot;MODEL_API_KEY&quot;,
+  &quot;responseFormat&quot;: &quot;json_schema&quot;,
+  &quot;temperature&quot;: 0.2,
+  &quot;timeoutMs&quot;: 30000
+}</code></pre>
+            <pre><code class="language-bash">forma eval packages/forma-core/conformance/review_diff.json \
+  --provider-profile ./forma.provider.json</code></pre>
+            <p>The profile supports <code>provider</code>, <code>endpoint</code>, <code>model</code>, <code>apiKey</code>, <code>apiKeyEnv</code>, <code>responseFormat</code>, <code>temperature</code>, and <code>timeoutMs</code>. Command-line flags override profile values. Agent task packages should include a provider profile. Deterministic task packages may omit one. OpenAI agent package profiles must name an API-key environment variable with <code>apiKeyEnv</code>. Use <code>apiKeyEnv</code> for package profiles so the profile names the secret environment variable without storing the secret value; <code>forma package-review</code> fails package profiles that include <code>apiKey</code>.</p>
+            <p>Use <code>--provider openai-responses</code> to evaluate against the built-in OpenAI Responses adapter. The CLI passes the task output contract to the provider so the request can use structured outputs derived from the <code>.forma</code> file:</p>
+            <pre><code class="language-bash">forma eval packages/forma-core/conformance/review_diff.json \
+  --provider openai-responses \
+  --model &quot;$OPENAI_MODEL&quot;</code></pre>
+            <p>The provider reads <code>OPENAI_API_KEY</code> when <code>--api-key</code> is omitted and <code>OPENAI_MODEL</code> when <code>--model</code> is omitted. <code>--endpoint</code> is optional and defaults to <code>https://api.openai.com/v1/responses</code>.</p>
+            <p><code>forma compare</code> compares two JSON eval report files and exits with code 1 when the candidate regresses from a passing check to a failing check:</p>
+            <pre><code class="language-bash">forma eval packages/forma-core/conformance/review_diff.json &gt; baseline.json
+forma eval packages/forma-core/conformance/review_diff.json \
+  --provider http-json \
+  --endpoint &quot;$MODEL_ENDPOINT&quot; \
+  --model &quot;$MODEL_NAME&quot; \
+  --api-key &quot;$MODEL_API_KEY&quot; &gt; candidate.json
+forma compare baseline.json candidate.json
+forma compare baseline-artifact.json candidate-artifact.json --fail-on breaking</code></pre>
+            <p>Each file can contain one eval report, an array produced by <code>forma eval-suite</code>, or a summary artifact produced by <code>forma eval-suite --summary</code>. Single-report comparison lists <code>regressions</code> and <code>improvements</code> by check name. Suite comparison aggregates per-task changes with names like <code>review_diff:output</code> and includes a <code>reports</code> array for task-level detail. When both sides include <code>metadata.contract</code>, compare also reports informational <code>contractChanges</code> entries such as <code>review_diff:sourceSha256</code> or <code>review_diff:output</code>. When both sides are summary artifacts, compare also reports informational <code>settingChanges</code> such as <code>provider</code>, <code>endpoint</code>, <code>model</code>, <code>responseFormat</code>, <code>temperature</code>, or <code>timeoutMs</code>. It also emits a machine-readable <code>changes</code> array with <code>kind</code>, <code>field</code>, and <code>severity</code>; output, input, and schema contract changes are marked <code>breaking</code>, additive optional output fields and permission changes are marked <code>review</code>, other contract changes are marked <code>review</code>, and provider settings are marked <code>environment</code>. Contract changes can also include a <code>details</code> object with exact <code>added</code>, <code>removed</code>, and <code>changed</code> field paths, such as <code>notes</code> for an output field or <code>Finding.message</code> for a schema field. This is the CI path for reviewing prompt, schema, task, provider, or model changes without treating a raw model response as enough evidence. Use <code>--fail-on</code> with a comma-separated list of severities such as <code>breaking</code>, <code>environment</code>, or <code>review</code> to fail CI for selected change classes in addition to check regressions.</p>
+            <h2 id="input-handling">Input Handling</h2>
+            <p><code>--input</code> accepts a JSON object. The CLI passes that object directly to the runtime as <code>input</code>, and the runtime decides whether the task can use it. For the current deterministic fixture, <code>user_name</code> controls whether the output message uses a provided name or the default world greeting.</p>
+            <p>The CLI reads real files from the path given on the command line. It does not load package fixtures implicitly. This keeps command behavior aligned with how hosts will call the runtime packages.</p>
+            <h2 id="built-entrypoint">Built Entrypoint</h2>
+            <p>The package script compiles TypeScript before the CLI is checked from a clean checkout. The built entrypoint is used by package consumers, while tests execute the source through the workspace toolchain:</p>
+            <pre><code class="language-bash">corepack pnpm --filter @forma-lang/cli build
+corepack pnpm --filter @forma-lang/cli test</code></pre>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#commands">Commands</a></li>
+              <li><a href="#release-runtime-flow">Release Runtime Flow</a></li>
+              <li><a href="#package-review-output">Package Review Output</a></li>
+              <li><a href="#input-handling">Input Handling</a></li>
+              <li><a href="#built-entrypoint">Built Entrypoint</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/packages/cli.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Python Package | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Python Package.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="./registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="./cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="./registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Packages / <span>Python Package</span></div>
+          <article class="markdown-body">
+            <h1 id="python-package">Python Package</h1>
+            <p>The Python runtime package is <code>forma-lang</code>, with source under <code>packages/forma-python/src/forma</code>. It exports <code>agent</code>, <code>agent_from_package_lock</code>, <code>FormaRuntime</code>, <code>StaticProvider</code>, <code>RecordingProvider</code>, <code>HttpJsonProvider</code>, <code>OpenAIResponsesProvider</code>, <code>provider_profile_from_file</code>, and <code>provider_from_profile</code> from <code>forma</code>. It also exports <code>ModelProvider</code> for typing custom adapters.</p>
+            <p>The optional OpenAI adapter package is <code>forma-openai</code>, with source under <code>packages/forma-openai-python/src/forma_openai</code>. It re-exports the OpenAI Responses provider and provider-profile helpers for host applications that want production provider wiring in a separate install boundary from the core runtime.</p>
+            <p><code>FormaRuntime.run_source</code> accepts source text, an input dictionary, and a source name, then returns a <code>FormaResult</code> dataclass.</p>
+            <h2 id="deterministic-runtime">Deterministic Runtime</h2>
+            <pre><code class="language-python">from forma import FormaRuntime
+
+source = open(&quot;examples/greet_user.forma&quot;, encoding=&quot;utf8&quot;).read()
+result = FormaRuntime().run_source(
+    source,
+    input={&quot;user_name&quot;: &quot;Sam&quot;},
+    source_name=&quot;examples/greet_user.forma&quot;,
+)
+assert result.output == {&quot;message&quot;: &quot;Hello, Sam!&quot;}
+assert result.ok is True</code></pre>
+            <p>The deterministic path parses source, validates the task contract, evaluates the supported <code>compute</code> expression, then evaluates <code>verify</code> expressions.</p>
+            <h2 id="agent-runtime">Agent Runtime</h2>
+            <pre><code class="language-python">import os
+from forma import ModelProvider, PermissionTools, agent
+
+class HostedModelProvider(ModelProvider):
+    def __init__(self, api_key: str, model: str) -&gt; None:
+        self.api_key = api_key
+        self.model = model
+
+    def run_agent(self, instruction: str, values: dict, permissions: list[str], tools: PermissionTools) -&gt; dict:
+        tools.require(&quot;read&quot;)
+        response = call_model_service(
+            api_key=self.api_key,
+            model=self.model,
+            instruction=instruction,
+            values=values,
+            permissions=permissions,
+        )
+        return {&quot;message&quot;: response[&quot;message&quot;]}
+
+greet_user_warmly = agent(
+    source=source,
+    source_name=&quot;examples/greet_user_warmly.forma&quot;,
+    task=&quot;greet_user_warmly&quot;,
+    provider=HostedModelProvider(
+        api_key=os.environ[&quot;MODEL_API_KEY&quot;],
+        model=&quot;example-model&quot;,
+    ),
+    tools={
+        &quot;read_text&quot;: lambda path: open(path, encoding=&quot;utf8&quot;).read(),
+        &quot;search_text&quot;: lambda query: search_workspace(query),
+        &quot;run_test&quot;: lambda command: run_command(command),
+        &quot;write_text&quot;: lambda path, content: write_text(path, content),
+    },
+)
+
+result = greet_user_warmly.run({&quot;user_name&quot;: &quot;Sam&quot;})</code></pre>
+            <p>The deterministic and agent calls match <code>packages/forma-python/tests/test_runtime.py</code>. <code>StaticProvider</code> implements the provider protocol by returning the configured output. Agent tasks require a provider; without one the runtime returns an error containing <code>F3002</code>.</p>
+            <p>The <code>.forma</code> file contains the <code>agent</code> instruction. The provider object contains credentials, model selection, retry behavior, logging, and service-specific request formatting. Model-call execution and contract validation are separate responsibilities. The provider performs the model call and returns candidate output; the Forma runtime parses the task contract, passes the declared shape to the provider, validates the returned output, evaluates <code>verify</code>, and reports <code>FormaResult</code>.</p>
+            <p><code>agent(...)</code> is the embedded convenience API. It binds a <code>.forma</code> source or file, named task, provider, and optional tools into a reusable object with <code>run(input)</code>. It calls <code>FormaRuntime.run_task</code> or <code>FormaRuntime.run_file</code> under the hood. <code>run_source</code> executes the first task in a source string. <code>run_task</code> executes a specific named task from source text. <code>run_file</code> reads a <code>.forma</code> file and executes a named task:</p>
+            <pre><code class="language-python">provider_profile = provider_profile_from_file(Path(&quot;examples/forma.provider.json&quot;))
+
+review_diff = agent(
+    file=&quot;examples/review_diff.forma&quot;,
+    task=&quot;review_diff&quot;,
+    provider=provider_from_profile(provider_profile),
+)
+
+result = review_diff.run({&quot;diff&quot;: diff, &quot;max_findings&quot;: 5})</code></pre>
+            <p>Use <code>agent_from_package_lock(...)</code> when consuming a reviewed Forma package. It reads the lockfile, verifies the pinned task source, generated bindings, provider profile, host examples, package tests, and release files, loads the reviewed provider profile when no provider override is supplied, and returns the same agent facade:</p>
+            <pre><code class="language-python">review_diff = agent_from_package_lock(
+    lock_file=Path(&quot;examples/review_diff.forma.lock.json&quot;),
+    task=&quot;review_diff&quot;,
+)</code></pre>
+            <p><code>provider_profile_from_file</code> validates the profile shape. <code>provider_from_profile</code> constructs either <code>HttpJsonProvider</code> or <code>OpenAIResponsesProvider</code>, reading the secret from <code>apiKeyEnv</code> when the profile names one. Profiles can also carry <code>responseFormat</code>, <code>temperature</code>, and <code>timeoutMs</code> so model-generation settings are reviewable without committing secrets. <code>forma package-init</code> writes the same profile shape to <code>forma.provider.json</code>.</p>
+            <p><code>HttpJsonProvider</code> can be used when a host has an HTTP endpoint that accepts the Forma instruction, input values, permissions, and model name as JSON:</p>
+            <pre><code class="language-python">runtime = FormaRuntime(
+    model_provider=HttpJsonProvider(
+        endpoint=os.environ[&quot;MODEL_ENDPOINT&quot;],
+        api_key=os.environ.get(&quot;MODEL_API_KEY&quot;),
+        model=os.environ.get(&quot;MODEL_NAME&quot;, &quot;example-model&quot;),
+        response_format=&quot;json_schema&quot;,
+        temperature=0.2,
+        timeout_ms=30000,
+    )
+)</code></pre>
+            <p><code>OpenAIResponsesProvider</code> can be used when a host wants Forma to call the OpenAI Responses API directly. The host supplies <code>api_key</code> and <code>model</code>; the runtime supplies the task output contract so the provider can request strict structured output:</p>
+            <pre><code class="language-python">from forma_openai import OpenAIResponsesProvider
+
+runtime = FormaRuntime(
+    model_provider=OpenAIResponsesProvider(
+        api_key=os.environ[&quot;OPENAI_API_KEY&quot;],
+        model=os.environ.get(&quot;OPENAI_MODEL&quot;, &quot;gpt-5&quot;),
+        response_format=&quot;json_schema&quot;,
+        temperature=0.2,
+        timeout_ms=30000,
+    )
+)</code></pre>
+            <p><code>RecordingProvider</code> is for host integration tests. It returns queued fixture outputs and records each agent request without calling a model service:</p>
+            <pre><code class="language-python">provider = RecordingProvider([{&quot;summary&quot;: &quot;No issues.&quot;, &quot;findings&quot;: [], &quot;clean&quot;: True}])
+review_diff = agent(file=&quot;examples/review_diff.forma&quot;, task=&quot;review_diff&quot;, provider=provider)
+
+review_diff.run({&quot;diff&quot;: diff})
+
+print(provider.requests[0][&quot;instruction&quot;])</code></pre>
+            <h2 id="generated-bindings">Generated Bindings</h2>
+            <p>Use <code>generate_python_bindings</code> when host code needs dataclasses that match the task <code>input</code> and <code>output</code> blocks. Use <code>generate_pydantic_bindings</code> when host code should validate task inputs and outputs through strict Pydantic v2 models; host projects using those generated models should install Pydantic. The same generators are available from the CLI with <code>forma generate examples/review_diff.forma --target python</code> and <code>forma generate examples/review_diff.forma --target python-pydantic</code>.</p>
+            <pre><code class="language-python">from forma import generate_pydantic_bindings, generate_python_bindings
+
+generated = generate_python_bindings(source)
+pydantic_models = generate_pydantic_bindings(source)</code></pre>
+            <p>For a task named <code>review_diff</code>, the generator emits <code>ReviewDiffInput</code> and <code>ReviewDiffOutput</code>. The current generator maps <code>Text</code> to <code>str</code>, <code>Number</code> to <code>float</code>, <code>Boolean</code> to <code>bool</code>, arrays to <code>list[T]</code>, and named output object schemas to prefixed dataclasses such as <code>ReviewDiffFinding</code>. When one schema references another, referenced dataclasses are emitted first so generated code can be imported without forward-reference errors. Generated dataclasses include <code>from_dict</code> constructors that recursively convert runtime output dictionaries into typed nested dataclass instances. They also include <code>assert_&lt;task&gt;_output(value)</code> validators that reject missing fields, wrong primitive types, non-list arrays, and invalid nested schema objects before returning the typed output dataclass.</p>
+            <h2 id="result-fields">Result Fields</h2>
+            <p><code>FormaResult</code> has the same public fields as the TypeScript result:</p>
+            <ul>
+              <li><code>ok</code>: boolean success flag.</li>
+              <li><code>output</code>: task output dictionary.</li>
+              <li><code>trace</code>: ordered runtime trace entries.</li>
+              <li><code>diagnostics</code>: validation diagnostics.</li>
+              <li><code>verification</code>: verify expression results.</li>
+              <li><code>error</code>: runtime error string when execution fails.</li>
+            </ul>
+            <h2 id="verification">Verification</h2>
+            <p>Use the package tests for Python-only changes and the root checks for full workspace confidence:</p>
+            <pre><code class="language-bash">python -m pytest packages/forma-python/tests -q
+corepack pnpm check</code></pre>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#deterministic-runtime">Deterministic Runtime</a></li>
+              <li><a href="#agent-runtime">Agent Runtime</a></li>
+              <li><a href="#generated-bindings">Generated Bindings</a></li>
+              <li><a href="#result-fields">Result Fields</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/packages/python.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

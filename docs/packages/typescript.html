@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TypeScript Package | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for TypeScript Package.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="./registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="./cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="./registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Packages / <span>TypeScript Package</span></div>
+          <article class="markdown-body">
+            <h1 id="typescript-package">TypeScript Package</h1>
+            <p>The TypeScript runtime package is <code>@forma-lang/forma</code>, with source under <code>packages/forma-typescript/src</code>. It exports <code>agent</code>, <code>agentFromPackageLock</code>, <code>FormaRuntime</code>, <code>StaticProvider</code>, <code>RecordingProvider</code>, <code>HttpJsonProvider</code>, <code>OpenAIResponsesProvider</code>, <code>parseForma</code>, <code>providerProfileFromFile</code>, <code>providerFromProfile</code>, binding generators, <code>ModelProvider</code>, and public result and AST types from <code>src/index.ts</code>.</p>
+            <p>The optional OpenAI adapter package is <code>@forma-lang/openai</code>, with source under <code>packages/forma-openai/src</code>. It re-exports the OpenAI Responses provider and provider-profile helpers for host applications that want production provider wiring in a separate install boundary from the core runtime.</p>
+            <h2 id="deterministic-runtime">Deterministic Runtime</h2>
+            <pre><code class="language-ts">import { readFile } from &quot;node:fs/promises&quot;;
+import { FormaRuntime } from &quot;@forma-lang/forma&quot;;
+
+const source = await readFile(&quot;examples/greet_user.forma&quot;, &quot;utf8&quot;);
+const result = await new FormaRuntime().runSource(source, {
+  input: { user_name: &quot;Sam&quot; },
+  sourceName: &quot;examples/greet_user.forma&quot;,
+});
+
+console.log(result.output.message);</code></pre>
+            <p>The deterministic path validates the task, evaluates the supported <code>compute</code> expression, and evaluates the <code>verify</code> block before returning.</p>
+            <h2 id="agent-runtime">Agent Runtime</h2>
+            <pre><code class="language-ts">import { agent, type ModelProvider } from &quot;@forma-lang/forma&quot;;
+
+class HostedModelProvider implements ModelProvider {
+  constructor(private readonly apiKey: string, private readonly model: string) {}
+
+  async runAgent(input: {
+    instruction: string;
+    values: Record&lt;string, unknown&gt;;
+    permissions: string[];
+    tools: { require(permission: string): void };
+  }) {
+    input.tools.require(&quot;read&quot;);
+    const response = await callModelService({
+      apiKey: this.apiKey,
+      model: this.model,
+      instruction: input.instruction,
+      values: input.values,
+      permissions: input.permissions,
+    });
+    return { message: response.message };
+  }
+}
+
+const greetUserWarmly = agent({
+  source,
+  sourceName: &quot;examples/greet_user_warmly.forma&quot;,
+  task: &quot;greet_user_warmly&quot;,
+  provider: new HostedModelProvider(
+    process.env.MODEL_API_KEY ?? &quot;&quot;,
+    &quot;example-model&quot;,
+  ),
+  tools: {
+    readText: async (path) =&gt; readFile(path, &quot;utf8&quot;),
+    searchText: async (query) =&gt; searchWorkspace(query),
+    runTest: async (command) =&gt; runCommand(command),
+    writeText: async (path, content) =&gt; writeFile(path, content, &quot;utf8&quot;),
+  },
+});
+
+const result = await greetUserWarmly.run({ user_name: &quot;Sam&quot; });</code></pre>
+            <p>This API is exercised by <code>packages/forma-typescript/test/runtime.test.ts</code>. <code>runSource</code> returns a <code>FormaResult</code> with <code>ok</code>, <code>output</code>, <code>trace</code>, <code>diagnostics</code>, <code>verification</code>, and <code>error</code>. Agent blocks are routed through the configured provider and do not call an external model directly.</p>
+            <p>The <code>.forma</code> file contains the <code>agent</code> instruction. The provider object contains credentials, model selection, retry behavior, logging, and service-specific request formatting. Model-call execution and contract validation are separate responsibilities. The provider performs the model call and returns candidate output; the Forma runtime parses the task contract, passes the declared shape to the provider, validates the returned output, evaluates <code>verify</code>, and reports <code>FormaResult</code>.</p>
+            <p><code>agent(...)</code> is the embedded convenience API. It binds a <code>.forma</code> source or file, named task, provider, and optional tools into a reusable object with <code>run(input)</code>. It calls <code>FormaRuntime.runTask</code> or <code>FormaRuntime.runFile</code> under the hood. <code>runSource</code> executes the first task in a source string. <code>runTask</code> executes a specific named task from source text. <code>runFile</code> reads a <code>.forma</code> file and executes a named task:</p>
+            <pre><code class="language-ts">const providerProfile = providerProfileFromFile(&quot;examples/forma.provider.json&quot;);
+
+const reviewDiff = agent({
+  file: &quot;examples/review_diff.forma&quot;,
+  task: &quot;review_diff&quot;,
+  provider: providerFromProfile(providerProfile),
+});
+
+const result = await reviewDiff.run({ diff, max_findings: 5 });</code></pre>
+            <p>Use <code>agentFromPackageLock(...)</code> when consuming a reviewed Forma package. It reads the lockfile, verifies the pinned task source, generated bindings, provider profile, host examples, package tests, and release files, loads the reviewed provider profile when no provider override is supplied, and returns the same agent facade:</p>
+            <pre><code class="language-ts">const reviewDiff = agentFromPackageLock({
+  lockFile: &quot;examples/review_diff.forma.lock.json&quot;,
+  task: &quot;review_diff&quot;,
+});</code></pre>
+            <p><code>providerProfileFromFile</code> validates the profile shape. <code>providerFromProfile</code> constructs either <code>HttpJsonProvider</code> or <code>OpenAIResponsesProvider</code>, reading the secret from <code>apiKeyEnv</code> when the profile names one. Profiles can also carry <code>responseFormat</code>, <code>temperature</code>, and <code>timeoutMs</code> so model-generation settings are reviewable without committing secrets. <code>forma package-init</code> writes the same profile shape to <code>forma.provider.json</code>.</p>
+            <p><code>HttpJsonProvider</code> can be used when a host has an HTTP endpoint that accepts the Forma instruction, input values, permissions, and model name as JSON:</p>
+            <pre><code class="language-ts">const runtime = new FormaRuntime({
+  modelProvider: new HttpJsonProvider({
+    endpoint: process.env.MODEL_ENDPOINT ?? &quot;&quot;,
+    apiKey: process.env.MODEL_API_KEY,
+    model: process.env.MODEL_NAME ?? &quot;example-model&quot;,
+    responseFormat: &quot;json_schema&quot;,
+    temperature: 0.2,
+    timeoutMs: 30000,
+  }),
+});</code></pre>
+            <p><code>OpenAIResponsesProvider</code> can be used when a host wants Forma to call the OpenAI Responses API directly. The host supplies <code>apiKey</code> and <code>model</code>; the runtime supplies the task output contract so the provider can request strict structured output:</p>
+            <pre><code class="language-ts">import { OpenAIResponsesProvider } from &quot;@forma-lang/openai&quot;;
+
+const runtime = new FormaRuntime({
+  modelProvider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? &quot;&quot;,
+    model: process.env.OPENAI_MODEL ?? &quot;gpt-5&quot;,
+    responseFormat: &quot;json_schema&quot;,
+    temperature: 0.2,
+    timeoutMs: 30000,
+  }),
+});</code></pre>
+            <p><code>RecordingProvider</code> is for host integration tests. It returns queued fixture outputs and records each agent request without calling a model service:</p>
+            <pre><code class="language-ts">const provider = new RecordingProvider([{ summary: &quot;No issues.&quot;, findings: [], clean: true }]);
+const reviewDiff = agent({ file: &quot;examples/review_diff.forma&quot;, task: &quot;review_diff&quot;, provider });
+
+await reviewDiff.run({ diff });
+
+console.log(provider.requests[0].instruction);</code></pre>
+            <h2 id="generated-bindings">Generated Bindings</h2>
+            <p>Use <code>generateTypeScriptBindings</code> when host code needs interfaces that match the task <code>input</code> and <code>output</code> blocks. The same generator is available from the CLI with <code>forma generate examples/review_diff.forma --target typescript</code>.</p>
+            <pre><code class="language-ts">import { generateTypeScriptBindings } from &quot;@forma-lang/forma&quot;;
+
+const generated = generateTypeScriptBindings(source);</code></pre>
+            <p>For a task named <code>review_diff</code>, the generator emits <code>ReviewDiffInput</code> and <code>ReviewDiffOutput</code>. The current generator maps <code>Text</code> to <code>string</code>, <code>Number</code> to <code>number</code>, <code>Boolean</code> to <code>boolean</code>, arrays to <code>T[]</code>, and named output object schemas to prefixed interfaces such as <code>ReviewDiffFinding</code>. It also emits an <code>assertReviewDiffOutput(value)</code> helper that validates unknown runtime output and returns the typed output. The Python target orders generated dataclasses so nested schema references are importable and emits <code>from_dict</code> constructors for converting runtime dictionaries into nested dataclass instances. It also emits <code>assert_&lt;task&gt;_output(value)</code> validators for Python runtime dictionaries.</p>
+            <h2 id="verification">Verification</h2>
+            <p>For TypeScript package changes, run the focused test target first:</p>
+            <pre><code class="language-bash">corepack pnpm --filter @forma-lang/forma test
+corepack pnpm --filter @forma-lang/forma build</code></pre>
+            <p>The root <code>corepack pnpm check</code> command also builds this package before checking the CLI package.</p>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#deterministic-runtime">Deterministic Runtime</a></li>
+              <li><a href="#agent-runtime">Agent Runtime</a></li>
+              <li><a href="#generated-bindings">Generated Bindings</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/packages/typescript.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

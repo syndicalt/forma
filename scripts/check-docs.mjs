@@ -9,6 +9,11 @@ const required = [
   "docs/index.html",
   "docs/assets/site.css",
   "docs/assets/social-card.png",
+  "docs/guides/golden-workflow.html",
+  "docs/guides/quickstart.html",
+  "docs/language/overview.html",
+  "docs/packages/cli.html",
+  "docs/packages/registry.html",
   "docs/guides/quickstart.md",
   "docs/guides/task-authoring.md",
   "docs/guides/runtime-results.md",
@@ -51,11 +56,16 @@ const required = [
 const requiredTerms = {
   "README.md": ["Five-Minute Usefulness Path", "inline prompt plus local schemas", "before package-review or package locks", "Before Forma", "After Forma", "duplicated host schemas", "generated TypeScript and Python bindings", "Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "review_diff_package_lock", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "Which Scaffold Should I Use?", "docs/guides/first-use-audit.md", "first-use audit", "generated project READMEs", "project-init --minimal", "default project-init", "project-init --package-lock", "local to one application", "checked in CI", "consuming a reviewed package", "[minimal scaffold](#which-scaffold-should-i-use)", "[checked scaffold](#which-scaffold-should-i-use)", "[package-lock scaffold](#which-scaffold-should-i-use)", "product test, not an adoption commitment", "If you are skeptical, run the first-use audit before the product proof", "Keeping a local-only task out of Forma is a valid outcome", "Reusable coding-agent packages are the product wedge", "Minimal and checked projects are valid stopping points", "Package proof is not the product wedge; reusable agent contracts are", "A local prompt extraction should stop at minimal or checked scaffolds until reuse is real", "Product proof should follow first-use proof, not replace it"],
   "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md", "docs/guides/first-use-audit.md", "first-use audit", "generated project READMEs", "five-minute usefulness path", "inline prompt plus local schemas", "project-init --minimal", "default project-init", "project-init --package-lock", "local first-use task", "checked host project", "reviewed package-lock project", "agent contract compiler", "not a prompt file format", "If you are skeptical", "Evaluate Forma as a reusable agent package workflow before adopting package locks", "Release proof is a packaging readiness check, not the first thing skeptics should run", "First-use proof asks whether host code improves, not whether packaging succeeds"],
-  "docs/index.html": ["Build reviewable agent tasks", "Technical Reference Hub", "review_diff", "function_repair", "forma golden-proof examples", "project-init --minimal", "package-review", "proof:release", "og:image", "twitter:image", "assets/social-card.png"],
+  "docs/index.html": ["Build reviewable agent tasks", "Technical Reference Hub", "review_diff", "function_repair", "forma golden-proof examples", "project-init --minimal", "package-review", "proof:release", "og:image", "twitter:image", "assets/social-card.png", "guides/golden-workflow.html", "packages/registry.html"],
+  "docs/guides/golden-workflow.html": ["<article", "Golden Workflow", "review_diff first-use path", "../assets/site.css"],
+  "docs/guides/quickstart.html": ["<article", "Five-Minute Usefulness Path", "golden-workflow.html"],
+  "docs/language/overview.html": ["<article", "Language Overview", "../assets/site.css"],
+  "docs/packages/cli.html": ["<article", "CLI Package", "project-init"],
+  "docs/packages/registry.html": ["<article", "Registry And Versioning", "formaPackage"],
   "site/index.html": ["Build reviewable agent tasks", "Technical Reference Hub", "review_diff", "function_repair", "forma golden-proof examples", "project-init --minimal", "package-review", "proof:release", "og:image", "twitter:image", "assets/social-card.png"],
-  "site/site.css": ["--surface", "--accent", "--verified", ".docs-shell", "@media"],
-  "scripts/build-site.mjs": ["docs/index.html", "docs/assets/site.css", "docs/assets/social-card.png", "site built"],
-  "scripts/check-site.mjs": ["docs/index.html", "docs/assets/site.css", "Build reviewable agent tasks", "site ok"],
+  "site/site.css": ["--surface", "--accent", "--verified", ".docs-shell", ".markdown-body", "@media"],
+  "scripts/build-site.mjs": ["renderMarkdownPage", "rewriteMarkdownHref", "index.html", "site.css", "social-card.png", "site built"],
+  "scripts/check-site.mjs": ["docs/index.html", "docs/assets/site.css", "Build reviewable agent tasks", "has unrendered markdown link", "site ok"],
   "docs/language/diagnostics.md": [
     "F0001",
     "F1001",
@@ -372,6 +382,9 @@ function scanFiles(paths) {
     }
     const stats = statSync(path);
     if (stats.isFile()) {
+      if (path.endsWith(".html")) {
+        return [];
+      }
       return [path];
     }
     if (!stats.isDirectory()) {

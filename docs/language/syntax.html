@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Syntax | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Syntax.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="./overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Language / <span>Syntax</span></div>
+          <article class="markdown-body">
+            <h1 id="syntax">Syntax</h1>
+            <p>Forma source is built from <code>task</code> declarations. The Tree-sitter grammar accepts task members in a task body, while the MVP runtimes validate the subset they can execute. Fields use <code>name: Type</code>, <code>name: Type?</code>, <code>name: Type[]</code>, or <code>name: Type[]?</code>. The shipped scalar types are <code>Text</code>, <code>Number</code>, and <code>Boolean</code>.</p>
+            <h2 id="task-declaration">Task Declaration</h2>
+            <p>A task starts with <code>task</code>, an identifier, and a body:</p>
+            <pre><code class="language-forma">task greet_user {
+  intent &quot;Greet the current user&quot;
+}</code></pre>
+            <p>Task names use identifiers such as <code>greet_user</code> or <code>greet_user_warmly</code>.</p>
+            <h2 id="field-declarations">Field Declarations</h2>
+            <p>Input and output fields use <code>name: Type</code>, <code>name: Type?</code>, <code>name: Type[]</code>, or <code>name: Type[]?</code>:</p>
+            <pre><code class="language-forma">input {
+  user_name: Text?
+}
+
+output {
+  message: Text
+}</code></pre>
+            <p><code>Text?</code> means the host may omit the field. <code>Finding[]</code> means the field must be an array. Output blocks can define named object schemas for structured provider results:</p>
+            <pre><code class="language-forma">output {
+  summary: Text
+  findings: Finding[]
+  clean: Boolean
+
+  object Finding {
+    path: Text
+    line: Number?
+    message: Text
+  }
+}</code></pre>
+            <p>The current runtimes validate scalar fields, arrays, and named output object schemas. Input object schemas are parsed by the grammar, but runtime validation currently focuses on provider output.</p>
+            <h2 id="task-members">Task Members</h2>
+            <p>Supported task members:</p>
+            <ul>
+              <li><code>intent &quot;...&quot;</code> gives the task purpose and is required by the runtimes.</li>
+              <li><code>input { ... }</code> declares host input fields and is required.</li>
+              <li><code>output { ... }</code> declares result fields and must contain at least one field.</li>
+              <li><code>compute { ... }</code> contains deterministic assignment lines.</li>
+              <li><code>agent { instruction &quot;&quot;&quot;...&quot;&quot;&quot; }</code> contains the provider instruction.</li>
+              <li><code>permissions { ... }</code> lists workspace actions for agent providers.</li>
+              <li><code>constraints { ... }</code> records constraints for agent tasks.</li>
+              <li><code>verify { ... }</code> contains runtime verification expressions.</li>
+            </ul>
+            <pre><code class="language-forma">task greet_user_warmly {
+  intent &quot;Write a short friendly greeting for the current user&quot;
+
+  input {
+    user_name: Text?
+  }
+
+  output {
+    message: Text
+  }
+
+  agent {
+    instruction &quot;&quot;&quot;
+    Write one concise greeting.
+    Use the user's name if present.
+    Do not ask a follow-up question.
+    &quot;&quot;&quot;
+  }
+
+  permissions {
+    read
+    search
+    test
+  }
+
+  constraints {
+    message.words &lt;= 12
+  }
+
+  verify {
+    message.length &gt; 0
+    message.words &lt;= 12
+  }
+}</code></pre>
+            <p>This syntax is covered by <code>packages/tree-sitter-forma/test/corpus/tasks.txt</code> and the <code>greet_user_warmly</code> conformance fixture.</p>
+            <h2 id="comments-and-strings">Comments And Strings</h2>
+            <p>The grammar accepts line comments and double-quoted strings:</p>
+            <pre><code class="language-forma">// user-facing greeting
+intent &quot;Greet the current user&quot;</code></pre>
+            <p>Agent instructions use triple-quoted strings in the shipped fixture. The runtime extracts the text inside <code>instruction &quot;&quot;&quot;...&quot;&quot;&quot;</code> and passes it to the provider.</p>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#task-declaration">Task Declaration</a></li>
+              <li><a href="#field-declarations">Field Declarations</a></li>
+              <li><a href="#task-members">Task Members</a></li>
+              <li><a href="#comments-and-strings">Comments And Strings</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/language/syntax.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

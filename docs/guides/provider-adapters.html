@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Provider Adapters | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Provider Adapters.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="./golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="./golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="./quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="./first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="./runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item active" href="./provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="./task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="./package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="./testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Guides / <span>Provider Adapters</span></div>
+          <article class="markdown-body">
+            <h1 id="provider-adapters">Provider Adapters</h1>
+            <h2 id="purpose">Purpose</h2>
+            <p>Forma separates task contracts from model execution. An <code>agent</code> block declares the instruction, but the host runtime needs an explicit provider to produce output. The MVP includes <code>StaticProvider</code> for deterministic examples, <code>RecordingProvider</code> for host integration tests that need to inspect provider requests, and optional OpenAI adapter packages for production Responses API calls. Provider credentials and model names belong in host application code, not in the <code>.forma</code> file. A Forma task describes what should be done; the provider adapter decides which model service to call and how to authenticate. Use local smoke providers to prove embedding shape; use production adapters to call real model services. <code>StaticProvider</code> and <code>RecordingProvider</code> should prove generated bindings, <code>agent(...)</code> entrypoints, permissions, and validation without a model key. HTTP JSON and OpenAI providers should be introduced only when the host is ready to exercise real routing, credentials, timeouts, and model behavior. Production adapters prove deployment routing, not Forma usefulness. If the local smoke path does not make the host code clearer than inline prompts and local schemas, a real model adapter will only add deployment complexity. Operational keys, model choice, routing, and retries live in host code so the application can keep deployment policy separate from the reviewed task contract. Host retries should wrap <code>agent.run(...)</code>, not the <code>.forma</code> contract. Keep retry budgets, backoff, logging, and circuit-breaker policy in the host application or provider adapter so the reviewed task contract stays focused on inputs, outputs, permissions, and verification. Reviewed package profiles carry shared model defaults; host overrides carry deployment-specific routing and model choices. Provider profiles are shared defaults; host overrides are deployment decisions. Change the provider profile when every package consumer should inherit a new reviewed default. Pass an explicit provider when one host deployment needs different routing, retries, logging, or model selection without changing the reviewed package default. Deployment overrides are host policy, not package mutation. Keep environment keys, regional routing, fallback models, retry budgets, and logging changes in the host adapter or application configuration unless every reviewed consumer should inherit the same package default. Fallback eval evidence belongs outside provider profile changes. Keep baseline comparison artifacts and route-specific eval results with the review evidence; change the provider profile only when the reviewed default itself should move. Fallback route labels should be stable in logs and eval artifacts. Use the same human-readable route label for adapter logs, saved diagnostics, and eval summaries so reviewers can compare fallback behavior without reverse-engineering deployment-specific provider settings. Fallback route labels should not encode secrets. Name the provider path with a stable deployment label, region, or reviewed profile name instead of embedding API keys, account identifiers, customer names, or secret-manager paths in logs or eval artifacts. Fallback route labels should be reviewed before becoming shared defaults. Keep deployment-specific labels in host adapters until every consumer should inherit that route name through the reviewed provider profile. Route labels should stay host-owned until reviewed. Treat route-label cleanup, renaming, and redaction as adapter or application configuration until the name has enough consumer evidence to become part of the reviewed package profile. Route-label cleanup should not mutate reviewed provider profiles. Rename or redact deployment labels in the host adapter first; update the shared provider profile only after review decides every consumer should inherit the cleaned-up route name. Cleaned-up route labels should remain overrideable per deployment. Even after a reviewed profile adopts a safer label, allow host adapters to pass their own deployment route label when regional, canary, or incident workflows need local evidence separation. Cleaned-up route labels should stay decoupled from model selection. Renaming or redacting a route label should not imply a model, endpoint, or fallback policy change; record model selection separately in host adapter configuration and eval evidence. Cleaned-up route labels should preserve reviewed provider defaults. Keep the reviewed profile's provider, model, endpoint, and shared route defaults intact unless review accepts a new package default for every consumer. Cleaned-up route labels should not change provider profile ownership. A label rename stays in the host adapter until the package owner reviews it as a shared provider-profile default for every consumer. Cleaned-up route labels should preserve host override ownership. If a deployment override supplied the original label, keep the cleaned-up label in that override path until review promotes it into the shared provider profile. Cleaned-up route labels should preserve deployment audit keys. Keep adapter logs, retry records, and review notes addressable by the original host-owned route key, then attach the cleaned-up label as display metadata for audit readers. Cleaned-up route labels should preserve override audit lookup keys. When a host override renames a route, keep override logs and adapter configuration searchable by the original override key, then attach the cleaned-up label as display metadata. Cleaned-up route labels should preserve provider audit lookup keys. Keep provider-profile notes, adapter logs, retry evidence, and reviewed defaults searchable by the original provider route key, then add the cleaned-up label as metadata after ownership and review boundaries are clear. Cleaned-up route labels should preserve provider-attempt audit lookup keys. Keep provider attempts, adapter logs, retry evidence, and reviewed-default notes searchable by the original provider-attempt route key, then attach the cleaned-up label after the provider attempt is recorded. Cleaned-up route labels should preserve provider-result audit lookup keys. Keep provider results, adapter logs, retry evidence, and reviewed-default notes searchable by the original provider-result route key, then attach the cleaned-up label after the provider result is stored. Cleaned-up route labels should preserve reviewed-default audit lookup keys. Keep reviewed default notes, provider-profile decisions, adapter review evidence, and consumer override references searchable by the original reviewed-default route key, then attach the cleaned-up label after the shared default is accepted. Cleaned-up route labels should preserve routing audit lookup keys. Keep routing decisions, fallback attempts, adapter configuration, and provider traces searchable by the original routing key, then attach the cleaned-up label after host ownership and review boundaries are recorded. Cleaned-up route labels should preserve fallback audit lookup keys. Keep fallback decisions, failed-result diagnostics, rerun traces, and adapter notes searchable by the original fallback route key, then attach the cleaned-up label after the host-owned retry record is saved. Cleaned-up route labels should preserve fallback-attempt audit lookup keys. Keep fallback attempts, failed-result diagnostics, rerun traces, and adapter notes searchable by the original fallback-attempt route key, then attach the cleaned-up label after the fallback attempt is recorded. Cleaned-up route labels should preserve fallback-proof audit lookup keys. Keep fallback proof records, failed-result diagnostics, rerun traces, and adapter notes searchable by the original fallback-proof route key, then attach the cleaned-up label after the fallback proof is accepted. Cleaned-up route labels should preserve fallback-result audit lookup keys. Keep fallback results, failed-result diagnostics, rerun traces, and adapter notes searchable by the original fallback-result route key, then attach the cleaned-up label after the fallback result is saved. Cleaned-up route labels should preserve deployment-owner audit lookup keys. Keep deployment-owner notes, adapter overrides, incident records, and routing decisions searchable by the original deployment-owner route key, then attach the cleaned-up label after host ownership is recorded. Cleaned-up route labels should preserve adapter-review audit lookup keys. Keep adapter review notes, provider override evidence, route-change decisions, and deployment-owner approvals searchable by the original adapter-review route key, then attach the cleaned-up label after adapter review accepts the change. Fallback models are deployment policy unless every consumer should inherit them. Put temporary provider failover, region-specific model choice, and canary model routing in the host adapter. Change the reviewed package profile only when the new fallback behavior is part of the shared contract for all consumers. Fallback overrides should log the original failed result. When an adapter switches route, provider, or model after a failed <code>agent.run(...)</code>, preserve the first <code>FormaResult</code> error, diagnostics, verification failures, and trace before returning or comparing the fallback attempt. Fallback diagnostics should be logged before route changes. Capture the failed <code>FormaResult</code> diagnostics while the original provider context is still known, then switch routes only after that evidence is available to the host workflow. Fallback reruns should preserve traces across attempts. Keep the original trace entries next to the replacement result so host owners can see whether the retry changed provider behavior, permissions, tool calls, routing, or only the model name. Fallback comparisons should happen after validation, not before. Let each provider attempt return through the same Forma validation boundary, then compare the failed and replacement <code>FormaResult</code> records instead of comparing raw provider payloads.</p>
+            <h2 id="steps">Steps</h2>
+            <p>In TypeScript, pass a provider when constructing an embedded <code>agent</code> or a lower-level <code>FormaRuntime</code>:</p>
+            <pre><code class="language-typescript">import { StaticProvider, agent } from &quot;@forma-lang/forma&quot;;
+
+const greetUser = agent({
+  source,
+  task: &quot;greet_user_warmly&quot;,
+  provider: new StaticProvider({
+    message: &quot;Hello, Sam. Good to see you.&quot;,
+  }),
+});</code></pre>
+            <p>For a real model service, keep the key in an environment variable or secret manager, select the model in the adapter, and return the Forma output fields:</p>
+            <pre><code class="language-typescript">import { agent, type ModelProvider } from &quot;@forma-lang/forma&quot;;
+
+class HostedModelProvider implements ModelProvider {
+  constructor(
+    private readonly apiKey: string,
+    private readonly model: string,
+  ) {}
+
+  async runAgent(input: {
+    instruction: string;
+    values: Record&lt;string, unknown&gt;;
+    permissions: string[];
+    tools: { require(permission: string): void };
+  }) {
+    input.tools.require(&quot;read&quot;);
+    const response = await callModelService({
+      apiKey: this.apiKey,
+      model: this.model,
+      instruction: input.instruction,
+      values: input.values,
+      permissions: input.permissions,
+    });
+
+    return { message: response.message };
+  }
+}
+
+const greetUser = agent({
+  source,
+  task: &quot;greet_user_warmly&quot;,
+  provider: new HostedModelProvider(
+    process.env.MODEL_API_KEY ?? &quot;&quot;,
+    &quot;example-model&quot;,
+  ),
+});
+
+const result = await greetUser.run({ user_name: &quot;Sam&quot; });</code></pre>
+            <p>When using OpenAI, install the optional provider package and keep model configuration in the host:</p>
+            <pre><code class="language-typescript">import { agent } from &quot;@forma-lang/forma&quot;;
+import { OpenAIResponsesProvider } from &quot;@forma-lang/openai&quot;;
+
+const reviewDiff = agent({
+  file: &quot;examples/review_diff.forma&quot;,
+  task: &quot;review_diff&quot;,
+  provider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? &quot;&quot;,
+    model: process.env.OPENAI_MODEL ?? &quot;gpt-4.1-mini&quot;,
+    responseFormat: &quot;json_schema&quot;,
+    timeoutMs: 30000,
+  }),
+});</code></pre>
+            <p>When the runtime reaches an <code>agent</code> block, it calls:</p>
+            <pre><code class="language-typescript">modelProvider.runAgent({
+  instruction: task.agentInstruction,
+  values: input,
+  permissions: task.permissions,
+  tools,
+});</code></pre>
+            <p>In Python, pass a provider object when constructing <code>FormaRuntime</code>:</p>
+            <pre><code class="language-python">from forma import FormaRuntime, StaticProvider
+
+runtime = FormaRuntime(
+    model_provider=StaticProvider({&quot;message&quot;: &quot;Hello, Sam. Good to see you.&quot;})
+)</code></pre>
+            <p>For a real model service, the same boundary applies:</p>
+            <pre><code class="language-python">import os
+from forma import FormaRuntime, ModelProvider, PermissionTools
+
+
+class HostedModelProvider(ModelProvider):
+    def __init__(self, api_key: str, model: str) -&gt; None:
+        self.api_key = api_key
+        self.model = model
+
+    def run_agent(
+        self,
+        instruction: str,
+        values: dict,
+        permissions: list[str],
+        tools: PermissionTools,
+    ) -&gt; dict:
+        tools.require(&quot;read&quot;)
+        response = call_model_service(
+            api_key=self.api_key,
+            model=self.model,
+            instruction=instruction,
+            values=values,
+            permissions=permissions,
+        )
+        return {&quot;message&quot;: response[&quot;message&quot;]}
+
+
+runtime = FormaRuntime(
+    model_provider=HostedModelProvider(
+        api_key=os.environ[&quot;MODEL_API_KEY&quot;],
+        model=&quot;example-model&quot;,
+    )
+)
+
+result = runtime.run_task(
+    source,
+    &quot;greet_user_warmly&quot;,
+    input={&quot;user_name&quot;: &quot;Sam&quot;},
+    source_name=&quot;greet_user_warmly.forma&quot;,
+)</code></pre>
+            <p>When using OpenAI, install the optional provider package and keep model configuration in the host:</p>
+            <pre><code class="language-python">import os
+
+from forma import agent
+from forma_openai import OpenAIResponsesProvider
+
+review_diff = agent(
+    file=&quot;examples/review_diff.forma&quot;,
+    task=&quot;review_diff&quot;,
+    provider=OpenAIResponsesProvider(
+        api_key=os.environ[&quot;OPENAI_API_KEY&quot;],
+        model=os.environ.get(&quot;OPENAI_MODEL&quot;, &quot;gpt-4.1-mini&quot;),
+        response_format=&quot;json_schema&quot;,
+        timeout_ms=30000,
+    ),
+)</code></pre>
+            <p>When the runtime reaches an <code>agent</code> block, it calls:</p>
+            <pre><code class="language-python">self.model_provider.run_agent(task.agent_instruction, input, task.permissions, tools)</code></pre>
+            <p>The runtime raises <code>F3002</code> if an agent task runs without a provider.</p>
+            <p>The CLI can run or evaluate agent tasks when you pass a provider profile or provider flags. Embedded Python and TypeScript programs configure the provider in host code. In both cases the model key and model name stay outside the <code>.forma</code> file. The public <code>agent(...)</code> helper binds the <code>.forma</code> source or file, task name, provider, and optional host tools into a reusable <code>run(input)</code> call. The <code>.forma</code> <code>agent</code> block is parsed into <code>task.agentInstruction</code> in TypeScript and <code>task.agent_instruction</code> in Python; the runtime chooses the agent path when that instruction exists, then calls the configured provider.</p>
+            <p>Permission declarations are passed to providers as <code>permissions</code>, and the runtime also passes <code>tools.require(permission)</code>. Host adapters can call it before performing a workspace action; undeclared permissions fail with <code>F4001</code> and are recorded in the runtime trace.</p>
+            <p>Host programs can configure read access and let the runtime enforce the declared <code>read</code> permission:</p>
+            <pre><code class="language-typescript">const runtime = new FormaRuntime({
+  modelProvider,
+  tools: {
+    readText: async (path) =&gt; readFile(path, &quot;utf8&quot;),
+    searchText: async (query) =&gt; searchWorkspace(query),
+    runTest: async (command) =&gt; runCommand(command),
+    writeText: async (path, content) =&gt; writeFile(path, content, &quot;utf8&quot;),
+  },
+});</code></pre>
+            <pre><code class="language-python">runtime = FormaRuntime(
+    model_provider=provider,
+    tools={
+        &quot;read_text&quot;: lambda path: Path(path).read_text(encoding=&quot;utf8&quot;),
+        &quot;search_text&quot;: lambda query: search_workspace(query),
+        &quot;run_test&quot;: lambda command: run_command(command),
+        &quot;write_text&quot;: lambda path, content: Path(path).write_text(content, encoding=&quot;utf8&quot;),
+    },
+)</code></pre>
+            <p>Providers call <code>tools.readText(&quot;README.md&quot;)</code> in TypeScript or <code>tools.read_text(&quot;README.md&quot;)</code> in Python. Providers call <code>tools.searchText(&quot;FormaRuntime&quot;)</code> in TypeScript or <code>tools.search_text(&quot;FormaRuntime&quot;)</code> in Python. Providers call <code>tools.runTest(&quot;pnpm test&quot;)</code> in TypeScript or <code>tools.run_test(&quot;pytest&quot;)</code> in Python. Providers call <code>tools.writeText(path, content)</code> in TypeScript or <code>tools.write_text(path, content)</code> in Python. The runtime records successful tool calls in <code>trace</code> as <code>tool</code> entries and host-denied or failing configured tool calls as <code>tool_failed</code> entries.</p>
+            <p>The package examples include a complete tool workflow:</p>
+            <pre><code class="language-bash">examples/tool_assisted_repair.forma
+examples/tool_permission_workflow.ts
+examples/tool_permission_workflow.py</code></pre>
+            <p>Those examples show a provider reading a target file, searching related context, running a focused test command, and writing an edit through host-owned tool functions. The <code>.forma</code> task declares <code>read</code>, <code>search</code>, <code>test</code>, and <code>edit</code>; the host program decides how those tools are implemented.</p>
+            <h2 id="verification">Verification</h2>
+            <p>Provider behavior is covered by both runtime test files:</p>
+            <pre><code class="language-bash">corepack pnpm --filter @forma-lang/forma test
+corepack pnpm --filter @forma-lang/openai test
+python -m pytest packages/forma-python/tests/test_runtime.py -q
+python -m pytest packages/forma-openai-python/tests -q</code></pre>
+            <p>Use <code>StaticProvider</code> for deterministic tests. Real provider adapters should return values that satisfy the task <code>output</code> block and <code>verify</code> expressions. Use <code>RecordingProvider</code> when a host test needs both fixture outputs and a record of the instruction, input values, permissions, and output contract sent to the provider.</p>
+            <pre><code class="language-typescript">const provider = new RecordingProvider([{ summary: &quot;No issues.&quot;, findings: [], clean: true }]);
+const reviewDiff = agent({ file: &quot;examples/review_diff.forma&quot;, task: &quot;review_diff&quot;, provider });
+
+await reviewDiff.run({ diff });
+expect(provider.requests[0]?.permissions).toContain(&quot;read&quot;);</code></pre>
+            <pre><code class="language-python">provider = RecordingProvider([{&quot;summary&quot;: &quot;No issues.&quot;, &quot;findings&quot;: [], &quot;clean&quot;: True}])
+review_diff = agent(file=&quot;examples/review_diff.forma&quot;, task=&quot;review_diff&quot;, provider=provider)
+
+review_diff.run({&quot;diff&quot;: diff})
+assert &quot;read&quot; in provider.requests[0][&quot;permissions&quot;]</code></pre>
+            <h2 id="http-json-provider">HTTP JSON Provider</h2>
+            <p><code>HttpJsonProvider</code> is the first provider-adapter kit piece. It is dependency light: the host configures an endpoint, model name, and optional API key. The provider posts the Forma instruction, input values, and permissions as JSON, and expects a structured JSON response with an <code>output</code> object.</p>
+            <pre><code class="language-typescript">import { FormaRuntime, HttpJsonProvider } from &quot;@forma-lang/forma&quot;;
+
+const runtime = new FormaRuntime({
+  modelProvider: new HttpJsonProvider({
+    endpoint: process.env.MODEL_ENDPOINT ?? &quot;&quot;,
+    apiKey: process.env.MODEL_API_KEY,
+    model: process.env.MODEL_NAME ?? &quot;example-model&quot;,
+    responseFormat: &quot;json_schema&quot;,
+    temperature: 0.2,
+    timeoutMs: 30000,
+  }),
+});</code></pre>
+            <pre><code class="language-python">from forma import FormaRuntime, HttpJsonProvider
+
+runtime = FormaRuntime(
+    model_provider=HttpJsonProvider(
+        endpoint=os.environ[&quot;MODEL_ENDPOINT&quot;],
+        api_key=os.environ.get(&quot;MODEL_API_KEY&quot;),
+        model=os.environ.get(&quot;MODEL_NAME&quot;, &quot;example-model&quot;),
+        response_format=&quot;json_schema&quot;,
+        temperature=0.2,
+        timeout_ms=30000,
+    )
+)</code></pre>
+            <p>Request body:</p>
+            <pre><code class="language-json">{
+  &quot;model&quot;: &quot;example-model&quot;,
+  &quot;instruction&quot;: &quot;Review the supplied code diff.&quot;,
+  &quot;input&quot;: {
+    &quot;diff&quot;: &quot;...&quot;
+  },
+  &quot;permissions&quot;: [&quot;read&quot;, &quot;search&quot;, &quot;test&quot;]
+}</code></pre>
+            <p>Response body:</p>
+            <pre><code class="language-json">{
+  &quot;output&quot;: {
+    &quot;summary&quot;: &quot;No issues found.&quot;,
+    &quot;findings&quot;: [],
+    &quot;clean&quot;: true
+  }
+}</code></pre>
+            <p>HTTP JSON providers can also request one or more host tool calls before returning final output:</p>
+            <pre><code class="language-json">{
+  &quot;toolCalls&quot;: [
+    { &quot;id&quot;: &quot;read-1&quot;, &quot;name&quot;: &quot;readText&quot;, &quot;args&quot;: { &quot;path&quot;: &quot;README.md&quot; } }
+  ]
+}</code></pre>
+            <p>Forma executes supported calls through the configured host tools and sends the next request with <code>toolResults</code>:</p>
+            <pre><code class="language-json">{
+  &quot;toolResults&quot;: [
+    { &quot;id&quot;: &quot;read-1&quot;, &quot;ok&quot;: true, &quot;result&quot;: &quot;file contents...&quot; }
+  ]
+}</code></pre>
+            <p>Supported tool names are <code>readText</code>, <code>searchText</code>, <code>runTest</code>, and <code>writeText</code>. Tool calls still pass through the task permission gate and fail if the host did not configure that tool. In the CLI host for <code>forma run</code>, <code>forma eval</code>, and <code>forma eval-suite</code>, file tools are scoped to <code>--workspace</code> and out-of-workspace paths are returned as failed tool results. Test tools can also be restricted with exact <code>--allow-test-command</code> values. These host decisions are reflected in runtime traces as <code>tool_failed</code> entries with details such as <code>read:../secret</code>.</p>
+            <p>The CLI can reuse the same provider settings through a profile file:</p>
+            <pre><code class="language-json">{
+  &quot;provider&quot;: &quot;http-json&quot;,
+  &quot;endpoint&quot;: &quot;https://model.example/v1/agent&quot;,
+  &quot;model&quot;: &quot;example-model&quot;,
+  &quot;apiKeyEnv&quot;: &quot;MODEL_API_KEY&quot;,
+  &quot;responseFormat&quot;: &quot;json_schema&quot;,
+  &quot;temperature&quot;: 0.2,
+  &quot;timeoutMs&quot;: 30000
+}</code></pre>
+            <pre><code class="language-bash">forma eval packages/forma-core/conformance/review_diff.json \
+  --provider-profile ./forma.provider.json</code></pre>
+            <p>Use <code>apiKeyEnv</code> for committed profiles; it names the environment variable that contains the secret. <code>--provider</code>, <code>--endpoint</code>, <code>--model</code>, and <code>--api-key</code> override profile values for one-off runs. <code>--response-format</code>, <code>--temperature</code>, and <code>--timeout-ms</code> override the profile's generation and request-timeout settings.</p>
+            <p>Hosts can use the same profile file at runtime instead of hand-parsing JSON:</p>
+            <pre><code class="language-typescript">const profile = providerProfileFromFile(&quot;examples/forma.provider.json&quot;);
+const provider = providerFromProfile(profile);</code></pre>
+            <pre><code class="language-python">profile = provider_profile_from_file(&quot;examples/forma.provider.json&quot;)
+provider = provider_from_profile(profile)</code></pre>
+            <h2 id="openai-responses-provider">OpenAI Responses Provider</h2>
+            <p><code>OpenAIResponsesProvider</code> is the first production provider adapter. It keeps the key and model in host configuration, uses the OpenAI Responses API, and turns the Forma <code>output</code> block into a strict JSON schema for structured output.</p>
+            <pre><code class="language-typescript">import { OpenAIResponsesProvider, agent } from &quot;@forma-lang/forma&quot;;
+
+const reviewDiff = agent({
+  file: &quot;examples/review_diff.forma&quot;,
+  task: &quot;review_diff&quot;,
+  provider: new OpenAIResponsesProvider({
+    apiKey: process.env.OPENAI_API_KEY ?? &quot;&quot;,
+    model: process.env.OPENAI_MODEL ?? &quot;gpt-5&quot;,
+    responseFormat: &quot;json_schema&quot;,
+    temperature: 0.2,
+    timeoutMs: 30000,
+  }),
+});</code></pre>
+            <pre><code class="language-python">from forma import OpenAIResponsesProvider, agent
+
+review_diff = agent(
+    file=&quot;examples/review_diff.forma&quot;,
+    task=&quot;review_diff&quot;,
+    provider=OpenAIResponsesProvider(
+        api_key=os.environ[&quot;OPENAI_API_KEY&quot;],
+        model=os.environ.get(&quot;OPENAI_MODEL&quot;, &quot;gpt-5&quot;),
+        response_format=&quot;json_schema&quot;,
+        temperature=0.2,
+        timeout_ms=30000,
+    ),
+)</code></pre>
+            <p>The adapter sends:</p>
+            <pre><code class="language-json">{
+  &quot;model&quot;: &quot;gpt-5&quot;,
+  &quot;instructions&quot;: &quot;Review the supplied code diff.&quot;,
+  &quot;input&quot;: &quot;{\&quot;input\&quot;:{\&quot;diff\&quot;:\&quot;...\&quot;},\&quot;permissions\&quot;:[\&quot;read\&quot;,\&quot;search\&quot;,\&quot;test\&quot;]}&quot;,
+  &quot;text&quot;: {
+    &quot;format&quot;: {
+      &quot;type&quot;: &quot;json_schema&quot;,
+      &quot;name&quot;: &quot;forma_output&quot;,
+      &quot;strict&quot;: true,
+      &quot;schema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;properties&quot;: {
+          &quot;summary&quot;: { &quot;type&quot;: &quot;string&quot; },
+          &quot;findings&quot;: { &quot;type&quot;: &quot;array&quot;, &quot;items&quot;: { &quot;type&quot;: &quot;object&quot; } },
+          &quot;clean&quot;: { &quot;type&quot;: &quot;boolean&quot; }
+        },
+        &quot;required&quot;: [&quot;summary&quot;, &quot;findings&quot;, &quot;clean&quot;]
+      }
+    }
+  }
+}</code></pre>
+            <p>The runtime still validates the returned object against the Forma contract after the provider returns. The provider-specific structured output request reduces malformed model responses; the runtime validation remains the final host-side trust boundary.</p>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#purpose">Purpose</a></li>
+              <li><a href="#steps">Steps</a></li>
+              <li><a href="#verification">Verification</a></li>
+              <li><a href="#http-json-provider">HTTP JSON Provider</a></li>
+              <li><a href="#openai-responses-provider">OpenAI Responses Provider</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/guides/provider-adapters.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

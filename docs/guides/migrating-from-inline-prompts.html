@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Migrating From Inline Prompts | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Migrating From Inline Prompts.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="./golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="./golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="./quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="./first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="../language/overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="./runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="./provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="./task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="./package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="./testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Guides / <span>Migrating From Inline Prompts</span></div>
+          <article class="markdown-body">
+            <h1 id="migrating-from-inline-prompts">Migrating From Inline Prompts</h1>
+            <p>Forma replaces hidden prompt strings with reviewed task contracts that Python and TypeScript hosts can run the same way. Use this guide when an existing app already calls a model with an inline prompt, local schema code, and ad hoc provider setup.</p>
+            <h2 id="purpose">Purpose</h2>
+            <p>Inline prompt code usually mixes four concerns in one function: instruction text, input shaping, output validation, and provider configuration. That makes reviews difficult because a prompt edit can silently change the runtime contract, model settings, and accepted output shape at the same time.</p>
+            <p>A <code>.forma</code> file moves the durable task contract into a language-neutral artifact. The host program still owns API keys, model selection, retries, logging, and deployment. Forma turns the task boundary into something both runtimes can inspect, generate types from, evaluate, lock, and package.</p>
+            <h2 id="steps">Steps</h2>
+            <p>Start by finding the inline model call that has become application behavior. This is the kind of TypeScript code Forma is meant to replace:</p>
+            <pre><code class="language-ts">const reviewPrompt = `
+Review the supplied code diff.
+Return JSON with summary, findings, and clean.
+`;
+
+type Finding = {
+  path: string;
+  line?: number;
+  message: string;
+};
+
+type ReviewDiffOutput = {
+  summary: string;
+  findings: Finding[];
+  clean: boolean;
+};
+
+const response = await model.responses.create({
+  model: process.env.OPENAI_MODEL ?? &quot;gpt-5&quot;,
+  input: `${reviewPrompt}\n\n${diff}`,
+});
+
+const output = JSON.parse(response.output_text) as ReviewDiffOutput;
+if (typeof output.summary !== &quot;string&quot; || !Array.isArray(output.findings)) {
+  throw new Error(&quot;review_diff returned invalid output&quot;);
+}</code></pre>
+            <p>Python hosts usually repeat the same prompt and schema boundary:</p>
+            <pre><code class="language-python">review_prompt = &quot;&quot;&quot;
+Review the supplied code diff.
+Return JSON with summary, findings, and clean.
+&quot;&quot;&quot;
+
+@dataclass
+class Finding:
+    path: str
+    line: int | None
+    message: str
+
+@dataclass
+class ReviewDiffOutput:
+    summary: str
+    findings: list[Finding]
+    clean: bool
+
+response = model.responses.create(
+    model=os.environ.get(&quot;OPENAI_MODEL&quot;, &quot;gpt-5&quot;),
+    input=f&quot;{review_prompt}\n\n{diff}&quot;,
+)
+raw_output = json.loads(response.output_text)
+output = ReviewDiffOutput(**raw_output)</code></pre>
+            <p>The migration starts by isolating the stable task boundary from those host calls. Put inputs, output fields, permissions, verification rules, and model instructions in a <code>.forma</code> task:</p>
+            <pre><code class="language-forma">task review_diff {
+  intent &quot;Review a code diff and return structured findings&quot;
+
+  input {
+    diff: Text
+  }
+
+  output {
+    summary: Text
+    findings: Finding[]
+
+    object Finding {
+      path: Text
+      message: Text
+    }
+  }
+
+  agent {
+    instruction &quot;&quot;&quot;
+    Review the supplied code diff and return only the declared output fields.
+    &quot;&quot;&quot;
+  }
+}</code></pre>
+            <p>Generate host bindings instead of keeping hand-written result types:</p>
+            <pre><code class="language-bash">forma generate review_diff.forma --target typescript --output review_diff.forma.ts
+forma generate review_diff.forma --target python --output review_diff_forma.py</code></pre>
+            <p>Move provider configuration into host-owned code or a provider profile. The profile names the key environment variable with <code>apiKeyEnv</code>; it never stores the secret value:</p>
+            <pre><code class="language-json">{
+  &quot;provider&quot;: &quot;openai-responses&quot;,
+  &quot;model&quot;: &quot;gpt-5&quot;,
+  &quot;apiKeyEnv&quot;: &quot;OPENAI_API_KEY&quot;,
+  &quot;responseFormat&quot;: &quot;json_schema&quot;
+}</code></pre>
+            <p>Embed the task through <code>agent(...)</code> in each runtime. TypeScript hosts pass a provider object built from the profile:</p>
+            <pre><code class="language-ts">import { agent, providerFromProfile, providerProfileFromFile } from &quot;@forma-lang/forma&quot;;
+import { assertReviewDiffOutput, type ReviewDiffInput } from &quot;./review_diff.forma.js&quot;;
+
+const profile = await providerProfileFromFile(&quot;forma.provider.json&quot;);
+const reviewDiff = agent({
+  file: &quot;review_diff.forma&quot;,
+  task: &quot;review_diff&quot;,
+  provider: providerFromProfile(profile),
+});
+
+const input: ReviewDiffInput = { diff: &quot;diff --git a/src/example.ts b/src/example.ts&quot; };
+const result = await reviewDiff.run(input);
+const output = assertReviewDiffOutput(result.output);</code></pre>
+            <p>Python hosts keep the same boundary:</p>
+            <pre><code class="language-python">from forma import agent, provider_from_profile, provider_profile_from_file
+from review_diff_forma import assert_review_diff_output
+
+profile = provider_profile_from_file(&quot;forma.provider.json&quot;)
+review_diff = agent(
+    file=&quot;review_diff.forma&quot;,
+    task=&quot;review_diff&quot;,
+    provider=provider_from_profile(profile),
+)
+
+result = review_diff.run({&quot;diff&quot;: &quot;diff --git a/src/example.py b/src/example.py&quot;})
+output = assert_review_diff_output(result.output)</code></pre>
+            <p>After migration, the host still owns the provider client, key source, model selection, retries, logging, and user workflow. The duplicated task boundary moves into reviewed artifacts instead:</p>
+            <table>
+              <thead><tr><th>Inline concern</th><th>Forma artifact</th></tr></thead>
+              <tbody>
+                <tr><td>Prompt string in TypeScript and Python</td><td><code>review_diff.forma</code> <code>agent</code> instruction</td></tr>
+                <tr><td>Hand-written input object shape</td><td><code>.forma</code> <code>input</code> block and generated bindings</td></tr>
+                <tr><td>Hand-written result types or dataclasses</td><td><code>.forma</code> <code>output</code> block and generated bindings</td></tr>
+                <tr><td>Local JSON shape checks</td><td>generated <code>assertReviewDiffOutput</code> / <code>assert_review_diff_output</code></td></tr>
+                <tr><td>Hidden model default</td><td>reviewed <code>forma.provider.json</code> <code>model</code> field</td></tr>
+                <tr><td>Key lookup inside call sites</td><td>reviewed <code>apiKeyEnv</code> plus host environment</td></tr>
+                <tr><td>One-off smoke tests</td><td>package tests pinned in <code>review_diff.forma.lock.json</code></td></tr>
+                <tr><td>Manual release review</td><td><code>forma package-review</code> checklist and eval comparison</td></tr>
+              </tbody>
+            </table>
+            <p>The checked <code>examples/review_diff</code> package keeps the before/after migration proof as runnable fixtures. <code>examples/review_diff_inline.ts</code> and <code>examples/review_diff_inline.py</code> model the old inline baseline. <code>examples/review_diff_migration.test.ts</code> and <code>examples/review_diff_migration_test.py</code> convert that baseline output into the generated Forma output shape and assert that the host review decision is unchanged.</p>
+            <p>When the task is ready to share, scaffold a package so the contract, evals, bindings, provider profile, examples, README, workflows, manifest, and lockfile move together:</p>
+            <p>Keep the inline prompt when it is still a one-language, one-application detail. Do not package it until the task boundary needs review across TypeScript and Python, generated bindings remove duplicated host schemas, or downstream consumers need a reviewed lockfile instead of copied prompt code.</p>
+            <pre><code class="language-bash">forma package-init ./review-diff-package --name acme/review-diff --task review_diff
+forma package-review ./review-diff-package/review_diff.forma.pkg.json
+forma package-review ./review-diff-package/review_diff.forma.pkg.json --proof-command &quot;npx vitest run review_diff_migration.test.ts &amp;&amp; python review_diff_migration_test.py&quot;</code></pre>
+            <p>The <code>--proof-command</code> row makes the before/after migration proof part of release review instead of leaving it as a separate local command. If <code>package-review</code> reports <code>missingMigrationParityProofCommand</code>, the migration fixtures and direct tests may still exist, but the package README or CI workflow no longer runs that proof through the blocking package-review gate. Restore the reported <code>package-review --proof-command</code> command to both places before publishing the task package.</p>
+            <h2 id="verification">Verification</h2>
+            <p>Use the package review gate as the migration finish line:</p>
+            <pre><code class="language-bash">forma package-check review_diff.forma.pkg.json
+forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
+npx vitest run review_diff_migration.test.ts
+python review_diff_migration_test.py
+forma eval-suite forma.eval.json --summary &gt; candidate.json
+forma package-review review_diff.forma.pkg.json --proof-command &quot;npx vitest run review_diff_migration.test.ts &amp;&amp; python review_diff_migration_test.py&quot;
+forma package-review review_diff.forma.pkg.json --baseline baseline.json
+forma compare baseline.json candidate.json --fail-on breaking,environment</code></pre>
+            <p>The review output should show the task contract, provider profile, generated TypeScript and Python bindings, host examples, README commands, CI workflow, publish bundle, eval coverage, and compatibility policy as reviewed artifacts. At that point the old inline prompt has become a versioned task contract that both runtimes can execute and validate.</p>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#purpose">Purpose</a></li>
+              <li><a href="#steps">Steps</a></li>
+              <li><a href="#verification">Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/guides/migrating-from-inline-prompts.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

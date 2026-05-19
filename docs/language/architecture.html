@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Architecture | Forma Documentation</title>
+    <meta name="description" content="Forma documentation for Architecture.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <div class="page-frame doc-page">
+      <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="Forma documentation home">
+          <span class="brand-mark" aria-hidden="true">F</span>
+          <span>Forma</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+          <a href="../guides/golden-workflow.html">Docs</a>
+          <a href="https://github.com/syndicalt/forma/tree/main/examples">Examples</a>
+          <a href="../packages/registry.html">Packages</a>
+          <a href="https://github.com/syndicalt/forma">GitHub</a>
+        </nav>
+      </header>
+
+      <div class="docs-shell">
+        <aside class="sidebar" aria-label="Documentation sections">
+          <label class="search-label" for="site-search">Search docs</label>
+          <input id="site-search" class="search" type="search" aria-label="Search docs">
+          <section class="nav-group">
+            <h2>Start</h2>
+            <a class="nav-item" href="../index.html"><span>Overview</span><code>01</code></a>
+            <a class="nav-item" href="../guides/golden-workflow.html"><span>Golden workflow</span><code>02</code></a>
+            <a class="nav-item" href="../guides/quickstart.html"><span>Quickstart</span><code>03</code></a>
+            <a class="nav-item" href="../guides/first-use-audit.html"><span>First-use audit</span><code>04</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Build</h2>
+            <a class="nav-item" href="./overview.html"><span>Language</span><code>Ref</code></a>
+            <a class="nav-item" href="../guides/runtime-results.html"><span>Runtime results</span><code>API</code></a>
+            <a class="nav-item" href="../guides/provider-adapters.html"><span>Providers</span><code>Host</code></a>
+            <a class="nav-item" href="../guides/task-authoring.html"><span>Task authoring</span><code>Guide</code></a>
+          </section>
+
+<section class="nav-group">
+            <h2>Ship</h2>
+            <a class="nav-item" href="../packages/cli.html"><span>CLI</span><code>Tool</code></a>
+            <a class="nav-item" href="../packages/registry.html"><span>Package registry</span><code>Spec</code></a>
+            <a class="nav-item" href="../guides/package-consumer-quickstart.html"><span>Package consumers</span><code>Lock</code></a>
+            <a class="nav-item" href="../guides/testing-and-verification.html"><span>Verification</span><code>CI</code></a>
+          </section>
+        </aside>
+
+        <main class="content markdown-content" id="main">
+          <div class="breadcrumb">Docs / Language / <span>Architecture</span></div>
+          <article class="markdown-body">
+            <h1 id="architecture">Architecture</h1>
+            <p>Forma separates concrete syntax from runtime semantics. The Tree-sitter package in <code>packages/tree-sitter-forma</code> defines the <code>.forma</code> grammar and corpus tests. It recognizes task declarations, field blocks, raw behavior blocks, strings, triple-quoted instructions, and comments.</p>
+            <h2 id="layers">Layers</h2>
+            <p>The main flow is:</p>
+            <pre><code class="language-text">.forma source
+Tree-sitter syntax
+host AST builder
+Forma task model
+validator
+compute or provider execution
+verification
+FormaResult</code></pre>
+            <p>The Python and TypeScript packages each parse source into native AST data and validate it into the MVP semantic contract. Shared fixtures in <code>packages/forma-core/fixtures</code> and expected JSON in <code>packages/forma-core/conformance</code> keep the runtimes aligned. Schemas in <code>packages/forma-core/schema</code> describe diagnostics and result shape.</p>
+            <h2 id="contract-bindings-facade-provider">Contract, Bindings, Facade, Provider</h2>
+            <p>Forma's host boundary has four separate responsibilities:</p>
+            <ul>
+              <li>The <code>.forma contract</code> is the reviewed task source: instructions, input</li>
+            <p>fields, output fields, permissions, constraints, and verify rules.</p>
+              <li>The generated bindings are TypeScript interfaces or Python dataclasses plus</li>
+            <p>output validators derived from the same task contract.</p>
+              <li>The runtime agent facade is <code>agent(...)</code>, <code>agentFromPackageLock(...)</code>, or the</li>
+            <p>Python equivalents. It binds a named task, source file or package lock, and provider into a <code>run(input)</code> call that returns <code>FormaResult</code>.</p>
+              <li>The provider adapter turns the runtime request into a model call. The host application owns provider keys and model selection,</li>
+            <p>plus retries, logging, routing, deployment policy, and any permission tool implementations.</p>
+            </ul>
+            <p>Keeping those roles separate is the product point: Forma owns reviewable task contracts, generated host types, and runtime validation, while the application keeps operational control of the model client.</p>
+            <h2 id="why-tree-sitter-is-syntax-only">Why Tree-sitter Is Syntax Only</h2>
+            <p>Tree-sitter gives Forma a real language grammar and corpus tests without making the grammar responsible for semantic decisions. The grammar should know where a task, field block, raw block, or string appears. The runtime decides whether a task has enough output fields, whether an expression is executable, and whether an agent provider is present.</p>
+            <h2 id="package-boundaries">Package Boundaries</h2>
+            <ul>
+              <li><code>packages/tree-sitter-forma</code>: grammar and generated parser artifacts.</li>
+              <li><code>packages/forma-core</code>: shared examples, conformance JSON, and schemas.</li>
+              <li><code>packages/forma-typescript</code>: TypeScript parser, evaluator, provider, runtime.</li>
+              <li><code>packages/forma-python</code>: Python parser, evaluator, provider, runtime.</li>
+              <li><code>cli/forma</code>: command-line wrapper around the TypeScript runtime.</li>
+            </ul>
+            <pre><code class="language-bash">corepack pnpm test:tree-sitter
+corepack pnpm test:ts
+python -m pytest</code></pre>
+            <p>These commands match the workspace scripts and Python test configuration. The TypeScript split lives in <code>packages/forma-typescript/src</code>, while the Python split lives in <code>packages/forma-python/src/forma</code>. Both packages ship parser, validator, evaluator, provider, runtime, and public export modules for the MVP.</p>
+            <h2 id="clean-checkout-verification">Clean Checkout Verification</h2>
+            <p>The root <code>check</code> script builds the TypeScript runtime before checking the CLI, because the CLI imports the runtime package through its package entry point:</p>
+            <pre><code class="language-bash">corepack pnpm check</code></pre>
+          </article>
+        </main>
+
+        <aside class="right-rail" aria-label="Page context">
+          <section class="rail-card">
+            <h2>On this page</h2>
+            <ol class="page-list">
+              <li><a href="#layers">Layers</a></li>
+              <li><a href="#contract-bindings-facade-provider">Contract, Bindings, Facade, Provider</a></li>
+              <li><a href="#why-tree-sitter-is-syntax-only">Why Tree-sitter Is Syntax Only</a></li>
+              <li><a href="#package-boundaries">Package Boundaries</a></li>
+              <li><a href="#clean-checkout-verification">Clean Checkout Verification</a></li>
+            </ol>
+          </section>
+          <section class="rail-card">
+            <h2>Source</h2>
+            <p><a href="https://github.com/syndicalt/forma/blob/main/docs/language/architecture.md">View Markdown source on GitHub</a></p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>
