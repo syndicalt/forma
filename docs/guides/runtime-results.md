@@ -99,6 +99,10 @@ alias so runtime support can find the same trace entries after cleanup.
 Cleaned-up route labels should preserve trace audit lookup keys. Keep trace
 records, audit notes, and route evidence searchable by the original trace route
 key, then attach the cleaned-up label as audit metadata.
+Cleaned-up route labels should preserve trace-result audit lookup keys. Keep
+trace results, validation outcomes, route evidence, and retry notes searchable
+by the original trace-result route key, then attach the cleaned-up label after
+the runtime result is saved.
 Cleaned-up route labels should preserve validation audit lookup keys. Keep
 validation failures, diagnostics, verification records, and retry notes
 searchable by the original validation route key, then attach the cleaned-up
