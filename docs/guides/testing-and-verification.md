@@ -228,6 +228,10 @@ Cleaned-up route labels should preserve artifact audit lookup keys. Keep
 release bundles, uploaded artifacts, smoke summaries, and saved proof logs
 searchable by the original artifact route key, then attach the cleaned-up label
 as artifact metadata after the proof run is accepted.
+Cleaned-up route labels should preserve artifact-proof audit lookup keys. Keep
+artifact proof notes, release bundles, uploaded summaries, and saved proof logs
+searchable by the original artifact-proof route key, then attach the cleaned-up
+label after the artifact proof is accepted.
 Cleaned-up route labels should preserve artifact-decision audit lookup keys.
 Keep artifact decisions, release bundles, uploaded summaries, and saved proof
 logs searchable by the original artifact-decision route key, then attach the
