@@ -1,10 +1,30 @@
 {
   "name": "@forma-lang/forma",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "TypeScript runtime for Forma agent contracts",
   "type": "module",
-  "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syndicalt/forma.git",
+    "directory": "packages/forma-typescript"
+  },
+  "keywords": [
+    "agent",
+    "contracts",
+    "forma",
+    "runtime",
+    "typescript"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "check": "tsc --noEmit",
     "test": "vitest run",

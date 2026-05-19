@@ -4,10 +4,24 @@ build-backend = "hatchling.build"
 
 [project]
 name = "forma-lang"
-version = "0.0.0"
+version = "0.1.0"
 description = "Python runtime for the Forma language"
 requires-python = ">=3.11"
 readme = "README.md"
+license = "MIT"
+authors = [{ name = "Forma contributors" }]
+keywords = ["agent", "contracts", "forma", "runtime"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/syndicalt/forma"
+Repository = "https://github.com/syndicalt/forma"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/forma"]
