@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { runCli } from "../src/index.js";
+import { isCliEntrypoint, runCli } from "../src/index.js";
 import { access, cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { pathToFileURL } from "node:url";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
@@ -77,6 +78,18 @@ async function pathExists(path: string): Promise<boolean> {
 }
 
 describe("forma cli", () => {
+  it("detects npm global bin symlinks as CLI entrypoints", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "forma-cli-entrypoint-"));
+    const target = join(dir, "dist", "index.js");
+    const link = join(dir, "bin", "forma");
+    await mkdir(join(dir, "dist"), { recursive: true });
+    await mkdir(join(dir, "bin"), { recursive: true });
+    await writeFile(target, "");
+    await symlink(target, link);
+
+    expect(isCliEntrypoint(pathToFileURL(target).href, link)).toBe(true);
+  });
+
   it("summarizes review_diff and function_repair proof gates", async () => {
     const result = await runCli(["golden-proof", "examples"]);
     expect(result.exitCode).toBe(0);

@@ -42,7 +42,7 @@ pip install forma-lang
 ```
 
 The current public packages are `@forma-lang/forma@0.1.0`,
-`@forma-lang/cli@0.1.1`, and `forma-lang@0.1.0`. Use the repository-local
+`@forma-lang/cli@0.1.2`, and `forma-lang@0.1.0`. Use the repository-local
 `node cli/forma/dist/index.js ...` path only when developing Forma itself.
 
 ## Five-Minute Usefulness Path

@@ -60,7 +60,7 @@
             <p>Install the public CLI package to use the <code>forma</code> command outside this repository:</p>
             <pre><code class="language-bash">npm install -g @forma-lang/cli
 forma --help</code></pre>
-            <p>The current public CLI is <code>@forma-lang/cli@0.1.1</code>. The first npm publication, <code>@forma-lang/cli@0.1.0</code>, had an incorrect <code>workspace:^</code> runtime dependency, so new installs should use <code>0.1.1</code> or the <code>latest</code> dist tag. The CLI depends on <code>@forma-lang/forma@0.1.0</code> through the public <code>^0.1.0</code> range.</p>
+            <p>The current public CLI is <code>@forma-lang/cli@0.1.2</code>. The first npm publication, <code>@forma-lang/cli@0.1.0</code>, had an incorrect <code>workspace:^</code> runtime dependency, and <code>@forma-lang/cli@0.1.1</code> did not launch through npm's global bin symlink. New installs should use <code>0.1.2</code> or the <code>latest</code> dist tag. The CLI depends on <code>@forma-lang/forma@0.1.0</code> through the public <code>^0.1.0</code> range.</p>
             <p>Use <code>node cli/forma/dist/index.js ...</code> only when developing Forma from this repository after <code>corepack pnpm build</code>.</p>
             <h2 id="commands">Commands</h2>
             <p>The MVP command shape is:</p>

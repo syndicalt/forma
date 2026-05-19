@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
 import { exec } from "node:child_process";
+import { realpathSync } from "node:fs";
 import { mkdir, readFile, watch, writeFile } from "node:fs/promises";
 import { readdir } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import {
   FormaRuntime,
@@ -4079,7 +4080,16 @@ async function streamPreviewWatch(path: string): Promise<void> {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+export function isCliEntrypoint(importMetaUrl: string, argvPath: string | undefined): boolean {
+  if (!argvPath) return false;
+  try {
+    return realpathSync(fileURLToPath(importMetaUrl)) === realpathSync(argvPath);
+  } catch {
+    return importMetaUrl === pathToFileURL(argvPath).href;
+  }
+}
+
+if (isCliEntrypoint(import.meta.url, process.argv[1])) {
   const args = process.argv.slice(2);
   if (args[0] === "preview" && args[1] && args.includes("--watch") && !args.includes("--once")) {
     await streamPreviewWatch(args[1]);

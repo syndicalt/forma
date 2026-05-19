@@ -103,7 +103,7 @@ const requiredTerms = {
   "docs/packages/typescript.md": ["FormaRuntime", "StaticProvider", "Model-call execution and contract validation are separate responsibilities", "npm install @forma-lang/forma"],
   "docs/packages/cli.md": [
     "npm install -g @forma-lang/cli",
-    "@forma-lang/cli@0.1.1",
+    "@forma-lang/cli@0.1.2",
     "@forma-lang/forma@0.1.0",
     "forma --help",
     "forma check",

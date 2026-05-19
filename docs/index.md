@@ -32,7 +32,7 @@ pip install forma-lang
 ```
 
 The current public package line is `@forma-lang/forma@0.1.0`,
-`@forma-lang/cli@0.1.1`, and `forma-lang@0.1.0`.
+`@forma-lang/cli@0.1.2`, and `forma-lang@0.1.0`.
 
 Start with the product proof when you want to see the current coding-agent
 contract value end to end from a clean checkout:
