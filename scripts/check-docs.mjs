@@ -6,6 +6,9 @@ import { generatePythonBindings, generateTypeScriptBindings } from "../packages/
 const required = [
   "README.md",
   "docs/index.md",
+  "docs/index.html",
+  "docs/assets/site.css",
+  "docs/assets/social-card.png",
   "docs/guides/quickstart.md",
   "docs/guides/task-authoring.md",
   "docs/guides/runtime-results.md",
@@ -38,11 +41,21 @@ const required = [
   "examples/review_diff.forma.lock.json",
   "examples/function_repair/repair_function.forma.pkg.json",
   "examples/function_repair/repair_function.forma.lock.json",
+  "site/index.html",
+  "site/site.css",
+  "site/assets/social-card.png",
+  "scripts/build-site.mjs",
+  "scripts/check-site.mjs",
 ];
 
 const requiredTerms = {
   "README.md": ["Five-Minute Usefulness Path", "inline prompt plus local schemas", "before package-review or package locks", "Before Forma", "After Forma", "duplicated host schemas", "generated TypeScript and Python bindings", "Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "review_diff_package_lock", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "Which Scaffold Should I Use?", "docs/guides/first-use-audit.md", "first-use audit", "generated project READMEs", "project-init --minimal", "default project-init", "project-init --package-lock", "local to one application", "checked in CI", "consuming a reviewed package", "[minimal scaffold](#which-scaffold-should-i-use)", "[checked scaffold](#which-scaffold-should-i-use)", "[package-lock scaffold](#which-scaffold-should-i-use)", "product test, not an adoption commitment", "If you are skeptical, run the first-use audit before the product proof", "Keeping a local-only task out of Forma is a valid outcome", "Reusable coding-agent packages are the product wedge", "Minimal and checked projects are valid stopping points", "Package proof is not the product wedge; reusable agent contracts are", "A local prompt extraction should stop at minimal or checked scaffolds until reuse is real", "Product proof should follow first-use proof, not replace it"],
   "docs/index.md": ["Migration Parity", "review_diff_inline", "proof:migration", "projects:check", "proof:release", "examples/review-diff-agent", "package-review examples/review_diff.forma.pkg.json --proof-command", "missingMigrationParityProofCommand", "project-check --json", "docs/packages/cli.md", "docs/guides/first-use-audit.md", "first-use audit", "generated project READMEs", "five-minute usefulness path", "inline prompt plus local schemas", "project-init --minimal", "default project-init", "project-init --package-lock", "local first-use task", "checked host project", "reviewed package-lock project", "agent contract compiler", "not a prompt file format", "If you are skeptical", "Evaluate Forma as a reusable agent package workflow before adopting package locks", "Release proof is a packaging readiness check, not the first thing skeptics should run", "First-use proof asks whether host code improves, not whether packaging succeeds"],
+  "docs/index.html": ["Build reviewable agent tasks", "Technical Reference Hub", "review_diff", "function_repair", "forma golden-proof examples", "project-init --minimal", "package-review", "proof:release", "og:image", "twitter:image", "assets/social-card.png"],
+  "site/index.html": ["Build reviewable agent tasks", "Technical Reference Hub", "review_diff", "function_repair", "forma golden-proof examples", "project-init --minimal", "package-review", "proof:release", "og:image", "twitter:image", "assets/social-card.png"],
+  "site/site.css": ["--surface", "--accent", "--verified", ".docs-shell", "@media"],
+  "scripts/build-site.mjs": ["docs/index.html", "docs/assets/site.css", "docs/assets/social-card.png", "site built"],
+  "scripts/check-site.mjs": ["docs/index.html", "docs/assets/site.css", "Build reviewable agent tasks", "site ok"],
   "docs/language/diagnostics.md": [
     "F0001",
     "F1001",
@@ -257,7 +270,7 @@ const requiredTerms = {
   "docs/language/runtime-semantics.md": ["first task", "FormaResult", "verification", "Provider output validation is part of the host trust boundary", "Runtime traces are host workflow evidence", "Fallback policy cannot turn invalid provider output into trusted data", "Fallback diagnostics are host evidence, not prompt repair instructions"],
   "docs/language/limitations.md": ["MVP", "named task", "provider"],
   "examples/README.md": ["forma golden-proof examples", "review_diff first-use path", "function_repair coding-agent showcase", "nextGate", "traceSummary", "proof:release", "corepack pnpm proof:release", "projects:check", "Each proof command answers a different adoption question"],
-  ".github/workflows/forma-release-proof.yml": ["proof:release", "corepack pnpm proof:release", "installed-package-smoke-summary.jsonl", "actions/upload-artifact", "installedPackageSmokeSummary"],
+  ".github/workflows/forma-release-proof.yml": ["proof:release", "corepack pnpm proof:release", "site:build", "site:check", "installed-package-smoke-summary.jsonl", "actions/upload-artifact", "installedPackageSmokeSummary"],
 };
 
 const scanRoots = [
