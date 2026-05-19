@@ -187,6 +187,10 @@ Cleaned-up route labels should preserve candidate audit lookup keys. Keep
 candidate summaries, candidate diagnostics, comparison notes, and reviewer
 comments searchable by the original candidate route key, then record the
 cleaned-up label as review metadata after candidate acceptance.
+Cleaned-up route labels should preserve candidate-result audit lookup keys.
+Keep candidate results, candidate diagnostics, comparison notes, and reviewer
+comments searchable by the original candidate-result route key, then attach the
+cleaned-up label after the candidate result is accepted.
 Cleaned-up route labels should preserve baseline audit lookup keys. Keep
 baseline summaries, baseline diagnostics, previous-release notes, and reviewer
 comments searchable by the original baseline route key, then record the
