@@ -107,6 +107,10 @@ Cleaned-up route labels should preserve smoke audit lookup keys. Keep minimal
 smoke output, checked smoke output, fixture notes, and first-use proof records
 searchable by the original smoke route key, then attach the cleaned-up label as
 host-owned audit metadata.
+Cleaned-up route labels should preserve smoke-attempt audit lookup keys. Keep
+minimal smoke attempts, checked smoke attempts, fixture notes, and first-use
+proof records searchable by the original smoke-attempt route key, then attach
+the cleaned-up label after the smoke attempt is recorded.
 Cleaned-up route labels should preserve smoke-result audit lookup keys. Keep
 minimal smoke results, checked smoke results, fixture notes, and before/after
 proof records searchable by the original smoke-result route key, then attach
