@@ -1,6 +1,6 @@
 {
   "name": "@forma-lang/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Command-line tools for Forma agent contracts",
   "type": "module",
   "bin": {
@@ -31,7 +31,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@forma-lang/forma": "workspace:^"
+    "@forma-lang/forma": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.15.18"

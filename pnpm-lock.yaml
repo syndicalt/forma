@@ -18,8 +18,8 @@ importers:
   cli/forma:
     dependencies:
       '@forma-lang/forma':
-        specifier: workspace:^
-        version: link:../../packages/forma-typescript
+        specifier: ^0.1.0
+        version: 0.1.0
     devDependencies:
       '@types/node':
         specifier: ^22.15.18
@@ -206,6 +206,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@forma-lang/forma@0.1.0':
+    resolution: {integrity: sha512-vcy1r9JZRiIdLEEKUGFIQjVM+MeOdl6q9hsjS2LKH6G7vfoPSc9jTQJAJP/qzxjSEek/IfDKjl/p66mv+7TlCw==}
 
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
@@ -685,6 +688,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.7':
     optional: true
+
+  '@forma-lang/forma@0.1.0': {}
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
