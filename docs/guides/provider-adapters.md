@@ -110,6 +110,10 @@ Cleaned-up route labels should preserve fallback-attempt audit lookup keys.
 Keep fallback attempts, failed-result diagnostics, rerun traces, and adapter
 notes searchable by the original fallback-attempt route key, then attach the
 cleaned-up label after the fallback attempt is recorded.
+Cleaned-up route labels should preserve fallback-proof audit lookup keys. Keep
+fallback proof records, failed-result diagnostics, rerun traces, and adapter
+notes searchable by the original fallback-proof route key, then attach the
+cleaned-up label after the fallback proof is accepted.
 Cleaned-up route labels should preserve fallback-result audit lookup keys.
 Keep fallback results, failed-result diagnostics, rerun traces, and adapter
 notes searchable by the original fallback-result route key, then attach the

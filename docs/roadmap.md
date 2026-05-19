@@ -650,6 +650,8 @@ The current MVP provides:
   eval-attempt audit lookup keys.
 - Provider-adapter docs now say cleaned-up route labels should preserve
   fallback-attempt audit lookup keys.
+- Provider-adapter docs now say cleaned-up route labels should preserve
+  fallback-proof audit lookup keys.
 - Testing guide now says cleaned-up route labels should preserve
   failure-attempt audit lookup keys.
 - Runtime-result docs now say cleaned-up route labels should preserve
@@ -1306,12 +1308,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add provider-adapter wording that cleaned-up route labels
-   should preserve fallback-proof audit lookup keys.
-2. Product clarity: add testing-guide wording that cleaned-up route labels
+1. Product clarity: add testing-guide wording that cleaned-up route labels
    should preserve installed-attempt audit lookup keys.
-3. Product clarity: add runtime-results wording that cleaned-up route labels
+2. Product clarity: add runtime-results wording that cleaned-up route labels
    should preserve replacement-attempt audit lookup keys.
+3. Product clarity: add first-use wording that cleaned-up route labels should
+   preserve local-attempt audit lookup keys.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
