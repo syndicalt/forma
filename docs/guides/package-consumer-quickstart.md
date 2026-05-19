@@ -115,6 +115,10 @@ Cleaned-up route labels should preserve consumer audit lookup keys. Keep
 consumer smoke notes, dependency-review comments, and adoption records
 searchable by the original consumed route key, then attach the cleaned-up label
 as application-owned metadata until a reviewed release carries it.
+Cleaned-up route labels should preserve consumer-proof audit lookup keys. Keep
+consumer proof notes, package-lock smoke output, dependency-review comments,
+and adoption records searchable by the original consumer-proof route key, then
+attach the cleaned-up label after the consumer proof is recorded.
 Cleaned-up route labels should preserve lock audit lookup keys. Keep reviewed
 lock notes, stale-lock reports, and package-lock smoke evidence searchable by
 the original lock route key, then record the cleaned-up label as consumer audit

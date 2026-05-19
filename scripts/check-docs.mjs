@@ -201,6 +201,7 @@ const requiredTerms = {
     "Cleaned-up route labels should not change installed contract fixture ownership",
     "Cleaned-up route labels should preserve installed audit lookup keys",
     "Cleaned-up route labels should preserve consumer audit lookup keys",
+    "Cleaned-up route labels should preserve consumer-proof audit lookup keys",
     "Cleaned-up route labels should preserve lock audit lookup keys",
     "Cleaned-up route labels should preserve lock-attempt audit lookup keys",
     "Cleaned-up route labels should preserve dependency audit lookup keys",
