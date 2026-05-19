@@ -5,6 +5,24 @@ The CLI package is `@forma-lang/cli` and the entry point is
 TypeScript runtime package, so CLI behavior should match
 `FormaRuntime.runSource`.
 
+## Install
+
+Install the public CLI package to use the `forma` command outside this
+repository:
+
+```bash
+npm install -g @forma-lang/cli
+forma --help
+```
+
+The current public CLI is `@forma-lang/cli@0.1.1`. The first npm publication,
+`@forma-lang/cli@0.1.0`, had an incorrect `workspace:^` runtime dependency, so
+new installs should use `0.1.1` or the `latest` dist tag. The CLI depends on
+`@forma-lang/forma@0.1.0` through the public `^0.1.0` range.
+
+Use `node cli/forma/dist/index.js ...` only when developing Forma from this
+repository after `corepack pnpm build`.
+
 ## Commands
 
 The MVP command shape is:

@@ -6,6 +6,10 @@ Forma contracts keep task shape, generated bindings, runtime validation, and
 provider execution explicit. Host applications still own model choice, provider
 keys, retries, logging, and deployment policy.
 
+```bash
+npm install @forma-lang/forma
+```
+
 ```ts
 import { FormaRuntime, StaticProvider } from "@forma-lang/forma";
 

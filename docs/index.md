@@ -23,6 +23,17 @@ Read `docs/guides/golden-workflow.md` for the staged path: `review_diff` first,
 `function_repair` second, and package review only after local usefulness is
 clear.
 
+Install the public CLI and runtimes when using Forma from another project:
+
+```bash
+npm install -g @forma-lang/cli
+npm install @forma-lang/forma
+pip install forma-lang
+```
+
+The current public package line is `@forma-lang/forma@0.1.0`,
+`@forma-lang/cli@0.1.1`, and `forma-lang@0.1.0`.
+
 Start with the product proof when you want to see the current coding-agent
 contract value end to end from a clean checkout:
 

@@ -56,6 +56,12 @@
           <article class="markdown-body">
             <h1 id="cli-package">CLI Package</h1>
             <p>The CLI package is <code>@forma-lang/cli</code> and the entry point is <code>cli/forma/src/index.ts</code>. It is a thin command-line wrapper around the TypeScript runtime package, so CLI behavior should match <code>FormaRuntime.runSource</code>.</p>
+            <h2 id="install">Install</h2>
+            <p>Install the public CLI package to use the <code>forma</code> command outside this repository:</p>
+            <pre><code class="language-bash">npm install -g @forma-lang/cli
+forma --help</code></pre>
+            <p>The current public CLI is <code>@forma-lang/cli@0.1.1</code>. The first npm publication, <code>@forma-lang/cli@0.1.0</code>, had an incorrect <code>workspace:^</code> runtime dependency, so new installs should use <code>0.1.1</code> or the <code>latest</code> dist tag. The CLI depends on <code>@forma-lang/forma@0.1.0</code> through the public <code>^0.1.0</code> range.</p>
+            <p>Use <code>node cli/forma/dist/index.js ...</code> only when developing Forma from this repository after <code>corepack pnpm build</code>.</p>
             <h2 id="commands">Commands</h2>
             <p>The MVP command shape is:</p>
             <pre><code class="language-bash">forma &lt;check|run|outline|preview|eval|eval-suite|compare|generate|golden-proof|package-check|package-init|package-lock|package-review|project-check|project-init&gt; &lt;path&gt; [--input JSON]</code></pre>
@@ -616,6 +622,7 @@ corepack pnpm --filter @forma-lang/cli test</code></pre>
           <section class="rail-card">
             <h2>On this page</h2>
             <ol class="page-list">
+              <li><a href="#install">Install</a></li>
               <li><a href="#commands">Commands</a></li>
               <li><a href="#release-runtime-flow">Release Runtime Flow</a></li>
               <li><a href="#package-review-output">Package Review Output</a></li>

@@ -2,6 +2,10 @@
 
 Python runtime package for Forma task files.
 
+```bash
+pip install forma-lang
+```
+
 The package exposes `FormaRuntime` for executing Forma source, `ModelProvider`
 for custom adapters, `HttpJsonProvider` for HTTP JSON model endpoints,
 `OpenAIResponsesProvider` for OpenAI Responses API execution, and

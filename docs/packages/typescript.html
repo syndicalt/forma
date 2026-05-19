@@ -57,6 +57,10 @@
             <h1 id="typescript-package">TypeScript Package</h1>
             <p>The TypeScript runtime package is <code>@forma-lang/forma</code>, with source under <code>packages/forma-typescript/src</code>. It exports <code>agent</code>, <code>agentFromPackageLock</code>, <code>FormaRuntime</code>, <code>StaticProvider</code>, <code>RecordingProvider</code>, <code>HttpJsonProvider</code>, <code>OpenAIResponsesProvider</code>, <code>parseForma</code>, <code>providerProfileFromFile</code>, <code>providerFromProfile</code>, binding generators, <code>ModelProvider</code>, and public result and AST types from <code>src/index.ts</code>.</p>
             <p>The optional OpenAI adapter package is <code>@forma-lang/openai</code>, with source under <code>packages/forma-openai/src</code>. It re-exports the OpenAI Responses provider and provider-profile helpers for host applications that want production provider wiring in a separate install boundary from the core runtime.</p>
+            <h2 id="install">Install</h2>
+            <p>Install the public TypeScript runtime in host applications:</p>
+            <pre><code class="language-bash">npm install @forma-lang/forma</code></pre>
+            <p>The current public runtime is <code>@forma-lang/forma@0.1.0</code>. Repository-local development still uses the workspace package under <code>packages/forma-typescript</code>.</p>
             <h2 id="deterministic-runtime">Deterministic Runtime</h2>
             <pre><code class="language-ts">import { readFile } from &quot;node:fs/promises&quot;;
 import { FormaRuntime } from &quot;@forma-lang/forma&quot;;
@@ -176,6 +180,7 @@ corepack pnpm --filter @forma-lang/forma build</code></pre>
           <section class="rail-card">
             <h2>On this page</h2>
             <ol class="page-list">
+              <li><a href="#install">Install</a></li>
               <li><a href="#deterministic-runtime">Deterministic Runtime</a></li>
               <li><a href="#agent-runtime">Agent Runtime</a></li>
               <li><a href="#generated-bindings">Generated Bindings</a></li>

@@ -13,6 +13,17 @@ The optional OpenAI adapter package is `@forma-lang/openai`, with source under
 provider-profile helpers for host applications that want production provider
 wiring in a separate install boundary from the core runtime.
 
+## Install
+
+Install the public TypeScript runtime in host applications:
+
+```bash
+npm install @forma-lang/forma
+```
+
+The current public runtime is `@forma-lang/forma@0.1.0`. Repository-local
+development still uses the workspace package under `packages/forma-typescript`.
+
 ## Deterministic Runtime
 
 ```ts

@@ -25,6 +25,26 @@ The project ships a real `.forma` language package:
 - TypeScript CLI
 - complete documentation for shipped behavior
 
+## Install
+
+Install the public CLI when you want the `forma` command in another project:
+
+```bash
+npm install -g @forma-lang/cli
+forma --help
+```
+
+Install the TypeScript and Python runtimes inside host applications:
+
+```bash
+npm install @forma-lang/forma
+pip install forma-lang
+```
+
+The current public packages are `@forma-lang/forma@0.1.0`,
+`@forma-lang/cli@0.1.1`, and `forma-lang@0.1.0`. Use the repository-local
+`node cli/forma/dist/index.js ...` path only when developing Forma itself.
+
 ## Five-Minute Usefulness Path
 
 Start before package-review or package locks by testing Forma against the
@@ -38,6 +58,7 @@ locks.
 Start with the minimal host scaffold:
 
 ```bash
+npm install -g @forma-lang/cli
 forma project-init ./review-diff-agent-minimal --name review-diff-agent-minimal --task review_diff --minimal
 cd review-diff-agent-minimal
 pnpm install
@@ -95,19 +116,25 @@ that already earned reuse across a host application or another repository.
 The concrete proof is `examples/review_diff.forma`: one reviewed coding-agent
 contract that TypeScript and Python programs consume through generated
 bindings, provider profiles, package locks, evals, and runtime validation.
-Build the repo, then inspect and verify that package:
+Install the CLI to inspect the package as a consumer:
+
+```bash
+npm install -g @forma-lang/cli
+forma outline examples/review_diff.forma
+forma generate examples/review_diff.forma --target typescript --output examples/review_diff.forma.ts --check
+forma generate examples/review_diff.forma --target python --output examples/review_diff_forma.py --check
+forma package-review examples/review_diff.forma.pkg.json
+forma eval-suite examples/forma.eval.json --summary
+```
+
+When developing Forma itself, build the repo and run the full release proof:
 
 ```bash
 corepack pnpm install
 corepack pnpm build
-node cli/forma/dist/index.js outline examples/review_diff.forma
-node cli/forma/dist/index.js generate examples/review_diff.forma --target typescript --output examples/review_diff.forma.ts --check
-node cli/forma/dist/index.js generate examples/review_diff.forma --target python --output examples/review_diff_forma.py --check
 corepack pnpm examples:check
 corepack pnpm projects:check
-node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json
 corepack pnpm proof:release
-node cli/forma/dist/index.js eval-suite examples/forma.eval.json --summary
 ```
 
 `package-review` checks the manifest, lockfile, compatibility policy, provider

@@ -57,6 +57,10 @@
             <h1 id="python-package">Python Package</h1>
             <p>The Python runtime package is <code>forma-lang</code>, with source under <code>packages/forma-python/src/forma</code>. It exports <code>agent</code>, <code>agent_from_package_lock</code>, <code>FormaRuntime</code>, <code>StaticProvider</code>, <code>RecordingProvider</code>, <code>HttpJsonProvider</code>, <code>OpenAIResponsesProvider</code>, <code>provider_profile_from_file</code>, and <code>provider_from_profile</code> from <code>forma</code>. It also exports <code>ModelProvider</code> for typing custom adapters.</p>
             <p>The optional OpenAI adapter package is <code>forma-openai</code>, with source under <code>packages/forma-openai-python/src/forma_openai</code>. It re-exports the OpenAI Responses provider and provider-profile helpers for host applications that want production provider wiring in a separate install boundary from the core runtime.</p>
+            <h2 id="install">Install</h2>
+            <p>Install the public Python runtime in host applications:</p>
+            <pre><code class="language-bash">pip install forma-lang</code></pre>
+            <p>The current public Python runtime is <code>forma-lang@0.1.0</code> and imports as <code>forma</code>. Repository-local development still uses the source package under <code>packages/forma-python</code>.</p>
             <p><code>FormaRuntime.run_source</code> accepts source text, an input dictionary, and a source name, then returns a <code>FormaResult</code> dataclass.</p>
             <h2 id="deterministic-runtime">Deterministic Runtime</h2>
             <pre><code class="language-python">from forma import FormaRuntime
@@ -183,6 +187,7 @@ corepack pnpm check</code></pre>
           <section class="rail-card">
             <h2>On this page</h2>
             <ol class="page-list">
+              <li><a href="#install">Install</a></li>
               <li><a href="#deterministic-runtime">Deterministic Runtime</a></li>
               <li><a href="#agent-runtime">Agent Runtime</a></li>
               <li><a href="#generated-bindings">Generated Bindings</a></li>

@@ -14,6 +14,18 @@ Responses provider and provider-profile helpers for host applications that want
 production provider wiring in a separate install boundary from the core
 runtime.
 
+## Install
+
+Install the public Python runtime in host applications:
+
+```bash
+pip install forma-lang
+```
+
+The current public Python runtime is `forma-lang@0.1.0` and imports as
+`forma`. Repository-local development still uses the source package under
+`packages/forma-python`.
+
 `FormaRuntime.run_source` accepts source text, an input dictionary, and a source
 name, then returns a `FormaResult` dataclass.
 
