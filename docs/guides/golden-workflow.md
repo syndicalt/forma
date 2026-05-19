@@ -20,9 +20,14 @@ forma project-init ./review-diff-agent-minimal \
   --task review_diff \
   --minimal
 cd review-diff-agent-minimal
+pnpm install
+python -m pip install -e .
 pnpm run smoke:local:ts
-python test/review_diff_local_smoke.py
+pnpm run smoke:local:py
 ```
+
+If pnpm reports ignored build scripts for `esbuild`, run
+`pnpm approve-builds`, approve the pending build, then rerun `pnpm install`.
 
 The ten-minute local proof is the generated project plus local smoke output:
 the `.forma` contract owns task shape, generated TypeScript and Python bindings

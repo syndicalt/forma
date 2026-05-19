@@ -42,7 +42,7 @@ pip install forma-lang
 ```
 
 The current public packages are `@forma-lang/forma@0.1.0`,
-`@forma-lang/cli@0.1.2`, and `forma-lang@0.1.0`. Use the repository-local
+`@forma-lang/cli@0.1.3`, and `forma-lang@0.1.0`. Use the repository-local
 `node cli/forma/dist/index.js ...` path only when developing Forma itself.
 
 ## Five-Minute Usefulness Path
@@ -62,9 +62,13 @@ npm install -g @forma-lang/cli
 forma project-init ./review-diff-agent-minimal --name review-diff-agent-minimal --task review_diff --minimal
 cd review-diff-agent-minimal
 pnpm install
+python -m pip install -e .
 pnpm run smoke:local:ts
-python review_diff_local_smoke.py
+pnpm run smoke:local:py
 ```
+
+If pnpm blocks `esbuild` during install, run `pnpm approve-builds`, approve
+the pending build, and rerun `pnpm install`.
 
 That scaffold keeps provider keys, model selection, retries, logging, and
 deployment policy in the host application. Forma supplies the task boundary,

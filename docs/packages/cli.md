@@ -15,10 +15,10 @@ npm install -g @forma-lang/cli
 forma --help
 ```
 
-The current public CLI is `@forma-lang/cli@0.1.2`. The first npm publication,
+The current public CLI is `@forma-lang/cli@0.1.3`. The first npm publication,
 `@forma-lang/cli@0.1.0`, had an incorrect `workspace:^` runtime dependency,
 and `@forma-lang/cli@0.1.1` did not launch through npm's global bin symlink.
-New installs should use `0.1.2` or the `latest` dist tag. The CLI depends on
+New installs should use `0.1.3` or the `latest` dist tag. The CLI depends on
 `@forma-lang/forma@0.1.0` through the public `^0.1.0` range.
 
 Use `node cli/forma/dist/index.js ...` only when developing Forma from this
@@ -787,7 +787,7 @@ Scaffold proof commands:
 
 | Scaffold | Proof command before depending on it |
 | --- | --- |
-| minimal proof command | `pnpm run smoke:local:ts && python test/review_diff_local_smoke.py` |
+| minimal proof command | `python -m pip install -e . && pnpm run smoke:local:ts && pnpm run smoke:local:py` |
 | checked proof command | `forma project-check . && pnpm run smoke:ts && python test/review_diff_agent_smoke.py` |
 | package-lock proof command | `forma project-check . && pnpm run smoke:lock:ts && python test/review_diff_package_lock_smoke.py` |
 
@@ -816,7 +816,8 @@ The command output identifies this as the first-use path:
 
 ```text
 created minimal host project
-next: pnpm run smoke:local:ts
+next: pnpm install && python -m pip install -e .
+then: pnpm run smoke:local:ts && pnpm run smoke:local:py
 use default project-init for project-check and CI workflow
 ```
 
@@ -830,9 +831,13 @@ Python.
 
 ```bash
 cd review-diff-agent-minimal
+python -m pip install -e .
 pnpm run smoke:local:ts
-python test/review_diff_local_smoke.py
+pnpm run smoke:local:py
 ```
+
+If pnpm reports ignored build scripts for `esbuild`, run
+`pnpm approve-builds`, approve the pending build, then rerun `pnpm install`.
 
 The default scaffold output points to the checked-project gate:
 

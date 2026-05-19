@@ -60,7 +60,7 @@
             <p>Install the public CLI package to use the <code>forma</code> command outside this repository:</p>
             <pre><code class="language-bash">npm install -g @forma-lang/cli
 forma --help</code></pre>
-            <p>The current public CLI is <code>@forma-lang/cli@0.1.2</code>. The first npm publication, <code>@forma-lang/cli@0.1.0</code>, had an incorrect <code>workspace:^</code> runtime dependency, and <code>@forma-lang/cli@0.1.1</code> did not launch through npm's global bin symlink. New installs should use <code>0.1.2</code> or the <code>latest</code> dist tag. The CLI depends on <code>@forma-lang/forma@0.1.0</code> through the public <code>^0.1.0</code> range.</p>
+            <p>The current public CLI is <code>@forma-lang/cli@0.1.3</code>. The first npm publication, <code>@forma-lang/cli@0.1.0</code>, had an incorrect <code>workspace:^</code> runtime dependency, and <code>@forma-lang/cli@0.1.1</code> did not launch through npm's global bin symlink. New installs should use <code>0.1.3</code> or the <code>latest</code> dist tag. The CLI depends on <code>@forma-lang/forma@0.1.0</code> through the public <code>^0.1.0</code> range.</p>
             <p>Use <code>node cli/forma/dist/index.js ...</code> only when developing Forma from this repository after <code>corepack pnpm build</code>.</p>
             <h2 id="commands">Commands</h2>
             <p>The MVP command shape is:</p>
@@ -440,7 +440,7 @@ forma package-review ./review-diff-package/review_diff.forma.pkg.json --baseline
             <table>
               <thead><tr><th>Scaffold</th><th>Proof command before depending on it</th></tr></thead>
               <tbody>
-                <tr><td>minimal proof command</td><td><code>pnpm run smoke:local:ts &amp;&amp; python test/review_diff_local_smoke.py</code></td></tr>
+                <tr><td>minimal proof command</td><td><code>python -m pip install -e . &amp;&amp; pnpm run smoke:local:ts &amp;&amp; pnpm run smoke:local:py</code></td></tr>
                 <tr><td>checked proof command</td><td><code>forma project-check . &amp;&amp; pnpm run smoke:ts &amp;&amp; python test/review_diff_agent_smoke.py</code></td></tr>
                 <tr><td>package-lock proof command</td><td><code>forma project-check . &amp;&amp; pnpm run smoke:lock:ts &amp;&amp; python test/review_diff_package_lock_smoke.py</code></td></tr>
               </tbody>
@@ -457,12 +457,15 @@ forma package-review ./review-diff-package/review_diff.forma.pkg.json --baseline
   --minimal</code></pre>
             <p>The command output identifies this as the first-use path:</p>
             <pre><code class="language-text">created minimal host project
-next: pnpm run smoke:local:ts
+next: pnpm install &amp;&amp; python -m pip install -e .
+then: pnpm run smoke:local:ts &amp;&amp; pnpm run smoke:local:py
 use default project-init for project-check and CI workflow</code></pre>
             <p>Use the default scaffold when you are ready for <code>forma project-check</code>, checked CI workflow proof commands, and manifest-enforced smoke tests. The minimal scaffold still gives you no-key local checks: Generated project CI is application contract protection, not framework ceremony. Keep the workflow when application code depends on the generated task bindings, provider profile, and runtime entrypoints staying aligned across TypeScript and Python.</p>
             <pre><code class="language-bash">cd review-diff-agent-minimal
+python -m pip install -e .
 pnpm run smoke:local:ts
-python test/review_diff_local_smoke.py</code></pre>
+pnpm run smoke:local:py</code></pre>
+            <p>If pnpm reports ignored build scripts for <code>esbuild</code>, run <code>pnpm approve-builds</code>, approve the pending build, then rerun <code>pnpm install</code>.</p>
             <p>The default scaffold output points to the checked-project gate:</p>
             <pre><code class="language-text">created checked host project
 next: forma project-check .

@@ -1,6 +1,6 @@
 {
   "name": "@forma-lang/cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Command-line tools for Forma agent contracts",
   "type": "module",
   "bin": {

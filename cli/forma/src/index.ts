@@ -1062,7 +1062,8 @@ function projectInitSummary(minimal: boolean, packageLock: boolean): string {
   if (minimal) {
     return [
       "created minimal host project",
-      "next: pnpm run smoke:local:ts",
+      "next: pnpm install && python -m pip install -e .",
+      "then: pnpm run smoke:local:ts && pnpm run smoke:local:py",
       "use default project-init for project-check and CI workflow",
     ].join("\n") + "\n";
   }
@@ -2677,7 +2678,10 @@ function scaffoldProjectPackageJson(projectName: string, taskName: string, inclu
       generate: `forma generate ${taskName}.forma --target typescript --output src/${taskName}.forma.ts`,
       check: "tsc --noEmit",
       "run:ts": `tsx src/${taskName}_agent.ts`,
-      ...(minimal ? { "smoke:local:ts": `tsx test/${taskName}_local_smoke.ts` } : { "smoke:ts": `tsx test/${taskName}_agent_smoke.ts` }),
+      ...(minimal ? {
+        "smoke:local:ts": `tsx test/${taskName}_local_smoke.ts`,
+        "smoke:local:py": `python test/${taskName}_local_smoke.py`,
+      } : { "smoke:ts": `tsx test/${taskName}_agent_smoke.ts` }),
       ...(includePackageLockSmoke ? { "smoke:lock:ts": `tsx test/${taskName}_package_lock_smoke.ts` } : {}),
     },
     dependencies: {
@@ -2739,8 +2743,11 @@ pnpm install
 python -m pip install -e .
 pnpm run check
 pnpm run smoke:local:ts
-python test/${taskName}_local_smoke.py
+pnpm run smoke:local:py
 \`\`\`
+
+If pnpm reports ignored build scripts for \`esbuild\`, run
+\`pnpm approve-builds\`, approve the pending build, then rerun \`pnpm install\`.
 
 The task contract lives in \`${taskName}.forma\`. It owns the input fields,
 output fields, instructions, permissions, and verification rules. The generated
@@ -2793,7 +2800,7 @@ python src/${taskName}_agent.py
 \`test/${taskName}_local_smoke.py\` is the matching no-key Python smoke path:
 
 \`\`\`bash
-python test/${taskName}_local_smoke.py
+pnpm run smoke:local:py
 \`\`\`
 
 ## When to Grow This Project

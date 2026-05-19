@@ -121,10 +121,12 @@ output = assert_review_diff_output(result.output)</code></pre>
   --name review-diff-agent-minimal \
   --task review_diff \
   --minimal</code></pre>
-            <p>The minimal scaffold writes the <code>.forma</code> task, <code>forma.provider.json</code>, generated TypeScript and Python bindings, and direct <code>agent(...)</code> entrypoints. It skips <code>forma.project.json</code>, generated smoke tests, and <code>.github/workflows</code> so the first project stays focused on the contract boundary before package-review or package locks. It still includes local <code>StaticProvider</code> smoke commands so you can run the entrypoints without a model key:</p>
+            <p>The minimal scaffold writes the <code>.forma</code> task, <code>forma.provider.json</code>, generated TypeScript and Python bindings, and direct <code>agent(...)</code> entrypoints. It skips <code>forma.project.json</code>, generated smoke tests, and <code>.github/workflows</code> so the first project stays focused on the contract boundary before package-review or package locks. It still includes local <code>StaticProvider</code> smoke commands so you can run the entrypoints without a model key. The Python script is <code>test/review_diff_local_smoke.py</code>, exposed through the package script below:</p>
             <pre><code class="language-bash">cd review-diff-agent-minimal
+python -m pip install -e .
 pnpm run smoke:local:ts
-python test/review_diff_local_smoke.py</code></pre>
+pnpm run smoke:local:py</code></pre>
+            <p>If pnpm reports ignored build scripts for <code>esbuild</code>, run <code>pnpm approve-builds</code>, approve the pending build, then rerun <code>pnpm install</code>.</p>
             <h2 id="verification">Verification</h2>
             <p>A clean local verification run should include these commands:</p>
             <pre><code class="language-bash">corepack pnpm install --frozen-lockfile

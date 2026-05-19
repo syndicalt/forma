@@ -65,8 +65,11 @@
   --task review_diff \
   --minimal
 cd review-diff-agent-minimal
+pnpm install
+python -m pip install -e .
 pnpm run smoke:local:ts
-python test/review_diff_local_smoke.py</code></pre>
+pnpm run smoke:local:py</code></pre>
+            <p>If pnpm reports ignored build scripts for <code>esbuild</code>, run <code>pnpm approve-builds</code>, approve the pending build, then rerun <code>pnpm install</code>.</p>
             <p>The ten-minute local proof is the generated project plus local smoke output: the <code>.forma</code> contract owns task shape, generated TypeScript and Python bindings validate output, and host code keeps provider setup local.</p>
             <p>Compare that with <code>examples/review_diff_inline.ts</code> and <code>examples/review_diff_inline.py</code>. If the generated contract boundary is not simpler than inline prompt plus local schemas, stop here.</p>
             <h3 id="stage-2-function-repair-coding-agent-showcase">Stage 2: function_repair coding-agent showcase</h3>

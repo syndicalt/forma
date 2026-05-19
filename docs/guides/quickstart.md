@@ -145,13 +145,18 @@ TypeScript and Python bindings, and direct `agent(...)` entrypoints. It skips
 `forma.project.json`, generated smoke tests, and `.github/workflows` so the
 first project stays focused on the contract boundary before package-review or package locks.
 It still includes local `StaticProvider` smoke commands so you can run the
-entrypoints without a model key:
+entrypoints without a model key. The Python script is
+`test/review_diff_local_smoke.py`, exposed through the package script below:
 
 ```bash
 cd review-diff-agent-minimal
+python -m pip install -e .
 pnpm run smoke:local:ts
-python test/review_diff_local_smoke.py
+pnpm run smoke:local:py
 ```
+
+If pnpm reports ignored build scripts for `esbuild`, run
+`pnpm approve-builds`, approve the pending build, then rerun `pnpm install`.
 
 ## Verification
 

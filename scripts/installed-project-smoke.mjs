@@ -63,8 +63,10 @@ async function main() {
     await assertFileContains(join(minimalProjectDir, "README.md"), [
       "ten-minute local proof",
       "inline prompt plus local schemas",
+      "python -m pip install -e .",
       "pnpm run smoke:local:ts",
-      "python test/review_diff_local_smoke.py",
+      "pnpm run smoke:local:py",
+      "pnpm approve-builds",
     ]);
 
     const minimalPackageJsonPath = join(minimalProjectDir, "package.json");
@@ -79,13 +81,15 @@ async function main() {
     const python = process.env.PYTHON ?? "python";
     const minimalVenvDir = join(minimalProjectDir, ".venv");
     const minimalVenvPython = join(minimalVenvDir, "bin", "python");
+    const minimalVenvBin = join(minimalVenvDir, "bin");
     await run(python, ["-m", "venv", minimalVenvDir], { cwd: minimalProjectDir });
     await run(minimalVenvPython, ["-m", "pip", "install", resolve(repoRoot, "packages/forma-python")], { cwd: minimalProjectDir });
-    await run(minimalVenvPython, ["test/review_diff_local_smoke.py"], {
+    await run(minimalVenvPython, ["-m", "pip", "install", "-e", ".", "--no-deps"], { cwd: minimalProjectDir });
+    await run("corepack", ["pnpm", "run", "smoke:local:py"], {
       cwd: minimalProjectDir,
       env: {
         ...process.env,
-        PYTHONPATH: join(minimalProjectDir, "src"),
+        PATH: `${minimalVenvBin}:${process.env.PATH}`,
       },
     });
 

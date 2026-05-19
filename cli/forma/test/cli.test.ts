@@ -2491,7 +2491,8 @@ describe("forma cli", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
     expect(result.stdout).toContain("created minimal host project");
-    expect(result.stdout).toContain("next: pnpm run smoke:local:ts");
+    expect(result.stdout).toContain("next: pnpm install && python -m pip install -e .");
+    expect(result.stdout).toContain("then: pnpm run smoke:local:ts && pnpm run smoke:local:py");
     expect(result.stdout).toContain("use default project-init for project-check and CI workflow");
     expect(await readFile(join(dir, "review_diff.forma"), "utf8")).toContain("task review_diff");
     expect(await readFile(join(dir, "src", "review_diff.forma.ts"), "utf8")).toContain("assertReviewDiffOutput");
@@ -2508,7 +2509,8 @@ describe("forma cli", () => {
     expect(readme).toContain("src/review_diff_agent.ts");
     expect(readme).toContain("src/review_diff_agent.py");
     expect(readme).toContain("pnpm run smoke:local:ts");
-    expect(readme).toContain("python test/review_diff_local_smoke.py");
+    expect(readme).toContain("pnpm run smoke:local:py");
+    expect(readme).toContain("pnpm approve-builds");
     expect(readme).toContain("When to Grow This Project");
     expect(readme).toContain("default `forma project-init`");
     expect(readme).toContain("`forma project-init --package-lock`");
@@ -2516,6 +2518,8 @@ describe("forma cli", () => {
     expect(readme).toContain("docs/packages/cli.md#project-init");
     const packageJson = await readFile(join(dir, "package.json"), "utf8");
     expect(packageJson).toContain("\"smoke:local:ts\"");
+    expect(packageJson).toContain("\"smoke:local:py\"");
+    expect(packageJson).toContain("python test/review_diff_local_smoke.py");
     const typeScriptSmoke = await readFile(join(dir, "test", "review_diff_local_smoke.ts"), "utf8");
     expect(typeScriptSmoke).toContain("StaticProvider");
     expect(typeScriptSmoke).toContain("runReviewDiff");
