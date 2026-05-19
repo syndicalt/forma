@@ -267,6 +267,10 @@ Cleaned-up route labels should preserve failure-attempt audit lookup keys. Keep
 installed smoke failure attempts, failed package-kind markers, saved logs, and
 recovery notes searchable by the original failure-attempt route key, then
 attach the cleaned-up label after the failure attempt is recorded.
+Cleaned-up route labels should preserve failure-decision audit lookup keys.
+Keep installed smoke failure decisions, failed package-kind markers, saved
+logs, and recovery notes searchable by the original failure-decision route key,
+then attach the cleaned-up label after the failure decision is recorded.
 Cleaned-up route labels should keep installed smoke failure notes comparable.
 When a route rename appears in a failed installed smoke run, keep the original
 failure note beside the cleaned-up label so reviewers can compare reruns
