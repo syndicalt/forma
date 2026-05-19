@@ -143,6 +143,10 @@ Cleaned-up route labels should preserve release-adoption audit lookup keys.
 Keep reviewed release choices, adoption notes, lock-update evidence, and
 consumer smoke results searchable by the original release-adoption route key,
 then attach the cleaned-up label after the reviewed release is adopted.
+Cleaned-up route labels should preserve release-result audit lookup keys. Keep
+reviewed release results, adoption notes, lock-update evidence, and consumer
+smoke results searchable by the original release-result route key, then attach
+the cleaned-up label after the reviewed release result is accepted.
 Cleaned-up route labels should preserve lock-update audit lookup keys. Keep
 lock-update requests, stale-lock reports, reviewed release notes, and consumer
 smoke evidence searchable by the original lock-update route key, then attach
