@@ -620,6 +620,8 @@ The current MVP provides:
   provider-result audit lookup keys.
 - Testing guide now says cleaned-up route labels should preserve triage-result
   audit lookup keys.
+- Runtime-result docs now say cleaned-up route labels should preserve
+  diagnostics-result audit lookup keys.
 - Package-consumer quickstart now tells application teams to consume reviewed
   releases instead of copying package internals.
 - Package-consumer quickstart now says copied package internals lose
@@ -1182,12 +1184,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add runtime-results wording that cleaned-up route labels
-   should preserve diagnostics-result audit lookup keys.
-2. Product clarity: add first-use wording that cleaned-up route labels should
+1. Product clarity: add first-use wording that cleaned-up route labels should
    preserve decision-result audit lookup keys.
-3. Product clarity: add package-consumer wording that cleaned-up route labels
+2. Product clarity: add package-consumer wording that cleaned-up route labels
    should preserve adoption-result audit lookup keys.
+3. Product clarity: add product-proof wording that cleaned-up route labels
+   should preserve eval-result audit lookup keys.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove
