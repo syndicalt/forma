@@ -211,6 +211,10 @@ Cleaned-up route labels should preserve review audit lookup keys. Keep review
 notes, approval evidence, and before-and-after summaries searchable by the
 original route key, then attach the cleaned-up label as the reviewer-facing
 display name.
+Cleaned-up route labels should preserve review-result audit lookup keys. Keep
+review results, approval evidence, before-and-after summaries, and eval notes
+searchable by the original review-result route key, then attach the cleaned-up
+label after the review result is accepted.
 Cleaned-up route labels should preserve package-review audit lookup keys. Keep
 package-review notes, approval records, lock evidence, and eval summaries
 searchable by the original reviewed route key, then record the cleaned-up label
