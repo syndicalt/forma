@@ -11,6 +11,9 @@ locking, and package review.
 
 Use this guide when deciding whether Forma is adding enough value over a model
 SDK call plus local Zod or Pydantic schemas.
+Use `docs/guides/golden-workflow.md` for the staged proof order: `review_diff`
+first, `function_repair` second, and package review only after local usefulness
+is clear.
 Read `docs/guides/migrating-from-inline-prompts.md` when you want the
 before/after implementation path from inline model calls to a reviewed package.
 

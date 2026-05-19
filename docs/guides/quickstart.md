@@ -115,6 +115,9 @@ output = assert_review_diff_output(result.output)
 Stop here when the task is local to one application. Add package manifests,
 package review, and package locks only when the task is shared, reviewed, or
 reused across repositories.
+Use `docs/guides/golden-workflow.md` when you want the staged path: prove
+`review_diff` first, inspect the `function_repair` coding-agent showcase
+second, and add package review only after local usefulness is clear.
 Package locks are evidence for reusable package adoption, not proof that every
 local task belongs in Forma. Use them when a reviewed package needs pinned
 artifacts for another consumer; keep local tasks on the minimal or checked host

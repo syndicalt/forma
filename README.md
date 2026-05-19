@@ -79,6 +79,9 @@ before you spend time on package review, package locks, or release checks.
 Product proof should follow first-use proof, not replace it. Run the heavier
 package checks after the minimal or checked path shows the contract improves
 host code.
+For the staged product path, read `docs/guides/golden-workflow.md`: it runs
+`review_diff` first, then the `function_repair` coding-agent showcase, and
+leaves package review until local usefulness is proven.
 
 ## Product Proof
 

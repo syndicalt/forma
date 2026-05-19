@@ -40,6 +40,9 @@ That progression mirrors the scaffold choices in
 `docs/guides/quickstart.md#five-minute-usefulness-path` and
 `docs/packages/cli.md#project-init`: local usefulness first, checked host
 project second, reviewed package-lock project last.
+For the full staged product path, read `docs/guides/golden-workflow.md`:
+`review_diff` proves local usefulness first, `function_repair` shows the
+coding-agent workflow second, and package review stays last.
 
 ## Steps
 

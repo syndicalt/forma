@@ -30,6 +30,9 @@ that the host code became simpler.
 No named consumer means no package lock yet. Stay on the minimal or checked
 host-project path until a specific application, repository, or release process
 needs pinned package artifacts from a reviewed contract.
+Use `docs/guides/golden-workflow.md` when the first-use audit should continue:
+prove `review_diff` first, inspect `function_repair` second, and move to
+package review only after local usefulness is clear.
 Fallback models are not part of the usefulness proof. First prove the Forma
 contract removes duplicated schema and prompt code with local smoke tests; add
 provider failover only after that contract is worth keeping.

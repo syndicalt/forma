@@ -19,6 +19,9 @@ First-use proof asks whether host code improves, not whether packaging succeeds.
 The first decision is whether generated bindings, runtime validation, smoke
 tests, and reviewable package evidence improve the host application; the
 lockfile path comes later when another repository should consume pinned artifacts.
+Read `docs/guides/golden-workflow.md` for the staged path: `review_diff` first,
+`function_repair` second, and package review only after local usefulness is
+clear.
 
 Start with the product proof when you want to see the current coding-agent
 contract value end to end from a clean checkout:
