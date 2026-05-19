@@ -99,6 +99,10 @@ Cleaned-up route labels should preserve local audit lookup keys. Keep the
 first-use proof notes, smoke output, and route evidence searchable by the
 original local route key, then add the cleaned-up label as host configuration
 metadata.
+Cleaned-up route labels should preserve local-result audit lookup keys. Keep
+local proof results, smoke output, before/after notes, and route evidence
+searchable by the original local-result route key, then attach the cleaned-up
+label after the local result is recorded.
 Cleaned-up route labels should preserve smoke audit lookup keys. Keep minimal
 smoke output, checked smoke output, fixture notes, and first-use proof records
 searchable by the original smoke route key, then attach the cleaned-up label as
