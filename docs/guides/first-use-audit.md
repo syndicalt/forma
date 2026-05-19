@@ -81,6 +81,10 @@ Cleaned-up route labels should preserve adoption-proof audit lookup keys. Keep
 adoption proof notes, before/after usefulness evidence, local smoke output, and
 generated binding notes searchable by the original adoption-proof route key,
 then attach the cleaned-up label after the adoption proof is recorded.
+Cleaned-up route labels should preserve adoption-decision audit lookup keys.
+Keep adoption decisions, before/after usefulness evidence, local smoke output,
+and generated binding notes searchable by the original adoption-decision route
+key, then attach the cleaned-up label after the adoption decision is recorded.
 Cleaned-up route labels should preserve decision audit lookup keys. Keep the
 adopt/defer/do-not-use decision, before/after notes, and smoke proof searchable
 by the original first-use route key, then record the cleaned-up label as
