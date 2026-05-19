@@ -1,4 +1,5 @@
-import { agent, type FormaValue, type ModelProvider, type PermissionTools } from "@forma-lang/forma";
+import { fileURLToPath } from "node:url";
+import { agent, type FormaValue, type ModelProvider, type PermissionTools, type ToolHost } from "@forma-lang/forma";
 import { assertRepairFunctionOutput, type RepairFunctionOutput } from "./repair_function.forma.js";
 
 class FunctionRepairProvider implements ModelProvider {
@@ -14,9 +15,7 @@ class FunctionRepairProvider implements ModelProvider {
     const testCommand = String(input.values.test_command);
     const source = await input.tools.readText(path);
     await input.tools.searchText(functionName);
-    const repaired = source.includes("NEEDS_FIX")
-      ? source.replace("NEEDS_FIX", desiredBehavior)
-      : source;
+    const repaired = repairSource(source, desiredBehavior);
     await input.tools.writeText(path, repaired);
     const test = await input.tools.runTest(testCommand);
     return {
@@ -28,11 +27,26 @@ class FunctionRepairProvider implements ModelProvider {
   }
 }
 
-const repairFunction = agent({
-  file: "repair_function.forma",
-  task: "repair_function",
-  provider: new FunctionRepairProvider(),
-});
+function repairSource(source: string, desiredBehavior: string): string {
+  if (source.includes("return subtotal;")) {
+    return source.replace("return subtotal;", "return subtotal - discount;");
+  }
+  if (source.includes("NEEDS_FIX")) {
+    return source.replace("NEEDS_FIX", desiredBehavior);
+  }
+  return source;
+}
+
+export function repairFunctionAgent(tools?: ToolHost) {
+  return agent({
+    file: fileURLToPath(new URL("repair_function.forma", import.meta.url)),
+    task: "repair_function",
+    provider: new FunctionRepairProvider(),
+    ...(tools ? { tools } : {}),
+  });
+}
+
+const repairFunction = repairFunctionAgent();
 
 export async function runRepairFunction(): Promise<RepairFunctionOutput> {
   const result = await repairFunction.run({

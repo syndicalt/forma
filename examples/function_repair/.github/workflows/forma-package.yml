@@ -21,6 +21,12 @@ jobs:
         run: forma package-check repair_function.forma.pkg.json
       - name: Check package lock
         run: forma package-lock repair_function.forma.pkg.json --output repair_function.forma.lock.json --check
+      - name: Run TypeScript package tests
+        run: npx vitest run repair_function_contract.test.ts repair_function_trace.test.ts
+      - name: Run Python contract test
+        run: python repair_function_contract_test.py
+      - name: Run Python trace test
+        run: python repair_function_trace_test.py
       - name: Write stale package lock report
         if: failure()
         run: forma package-lock repair_function.forma.pkg.json --output repair_function.forma.lock.json --check --json > stale-package-lock-report.json || true

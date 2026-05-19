@@ -20,7 +20,7 @@ class FunctionRepairProvider:
         test_command = str(values["test_command"])
         source = tools.read_text(path)
         tools.search_text(function_name)
-        repaired = source.replace("NEEDS_FIX", desired_behavior) if "NEEDS_FIX" in source else source
+        repaired = repair_source(source, desired_behavior)
         tools.write_text(path, repaired)
         test = tools.run_test(test_command)
         return {
@@ -31,11 +31,35 @@ class FunctionRepairProvider:
         }
 
 
-repair_function = agent(
-    file=Path(__file__).with_name("repair_function.forma"),
-    task="repair_function",
-    provider=FunctionRepairProvider(),
-)
+def repair_source(source: str, desired_behavior: str) -> str:
+    if "return subtotal" in source:
+        return source.replace("return subtotal", "return subtotal - discount")
+    if "NEEDS_FIX" in source:
+        return source.replace("NEEDS_FIX", desired_behavior)
+    return source
+
+
+def repair_function_agent(tools: object | None = None):
+    return agent(
+        file=Path(__file__).with_name("repair_function.forma"),
+        task="repair_function",
+        provider=FunctionRepairProvider(),
+        tools=tool_mapping(tools) if tools is not None else None,
+    )
+
+
+def tool_mapping(tools: object) -> dict[str, object]:
+    if isinstance(tools, dict):
+        return tools
+    return {
+        "read_text": getattr(tools, "read_text"),
+        "search_text": getattr(tools, "search_text"),
+        "write_text": getattr(tools, "write_text"),
+        "run_test": getattr(tools, "run_test"),
+    }
+
+
+repair_function = repair_function_agent()
 
 
 def run_repair_function() -> RepairFunctionOutput:

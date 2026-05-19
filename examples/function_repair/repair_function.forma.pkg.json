@@ -34,7 +34,37 @@
       "path": "repair_function_package.py"
     }
   ],
+  "tests": [
+    {
+      "runtime": "typescript",
+      "path": "repair_function_contract.test.ts"
+    },
+    {
+      "runtime": "typescript",
+      "path": "repair_function_trace.test.ts"
+    },
+    {
+      "runtime": "python",
+      "path": "repair_function_contract_test.py"
+    },
+    {
+      "runtime": "python",
+      "path": "repair_function_trace_test.py"
+    }
+  ],
   "releaseFiles": [
+    {
+      "path": "fixtures/billing.ts"
+    },
+    {
+      "path": "fixtures/billing.test.ts"
+    },
+    {
+      "path": "fixtures/billing.py"
+    },
+    {
+      "path": "fixtures/test_billing.py"
+    },
     {
       "path": "README.md"
     },

@@ -27,7 +27,7 @@ jobs:
       - name: Build package bundle
         run: |
           mkdir -p dist
-          tar -czf dist/repair_function.forma-package.tgz repair_function.forma.pkg.json repair_function.forma.lock.json repair_function.forma repair_function.eval.json forma.eval.json forma.provider.json repair_function.forma.ts repair_function_forma.py repair_function_package.ts repair_function_package.py README.md .github/workflows/forma-package.yml .github/workflows/forma-publish.yml
+          tar -czf dist/repair_function.forma-package.tgz repair_function.forma.pkg.json repair_function.forma.lock.json repair_function.forma repair_function.eval.json forma.eval.json forma.provider.json repair_function.forma.ts repair_function_forma.py repair_function_package.ts repair_function_package.py repair_function_contract.test.ts repair_function_trace.test.ts repair_function_contract_test.py repair_function_trace_test.py fixtures/billing.ts fixtures/billing.test.ts fixtures/billing.py fixtures/test_billing.py README.md .github/workflows/forma-package.yml .github/workflows/forma-publish.yml
       - uses: actions/upload-artifact@v4
         with:
           name: forma-package

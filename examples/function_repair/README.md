@@ -8,12 +8,22 @@ The task models a coding-agent workflow that reads a source file, locates one
 named function, applies a targeted behavior change, and runs the focused test
 command declared by the host.
 
+The golden workflow fixture is deliberately small: `fixtures/billing.ts` and
+`fixtures/billing.py` start with a discount bug, while
+`repair_function_contract.test.ts`, `repair_function_contract_test.py`,
+`repair_function_trace.test.ts`, and `repair_function_trace_test.py` prove that
+the package accepts host tool overrides, validates generated typed output, and
+records read, search, edit, and test activity before trusting the repair.
+
 ## CI
 
 Run these checks before publishing or consuming a changed package:
 
 ```bash
 forma package-review repair_function.forma.pkg.json
+npx vitest run repair_function_contract.test.ts repair_function_trace.test.ts
+python repair_function_contract_test.py
+python repair_function_trace_test.py
 forma package-check repair_function.forma.pkg.json
 forma package-lock repair_function.forma.pkg.json --output repair_function.forma.lock.json --check
 forma eval-suite forma.eval.json --summary > candidate.json

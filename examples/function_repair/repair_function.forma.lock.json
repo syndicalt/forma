@@ -4,7 +4,7 @@
     "name": "examples/function-repair",
     "version": "0.1.0",
     "manifest": "repair_function.forma.pkg.json",
-    "manifestSha256": "f21f50215fea225c83d0ad3dd43d3e1eb9ef72e885e19f6b8fa6cf7be9ed91d1"
+    "manifestSha256": "9c14a1a4480ba2dbcc5329fa8f2564f7c5abd117f44e0adc126fd6ef9ad64887"
   },
   "tasks": [
     {
@@ -45,26 +45,64 @@
     {
       "runtime": "typescript",
       "path": "repair_function_package.ts",
-      "sha256": "46b61437c72e87052e774c0801a558f3e2db8482115c4f2a736ace1a3737411d"
+      "sha256": "510355b35f9dcf64131dc7290208d6745b0d00213f918309ddf1d24ed3ab92e7"
     },
     {
       "runtime": "python",
       "path": "repair_function_package.py",
-      "sha256": "907d6ee04706a63ca5a41912469b36446ba726ac6f4115cd0321456304714620"
+      "sha256": "4db8e9c5e1dda879718442a6475cda86a51f5b1a4019220956ab0fbc17cab8ca"
+    }
+  ],
+  "tests": [
+    {
+      "runtime": "typescript",
+      "path": "repair_function_contract.test.ts",
+      "sha256": "21e16b130e8c6582c364ee99934dccd7234abbc3f07815bfce69427d0542d969"
+    },
+    {
+      "runtime": "typescript",
+      "path": "repair_function_trace.test.ts",
+      "sha256": "b7cc646919df1de582ba601cc57f28401bbeed859f5b97d1040e9557c4dba0d1"
+    },
+    {
+      "runtime": "python",
+      "path": "repair_function_contract_test.py",
+      "sha256": "a9789f5afe37f0c80c57c31356cf697dbd3e4f96dff69428efa1d0eececc277a"
+    },
+    {
+      "runtime": "python",
+      "path": "repair_function_trace_test.py",
+      "sha256": "eeb7420c9704e5e3d1e6a1d4b7ae28f5b8cee30f22495945fa41126959722e71"
     }
   ],
   "releaseFiles": [
     {
+      "path": "fixtures/billing.ts",
+      "sha256": "ae4cac55a95632ff4116ed332dff4547f75800475c9f7dae34bfe69a05ff119e"
+    },
+    {
+      "path": "fixtures/billing.test.ts",
+      "sha256": "46a0c8d5e84d98bd10aafc5819a55c78f62feea46f21302757f0d53761e39fba"
+    },
+    {
+      "path": "fixtures/billing.py",
+      "sha256": "6dd371624a6dfb312a1f295c20b90999730c5ccf0bb8810c2f91102e136c60ca"
+    },
+    {
+      "path": "fixtures/test_billing.py",
+      "sha256": "1b3a5780bbe4f0d5c18038a8a3466fa51d9faaa9b48eca325bf9e817b5b28d02"
+    },
+    {
       "path": "README.md",
-      "sha256": "361694f40173f71cb9c4d6640e5e187a31754cf5fde87f67e8a1dbef539df559"
+      "sha256": "a2707ba97e3a77fd662bcc2dd2c1bec56144f31739f577cfebf434ae4817c57a"
     },
     {
       "path": ".github/workflows/forma-package.yml",
-      "sha256": "c4eddf1f09eb212968d12936ba27b2385eeffa8c3af2fbeb24ee932b7eb5c564"
+      "sha256": "8d023824be1873e149fdddf7e28f84bbe1a5a205077eae958e00edc72e3960cf"
     },
     {
       "path": ".github/workflows/forma-publish.yml",
-      "sha256": "f8d6239357f4a9d26c142790519a1f835cf7b57b92918360d040b853aa1a71a8"
+      "sha256": "81fdb3c756b743a208231846b3bd28a26025c4611827fae9e7a9c2d851df5191"
     }
   ]
 }
