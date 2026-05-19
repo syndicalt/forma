@@ -216,6 +216,10 @@ Cleaned-up route labels should preserve release-attempt audit lookup keys. Keep
 release attempts, proof artifacts, CI notes, and package-review evidence
 searchable by the original release-attempt route key, then attach the
 cleaned-up label after the release attempt is recorded.
+Cleaned-up route labels should preserve release-decision audit lookup keys.
+Keep release decisions, proof artifacts, package-review evidence, and CI notes
+searchable by the original release-decision route key, then attach the
+cleaned-up label after the release decision is recorded.
 Cleaned-up route labels should preserve artifact audit lookup keys. Keep
 release bundles, uploaded artifacts, smoke summaries, and saved proof logs
 searchable by the original artifact route key, then attach the cleaned-up label
