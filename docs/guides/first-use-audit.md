@@ -73,6 +73,10 @@ Cleaned-up route labels should preserve decision audit lookup keys. Keep the
 adopt/defer/do-not-use decision, before/after notes, and smoke proof searchable
 by the original first-use route key, then record the cleaned-up label as
 post-decision metadata.
+Cleaned-up route labels should preserve decision-result audit lookup keys.
+Keep decision results, before/after notes, local smoke proof, and adoption
+status searchable by the original decision-result route key, then attach the
+cleaned-up label after the first-use decision result is recorded.
 Cleaned-up route labels should preserve local-decision audit lookup keys. Keep
 local keep/defer/adopt decisions, before/after notes, and minimal smoke proof
 searchable by the original local-decision route key, then attach the cleaned-up
