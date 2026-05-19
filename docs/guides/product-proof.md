@@ -208,6 +208,10 @@ Cleaned-up route labels should preserve route-change audit lookup keys. Keep
 route-change requests, baseline comparisons, candidate diagnostics, and review
 decisions searchable by the original route-change key, then attach the
 cleaned-up label after the eval comparison is accepted.
+Cleaned-up route labels should preserve route-change-proof audit lookup keys.
+Keep route-change proof records, baseline comparisons, candidate diagnostics,
+and review decisions searchable by the original route-change-proof key, then
+attach the cleaned-up label after the route-change proof is accepted.
 Cleaned-up route labels should preserve eval artifact lookup keys. Keep
 baseline and candidate summaries addressable by the original route key, then
 attach the cleaned-up label as review metadata so historical eval artifacts

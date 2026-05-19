@@ -609,11 +609,17 @@ The current MVP provides:
 - Runtime-result docs now say cleaned-up route labels should preserve
   replacement-result audit lookup keys.
 - First-use audit now says cleaned-up route labels should preserve
+  local-attempt audit lookup keys.
+- First-use audit now says cleaned-up route labels should preserve
   proof-command audit lookup keys.
 - Package-consumer quickstart now says cleaned-up route labels should preserve
   lock-update audit lookup keys.
+- Package-consumer quickstart now says cleaned-up route labels should preserve
+  lock-result-proof audit lookup keys.
 - Product-proof docs now say cleaned-up route labels should preserve
   route-change audit lookup keys.
+- Product-proof docs now say cleaned-up route labels should preserve
+  route-change-proof audit lookup keys.
 - Provider-adapter docs now say cleaned-up route labels should preserve
   reviewed-default audit lookup keys.
 - Testing guide now says cleaned-up route labels should preserve release-proof
@@ -1308,20 +1314,27 @@ Exit criteria:
   Python repositories.
 - Breaking task contract changes are detected before runtime deployment.
 
-## Near-Term Build Order
+## Golden Workflow Build Order
 
-The next three implementation slices should be:
+The remaining audit-key micro-doc queue is closed. The next implementation
+slices should make one polished coding-agent workflow feel better than inline
+prompts plus hand-written schemas within ten minutes:
 
-1. Product clarity: add first-use wording that cleaned-up route labels should
-   preserve local-attempt audit lookup keys.
-2. Product clarity: add package-consumer wording that cleaned-up route labels
-   should preserve lock-result-proof audit lookup keys.
-3. Product clarity: add product-proof wording that cleaned-up route labels
-   should preserve route-change-proof audit lookup keys.
+1. Golden workflow: make the five-minute local path produce a real
+   code-review or function-repair task with generated TypeScript and Python
+   bindings, runnable smoke commands, and obvious before/after host-code
+   simplification.
+2. Golden workflow proof: make the same task produce a compact proof report
+   that shows typed output validation, permitted tool use, trace evidence, and
+   eval comparison in one reviewer-friendly artifact.
+3. Golden workflow packaging: promote the proven task into a reviewed package
+   only after the local path is compelling, with package-lock consumption used
+   as downstream adoption evidence instead of the first-use wedge.
 
-This order keeps the project honest. Schema generation proves Forma saves host
-code. Evaluations prove task changes are measurable. Tool permissions prove
-Forma can become a coding-agent contract rather than only a prompt file format.
+This order keeps the project honest. First-use proof shows Forma saves host
+code. Golden workflow proof shows task changes are measurable and auditable.
+Packaging comes last, after a concrete workflow is worth sharing across
+TypeScript and Python consumers.
 
 ## Decision Gates
 
