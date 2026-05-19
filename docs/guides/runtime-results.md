@@ -171,6 +171,10 @@ Cleaned-up route labels should preserve retry-proof audit lookup keys. Keep
 retry proof records, failed validation snapshots, replacement outputs, and
 rerun evidence searchable by the original retry-proof route key, then attach
 the cleaned-up label after the retry proof is recorded.
+Cleaned-up route labels should preserve replacement-attempt audit lookup keys.
+Keep replacement attempts, rerun traces, comparison notes, and original failure
+links searchable by the original replacement-attempt route key, then attach the
+cleaned-up label after the replacement attempt is recorded.
 Cleaned-up route labels should preserve replacement-result audit lookup keys.
 Keep replacement outputs, rerun traces, comparison notes, and original failure
 links searchable by the original replacement-result route key, then attach the
