@@ -127,6 +127,10 @@ Cleaned-up route labels should preserve dependency audit lookup keys. Keep
 dependency-review notes, package adoption records, stale-lock evidence, and
 consumer smoke output searchable by the original dependency route key, then
 attach the cleaned-up label as application-owned audit metadata.
+Cleaned-up route labels should preserve dependency-result audit lookup keys.
+Keep dependency-review results, package adoption records, stale-lock evidence,
+and consumer smoke output searchable by the original dependency-result route
+key, then attach the cleaned-up label after the dependency result is accepted.
 Cleaned-up route labels should preserve adoption audit lookup keys. Keep
 adoption decisions, consuming-application notes, package-lock smoke output, and
 dependency-review evidence searchable by the original adoption route key, then
