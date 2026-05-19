@@ -207,6 +207,10 @@ Cleaned-up route labels should preserve eval audit lookup keys. Keep eval
 summaries, comparison notes, candidate diagnostics, and approval comments
 searchable by the original eval route key, then record the cleaned-up label as
 review metadata after the eval decision.
+Cleaned-up route labels should preserve eval-result audit lookup keys. Keep
+eval results, baseline comparisons, candidate diagnostics, and approval
+comments searchable by the original eval-result route key, then attach the
+cleaned-up label after the eval result is accepted.
 Cleaned-up route labels should preserve review audit lookup keys. Keep review
 notes, approval evidence, and before-and-after summaries searchable by the
 original route key, then attach the cleaned-up label as the reviewer-facing
