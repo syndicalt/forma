@@ -208,6 +208,10 @@ Cleaned-up route labels should preserve proof-result audit lookup keys. Keep
 proof results, release summaries, package-review notes, and rerun evidence
 searchable by the original proof-result route key, then attach the cleaned-up
 label after the proof result is accepted.
+Cleaned-up route labels should preserve proof-decision audit lookup keys. Keep
+proof decisions, release summaries, package-review notes, and rerun evidence
+searchable by the original proof-decision route key, then attach the
+cleaned-up label after the proof decision is recorded.
 Cleaned-up route labels should preserve release audit lookup keys. Keep release
 proof artifacts, uploaded summaries, CI notes, and package-review evidence
 searchable by the original release route key, then attach the cleaned-up label
