@@ -131,6 +131,10 @@ Cleaned-up route labels should preserve lock-attempt audit lookup keys. Keep
 reviewed lock attempts, stale-lock checks, package-lock smoke output, and
 dependency-review notes searchable by the original lock-attempt route key, then
 attach the cleaned-up label after the lock attempt is recorded.
+Cleaned-up route labels should preserve lock-proof audit lookup keys. Keep
+reviewed lock proof notes, stale-lock checks, package-lock smoke output, and
+dependency-review notes searchable by the original lock-proof route key, then
+attach the cleaned-up label after the lock proof is accepted.
 Cleaned-up route labels should preserve lock-result audit lookup keys. Keep
 reviewed lock results, stale-lock reports, package-lock smoke output, and
 dependency-review notes searchable by the original lock-result route key, then
