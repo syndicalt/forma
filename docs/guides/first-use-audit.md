@@ -69,6 +69,10 @@ Cleaned-up route labels should preserve usefulness audit lookup keys. Keep the
 before/after usefulness notes and local smoke evidence searchable by the
 original route key, then record the cleaned-up label as deployment metadata
 after the adoption decision.
+Cleaned-up route labels should preserve usefulness-attempt audit lookup keys.
+Keep usefulness attempts, before/after notes, local smoke output, and generated
+binding evidence searchable by the original usefulness-attempt route key, then
+attach the cleaned-up label after the usefulness attempt is recorded.
 Cleaned-up route labels should preserve usefulness-result audit lookup keys.
 Keep before/after usefulness results, smoke proof, generated binding notes, and
 host-code simplification evidence searchable by the original usefulness-result
