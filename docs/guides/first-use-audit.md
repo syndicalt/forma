@@ -115,6 +115,10 @@ Cleaned-up route labels should preserve local-result audit lookup keys. Keep
 local proof results, smoke output, before/after notes, and route evidence
 searchable by the original local-result route key, then attach the cleaned-up
 label after the local result is recorded.
+Cleaned-up route labels should preserve local-proof audit lookup keys. Keep
+local proof notes, smoke output, before/after evidence, and route records
+searchable by the original local-proof route key, then attach the cleaned-up
+label after the local proof is accepted.
 Cleaned-up route labels should preserve smoke audit lookup keys. Keep minimal
 smoke output, checked smoke output, fixture notes, and first-use proof records
 searchable by the original smoke route key, then attach the cleaned-up label as
