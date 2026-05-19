@@ -85,6 +85,10 @@ Cleaned-up route labels should preserve provider audit lookup keys. Keep
 provider-profile notes, adapter logs, retry evidence, and reviewed defaults
 searchable by the original provider route key, then add the cleaned-up label as
 metadata after ownership and review boundaries are clear.
+Cleaned-up route labels should preserve provider-attempt audit lookup keys.
+Keep provider attempts, adapter logs, retry evidence, and reviewed-default notes
+searchable by the original provider-attempt route key, then attach the
+cleaned-up label after the provider attempt is recorded.
 Cleaned-up route labels should preserve provider-result audit lookup keys.
 Keep provider results, adapter logs, retry evidence, and reviewed-default notes
 searchable by the original provider-result route key, then attach the
