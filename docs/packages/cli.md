@@ -773,7 +773,8 @@ forma project-init ./review-diff-agent \
   --api-key-env OPENAI_API_KEY
 ```
 
-Use `--minimal` for the first five-minute usefulness path. It writes the task,
+Use `--minimal` for the first five-minute usefulness path. Treat it as the
+ten-minute local proof before package-review or package locks. It writes the task,
 provider profile, generated TypeScript and Python bindings, host entrypoints,
 runtime package manifests, local `StaticProvider` smoke files, and a README,
 but skips `forma.project.json` and `.github/workflows/forma-project.yml`:

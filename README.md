@@ -32,6 +32,9 @@ smallest useful question: does a `.forma` task remove enough duplicated prompt
 and schema code to beat an inline prompt plus local schemas?
 
 Treat the minimal scaffold as a product test, not an adoption commitment.
+It is the ten-minute local proof: a no-key way to decide whether Forma is
+clearer than inline prompt plus local schemas before package-review or package
+locks.
 Start with the minimal host scaffold:
 
 ```bash

@@ -2693,6 +2693,9 @@ Treat this scaffold as a product test, not an adoption commitment.
 
 Start with the smallest useful Forma boundary before package-review or package locks:
 
+This is the ten-minute local proof. It should show whether Forma is clearer
+than inline prompt plus local schemas before package-review or package locks.
+
 \`\`\`bash
 pnpm install
 python -m pip install -e .
@@ -2765,7 +2768,8 @@ reviewed as a reusable package and the host should consume pinned package
 artifacts.
 
 For the full first-use path, see
-\`docs/guides/quickstart.md#five-minute-usefulness-path\`. For the scaffold
+\`docs/guides/quickstart.md#five-minute-usefulness-path\`. For the staged
+golden workflow, see \`docs/guides/golden-workflow.md\`. For the scaffold
 decision table, see \`docs/packages/cli.md#project-init\`.
 `;
   }

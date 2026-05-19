@@ -1,6 +1,6 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
@@ -23,10 +23,19 @@ async function run(command, args, options = {}) {
   }
 }
 
+async function assertFileContains(path, terms) {
+  const text = await readFile(path, "utf8");
+  const missing = terms.filter((term) => !text.includes(term));
+  if (missing.length > 0) {
+    throw new Error(`${relative(repoRoot, path)} missing ${missing.join(", ")}`);
+  }
+}
+
 async function main() {
   const workDir = await mkdtemp(join(tmpdir(), "forma-installed-project-"));
   try {
     const projectDir = join(workDir, "review-diff-installed");
+    const minimalProjectDir = join(workDir, "review-diff-minimal-installed");
     const tarballDir = join(workDir, "tarballs");
     await mkdir(tarballDir, { recursive: true });
 
@@ -39,6 +48,46 @@ async function main() {
       tarballDir,
     ], { cwd: repoRoot });
     const tarball = join(tarballDir, packed.trim().split(/\r?\n/).at(-1));
+
+    await run("node", [
+      "cli/forma/dist/index.js",
+      "project-init",
+      minimalProjectDir,
+      "--name",
+      "review-diff-minimal-installed",
+      "--task",
+      "review_diff",
+      "--minimal",
+    ]);
+
+    await assertFileContains(join(minimalProjectDir, "README.md"), [
+      "ten-minute local proof",
+      "inline prompt plus local schemas",
+      "pnpm run smoke:local:ts",
+      "python test/review_diff_local_smoke.py",
+    ]);
+
+    const minimalPackageJsonPath = join(minimalProjectDir, "package.json");
+    const minimalPackageJson = JSON.parse(await readFile(minimalPackageJsonPath, "utf8"));
+    minimalPackageJson.dependencies["@forma-lang/forma"] = `file:${tarball}`;
+    await writeFile(minimalPackageJsonPath, `${JSON.stringify(minimalPackageJson, null, 2)}\n`, "utf8");
+
+    await run("corepack", ["pnpm", "install", "--config.dangerously-allow-all-builds=true"], { cwd: minimalProjectDir });
+    await run("corepack", ["pnpm", "run", "check"], { cwd: minimalProjectDir });
+    await run("corepack", ["pnpm", "run", "smoke:local:ts"], { cwd: minimalProjectDir });
+
+    const python = process.env.PYTHON ?? "python";
+    const minimalVenvDir = join(minimalProjectDir, ".venv");
+    const minimalVenvPython = join(minimalVenvDir, "bin", "python");
+    await run(python, ["-m", "venv", minimalVenvDir], { cwd: minimalProjectDir });
+    await run(minimalVenvPython, ["-m", "pip", "install", resolve(repoRoot, "packages/forma-python")], { cwd: minimalProjectDir });
+    await run(minimalVenvPython, ["test/review_diff_local_smoke.py"], {
+      cwd: minimalProjectDir,
+      env: {
+        ...process.env,
+        PYTHONPATH: join(minimalProjectDir, "src"),
+      },
+    });
 
     await run("node", [
       "cli/forma/dist/index.js",
@@ -59,7 +108,6 @@ async function main() {
     await run("corepack", ["pnpm", "run", "check"], { cwd: projectDir });
     await run("corepack", ["pnpm", "run", "smoke:ts"], { cwd: projectDir });
 
-    const python = process.env.PYTHON ?? "python";
     const venvDir = join(projectDir, ".venv");
     const venvPython = join(venvDir, "bin", "python");
     await run(python, ["-m", "venv", venvDir], { cwd: projectDir });

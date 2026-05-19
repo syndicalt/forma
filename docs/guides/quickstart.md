@@ -51,6 +51,8 @@ The useful first question is whether Forma improves an agent task that would
 otherwise be an inline prompt plus local schemas. Use the checked
 `review_diff` task before package locks so the contract boundary is visible
 without release machinery:
+The minimal scaffold is the ten-minute local proof when you want to verify that
+boundary from a generated host project before package-review or package locks.
 
 ```bash
 node cli/forma/dist/index.js outline examples/review_diff.forma
