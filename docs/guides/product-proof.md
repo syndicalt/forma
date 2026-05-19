@@ -199,6 +199,11 @@ Cleaned-up route labels should preserve comparison audit lookup keys. Keep
 comparison summaries, baseline-to-candidate notes, route-change evidence, and
 review decisions searchable by the original comparison route key, then record
 the cleaned-up label after the comparison is accepted.
+Cleaned-up route labels should preserve comparison-proof audit lookup keys.
+Keep comparison proof records, baseline-to-candidate notes, route-change
+evidence, and review decisions searchable by the original comparison-proof
+route key, then attach the cleaned-up label after the comparison proof is
+accepted.
 Cleaned-up route labels should preserve route-change audit lookup keys. Keep
 route-change requests, baseline comparisons, candidate diagnostics, and review
 decisions searchable by the original route-change key, then attach the
