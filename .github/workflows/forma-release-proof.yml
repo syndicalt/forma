@@ -11,14 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: corepack enable
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: corepack enable
       - run: corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
       - run: corepack pnpm proof:release
