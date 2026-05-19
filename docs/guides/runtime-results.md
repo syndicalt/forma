@@ -135,6 +135,10 @@ Cleaned-up route labels should preserve diagnostics audit lookup keys. Keep
 diagnostic messages, verification failures, failed results, and support notes
 searchable by the original diagnostics route key, then attach the cleaned-up
 label as audit metadata after the runtime record is saved.
+Cleaned-up route labels should preserve diagnostics-attempt audit lookup keys.
+Keep diagnostics attempts, verification failures, failed results, and support
+notes searchable by the original diagnostics-attempt route key, then attach the
+cleaned-up label after the diagnostics attempt is recorded.
 Cleaned-up route labels should preserve diagnostics-proof audit lookup keys.
 Keep diagnostics proof records, verification failures, failed results, and
 support notes searchable by the original diagnostics-proof route key, then
