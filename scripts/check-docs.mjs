@@ -213,6 +213,7 @@ const requiredTerms = {
     "Cleaned-up route labels should preserve dependency-proof audit lookup keys",
     "Cleaned-up route labels should preserve adoption audit lookup keys",
     "Cleaned-up route labels should preserve release-adoption audit lookup keys",
+    "Cleaned-up route labels should preserve release-proof audit lookup keys",
     "Cleaned-up route labels should preserve release-decision audit lookup keys",
     "Cleaned-up route labels should preserve release-result audit lookup keys",
     "Cleaned-up route labels should preserve lock-update audit lookup keys",
