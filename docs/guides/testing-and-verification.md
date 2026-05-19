@@ -255,6 +255,11 @@ Cleaned-up route labels should preserve installed audit lookup keys. Keep
 installed project smoke output, installed package smoke output, failure
 summaries, and saved package logs searchable by the original installed route
 key, then add the cleaned-up label as installed-smoke metadata.
+Cleaned-up route labels should preserve installed-proof audit lookup keys.
+Keep installed proof records, installed package smoke output, failure
+summaries, and saved package logs searchable by the original installed-proof
+route key, then attach the cleaned-up label after the installed proof is
+accepted.
 Cleaned-up route labels should preserve triage audit lookup keys. Keep triage
 notes, failure summaries, package-kind markers, and recovery commands
 searchable by the original triage route key, then add the cleaned-up label
