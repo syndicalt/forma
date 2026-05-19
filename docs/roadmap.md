@@ -682,6 +682,8 @@ The current MVP provides:
   artifact-decision audit lookup keys.
 - Runtime-result docs now say cleaned-up route labels should preserve
   validation-decision audit lookup keys.
+- Runtime-result docs now say cleaned-up route labels should preserve
+  validation-proof audit lookup keys.
 - First-use audit now says cleaned-up route labels should preserve
   adoption-decision audit lookup keys.
 - Package-consumer quickstart now says cleaned-up route labels should preserve
@@ -1274,12 +1276,12 @@ Exit criteria:
 
 The next three implementation slices should be:
 
-1. Product clarity: add runtime-results wording that cleaned-up route labels
-   should preserve validation-proof audit lookup keys.
-2. Product clarity: add first-use wording that cleaned-up route labels should
+1. Product clarity: add first-use wording that cleaned-up route labels should
    preserve smoke-proof audit lookup keys.
-3. Product clarity: add package-consumer wording that cleaned-up route labels
+2. Product clarity: add package-consumer wording that cleaned-up route labels
    should preserve dependency-proof audit lookup keys.
+3. Product clarity: add testing-guide wording that cleaned-up route labels
+   should preserve release-proof-decision audit lookup keys.
 
 This order keeps the project honest. Schema generation proves Forma saves host
 code. Evaluations prove task changes are measurable. Tool permissions prove

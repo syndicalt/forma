@@ -115,6 +115,10 @@ Cleaned-up route labels should preserve validation-decision audit lookup keys.
 Keep validation decisions, failed outputs, diagnostics, and retry notes
 searchable by the original validation-decision route key, then attach the
 cleaned-up label after the runtime validation decision is recorded.
+Cleaned-up route labels should preserve validation-proof audit lookup keys.
+Keep validation proof records, failed outputs, diagnostics, and host
+integration notes searchable by the original validation-proof route key, then
+attach the cleaned-up label after the validation proof is accepted.
 Cleaned-up route labels should preserve failed validation audit lookup keys.
 Keep failed validation results, diagnostics, verification failures, and retry
 records searchable by the original failed-validation route key, then attach the
