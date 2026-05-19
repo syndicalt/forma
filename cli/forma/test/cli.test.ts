@@ -77,6 +77,29 @@ async function pathExists(path: string): Promise<boolean> {
 }
 
 describe("forma cli", () => {
+  it("summarizes review_diff and function_repair proof gates", async () => {
+    const result = await runCli(["golden-proof", "examples"]);
+    expect(result.exitCode).toBe(0);
+    const proof = JSON.parse(result.stdout);
+    expect(proof).toMatchObject({
+      passed: true,
+      workflows: [
+        {
+          name: "review_diff first-use path",
+          task: "review_diff",
+          nextGate: "stop local or add checked project CI",
+        },
+        {
+          name: "function_repair coding-agent showcase",
+          task: "repair_function",
+          nextGate: "package review after local usefulness",
+        },
+      ],
+    });
+    expect(proof.workflows[0].commands).toContain("pnpm run smoke:local:ts");
+    expect(proof.workflows[1].traceSummary).toEqual(["read", "search", "edit", "test"]);
+  });
+
   it("checks a valid source file", async () => {
     const result = await runCli(["check", "../../examples/greet_user.forma"]);
     expect(result.exitCode).toBe(0);

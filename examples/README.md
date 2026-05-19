@@ -33,6 +33,7 @@ Run these checks before publishing or consuming a changed package:
 
 ```bash
 forma package-review review_diff.forma.pkg.json
+forma golden-proof examples
 corepack pnpm proof:release
 forma package-check review_diff.forma.pkg.json
 forma package-lock review_diff.forma.pkg.json --output review_diff.forma.lock.json --check
@@ -50,13 +51,15 @@ Each proof command answers a different adoption question:
 
 | Command | Adoption question |
 | --- | --- |
+| `forma golden-proof examples` | Does the local golden workflow have a reviewer summary for the `review_diff first-use path`, `function_repair coding-agent showcase`, `nextGate`, and `traceSummary` evidence? |
 | `corepack pnpm proof:migration` | Does the reviewed Forma contract preserve the old inline prompt behavior? |
 | `corepack pnpm projects:check` | Can a checked application scaffold depend on the generated bindings, provider profile, entrypoints, smoke tests, and CI workflow? |
 | `corepack pnpm proof:release` | Is the reviewed package ready for reusable consumers, including migration parity, checked project drift, and installed package-lock smoke coverage? |
 
-`proof:release` runs package review with a blocking proof command that combines
-the migration parity proof and `projects:check`, so the reviewed package gate
-also fails when the checked clean-project fixture at
+`forma golden-proof examples` is the local reviewer summary. `proof:release`
+runs package review with a blocking proof command that combines the migration
+parity proof and `projects:check`, so the reviewed package gate also fails when
+the checked clean-project fixture at
 `examples/review-diff-agent` drifts.
 For the package-local release bundle, keep the portable proof row available as
 `forma package-review review_diff.forma.pkg.json --proof-command "npx vitest run review_diff_migration.test.ts && python review_diff_migration_test.py"`.

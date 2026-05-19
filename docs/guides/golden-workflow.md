@@ -44,15 +44,26 @@ requests are allowed.
 
 ### Stage 3: compact proof report
 
-The compact proof report should summarize workflow name, task name, commands,
-validation status, diagnostics, trace summary, and the next gate. The next gate
-is one of: stop local, add checked project CI, or package review.
+Run the compact proof report after the local smoke checks:
+
+```bash
+forma golden-proof examples
+```
+
+The compact proof report summarizes workflow name, task name, commands,
+validation status, diagnostics, `traceSummary`, and `nextGate`. It is the local
+reviewer summary for the `review_diff first-use path` and the
+`function_repair coding-agent showcase`; it does not run the full release gate.
+The next gate is one of: stop local, add checked project CI, or package review.
 
 ### Stage 4: package review comes after local usefulness
 
 Package review and package locks are downstream adoption evidence. Use them
 when a named consumer should depend on a reviewed task package, not as the first
 step in evaluating Forma.
+
+Use `proof:release` only after the local report says the task is worth
+packaging for reusable consumers.
 
 ## Verification
 

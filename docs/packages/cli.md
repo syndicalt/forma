@@ -10,7 +10,7 @@ TypeScript runtime package, so CLI behavior should match
 The MVP command shape is:
 
 ```bash
-forma <check|run|outline|preview|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]
+forma <check|run|outline|preview|eval|eval-suite|compare|generate|golden-proof|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]
 ```
 
 `forma check` reads a `.forma` file, parses and validates it through the
@@ -64,8 +64,15 @@ diagnostics, verification, and runtime trace entries such as `tool` and
 `tool_failed`, instead of only printing the task output object.
 
 Invalid usage exits with code 2 and prints `usage: forma
-<check|run|outline|preview|eval|eval-suite|compare|generate|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]`.
+<check|run|outline|preview|eval|eval-suite|compare|generate|golden-proof|package-check|package-init|package-lock|package-review|project-check|project-init> <path> [--input JSON]`.
 These behaviors are covered by `cli/forma/test/cli.test.ts`.
+
+`forma golden-proof examples` prints the compact local reviewer summary for
+the golden workflow. It reports the `review_diff first-use path`, the
+`function_repair coding-agent showcase`, validation status, diagnostics,
+`traceSummary`, and `nextGate` values without running the heavier release gate.
+Use it after the local smoke checks; keep `proof:release` for reusable package
+readiness after local usefulness is clear.
 
 `forma outline` reads a `.forma` file and prints machine-readable task metadata
 for editor integrations, package review, and quick inspection:

@@ -13,6 +13,7 @@
     "projects:check": "node cli/forma/dist/index.js project-check examples/review-diff-agent && node cli/forma/dist/index.js project-check examples/review-diff-agent --json && vitest run --config examples/vitest.config.ts examples/review-diff-agent/test/review_diff_package_lock.test.ts && PYTHONPATH=packages/forma-python/src python examples/review-diff-agent/test/review_diff_package_lock_smoke.py && corepack pnpm projects:installed-smoke",
     "projects:installed-smoke": "node scripts/installed-project-smoke.mjs",
     "packages:installed-smoke": "node scripts/installed-package-smoke.mjs",
+    "proof:golden": "node cli/forma/dist/index.js golden-proof examples",
     "proof:migration": "vitest run --config examples/vitest.config.ts examples/review_diff_migration.test.ts && PYTHONPATH=examples python examples/review_diff_migration_test.py",
     "proof:release": "node cli/forma/dist/index.js package-review examples/review_diff.forma.pkg.json --proof-command \"corepack pnpm proof:migration && corepack pnpm projects:check && corepack pnpm packages:installed-smoke\"",
     "docs:check": "corepack pnpm --filter @forma-lang/forma build && node scripts/check-docs.mjs"
