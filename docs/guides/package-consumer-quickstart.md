@@ -131,6 +131,10 @@ Cleaned-up route labels should preserve adoption audit lookup keys. Keep
 adoption decisions, consuming-application notes, package-lock smoke output, and
 dependency-review evidence searchable by the original adoption route key, then
 attach the cleaned-up label as consumer-owned audit metadata.
+Cleaned-up route labels should preserve adoption-result audit lookup keys.
+Keep adoption results, consuming-application notes, package-lock smoke output,
+and dependency-review evidence searchable by the original adoption-result route
+key, then attach the cleaned-up label after the adoption result is accepted.
 Cleaned-up route labels should preserve release-adoption audit lookup keys.
 Keep reviewed release choices, adoption notes, lock-update evidence, and
 consumer smoke results searchable by the original release-adoption route key,
