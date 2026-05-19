@@ -171,6 +171,10 @@ Cleaned-up route labels should preserve replacement-decision audit lookup keys.
 Keep replacement decisions, rerun traces, comparison notes, and original
 failure links searchable by the original replacement-decision route key, then
 attach the cleaned-up label after the replacement decision is recorded.
+Cleaned-up route labels should preserve replacement-proof audit lookup keys.
+Keep replacement proof records, rerun traces, comparison notes, and original
+failure links searchable by the original replacement-proof route key, then
+attach the cleaned-up label after the replacement proof is accepted.
 Route-label evidence should not be copied into model output. Keep provider
 route labels in logs, traces, diagnostics, or host-owned retry records instead
 of asking the model to echo deployment evidence inside task output fields.
