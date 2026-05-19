@@ -102,6 +102,10 @@ Cleaned-up route labels should preserve fallback audit lookup keys. Keep
 fallback decisions, failed-result diagnostics, rerun traces, and adapter notes
 searchable by the original fallback route key, then attach the cleaned-up label
 after the host-owned retry record is saved.
+Cleaned-up route labels should preserve fallback-result audit lookup keys.
+Keep fallback results, failed-result diagnostics, rerun traces, and adapter
+notes searchable by the original fallback-result route key, then attach the
+cleaned-up label after the fallback result is saved.
 Cleaned-up route labels should preserve deployment-owner audit lookup keys.
 Keep deployment-owner notes, adapter overrides, incident records, and routing
 decisions searchable by the original deployment-owner route key, then attach
